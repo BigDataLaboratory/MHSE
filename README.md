@@ -56,12 +56,12 @@ In this section there are all properties for the application used to translate a
 - **webGraph2EdgeList.inputFilePath** is a String that is the path to the input file representing a graph in an *WebGraph* format
 - **webGraph2EdgeList.outputFolderPath** is a String that is the path to the output folder where will be stored the graph encoded in an *edgelist* format
 
-##Verify results of MHSE/SE-MHSE tests
+## Results
+You can find the results of MHSE (JSON format) in the results folder. For each graph, we have run the algorithm twenty times with different seed lists (you can find the seed lists in the properties file in etc folder)
+
+### Verify results of MHSE/SE-MHSE tests
 If you want to test MHSE and verify our results, download the Java code from the repository and modify the properties file in etc folder according to the graph (and results) you are interested into. 
 For example, if you are interested in the replication of tests stored in */results/amazon-2008* modify */etc/mhse.properties* according to the corresponding json object in */results/amazon-2008* and then execute the *MinHashMain* application. 
 For test replication purposes, you have to know that there are 2 types of graph. The replication of tests differs according to the type of the input graph:
 - *WebGraph* graphs: *amazon-2008*, *cnr-2000*, *com-dblp*, *dblp-2010*, *email-EuAll*, *enron*, *uk-2007-05@100000*, *web-NotreDame*. For these graphs you can download data from [this link](http://law.di.unimi.it/datasets.php), modify *MinHash* section of the */etc/mhse.properties* file and execute *MinHashMain* application directly. 
 - *Custom* graphs in *edgelist* format: *blackFridayRetweets*, *samplingItalianoRetweets*, *worldSeriesRetweets*. For these custom graphs you can download data from [this repository](https://github.com/BigDataLaboratory/Twitter), modify *EdgeList2WebGraph* section of the */etc/mhse.properties* file and execute *EdgeList2WebGraph* application to make a conversion into *WebGraph* format. After that you have to modify *MinHash* section of the */etc/mhse.properties* file and execute *MinHashMain* application. For further informations about these graphs see the corresponding [*README*](https://github.com/BigDataLaboratory/Twitter/blob/master/Dataset/README.txt)
-
-## Results
-You can find the results of MHSE (JSON format) in the results folder. For each graph, we have run the algorithm twenty times with different seed lists (you can find the seed lists in the properties file in etc folder)
