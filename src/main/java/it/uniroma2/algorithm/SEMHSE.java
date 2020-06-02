@@ -1,7 +1,6 @@
 package it.uniroma2.algorithm;
 
 import it.unimi.dsi.fastutil.ints.*;
-import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
 import it.uniroma2.model.GraphMeasure;

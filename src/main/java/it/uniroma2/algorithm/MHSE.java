@@ -1,18 +1,13 @@
 package it.uniroma2.algorithm;
 
 import it.unimi.dsi.fastutil.ints.*;
-import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
 import it.uniroma2.model.GraphMeasure;
-import it.uniroma2.utils.AppConstants;
-import it.uniroma2.utils.PropertiesManager;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
 
 /**
  * Implementation of MHSE (MinHash Signature Estimation) algorithm
