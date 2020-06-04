@@ -1,9 +1,9 @@
-package it.uniroma2.algorithm;
+package it.misebigdatalab.algorithm;
 
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
-import it.uniroma2.model.GraphMeasure;
+import it.misebigdatalab.model.GraphMeasure;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,9 +33,8 @@ public class SEMHSE extends MinHash {
 
     /**
      * Execution of the SE-MHSE algorithm
-     * @return Metrics of the algorithm
+     * @return Computed metrics of the algorithm
      */
-
     public GraphMeasure runAlgorithm() {
 
         NodeIterator nodeIter;
@@ -102,14 +101,14 @@ public class SEMHSE extends MinHash {
 
             logger.info("Total number of collisions for seed n.{} : {}", i, collisions);
             totalCollisionsPerHashFunction[i] = collisions;
-            //collisions computation completed for this hash function
-            //update of the lower bound diameter
+            // collisions computation completed for this hash function
+            // updating the lower bound diameter
             if ((hop - 1) > lowerBoundDiameter) {
                 previousLowerBoundDiameter = lowerBoundDiameter;
                 lowerBoundDiameter = (hop - 1);
-                //I have to normalize collisions of all the previous hash functions,
-                //for all the missing hops between previousLowerBoundDiameter and lowerBoundDiameter
-                //because I reached a new lowerBoundDiameter
+                // Normalize collisions of all the previous hash functions,
+                // for all the missing hops between previousLowerBoundDiameter and lowerBoundDiameter
+                // because new lowerBoundDiameter reaced
                 for (int j = 0; j < i; j++) { //previous hash functions
                     for (int k = lowerBoundDiameter; k > previousLowerBoundDiameter; k--) { //all hops between previousLowerBoundDiameter and lowerBoundDiameter
                         long previousValue = mTotalCollisions.get(k);
@@ -117,8 +116,8 @@ public class SEMHSE extends MinHash {
                     }
                 }
             } else if ((hop - 1) < lowerBoundDiameter) {
-                //I have to add collisions of this hash function to all the remaining hops
-                //between hop (excluded) and lowerBoundDiameter (included)
+                // add collisions of this hash function to all the remaining hops
+                // between hop (excluded) and lowerBoundDiameter (included)
                 for (int k = lowerBoundDiameter; k > (hop - 1); k--) {
                     long previousValue = mTotalCollisions.get(k);
                     mTotalCollisions.put(k, previousValue + collisions);
@@ -162,11 +161,9 @@ public class SEMHSE extends MinHash {
      * @param node
      * @return true if the new signature is different from the previous one
      */
-
     public boolean updateNodeHashValue(int node) {
         boolean hashValueIsChanged = false;
         long newHashValue = hashes.get(node);         //new signature to be updated
-//        long oldHashValue = oldHashes.get(node);     //old hash value to NOT be modified
 
         LazyIntIterator neighIter = mGraph.successors(node);
         int d = mGraph.outdegree(node);
@@ -188,7 +185,7 @@ public class SEMHSE extends MinHash {
     /***
      * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
      * @param totalCollisions
-     * @return
+     * @return hop table
      */
     public Int2DoubleSortedMap hopTable(Int2LongSortedMap totalCollisions) {
         Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();

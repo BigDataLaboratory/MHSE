@@ -1,4 +1,4 @@
-package it.uniroma2.algorithm;
+package it.misebigdatalab.algorithm;
 
 /**
  * Set algorithm classes as predefined constants.

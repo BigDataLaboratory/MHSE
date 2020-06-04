@@ -1,10 +1,10 @@
-package it.uniroma2.applications;
+package it.misebigdatalab.applications;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import it.uniroma2.algorithm.*;
-import it.uniroma2.model.GraphMeasure;
-import it.uniroma2.utils.PropertiesManager;
+import it.misebigdatalab.algorithm.*;
+import it.misebigdatalab.model.GraphMeasure;
+import it.misebigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +21,12 @@ public class MinHashMain {
     private boolean runTests;
     private int numTests;
 
-    private static final Logger logger = LoggerFactory.getLogger("it.uniroma2");
+    private static final Logger logger = LoggerFactory.getLogger("it.misebigdatalab");
 
+    /**
+     * Run Minhash algorithm, exit from the process if direction of message transmission or seeds list are not
+     * correctly set, or if input file is not correctly read from local file system.
+     */
     public MinHashMain(){
         try {
             initialize();
@@ -41,6 +45,18 @@ public class MinHashMain {
     }
 
 
+    /**
+     * Run Minhash algorithm (specified in the algorithmName parameter) using properties read from properties file such as:
+     * - inputFilePath  the path to the input file representing a graph in a WebGraph format. If the input graph has an edgelist format
+     * - outputFolderPath the path to the output folder path that will contain results of the execution of the algorithm
+     * - algorithmName represent the name of the MinHash algorithm to be executed (see AlghorithmEnum for available algorithms)
+     * - runTests if it is True, the Test mode will be activated, multiple tests will be run for the same algorithm.
+     * - numTests number of tests to be executed
+     * If algorithmName is empty or not available in AlgorithmEnum, exit from the process
+     * @throws MinHash.DirectionNotSetException
+     * @throws MinHash.SeedsException
+     * @throws IOException
+     */
     private void initialize() throws MinHash.DirectionNotSetException, MinHash.SeedsException, IOException {
         inputFilePath = PropertiesManager.getProperty("minhash.inputFilePath");
         outputFolderPath = PropertiesManager.getProperty("minhash.outputFolderPath");

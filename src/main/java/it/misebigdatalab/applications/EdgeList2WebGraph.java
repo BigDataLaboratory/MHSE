@@ -1,11 +1,10 @@
-package it.uniroma2.applications;
+package it.misebigdatalab.applications;
 
-import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.longs.*;
 import it.unimi.dsi.webgraph.ArcListASCIIGraph;
 import it.unimi.dsi.webgraph.BVGraph;
 import it.unimi.dsi.webgraph.ImmutableGraph;
-import it.uniroma2.utils.PropertiesManager;
+import it.misebigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +17,7 @@ public class EdgeList2WebGraph {
     private boolean fromJanusGraph;
     private Long2ObjectLinkedOpenHashMap<LongArrayList> normalizedEdgeList;
 
-    private static final Logger logger = LoggerFactory.getLogger("it.uniroma2.applications.EdgeList2WebGraph");
+    private static final Logger logger = LoggerFactory.getLogger("it.misebigdatalab.applications.EdgeList2WebGraph");
 
     public EdgeList2WebGraph() {
         //Transform an edgelist file to webgraph formatted file, saving it to disk
@@ -45,7 +44,7 @@ public class EdgeList2WebGraph {
     }
 
     private void createNormalizedEdgelist() throws IOException {
-        //we construct a normalized edgelist with a mapping between previous ID and normalized ID
+        // construct a normalized edgelist with a mapping between previous ID and normalized ID
         normalizedEdgeList = new Long2ObjectLinkedOpenHashMap<LongArrayList>();
         BufferedReader br = null;
         logger.info("Starting edgelist normalization process");
@@ -67,8 +66,6 @@ public class EdgeList2WebGraph {
                 }
                 String[] sSplit = sCurrentLine.split("\t");
 
-//                int sourceID = Integer.parseInt(sSplit[0]);
-//                int targetID = Integer.parseInt(sSplit[1]);
                 long sourceID = Long.parseLong(sSplit[0]);
                 long targetID = Long.parseLong(sSplit[1]);
 

@@ -1,8 +1,8 @@
-package it.uniroma2.model;
+package it.misebigdatalab.model;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
-import it.uniroma2.utils.PropertiesManager;
+import it.misebigdatalab.utils.PropertiesManager;
 
 public class GraphMeasure {
     private int mLowerBoundDiameter;
@@ -10,7 +10,7 @@ public class GraphMeasure {
     private double mEffectiveDiameter;
     private double mTotalCouples;
     private double mTotalCouplePercentage;
-    private long mTime;             //time elapsed in milliseconds
+    private long mTime; //time elapsed in milliseconds
     private Int2DoubleSortedMap mHopTable;
     private String mAlgorithmName;
     private float mThreshold;
@@ -39,18 +39,29 @@ public class GraphMeasure {
 
     }
 
+    // empty constructor
     public GraphMeasure() {
 
     }
 
+    /**
+     * @return total number of reachable pairs (last hop)
+     */
     private double totalCouplesReachable() {
         return mHopTable.get(mLowerBoundDiameter);
     }
 
+    /**
+     * @return percentage of number of reachable pairs (last hop)
+     */
     private double totalCouplesPercentage() {
-        return mHopTable.get(mLowerBoundDiameter)*mThreshold;
+        return mHopTable.get(mLowerBoundDiameter) * mThreshold;
     }
 
+    /**
+     * @return effective diameter of the graph (computed using hop table), defined as the 90th percentile distance between nodes,
+     * that is the maximum distance that allows to connect the of all reachable pairs
+     */
     private double effectiveDiameter() {
         if(mHopTable.size() == 0) {
             return 0;
@@ -67,6 +78,10 @@ public class GraphMeasure {
         return ((d-1) + interpolate(mHopTable.get(d-1), mHopTable.get(d), mThreshold * numCollisions));
     }
 
+    /**
+     * Compute the average distance using the hop table
+     * @return average distance for the graph
+     */
     private double averageDistance() {
         if(mHopTable.size() == 0) {
             return 0;
@@ -93,76 +108,136 @@ public class GraphMeasure {
     }
 
 
-    /* GETTERS */
+    /*******************************************************************************
+     *                                  GETTER METHODS
+     * ****************************************************************************/
+
+    /**
+     * @return graph's number of nodes
+     */
     public int getNumNodes() {
         return numNodes;
     }
 
+    /**
+     * @return graph's number of edges
+     */
     public long getNumArcs() {
         return numArcs;
     }
 
+    /**
+     * @return average distance
+     */
     public double getAvgDistance() {
         return mAvgDistance;
     }
 
+    /**
+     * @return lower bound diamater of a graph
+     */
     public int getLowerBoundDiameter() {
         return mLowerBoundDiameter;
     }
 
+    /**
+     * @return effective diameter of a graph, defined as 90% of the real diamaeter
+     */
     public double getEffectiveDiameter() {
         return mEffectiveDiameter;
     }
 
+    /**
+     * @return total couples of reachable nodes
+     */
     public double getTotalCouples() {
         return mTotalCouples;
     }
 
+    /**
+     * @return percentage of couples of reachable nodes
+     */
     public double getTotalCouplePercentage() {
         return mTotalCouplePercentage;
     }
 
+    /**
+     * @return
+     */
     public float getThreshold() {
         return mThreshold;
     }
 
+    /**
+     * @return execution time
+     */
     public long getTime() {
         return mTime;
     }
 
+    /**
+     * @return algorithm's name
+     */
     public String getAlgorithmName() {
         return mAlgorithmName;
     }
 
+    /**
+     * @return list of seeds
+     */
     public String getSeedsList() {
         return mSeedsList;
     }
 
+    /**
+     * @return numbers of seeds to use
+     */
     public int getNumSeeds() {
         return numSeeds;
     }
 
+    /**
+     * @return type of direction to send messages to node's neighbours: out or in
+     */
     public String getDirection() {
         return mDirection;
     }
 
+    /**
+     * @return hop table
+     */
     public Int2DoubleSortedMap getHopTable() {
         return mHopTable;
     }
 
-    /* SETTERS */
+    /*******************************************************************************
+     *                                  SETTER METHODS
+     * ****************************************************************************/
+
+    /**
+     * @param numNodes graph's number of nodes
+     */
     public void setNumNodes(int numNodes) {
         this.numNodes = numNodes;
     }
 
+    /**
+     * @param numArcs graph's number of edges
+     */
     public void setNumArcs(long numArcs) {
         this.numArcs = numArcs;
     }
 
+    /**
+     * @param time execution time
+     */
     public void setTime(long time) {
         this.mTime = time;
     }
 
+    /**
+     * @param algorithmName algorithm's name
+     */
     public void setAlgorithmName(String algorithmName) {
         this.mAlgorithmName = algorithmName;
     }

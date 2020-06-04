@@ -14,47 +14,45 @@ discuss how SE-MHSE can be easily distributed.
 
 ## How to run the algorithm
 To run the MHSE algorithm (or the equivalent SE-MHSE version) clone this repository and run the application class MinHashMain.
-This is the main class for the execution of the algorithm that will output some statistics (number of nodes, number of edges, effective diameter, average distance, lower bound diameter etc.) on a given input graph.
-Before to execute the code, you will have to set some properties on the */etc/mhse.properties* file (see next sections).
-The application will use as input file a graph in WebGraph format (see [this link](http://law.di.unimi.it/datasets.php) for more informations about this graph encoding and datasets).
-If you have a graph encoded in *edgelist* format, before to run MHSE you have to execute *EdgeList2WebGraph* application to have a WebGraph version of your edgelist-encoded graph.  
-If you need to translate a graph in *WebGraph* format to an *edgelist* format you can execute *WebGraph2EdgeList* application. 
-To have more informations about configuration of the application of your interest, see relative section in the *mhse.properties* file.  
+This is the main class for the execution of the algorithm. It will output some statistics (number of nodes, number of edges, effective diameter, average distance, lower bound diameter and so on) on a given input graph.
+Before executing the code, you will have to set some properties on the */etc/mhse.properties* file (see next sections).
+The application will use as input file a graph in WebGraph format (see [this link](http://law.di.unimi.it/datasets.php) for more info about this graph encoding and datasets).
+If you have a graph encoded in *edgelist* format, before running MHSE you have to execute *EdgeList2WebGraph* application to have a WebGraph version of your edgelist-encoded graph.  
+If you need to translate a graph from *WebGraph* format to an *edgelist* format you have to execute *WebGraph2EdgeList* application. 
+To have more info about application configuration, see relative section in the *mhse.properties* file.  
 
 ## The /etc/mhse.properties file
 mhse.properties contains properties for all the applications of the project and it is divided in sections, one for each application.
 Here the explanation of sections and properties.
 
 ### MinHash section
-In this section there are all properties for all MinHash-based applications.
-At the time of the writing, there are MHSE and SE-MHSE algorithms implemented.
-Below all the possible properties of this section:
-- **minhash.suggestedNumberOfThreads** is the property that manages the parallelization of the algorithm. This property has to be a number that indicates the number of parallel threads that have to be run.
-- **minhash.inputFilePath** is a String that is the path to the input file representing a graph in a *WebGraph* format. If your input graph has an *edgelist* format, see *EdgeList2WebGraph* application to make a conversion.
-- **minhash.outputFolderPath**  is a String that is the path to the output folder path that will contain results of the execution of the algorithm
+Actually, only MHSE and SE-MHSE algorithms are developed.
+List of the properties for all the MinHash-based applications.
+- **minhash.suggestedNumberOfThreads** handles the parallelization of the algorithm. This property has to be an integer that indicates the number of parallel threads that have to be run.
+- **minhash.inputFilePath** string path of the input filem representing a graph in a *WebGraph* format. If your input graph has an *edgelist* format, see *EdgeList2WebGraph* application to make a conversion.
+- **minhash.outputFolderPath**  string path of the output folder path, that will contain results of the execution of the algorithm
 - **minhash.isSeedsRandom** is a boolean value. If it is True, the list of seeds used in the hash functions will be random, else it will be loaded from *minhash.seeds* property 
-- **minhash.algorithmName** is a String representing the name of the MinHash algorithm to be executed. To see a list of acceptable name values, see class it.uniroma2.algorithm.AlgorithmEnum.  
-- **minhash.threshold** is a float value that is the threshold used for the *effective diameter*. Usually it is set to 0.9 (90% of total reachable couples of nodes)
-- **minhash.direction** direction of the minhash messages. Acceptable values are *in* or *out*. If *in* the minhash will propagate from the destination node to the source node. If *out*, from the source node to the destination.
-- **minhash.numSeeds** is the number of seeds used for minhash algorithm
-- **minhash.seeds** is the list of seeds (comma separated values) to be used for the hash functions of the minhash algorithm. Single test
+- **minhash.algorithmName** string name of the MinHash algorithm to be executed. A list of acceptable name values is available in it.uniroma2.algorithm.AlgorithmEnum.  
+- **minhash.threshold** float value that is the threshold used for the *effective diameter*. Usually it is set to 0.9 (90% of total reachable couples of nodes)
+- **minhash.direction** direction of the minhash messages. Acceptable values are *in* or *out*. If *in* the minhash will be propagated from the destination node to the source node. If *out*, from the source node to the destination.
+- **minhash.numSeeds** number of seeds used for minhash algorithm
+- **minhash.seeds** list of seeds (comma separated values) to be used for the hash functions of the minhash algorithm. Single test
 
-In this section, there are properties that gives to the user the possibility to run multiple tests of the same algorithm.
-These properties are: 
-- **minhash.runTests** is a boolean value. If it is *True*, the Test mode will be activated and will be run multiple tests pf the same algorithm. 
-- **minhash.numTests** is an integer value representing the number of tests to be done.
-- **minhash.seeds1** to **minhash.seedsX** are a series of lists of seeds to be used in multiple executions of the algorithm. Of course, the number *X* has to be the same of the number specified in *minhash.numTests* property.    
+In this section, we list properties to run multiple tests of the same algorithm:
+- **minhash.runTests** is a boolean value. If it is *True*, Test mode will be activated and will be run multiple tests of the same algorithm. 
+- **minhash.numTests** integer value representing the number of tests to be done.
+- **minhash.seeds1** to **minhash.seedsX** are a series of lists of seeds to be used in multiple executions of the algorithm. The *X* number has to be the same of the number specified in *minhash.numTests* property.    
 
 ### EdgeList2WebGraph section
-In this section there are all properties for the application used to translate a graph encoded in *edgelist* format into a *WebGraph* encoded file.
-- **edgeList2WebGraph.inputEdgelistFilePath** is a String that is the path to the input file representing a graph in an *edgelist* format
-- **edgeList2WebGraph.outputFolderPath** is a String that is the path to the output folder where will be stored the graph encoded in *WebGraph* format
-- **edgeList2WebGraph.fromJanusGraph** is a boolean value. If True there will be a normalization on nodes IDs (JanusGraph encode node IDs as multiple of 4. This property will divide IDs to have sequential IDs in the output)
+In this section, we list properties used to translate a graph encoded in *edgelist* format into a *WebGraph* encoded file.
+- **edgeList2WebGraph.inputEdgelistFilePath** string path of the input file representing a graph in an *edgelist* format
+- **edgeList2WebGraph.outputFolderPath** string path of the output folder where the application will persist the graph encoded in *WebGraph* format
+- **edgeList2WebGraph.fromJanusGraph** is a boolean value. If True, normalize nodes IDs (JanusGraph encode node IDs as multiple of 4. This property divide IDs to have sequential IDs in the output)
 
 ### WebGraph2EdgeList section
-In this section there are all properties for the application used to translate a graph encoded in *WebGraph* format into an *edgelist* encoded file.
-- **webGraph2EdgeList.inputFilePath** is a String that is the path to the input file representing a graph in an *WebGraph* format
-- **webGraph2EdgeList.outputFolderPath** is a String that is the path to the output folder where will be stored the graph encoded in an *edgelist* format
+In this section, we list properties used to translate a graph encoded in *WebGraph* format into an *edgelist* encoded file.
+- **webGraph2EdgeList.inputFilePath** string path of the input file, representing a graph in an *WebGraph* format
+- **webGraph2EdgeList.outputFolderPath** string path of the output folder where the application will persist the graph encoded in an *edgelist* format
 
 ## Results
 You can find the results of MHSE (JSON format) in the results folder. For each graph, we have run the algorithm twenty times with different seed lists (you can find the seed lists in the properties file in etc folder)

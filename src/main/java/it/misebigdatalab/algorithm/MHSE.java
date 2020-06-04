@@ -1,24 +1,19 @@
-package it.uniroma2.algorithm;
+package it.misebigdatalab.algorithm;
 
 import it.unimi.dsi.fastutil.ints.*;
-import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
-import it.uniroma2.model.GraphMeasure;
-import it.uniroma2.utils.PropertiesManager;
+import it.misebigdatalab.model.GraphMeasure;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Implementation of MHSE (MinHash Signature Estimation) algorithm
  */
 public class MHSE extends MinHash {
 
-    //TODO Meglio utilizzare Int2ObjectSortedMap<long[]>???
+    //TODO check if Int2ObjectSortedMap<long[]> is better
     private Int2ObjectOpenHashMap<long[]> signatures;
     private Int2ObjectOpenHashMap<long[]> oldSignatures;
     private long[] graphSignature;
@@ -39,7 +34,6 @@ public class MHSE extends MinHash {
      * Execution of the MHSE algorithm
      * @return Metrics of the algorithm
      */
-
     public GraphMeasure runAlgorithm() {
 
         boolean signatureIsChanged = true;
@@ -58,7 +52,7 @@ public class MHSE extends MinHash {
                 }
                 logger.info("Graph signature is: " + graphSignatureStr);
 
-                //jaccard computation
+                // jaccard computation
                 nodeIter = mGraph.nodeIterator();
                 while(nodeIter.hasNext()) {
                     int node = nodeIter.nextInt();
@@ -77,7 +71,7 @@ public class MHSE extends MinHash {
                     System.arraycopy( signature, 0, oldSignature, 0, signature.length );
                     oldSignatures.put(node, oldSignature);
                 }
-                //update of the signatures
+                // updating the signatures
                 nodeIter = mGraph.nodeIterator();
                 int count = 0;
                 while(nodeIter.hasNext()) {
@@ -86,8 +80,8 @@ public class MHSE extends MinHash {
                         count++;
                         signatureIsChanged = true;
                     }
-                    //TODO Ottimizzabile inserendo il calcolo della jaccard in updateNodeSignature?
-                    //TODO La jaccard posso renderla globale senza reinizializzarla per ogni hop, aggiornandola solo quando signatureIsChanged?
+                    //TODO can we optimized code inserting jaccard computation in updateNodeSignature?
+                    //TODO we can set jaccard as member variable without redirect it for every hop, updating it only when signatureIsChanged is true
                     overallJaccard += jaccard(signatures.get(node), graphSignature);
                 }
                 logger.info("Node Signatures modified: " + count);
@@ -110,15 +104,15 @@ public class MHSE extends MinHash {
 
 
     private void initializeGraph(){
-        //Initialization of the signatures
+        // Signatures initialization
         NodeIterator nodeIter = mGraph.nodeIterator();
         while(nodeIter.hasNext()) {
             int node = nodeIter.nextInt();
             long[] signature = new long[numSeeds];
-            //creates a new signature for each node and calculates signature for the graph
+            // create a new signature for each node and compute signature for the graph
             for(int i=0; i<numSeeds;i++){
                 signature[i] = hashFunction(node, mSeeds.getInt(i));
-                //check if this part of the signature is the minimum for the graph
+                // check if this part of the signature is the minimum for the graph
                 if(signature[i] < graphSignature[i]){
                     graphSignature[i] = signature[i];
                 }
@@ -128,11 +122,10 @@ public class MHSE extends MinHash {
     }
 
     /**
-     * Calculates the new signature for a node, based on the signature of the node's neighbours
+     * Compute the new signature for a node, based on the signature of the node's neighbours
      * @param node
      * @return true if the new signature is different from the previous one
      */
-
     public boolean updateNodeSignature(int node) {
         boolean signatureIsChanged = false;
         long[] newSignature = signatures.get(node);         //new signature to be updated
@@ -159,9 +152,9 @@ public class MHSE extends MinHash {
 
 
     /**
-     * Calcola la jaccard tra due signature
-     * @param sig1
-     * @param sig2
+     * Compute jaccard measure between two signatures
+     * @param sig1 signature
+     * @param sig2 signature
      * @return
      */
     private double jaccard(long[] sig1, long[] sig2){

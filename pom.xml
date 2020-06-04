@@ -58,7 +58,7 @@
                     <!-- ... -->
                     <archive>
                         <manifest>
-                            <mainClass>it.uniroma2.applications.MinHashMain</mainClass>
+                            <mainClass>it.misebigdatalab.applications.MinHashMain</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -76,7 +76,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>it.uniroma2.applications.MinHashMain</mainClass>
+                            <mainClass>it.misebigdatalab.applications.MinHashMain</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

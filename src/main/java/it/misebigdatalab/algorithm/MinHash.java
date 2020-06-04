@@ -1,12 +1,12 @@
-package it.uniroma2.algorithm;
+package it.misebigdatalab.algorithm;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.Transform;
-import it.uniroma2.model.GraphMeasure;
-import it.uniroma2.utils.PropertiesManager;
+import it.misebigdatalab.model.GraphMeasure;
+import it.misebigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +16,7 @@ import java.util.Random;
 
 public abstract class MinHash {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.uniroma2.algorithm");
+    public static final Logger logger = LoggerFactory.getLogger("it.misebigdatalab.algorithm");
 
     protected IntArrayList mSeeds;
     protected ImmutableGraph mGraph;

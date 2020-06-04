@@ -1,11 +1,22 @@
-package it.uniroma2.algorithm;
+package it.misebigdatalab.algorithm;
 
 import java.io.IOException;
 
 public class MinHashFactory {
 
+    /**
+     * Empty constructor
+     */
     public MinHashFactory(){}
 
+    /**
+     * Choose one of the algorithm to be executed by the type passed as parameter
+     * @param type algorithm type
+     * @return algorithm to be executed
+     * @throws MinHash.DirectionNotSetException
+     * @throws MinHash.SeedsException
+     * @throws IOException
+     */
     public MinHash getAlgorithm (AlgorithmEnum type) throws MinHash.DirectionNotSetException, MinHash.SeedsException, IOException {
         MinHash minHashAlgorithm = null;
         switch (type){
@@ -14,18 +25,6 @@ public class MinHashFactory {
                 break;
             case SEMHSE:
                 minHashAlgorithm = new SEMHSE();
-                break;
-            case BooleanClassicalMinHash:
-                minHashAlgorithm = new BooleanClassicalMinHash();
-                break;
-            case BooleanMinHash:
-                minHashAlgorithm = new BooleanMinHash();
-                break;
-            case OriginalBooleanMinHash:
-                minHashAlgorithm = new OriginalBooleanMinHash();
-                break;
-            case SlowBooleanMinHash:
-                minHashAlgorithm = new SlowBooleanMinHash();
                 break;
         }
         return minHashAlgorithm;
