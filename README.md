@@ -26,13 +26,13 @@ mhse.properties contains properties for all the applications of the project and 
 Here the explanation of sections and properties.
 
 ### MinHash section
-Actually, only MHSE and SE-MHSE algorithms are developed.
+Right now, only MHSE and SE-MHSE algorithms are developed.
 List of the properties for all the MinHash-based applications.
 - **minhash.suggestedNumberOfThreads** handles the parallelization of the algorithm. This property has to be an integer that indicates the number of parallel threads that have to be run.
 - **minhash.inputFilePath** string path of the input filem representing a graph in a *WebGraph* format. If your input graph has an *edgelist* format, see *EdgeList2WebGraph* application to make a conversion.
 - **minhash.outputFolderPath**  string path of the output folder path, that will contain results of the execution of the algorithm
 - **minhash.isSeedsRandom** is a boolean value. If it is True, the list of seeds used in the hash functions will be random, else it will be loaded from *minhash.seeds* property 
-- **minhash.algorithmName** string name of the MinHash algorithm to be executed. A list of acceptable name values is available in the following class: it.misebigdatalab.algorithm.AlgorithmEnum. Actually acceptable values are MHSE and SEMHSE.
+- **minhash.algorithmName** string name of the MinHash algorithm to be executed. A list of acceptable name values is available in the following class: it.misebigdatalab.algorithm.AlgorithmEnum. Right now acceptable values are MHSE and SEMHSE.
 - **minhash.threshold** float value that is the threshold used for the *effective diameter*. Usually it is set to 0.9 (90% of total reachable couples of nodes)
 - **minhash.direction** direction of the minhash messages. Acceptable values are *in* or *out*. If *in* the minhash will be propagated from the destination node to the source node. If *out*, from the source node to the destination.
 - **minhash.numSeeds** number of seeds used for minhash algorithm
