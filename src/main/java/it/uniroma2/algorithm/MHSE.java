@@ -5,7 +5,6 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
 import it.uniroma2.model.GraphMeasure;
-import it.uniroma2.utils.AppConstants;
 import it.uniroma2.utils.PropertiesManager;
 
 import java.io.IOException;
