@@ -29,14 +29,14 @@ Here the explanation of sections and properties.
 Right now, only MHSE and SE-MHSE algorithms are developed.
 List of the properties for all the MinHash-based applications.
 - **minhash.suggestedNumberOfThreads** handles the parallelization of the algorithm. This property has to be an integer that indicates the number of parallel threads that have to be run.
-- **minhash.inputFilePath** string path of the input filem representing a graph in a *WebGraph* format. If your input graph has an *edgelist* format, see *EdgeList2WebGraph* application to make a conversion.
+- **minhash.inputFilePath** string path of the input file representing a graph in a *WebGraph* format. If your input graph has an *edgelist* format, see *EdgeList2WebGraph* application to make a conversion.
 - **minhash.outputFolderPath**  string path of the output folder path, that will contain results of the execution of the algorithm
 - **minhash.isSeedsRandom** is a boolean value. If it is True, the list of seeds used in the hash functions will be random, else it will be loaded from *minhash.seeds* property 
 - **minhash.algorithmName** string name of the MinHash algorithm to be executed. A list of acceptable name values is available in the following class: it.misebigdatalab.algorithm.AlgorithmEnum. Right now acceptable values are MHSE and SEMHSE.
 - **minhash.threshold** float value that is the threshold used for the *effective diameter*. Usually it is set to 0.9 (90% of total reachable couples of nodes)
-- **minhash.direction** direction of the minhash messages. Acceptable values are *in* or *out*. If *in* the minhash will be propagated from the destination node to the source node. If *out*, from the source node to the destination.
-- **minhash.numSeeds** number of seeds used for minhash algorithm
-- **minhash.seeds** list of seeds (comma separated values) to be used for the hash functions of the minhash algorithm. Single test
+- **minhash.direction** direction of the MinHash messages. Acceptable values are *in* or *out*. If you set *in*, the MinHash is propagated from the destination node to the source node. If you set *out*, from the source to the destination node. This choice doesn't affect computation of all metrics (effective diameter, average distance and so on) but it could make a difference in convergence time.
+- **minhash.numSeeds** number of seeds used for MinHash algorithm
+- **minhash.seeds** list of seeds (comma separated values) to be used for the hash functions of the MinHash algorithm. Single test
 
 In this section, we list properties to run multiple tests of the same algorithm:
 - **minhash.runTests** is a boolean value. If it is *True*, Test mode will be activated and will be run multiple tests of the same algorithm. 
@@ -62,4 +62,4 @@ If you want to test MHSE and verify our results, download the Java code from the
 For example, if you are interested in the replication of tests stored in */results/amazon-2008* modify */etc/mhse.properties* according to the corresponding json object in */results/amazon-2008* and then execute the *MinHashMain* application. 
 For test replication purposes, you have to know that there are 2 types of graph. The replication of tests differs according to the type of the input graph:
 - *WebGraph* graphs: *amazon-2008*, *cnr-2000*, *com-dblp*, *dblp-2010*, *email-EuAll*, *enron*, *uk-2007-05@100000*, *web-NotreDame*. For these graphs you can download data from [this link](http://law.di.unimi.it/datasets.php), modify *MinHash* section of the */etc/mhse.properties* file and execute *MinHashMain* application directly. 
-- *Custom* graphs in *edgelist* format: *blackFridayRetweets*, *samplingItalianoRetweets*, *worldSeriesRetweets*. For these custom graphs you can download data from [this repository](https://github.com/BigDataLaboratory/Twitter), modify *EdgeList2WebGraph* section of the */etc/mhse.properties* file and execute *EdgeList2WebGraph* application to make a conversion into *WebGraph* format. After that you have to modify *MinHash* section of the */etc/mhse.properties* file and execute *MinHashMain* application. For further informations about these graphs see the corresponding [*README*](https://github.com/BigDataLaboratory/Twitter/blob/master/Dataset/README.txt)
+- *Custom* graphs in *edgelist* format: *blackFridayRetweets*, *samplingItalianoRetweets*, *worldSeriesRetweets*. For these custom graphs you can download data from [this repository](https://github.com/BigDataLaboratory/Twitter), modify *EdgeList2WebGraph* section of the */etc/mhse.properties* file and execute *EdgeList2WebGraph* application to make a conversion into *WebGraph* format. After that you have to modify *MinHash* section of the */etc/mhse.properties* file and execute *MinHashMain* application. For further information about these graphs see the corresponding [*README*](https://github.com/BigDataLaboratory/Twitter/blob/master/Dataset/README.txt)
