@@ -40,7 +40,7 @@ List of the properties for all the MinHash-based applications.
 
 In this section, we list properties to run multiple tests of the same algorithm:
 - **minhash.runTests** is a boolean value. If it is *True*, Test mode will be activated and will be run multiple tests of the same algorithm. 
-- **minhash.numTests** integer value representing the number of tests to be done.
+- **minhash.numTests** integer value representing the number of tests to be done. We need to run algorithm multiple times to get significance test e.g. mean and variance of all tests. All output results will be written in JSON format (see Results section).
 - **minhash.seeds1** to **minhash.seedsX** are a series of lists of seeds to be used in multiple executions of the algorithm. The *X* number has to be the same of the number specified in *minhash.numTests* property.    
 
 ### EdgeList2WebGraph section
