@@ -27,6 +27,7 @@ We are going to assume that you have correctly cloned the [MHSE repository](http
 - download [enron.graph and enron.properties](http://law.di.unimi.it/webdata/enron/) into a folder of your choice (we are going to refer to the path to this folder as **enronFolder**);
 - copy the content of */etc/enronMhse.properties* and overwrite it into */etc/mhse.properties*;
 - the *enronFolder* will contain the 2 enron files with the same name but different extension. We are going to refer to the path to one of this files **without extension** as **enronWebGraph**
+- from *mhseRoot* folder execute command `java -cp ./jar/semhse-1.0-SNAPSHOT-jar-with-dependencies.jar it.unimi.dsi.webgraph.BVGraph -o -O -L enronWebGraph`, where you have to change enronWebGraph with your *enronWebGraph* path;
 - modify the *minhash.inputFilePath* and *minhash.outputFolderPath* properties of the */etc/mhse.properties* file according to **enronWebGraph** and to a folder that will contain final results and statistics of the algorithm. We are going to refer to this output folder path as **enronResultsFolder**;
 - from *mhseRoot* folder execute *MinHashMain* application to execute MHSE algorithm with the command `java -jar ./jar/semhse-1.0-SNAPSHOT-jar-with-dependencies.jar`.
 - you can find results of the execution of the algorithm into *enronResultsFolder*.
