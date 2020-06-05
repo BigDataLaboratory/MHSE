@@ -27,9 +27,9 @@ We are going to assume that you have correctly cloned the [MHSE repository](http
 - download [enron.graph and enron.properties](http://law.di.unimi.it/webdata/enron/) into a folder of your choice (we are going to refer to the path to this folder as **enronFolder**);
 - copy the content of */etc/enronMhse.properties* and overwrite it into */etc/mhse.properties*;
 - the *enronFolder* will contain the 2 enron files with the same name but different extension. We are going to refer to the path to one of this files **without extension** as **enronWebGraph**
-- from *mhseRoot* folder execute command `java -cp ./jar/semhse-1.0-SNAPSHOT-jar-with-dependencies.jar it.unimi.dsi.webgraph.BVGraph -o -O -L enronWebGraph`, where you have to change enronWebGraph with your *enronWebGraph* path;
+- from *mhseRoot* folder execute command `java -cp ./jar/mhse-1.0.jar it.unimi.dsi.webgraph.BVGraph -o -O -L enronWebGraph`, where you have to change enronWebGraph with your *enronWebGraph* path;
 - modify the *minhash.inputFilePath* and *minhash.outputFolderPath* properties of the */etc/mhse.properties* file according to **enronWebGraph** and to a folder that will contain final results and statistics of the algorithm. We are going to refer to this output folder path as **enronResultsFolder**;
-- from *mhseRoot* folder execute *MinHashMain* application to execute MHSE algorithm with the command `java -jar ./jar/semhse-1.0-SNAPSHOT-jar-with-dependencies.jar`.
+- from *mhseRoot* folder execute *MinHashMain* application to execute MHSE algorithm with the command `java -jar ./jar/mhse-1.0.jar`.
 - you can find results of the execution of the algorithm into *enronResultsFolder*.
 The default minhash algorithm to be executed is *MHSE*. If you want to run the *Space Efficient* version of the algorithm, just modify *minhash.algorithmName* property of the */etc/mhse.properties* to the value **SEMHSE** before last step.
 Results of your execution should be the same of the first JSON block of the */results/enron* file.
@@ -41,9 +41,9 @@ We are going to assume that you have correctly cloned the [MHSE repository](http
 - extract *worldSeriesRetweets graph* (we are going to refer to the path to this file as **worldSeriesRetweetsGraph**) from the zip file previously downloaded with the command `unzip worldSeriesRetweets.zip` (if you don't have *unzip* command installed, please install it with `sudo apt-get install unzip`);
 - copy the content of */etc/worldSeriesRetweetsMhse.properties* and overwrite it into */etc/mhse.properties*;
 - modify the *edgeList2WebGraph.inputEdgelistFilePath* and *edgeList2WebGraph.outputFolderPath* properties of the */etc/mhse.properties* file according to **worldSeriesRetweetsGraph** and **worldSeriesRetweetsFolder**;  
-- from *mhseRoot* folder execute *EdgeList2WebGraph* application to make a conversion into *WebGraph* format with the command `java -cp ./jar/semhse-1.0-SNAPSHOT-jar-with-dependencies.jar it.misebigdatalab.applications.EdgeList2WebGraph`. The output of this command will be the creation of the *worldSeriesRetweetsFolder* containing 3 files with the same name but different extension. We are going to refer to the path to one of this files **without extension** as **worldSeriesRetweetsWebGraph**;
+- from *mhseRoot* folder execute *EdgeList2WebGraph* application to make a conversion into *WebGraph* format with the command `java -cp ./jar/mhse-1.0.jar it.bigdatalab.applications.EdgeList2WebGraph`. The output of this command will be the creation of the *worldSeriesRetweetsFolder* containing 3 files with the same name but different extension. We are going to refer to the path to one of this files **without extension** as **worldSeriesRetweetsWebGraph**;
 - modify the *minhash.inputFilePath* and *minhash.outputFolderPath* properties of the */etc/mhse.properties* file according to **worldSeriesRetweetsWebGraph** and to a folder that will contain final results and statistics of the algorithm. We are going to refer to this output folder path as **worldSeriesResultsFolder**;
-- from *mhseRoot* folder execute *MinHashMain* application to execute MHSE algorithm with the command `java -jar ./jar/semhse-1.0-SNAPSHOT-jar-with-dependencies.jar`.
+- from *mhseRoot* folder execute *MinHashMain* application to execute MHSE algorithm with the command `java -jar ./jar/mhse-1.0.jar`.
 - you can find results of the execution of the algorithm into *worldSeriesResultsFolder*.
 The default minhash algorithm to be executed is *MHSE*. If you want to run the *Space Efficient* version of the algorithm, just modify *minhash.algorithmName* property of the */etc/mhse.properties* to the value **SEMHSE** before last step.
 Results of your execution should be the same of the first JSON block of the */results/worldSeriesRetweets* file.
@@ -59,7 +59,7 @@ List of the properties for all the MinHash-based applications.
 - **minhash.inputFilePath** string path of the input file representing a graph in a *WebGraph* format. If your input graph has an *edgelist* format, see *EdgeList2WebGraph* application to make a conversion.
 - **minhash.outputFolderPath**  string path of the output folder path, that will contain results of the execution of the algorithm
 - **minhash.isSeedsRandom** is a boolean value. If it is True, the list of seeds used in the hash functions will be random, else it will be loaded from *minhash.seeds* property 
-- **minhash.algorithmName** string name of the MinHash algorithm to be executed. A list of acceptable name values is available in the following class: it.misebigdatalab.algorithm.AlgorithmEnum. Right now acceptable values are MHSE and SEMHSE.
+- **minhash.algorithmName** string name of the MinHash algorithm to be executed. A list of acceptable name values is available in the following class: it.bigdatalab.algorithm.AlgorithmEnum. Right now acceptable values are MHSE and SEMHSE.
 - **minhash.threshold** float value that is the threshold used for the *effective diameter*. Usually it is set to 0.9 (90% of total reachable couples of nodes)
 - **minhash.direction** direction of the MinHash messages. Acceptable values are *in* or *out*. If you set *in*, the MinHash is propagated from the destination node to the source node. If you set *out*, from the source to the destination node. This choice doesn't affect computation of all metrics (effective diameter, average distance and so on) but it could make a difference in convergence time.
 - **minhash.numSeeds** number of seeds used for MinHash algorithm
