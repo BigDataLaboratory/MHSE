@@ -52,7 +52,6 @@ public class StandaloneBMinHash extends MinHash {
             long[] immutable = new long[lengthBitsArray(mGraph.numNodes())];
 
             // Choose a random node is equivalent to compute the minhash
-            // TODO Verificare la correttezza del range 0 n+1
             //int randomNode = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
             int randomNode = 0;
 
