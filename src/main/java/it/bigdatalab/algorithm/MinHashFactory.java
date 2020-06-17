@@ -29,6 +29,9 @@ public class MinHashFactory {
             case StandaloneBMinHash:
                 minHashAlgorithm = new StandaloneBMinHash();
                 break;
+            case MultithreadBMinHash:
+                minHashAlgorithm = new StandaloneBMinHash();
+                break;
         }
         return minHashAlgorithm;
     }
