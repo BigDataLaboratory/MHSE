@@ -26,6 +26,9 @@ public class MinHashFactory {
             case SEMHSE:
                 minHashAlgorithm = new SEMHSE();
                 break;
+            case StandaloneBMinHash:
+                minHashAlgorithm = new StandaloneBMinHash();
+                break;
         }
         return minHashAlgorithm;
     }
