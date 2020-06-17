@@ -1,4 +1,4 @@
-package it.misebigdatalab.algorithm;
+package it.bigdatalab.algorithm;
 
 import java.io.IOException;
 

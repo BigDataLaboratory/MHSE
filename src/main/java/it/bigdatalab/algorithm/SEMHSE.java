@@ -1,9 +1,9 @@
-package it.misebigdatalab.algorithm;
+package it.bigdatalab.algorithm;
 
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
-import it.misebigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.GraphMeasure;
 
 import java.io.IOException;
 import java.util.Arrays;

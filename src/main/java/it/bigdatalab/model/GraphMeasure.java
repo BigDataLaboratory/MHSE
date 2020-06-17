@@ -1,8 +1,8 @@
-package it.misebigdatalab.model;
+package it.bigdatalab.model;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
-import it.misebigdatalab.utils.PropertiesManager;
+import it.bigdatalab.utils.PropertiesManager;
 
 public class GraphMeasure {
     private int mLowerBoundDiameter;

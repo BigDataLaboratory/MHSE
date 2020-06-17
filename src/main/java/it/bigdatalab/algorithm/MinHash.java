@@ -1,12 +1,12 @@
-package it.misebigdatalab.algorithm;
+package it.bigdatalab.algorithm;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.Transform;
-import it.misebigdatalab.model.GraphMeasure;
-import it.misebigdatalab.utils.PropertiesManager;
+import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

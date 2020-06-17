@@ -1,10 +1,10 @@
-package it.misebigdatalab.applications;
+package it.bigdatalab.applications;
 
 import it.unimi.dsi.fastutil.longs.*;
 import it.unimi.dsi.webgraph.ArcListASCIIGraph;
 import it.unimi.dsi.webgraph.BVGraph;
 import it.unimi.dsi.webgraph.ImmutableGraph;
-import it.misebigdatalab.utils.PropertiesManager;
+import it.bigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

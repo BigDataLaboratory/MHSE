@@ -58,7 +58,7 @@
                     <!-- ... -->
                     <archive>
                         <manifest>
-                            <mainClass>it.misebigdatalab.applications.MinHashMain</mainClass>
+                            <mainClass>it.bigdatalab.applications.MinHashMain</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -76,7 +76,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>it.misebigdatalab.applications.MinHashMain</mainClass>
+                            <mainClass>it.bigdatalab.applications.MinHashMain</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

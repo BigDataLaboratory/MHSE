@@ -1,4 +1,4 @@
-package it.misebigdatalab.algorithm;
+package it.bigdatalab.algorithm;
 
 /**
  * Set algorithm classes as predefined constants.

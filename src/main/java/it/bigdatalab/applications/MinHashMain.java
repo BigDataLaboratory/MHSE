@@ -1,10 +1,10 @@
-package it.misebigdatalab.applications;
+package it.bigdatalab.applications;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import it.misebigdatalab.algorithm.*;
-import it.misebigdatalab.model.GraphMeasure;
-import it.misebigdatalab.utils.PropertiesManager;
+import it.bigdatalab.algorithm.*;
+import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
