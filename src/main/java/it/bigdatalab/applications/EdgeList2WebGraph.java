@@ -17,7 +17,7 @@ public class EdgeList2WebGraph {
     private boolean fromJanusGraph;
     private Long2ObjectLinkedOpenHashMap<LongArrayList> normalizedEdgeList;
 
-    private static final Logger logger = LoggerFactory.getLogger("it.misebigdatalab.applications.EdgeList2WebGraph");
+    private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.EdgeList2WebGraph");
 
     public EdgeList2WebGraph() {
         //Transform an edgelist file to webgraph formatted file, saving it to disk

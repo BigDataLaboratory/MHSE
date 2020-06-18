@@ -2,6 +2,8 @@ package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -10,6 +12,8 @@ public class StandaloneBMinHash extends MinHash {
     private static final int MASK = 6; // 2^6
     private static final int REMAINDER = 58;
     private static final long BIT = 1;
+
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHash");
 
 
     /**

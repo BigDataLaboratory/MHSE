@@ -4,6 +4,8 @@ import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.ImmutableGraph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +17,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class MultithreadBMinHash extends MinHash {
 
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadBMinHash");
+
     private static final int MASK = 6; // 2^6
     private static final int REMAINDER = 58;
     private static final long BIT = 1;
@@ -22,6 +26,7 @@ public class MultithreadBMinHash extends MinHash {
     private Int2LongSortedMap mTotalCollisions;
     private int mNumberOfThreads;
     private final Object mLock = new Object();
+    private Int2ObjectOpenHashMap<Int2LongOpenHashMap> finalTotalCollision = new Int2ObjectOpenHashMap<Int2LongOpenHashMap>(numSeeds);
 
     /**
      * Creates a new BooleanMinHash instance with default values
@@ -51,6 +56,33 @@ public class MultithreadBMinHash extends MinHash {
             e.printStackTrace();
         }
         executor.shutdown();
+
+        //Recreating mTotalCollisions starting from tables of each seed
+        for(int i=0;i<finalTotalCollision.size();i++){
+            long lastElement = mTotalCollisions.get(mTotalCollisions.size()-1);
+            logger.debug("lastElement is: " + lastElement);
+            Int2LongOpenHashMap actualCollisionTable = finalTotalCollision.get(i);
+            if(actualCollisionTable.size() <= mTotalCollisions.size()) {
+                for(int k = 0; k < actualCollisionTable.size(); k++) {
+                    long sumCollisions = mTotalCollisions.get(k) + actualCollisionTable.get(k);
+                    mTotalCollisions.put(k, sumCollisions);
+                }
+                for(int k = actualCollisionTable.size(); k < mTotalCollisions.size(); k++) {
+                    long sumCollisions = mTotalCollisions.get(k) + actualCollisionTable.get(actualCollisionTable.size()-1);
+                    mTotalCollisions.put(k, sumCollisions);
+                }
+            } else {
+                for(int k = 0; k < mTotalCollisions.size(); k++) {
+                    long sumCollisions = mTotalCollisions.get(k) + actualCollisionTable.get(k);
+                    mTotalCollisions.put(k, sumCollisions);
+                }
+                for(int k = mTotalCollisions.size(); k < actualCollisionTable.size(); k++) {
+                    long sumCollisions = lastElement + actualCollisionTable.get(k);
+                    mTotalCollisions.put(k, sumCollisions);
+                }
+            }
+
+        }
 
         hopTable = hopTable();
         logger.debug("Hop table derived from collision table: {}", hopTable);
@@ -111,8 +143,8 @@ public class MultithreadBMinHash extends MinHash {
             long[] immutable = new long[lengthBitsArray(g.numNodes())];
 
             // Choose a random node is equivalent to compute the minhash
-            // TODO check if the range is 0-n or 0-n+1
             int randomNode = ThreadLocalRandom.current().nextInt(0, g.numNodes());
+
             // take a long number, if we divide it to a number power of 2, quotient is in the first 6 bit, remainder
             // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
             // This is equal to logical and operation.
@@ -185,37 +217,7 @@ public class MultithreadBMinHash extends MinHash {
                 logger.debug("(seed {}) Hop Collision {}", index, hopCollision);
 
             }
-
-            // compute the collision table
-            synchronized (MultithreadBMinHash.this.mLock) {
-                logger.debug("(seed {}) Locking computation on collision table", index);
-                logger.debug("(seed {}) Hop collision {}", index, hopCollision);
-                long lastElement = MultithreadBMinHash.this.mTotalCollisions.get(MultithreadBMinHash.this.mTotalCollisions.size()-1);
-
-                if(hopCollision.size() <= MultithreadBMinHash.this.mTotalCollisions.size()) {
-                    for(int k = 0; k < hopCollision.size(); k++) {
-                        long sumCollisions = MultithreadBMinHash.this.mTotalCollisions.get(k) + hopCollision.get(k);
-                        MultithreadBMinHash.this.mTotalCollisions.put(k, sumCollisions);
-                    }
-                    for(int k = hopCollision.size(); k < MultithreadBMinHash.this.mTotalCollisions.size(); k++) {
-                        long sumCollisions = MultithreadBMinHash.this.mTotalCollisions.get(k) + hopCollision.get(hopCollision.size()-1);
-                        MultithreadBMinHash.this.mTotalCollisions.put(k, sumCollisions);
-                    }
-                } else {
-                    for(int k = 0; k < MultithreadBMinHash.this.mTotalCollisions.size(); k++) {
-                        long sumCollisions = MultithreadBMinHash.this.mTotalCollisions.get(k) + hopCollision.get(k);
-                        MultithreadBMinHash.this.mTotalCollisions.put(k, sumCollisions);
-                    }
-                    for(int k = MultithreadBMinHash.this.mTotalCollisions.size(); k < hopCollision.size(); k++) {
-                        long sumCollisions = lastElement + hopCollision.get(k);
-                        MultithreadBMinHash.this.mTotalCollisions.put(k, sumCollisions);
-                    }
-                }
-                logger.debug("(seed {}) Collision table {}", index, mTotalCollisions);
-                logger.debug("(seed {}) Unlocking computation on collision table", index);
-                logger.debug("Ended computation on seed {}", index);
-            }
-
+            finalTotalCollision.put(index,hopCollision);
         }
 
 

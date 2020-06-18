@@ -4,6 +4,8 @@ import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
 import it.bigdatalab.model.GraphMeasure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -12,6 +14,8 @@ import java.util.*;
  * Implementation of MHSE (MinHash Signature Estimation) algorithm
  */
 public class MHSE extends MinHash {
+
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSE");
 
     //TODO check if Int2ObjectSortedMap<long[]> is better
     private Int2ObjectOpenHashMap<long[]> signatures;

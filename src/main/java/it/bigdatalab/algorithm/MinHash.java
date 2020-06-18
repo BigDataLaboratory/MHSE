@@ -16,7 +16,7 @@ import java.util.Random;
 
 public abstract class MinHash {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.misebigdatalab.algorithm");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHash");
 
     protected IntArrayList mSeeds;
     protected ImmutableGraph mGraph;
