@@ -28,6 +28,8 @@ public class GraphMeasure {
         this.mAlgorithmName = "";
         this.numNodes = -1;
         this.numArcs = -1;
+        this.numSeeds = -1;
+        this.mSeedsList = "";
         this.minHashNodeIDs = "";
         this.mThreshold = Float.parseFloat(PropertiesManager.getProperty("minhash.threshold"));
         this.mLowerBoundDiameter = hopTable.size()-1;
@@ -35,8 +37,6 @@ public class GraphMeasure {
         this.mEffectiveDiameter = effectiveDiameter();
         this.mTotalCouples = totalCouplesReachable();
         this.mTotalCouplePercentage = totalCouplesPercentage();
-        this.mSeedsList = PropertiesManager.getProperty("minhash.seeds");
-        this.numSeeds = mSeedsList.split(",").length;
         this.mDirection = PropertiesManager.getProperty("minhash.direction");
 
     }
@@ -238,6 +238,13 @@ public class GraphMeasure {
     }
 
     /**
+     * @param numSeeds Number of seeds
+     */
+    public void setNumSeeds(int numSeeds) {
+        this.numSeeds = numSeeds;
+    }
+
+    /**
      * @param time execution time
      */
     public void setTime(long time) {
@@ -249,6 +256,13 @@ public class GraphMeasure {
      */
     public void setAlgorithmName(String algorithmName) {
         this.mAlgorithmName = algorithmName;
+    }
+
+    /**
+     * @param seedsList Comma separated seeds
+     */
+    public void setSeedsList(String seedsList) {
+        this.mSeedsList = seedsList;
     }
 
     /**

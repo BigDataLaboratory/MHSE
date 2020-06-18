@@ -22,8 +22,8 @@ public abstract class MinHash {
     protected ImmutableGraph mGraph;
     protected int numSeeds;
     protected int[] minHashNodeIDs;
+    protected boolean isSeedsRandom;
     private String inputFilePath;
-    private boolean isSeedsRandom;
     private boolean runTests;
     private String direction;
 
@@ -34,6 +34,7 @@ public abstract class MinHash {
     }
 
     private void initialize() throws IOException, DirectionNotSetException, SeedsException {
+
         runTests = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.runTests"));
 
         isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isSeedsRandom"));
@@ -95,14 +96,18 @@ public abstract class MinHash {
 
     /***
      *  Generate a random integer and append it
-     *  on the seeds list
+     *  to the seeds list
      */
     private void createSeeds() {
         mSeeds = new IntArrayList();
         Random random = new Random();
 
         for(int i = 0; i < numSeeds; i++) {
-            mSeeds.add(random.nextInt());
+            int randomNum = random.nextInt();
+            while(mSeeds.contains(randomNum)){
+                randomNum = random.nextInt();
+            }
+            mSeeds.add(randomNum);
         }
     }
 

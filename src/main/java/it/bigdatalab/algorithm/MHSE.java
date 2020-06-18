@@ -104,8 +104,18 @@ public class MHSE extends MinHash {
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
 
-        String minHashNodeIDsString = "";
+        String seedsListString = "";
         String separator = ",";
+        IntListIterator seedsIterator = mSeeds.listIterator();
+        while(seedsIterator.hasNext()){
+            int seed = seedsIterator.nextInt();
+            seedsListString += (seed + separator);
+        }
+        graphMeasure.setSeedsList(seedsListString);
+        graphMeasure.setNumSeeds(seedsListString.split(",").length);
+
+        String minHashNodeIDsString = "";
+        separator = ",";
         for(int i=0;i<numSeeds;i++){
             minHashNodeIDsString += (minHashNodeIDs[i] + separator);
         }
