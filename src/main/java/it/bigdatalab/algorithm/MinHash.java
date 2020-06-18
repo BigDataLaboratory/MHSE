@@ -105,23 +105,6 @@ public abstract class MinHash {
         }
     }
 
-    /***
-     * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
-     * @param totalCollisions
-     * @return
-     */
-    public Int2DoubleSortedMap hopTable(Int2LongOpenHashMap totalCollisions) {
-        Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
-        totalCollisions.forEach((key, value) -> {
-            if(key != 0) {
-                Double r = ((double) (value * mGraph.numNodes()) / this.numSeeds);
-                hopTable.put(key, r);
-            }
-        });
-        hopTable.put(0, mGraph.numNodes());
-
-        return hopTable;
-    }
 
     public abstract GraphMeasure runAlgorithm();
 

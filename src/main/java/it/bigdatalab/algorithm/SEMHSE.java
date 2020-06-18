@@ -131,7 +131,7 @@ public class SEMHSE extends MinHash {
         }
 
         logger.info("Starting computation of the hop table from collision table");
-        hopTable = hopTable(mTotalCollisions);
+        hopTable = hopTable();
         logger.info("Computation of the hop table completed");
 
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
@@ -188,16 +188,14 @@ public class SEMHSE extends MinHash {
 
     /***
      * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
-     * @param totalCollisions
      * @return hop table
      */
-    public Int2DoubleSortedMap hopTable(Int2LongSortedMap totalCollisions) {
+    private Int2DoubleSortedMap hopTable() {
         Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
-        totalCollisions.forEach((key, value) -> {
+        mTotalCollisions.forEach((key, value) -> {
                 Double r = ((double) (value * mGraph.numNodes()) / this.numSeeds);
                 hopTable.put(key, r);
         });
-
         return hopTable;
     }
 

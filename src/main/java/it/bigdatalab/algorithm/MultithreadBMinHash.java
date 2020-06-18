@@ -26,7 +26,7 @@ public class MultithreadBMinHash extends MinHash {
     private Int2LongSortedMap mTotalCollisions;
     private int mNumberOfThreads;
     private final Object mLock = new Object();
-    private Int2ObjectOpenHashMap<Int2LongOpenHashMap> finalTotalCollision = new Int2ObjectOpenHashMap<Int2LongOpenHashMap>(numSeeds);
+    private Int2ObjectLinkedOpenHashMap<Int2LongLinkedOpenHashMap> finalTotalCollision = new Int2ObjectLinkedOpenHashMap<Int2LongLinkedOpenHashMap>(numSeeds);
 
     /**
      * Creates a new BooleanMinHash instance with default values
@@ -61,7 +61,7 @@ public class MultithreadBMinHash extends MinHash {
         for(int i=0;i<finalTotalCollision.size();i++){
             long lastElement = mTotalCollisions.get(mTotalCollisions.size()-1);
             logger.debug("lastElement is: " + lastElement);
-            Int2LongOpenHashMap actualCollisionTable = finalTotalCollision.get(i);
+            Int2LongLinkedOpenHashMap actualCollisionTable = finalTotalCollision.get(i);
             if(actualCollisionTable.size() <= mTotalCollisions.size()) {
                 for(int k = 0; k < actualCollisionTable.size(); k++) {
                     long sumCollisions = mTotalCollisions.get(k) + actualCollisionTable.get(k);
@@ -93,21 +93,6 @@ public class MultithreadBMinHash extends MinHash {
         return graphMeasure;
     }
 
-    /**
-     * @return hopTable computed for reachable pairs within h hops [(CountAllCum[h]*n) / s]
-     */
-    private Int2DoubleSortedMap hopTable() {
-        Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
-        mTotalCollisions.forEach((key, value) -> {
-            if(key != 0 && value != mTotalCollisions.getOrDefault(key-1,0))  {
-                Double r = ((double) (value * mGraph.numNodes()) / this.numSeeds);
-                hopTable.put(key, r);
-            }
-        });
-        hopTable.put(0, mGraph.numNodes());
-        return hopTable;
-    }
-
 
     /**
      * Number of max threads to use for the computation
@@ -134,7 +119,7 @@ public class MultithreadBMinHash extends MinHash {
         public void run() {
             logger.info("Starting computation on seed {}", index);
 
-            Int2LongOpenHashMap hopCollision;
+            Int2LongLinkedOpenHashMap hopCollision;
             int counter;
 
             // Set false as signature of all graph nodes
@@ -143,7 +128,8 @@ public class MultithreadBMinHash extends MinHash {
             long[] immutable = new long[lengthBitsArray(g.numNodes())];
 
             // Choose a random node is equivalent to compute the minhash
-            int randomNode = ThreadLocalRandom.current().nextInt(0, g.numNodes());
+//            int randomNode = ThreadLocalRandom.current().nextInt(0, g.numNodes());
+            int randomNode = 0;
 
             // take a long number, if we divide it to a number power of 2, quotient is in the first 6 bit, remainder
             // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
@@ -158,7 +144,7 @@ public class MultithreadBMinHash extends MinHash {
             // we use a dict because we want to iterate over the nodes until
             // the number of collisions in the actual hop
             // is different than the previous hop
-            hopCollision = new Int2LongOpenHashMap();
+            hopCollision = new Int2LongLinkedOpenHashMap();
             hopCollision.put(h, 1);
 
             while(hopCollision.get(h) != hopCollision.getOrDefault(h-1,0)) {
@@ -225,6 +211,20 @@ public class MultithreadBMinHash extends MinHash {
             return (int) Math.ceil(numberOfNodes/ (double) Long.SIZE);
         }
 
+    }
+
+    /***
+     * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
+     * @return hop table
+     */
+
+    private Int2DoubleSortedMap hopTable() {
+        Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
+        mTotalCollisions.forEach((key, value) -> {
+            Double r = ((double) (value * mGraph.numNodes()) / this.numSeeds);
+            hopTable.put(key, r);
+        });
+        return hopTable;
     }
 
 }
