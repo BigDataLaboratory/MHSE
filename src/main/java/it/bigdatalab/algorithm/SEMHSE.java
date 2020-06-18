@@ -137,6 +137,13 @@ public class SEMHSE extends MinHash {
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
+
+        String minHashNodeIDsString = "";
+        String separator = ",";
+        for(int i=0;i<numSeeds;i++){
+            minHashNodeIDsString += (minHashNodeIDs[i] + separator);
+        }
+        graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
         return graphMeasure;
     }
 
@@ -155,9 +162,10 @@ public class SEMHSE extends MinHash {
             hashes.put(node,hashValue);
             if(hashValue < graphSignature[seedIndex]){
                 graphSignature[seedIndex] = hashValue;
+                minHashNodeIDs[seedIndex] = node;
             }
         }
-        logger.info("MinHash for seed {} is {}", seedIndex, graphSignature[seedIndex]);
+        logger.info("MinHash for seed {} is {}, belonging to node ID {}", seedIndex, graphSignature[seedIndex], minHashNodeIDs[seedIndex]);
     }
 
     /**

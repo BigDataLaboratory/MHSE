@@ -14,6 +14,7 @@ public class GraphMeasure {
     private Int2DoubleSortedMap mHopTable;
     private String mAlgorithmName;
     private float mThreshold;
+    private String minHashNodeIDs;
     private String mSeedsList;
     private int numSeeds;
     private int numNodes;
@@ -27,6 +28,7 @@ public class GraphMeasure {
         this.mAlgorithmName = "";
         this.numNodes = -1;
         this.numArcs = -1;
+        this.minHashNodeIDs = "";
         this.mThreshold = Float.parseFloat(PropertiesManager.getProperty("minhash.threshold"));
         this.mLowerBoundDiameter = hopTable.size()-1;
         this.mAvgDistance = averageDistance();
@@ -183,6 +185,13 @@ public class GraphMeasure {
     }
 
     /**
+     * @return Comma separated IDs of minHash nodes
+     */
+    public String getMinHashNodeIDs() {
+        return minHashNodeIDs;
+    }
+
+    /**
      * @return list of seeds
      */
     public String getSeedsList() {
@@ -240,6 +249,13 @@ public class GraphMeasure {
      */
     public void setAlgorithmName(String algorithmName) {
         this.mAlgorithmName = algorithmName;
+    }
+
+    /**
+     * @param minHashNodeIDs Comma separated IDs of minHash nodes
+     */
+    public void setMinHashNodeIDs(String minHashNodeIDs) {
+        this.minHashNodeIDs = minHashNodeIDs;
     }
 
 }

@@ -21,6 +21,7 @@ public abstract class MinHash {
     protected IntArrayList mSeeds;
     protected ImmutableGraph mGraph;
     protected int numSeeds;
+    protected int[] minHashNodeIDs;
     private String inputFilePath;
     private boolean isSeedsRandom;
     private boolean runTests;
@@ -56,9 +57,11 @@ public abstract class MinHash {
             mGraph = Transform.transpose(mGraph);
             logger.info("Transposing graph ended");
         } else {
-            //TODO Create DirectionNotSetException
             throw new DirectionNotSetException("Direction property (\"minhash.direction\") not correctly set in properties file");
         }
+
+        numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
+        minHashNodeIDs = new int[numSeeds];
 
         if(isSeedsRandom) {
             createSeeds();
@@ -66,8 +69,6 @@ public abstract class MinHash {
             String propertyName = "minhash.seeds";
             String seedsString = PropertiesManager.getProperty(propertyName);
             int[] seeds = Arrays.stream(seedsString.split(",")).mapToInt(Integer::parseInt).toArray();
-            numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
-
             if (numSeeds != seeds.length) {
                 String message = "Specified different number of seeds in properties.  \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
                 throw new SeedsException(message);

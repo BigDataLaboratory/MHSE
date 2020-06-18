@@ -103,6 +103,15 @@ public class MHSE extends MinHash {
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
+
+        String minHashNodeIDsString = "";
+        String separator = ",";
+        for(int i=0;i<numSeeds;i++){
+            minHashNodeIDsString += (minHashNodeIDs[i] + separator);
+        }
+        graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
+
+
         return graphMeasure;
     }
 
@@ -119,6 +128,7 @@ public class MHSE extends MinHash {
                 // check if this part of the signature is the minimum for the graph
                 if(signature[i] < graphSignature[i]){
                     graphSignature[i] = signature[i];
+                    minHashNodeIDs[i] = node;
                 }
             }
             signatures.put(node, signature);
