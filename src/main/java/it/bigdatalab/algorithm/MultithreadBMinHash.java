@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -36,6 +37,21 @@ public class MultithreadBMinHash extends MinHash {
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads"));
         logger.info("Number of threads selected {}", suggestedNumberOfThreads);
 
+        if(isSeedsRandom){
+            for(int i = 0;i<numSeeds; i++){
+                minHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
+            }
+        } else {
+            //Load minHash node IDs from properties file
+            String propertyName = "minhash.nodeIDs";
+            String minHashNodeIDsString = PropertiesManager.getProperty(propertyName);
+            minHashNodeIDs = Arrays.stream(minHashNodeIDsString.split(",")).mapToInt(Integer::parseInt).toArray();
+            if (numSeeds != minHashNodeIDs.length) {
+                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + minHashNodeIDs.length;
+                throw new SeedsException(message);
+            }
+        }
+
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
         this.mNumberOfThreads = getNumberOfMaxThreads(suggestedNumberOfThreads);
         mTotalCollisions = new Int2LongLinkedOpenHashMap();
@@ -48,8 +64,9 @@ public class MultithreadBMinHash extends MinHash {
         List<Callable<Object>> todo = new ArrayList<>(this.numSeeds);
 
         for(int i = 0; i < this.numSeeds; i++) {
-            todo.add(Executors.callable(new IterationThread(mGraph.copy(), i)));
+            todo.add(Executors.callable(new IterationThread(mGraph, i)));
         }
+
         try {
             executor.invokeAll(todo);
         } catch (InterruptedException e) {
@@ -81,7 +98,6 @@ public class MultithreadBMinHash extends MinHash {
                     mTotalCollisions.put(k, sumCollisions);
                 }
             }
-
         }
 
         hopTable = hopTable();
@@ -90,6 +106,14 @@ public class MultithreadBMinHash extends MinHash {
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
+        graphMeasure.setNumSeeds(mSeeds.size());
+
+        String minHashNodeIDsString = "";
+        String separator = ",";
+        for(int i=0;i<numSeeds;i++){
+            minHashNodeIDsString += (minHashNodeIDs[i] + separator);
+        }
+        graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
         return graphMeasure;
     }
 
@@ -128,8 +152,8 @@ public class MultithreadBMinHash extends MinHash {
             long[] immutable = new long[lengthBitsArray(g.numNodes())];
 
             // Choose a random node is equivalent to compute the minhash
-            int randomNode = ThreadLocalRandom.current().nextInt(0, g.numNodes());
-//            int randomNode = 0;
+            //It could be set in mhse.properties file with the "minhash.nodeIDs" property
+            int randomNode = minHashNodeIDs[index];
 
             // take a long number, if we divide it to a number power of 2, quotient is in the first 6 bit, remainder
             // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
