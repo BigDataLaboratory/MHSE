@@ -1,11 +1,13 @@
 package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class StandaloneBMinHash extends MinHash {
@@ -26,6 +28,20 @@ public class StandaloneBMinHash extends MinHash {
         super();
         mTotalCollisions = new Int2LongLinkedOpenHashMap();
 
+        if(isSeedsRandom){
+            for(int i = 0;i<numSeeds; i++){
+                minHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
+            }
+        } else {
+            //Load minHash node IDs from properties file
+            String propertyName = "minhash.nodeIDs";
+            String minHashNodeIDsString = PropertiesManager.getProperty(propertyName);
+            minHashNodeIDs = Arrays.stream(minHashNodeIDsString.split(",")).mapToInt(Integer::parseInt).toArray();
+            if (numSeeds != minHashNodeIDs.length) {
+                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + minHashNodeIDs.length;
+                throw new SeedsException(message);
+            }
+        }
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
     }
 
@@ -48,8 +64,8 @@ public class StandaloneBMinHash extends MinHash {
             long[] immutable = new long[lengthBitsArray(mGraph.numNodes())];
 
             // Choose a random node is equivalent to compute the minhash
-            int randomNode = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
-//            int randomNode = 0;
+            //It could be set in mhse.properties file with the "minhash.nodeIDs" property
+            int randomNode = minHashNodeIDs[i];
 
             // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
             // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
@@ -134,12 +150,14 @@ public class StandaloneBMinHash extends MinHash {
                 for(int j = 0; j<i; j++) {
                     // add the missing number of collisions from the previous lower bound diameter to the new founded
                     for(int k = previousLowerBoundDiameter+1; k < lowerBoundDiameter+1; k++) {
-                        mTotalCollisions.put(k, totalCollisionForHash.getOrDefault(j, 0));
+                        long previousValue = mTotalCollisions.get(k);
+                        mTotalCollisions.put(k, previousValue + totalCollisionForHash.getOrDefault(j, 0));
                     }
                 }
             } else if((h-1) < lowerBoundDiameter) {
                 for(int k = h; k < lowerBoundDiameter+1; k++) {
-                    mTotalCollisions.put(k, hopCollision.getOrDefault(h, 0));
+                    long previousValue = mTotalCollisions.get(k);
+                    mTotalCollisions.put(k, previousValue + hopCollision.getOrDefault(h, 0));
                 }
             }
             logger.debug("(seed {}) Collision table {}", i, mTotalCollisions);
@@ -149,6 +167,14 @@ public class StandaloneBMinHash extends MinHash {
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
+        graphMeasure.setNumSeeds(mSeeds.size());
+
+        String minHashNodeIDsString = "";
+        String separator = ",";
+        for(int i=0;i<numSeeds;i++){
+            minHashNodeIDsString += (minHashNodeIDs[i] + separator);
+        }
+        graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
         return graphMeasure;
     }
 
@@ -170,4 +196,5 @@ public class StandaloneBMinHash extends MinHash {
         });
         return hopTable;
     }
+
 }
