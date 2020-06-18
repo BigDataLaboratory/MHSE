@@ -4,6 +4,7 @@ import it.bigdatalab.model.GraphMeasure;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class StandaloneBMinHash extends MinHash {
 
@@ -17,7 +18,6 @@ public class StandaloneBMinHash extends MinHash {
      */
     public StandaloneBMinHash() throws DirectionNotSetException, SeedsException, IOException {
         super();
-
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
     }
 
@@ -52,8 +52,7 @@ public class StandaloneBMinHash extends MinHash {
             long[] immutable = new long[lengthBitsArray(mGraph.numNodes())];
 
             // Choose a random node is equivalent to compute the minhash
-            //int randomNode = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
-            int randomNode = 0;
+            int randomNode = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
 
             // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
             // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
