@@ -1,9 +1,11 @@
 package it.bigdatalab.algorithm;
 
-import it.bigdatalab.model.GraphMeasure;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
+import it.bigdatalab.model.GraphMeasure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -12,6 +14,8 @@ import java.util.Arrays;
  * Implementation of SE-MHSE (Space Efficient - MinHash Signature Estimation) algorithm
  */
 public class SEMHSE extends MinHash {
+
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.SEMHSE");
 
     private Int2LongSortedMap mTotalCollisions;
     private int[] totalCollisionsPerHashFunction;
@@ -145,14 +149,12 @@ public class SEMHSE extends MinHash {
     private void initializeGraph(int seedIndex){
         int seed = mSeeds.getInt(seedIndex);
         NodeIterator nodeIter = mGraph.nodeIterator();
-        int minNode = 0;
         while(nodeIter.hasNext()) {
             int node = nodeIter.nextInt();
             long hashValue = hashFunction(node, seed);
             hashes.put(node,hashValue);
             if(hashValue < graphSignature[seedIndex]){
                 graphSignature[seedIndex] = hashValue;
-                minNode = node;
             }
         }
         logger.info("MinHash for seed {} is {}", seedIndex, graphSignature[seedIndex]);

@@ -15,7 +15,7 @@ public class WebGraph2EdgeList {
     private String outputFolderPath;
     private String inputFilePath;
 
-    private static final Logger logger = LoggerFactory.getLogger("it.misebigdatalab.applications.WebGraph2EdgeList");
+    private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.WebGraph2EdgeList");
 
     public WebGraph2EdgeList() {
         initialize();
