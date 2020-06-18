@@ -2,9 +2,14 @@ package it.bigdatalab.applications;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import it.bigdatalab.algorithm.*;
+import it.bigdatalab.algorithm.AlgorithmEnum;
+import it.bigdatalab.algorithm.HyperBall;
+import it.bigdatalab.algorithm.MinHash;
+import it.bigdatalab.algorithm.MinHashFactory;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
+import it.unimi.dsi.logging.ProgressLogger;
+import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +50,29 @@ public class MinHashMain {
     }
 
 
+    public static void main(String[] args) {
+        MinHashMain main = new MinHashMain();
+        if (!main.getName().equals("HyperBall")) {
+            try {
+                main.run();
+            } catch (IOException | MinHash.SeedsException e) {
+                e.printStackTrace();
+            }
+        } else {
+            long start = System.currentTimeMillis();
+            try {
+                ImmutableGraph graph = ImmutableGraph.load(main.getInputFilePath());
+                HyperBall hb = new HyperBall(graph, null, 8, new ProgressLogger(), 0, 0, 0, false);
+                hb.run();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            long finish = System.currentTimeMillis();
+            long timeElapsed = finish - start;
+            logger.info("Time {}", timeElapsed);
+        }
+    }
+
     /**
      * Run Minhash algorithm (specified in the algorithmName parameter) using properties read from properties file such as:
      * - inputFilePath  the path to the input file representing a graph in a WebGraph format. If the input graph has an edgelist format
@@ -64,14 +92,21 @@ public class MinHashMain {
         runTests = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.runTests"));
         numTests = Integer.parseInt(PropertiesManager.getProperty("minhash.numTests"));
 
-        try {
-            MinHashFactory mhf = new MinHashFactory();
-            algorithm = mhf.getAlgorithm(AlgorithmEnum.valueOf(algorithmName));
-        } catch(IllegalArgumentException iae){
-            logger.error("There is no \"{}\" algorithm! ", algorithmName);
-            iae.printStackTrace();
-            System.exit(-4);
+        if (!algorithmName.equals("HyperBall")) {
+
+            try {
+                MinHashFactory mhf = new MinHashFactory();
+                algorithm = mhf.getAlgorithm(AlgorithmEnum.valueOf(algorithmName));
+            } catch (IllegalArgumentException iae) {
+                logger.error("There is no \"{}\" algorithm! ", algorithmName);
+                iae.printStackTrace();
+                System.exit(-4);
+            }
         }
+    }
+
+    public String getName() {
+        return this.algorithmName;
     }
 
 
@@ -160,13 +195,8 @@ public class MinHashMain {
         logger.info("Graph measure wrote in " + path);
     }
 
-    public static void main(String[] args) {
-        MinHashMain main = new MinHashMain();
-        try {
-            main.run();
-        } catch (IOException | MinHash.SeedsException e) {
-            e.printStackTrace();
-        }
+    public String getInputFilePath() {
+        return inputFilePath;
     }
 
 
