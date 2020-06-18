@@ -61,3 +61,8 @@ nb-configuration.xml
 .DS_Store
 /results/*
 /LOG_DIR_IS_UNDEFINED/LOG_FILE_IS_UNDEFINED.log
+
+##########################
+## Local properties
+##########################
+/etc/mhse.properties
