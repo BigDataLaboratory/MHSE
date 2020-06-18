@@ -128,8 +128,8 @@ public class MultithreadBMinHash extends MinHash {
             long[] immutable = new long[lengthBitsArray(g.numNodes())];
 
             // Choose a random node is equivalent to compute the minhash
-//            int randomNode = ThreadLocalRandom.current().nextInt(0, g.numNodes());
-            int randomNode = 0;
+            int randomNode = ThreadLocalRandom.current().nextInt(0, g.numNodes());
+//            int randomNode = 0;
 
             // take a long number, if we divide it to a number power of 2, quotient is in the first 6 bit, remainder
             // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
