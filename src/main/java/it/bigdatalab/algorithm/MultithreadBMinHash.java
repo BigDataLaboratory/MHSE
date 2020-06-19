@@ -54,6 +54,11 @@ public class MultithreadBMinHash extends MinHash {
     }
 
 
+    /**
+     * Execution of the MultithreadBMinHash algorithm
+     * @return Computed metrics of the algorithm
+     */
+
     public GraphMeasure runAlgorithm() {
         logger.debug("Number of threads to be used {}", mNumberOfThreads);
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
@@ -70,7 +75,7 @@ public class MultithreadBMinHash extends MinHash {
                 if (!future.isCancelled()) {
                     try {
                         Int2LongLinkedOpenHashMap actualCollisionTable = future.get();
-                        logger.info("Starting computation of collision table...");
+                        logger.debug("Starting computation of collision table...");
 
                         //Recreating mTotalCollisions starting from tables of each thread
                         long lastElement = mTotalCollisions.get(mTotalCollisions.size()-1);
@@ -94,7 +99,7 @@ public class MultithreadBMinHash extends MinHash {
                                 mTotalCollisions.put(k, sumCollisions);
                             }
                         }
-                        logger.info("Collision table computation completed!");
+                        logger.debug("Collision table computation completed!");
 
                     } catch (ExecutionException e) {
                         logger.error("Failed to get result", e);
@@ -103,6 +108,7 @@ public class MultithreadBMinHash extends MinHash {
                         Thread.currentThread().interrupt();
                     }
                 } else {
+                    //TODO Implement better error management
                     logger.error("Future is cancelled!");
                 }
             }
@@ -200,7 +206,6 @@ public class MultithreadBMinHash extends MinHash {
                 for(int n = 0; n < g.numNodes(); n++) {
 
                     final int node = n;
-
                     final int d = g.outdegree(node);
                     final int[] successors = g.successorArray(node);
 
@@ -210,7 +215,6 @@ public class MultithreadBMinHash extends MinHash {
                     // store the new signature as the current one
                     remainderPositionNode = (node << REMAINDER) >>> REMAINDER;
                     quotientNode = node >>> MASK;
-
                     long value = immutable[quotientNode];
                     long bitNeigh;
                     long nodeMask = (1L << remainderPositionNode);
@@ -218,11 +222,8 @@ public class MultithreadBMinHash extends MinHash {
                     if(((nodeMask & value) >>> remainderPositionNode) == 0) { // check if node bit is 0
                         for (int l = 0; l < d; l++) {
                             final int neighbour = successors[l];
-
-
                             int quotientNeigh = neighbour >>> MASK;
                             long remainderPositionNeigh = (neighbour << REMAINDER) >>> REMAINDER;
-
                             bitNeigh = (((1L << remainderPositionNeigh) & immutable[quotientNeigh]) >>> remainderPositionNeigh) << remainderPositionNode;
                             value = bitNeigh | nodeMask & immutable[quotientNode];
                             if ((value >>> remainderPositionNode) == 1) {

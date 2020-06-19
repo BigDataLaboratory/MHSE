@@ -45,6 +45,10 @@ public class StandaloneBMinHash extends MinHash {
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
     }
 
+    /**
+     * Execution of the StandaloneBMinHash algorithm
+     * @return Computed metrics of the algorithm
+     */
 
     public GraphMeasure runAlgorithm() {
         int lowerBoundDiameter = 0;
