@@ -71,7 +71,7 @@ public class MHSE extends MinHash {
                     int node = nodeIter.nextInt();
                     long[] signature = signatures.get(node);
                     long[] oldSignature = new long[signature.length];
-                    //TODO Metodo più efficiente per deep copy?
+                    //TODO Most efficient way to deep copy?
                     System.arraycopy( signature, 0, oldSignature, 0, signature.length );
                     oldSignatures.put(node, oldSignature);
                 }

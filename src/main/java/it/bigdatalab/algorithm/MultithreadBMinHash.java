@@ -70,23 +70,36 @@ public class MultithreadBMinHash extends MinHash {
 
         try {
             List<Future<Int2LongLinkedOpenHashMap>> futures = executor.invokeAll(todo);
-
+            int count = 0;
+            int lowerboundDiameter = 0;
             for (Future<Int2LongLinkedOpenHashMap> future : futures) {
                 if (!future.isCancelled()) {
                     try {
                         Int2LongLinkedOpenHashMap actualCollisionTable = future.get();
-                        logger.debug("Starting computation of collision table...");
+                        logger.debug("Starting computation of collision table on seed {}", count);
 
                         //Recreating mTotalCollisions starting from tables of each thread
-                        long lastElement = mTotalCollisions.get(mTotalCollisions.size()-1);
-                        logger.debug("lastElement is: " + lastElement);
-                        if(actualCollisionTable.size() <= mTotalCollisions.size()) {
-                            for(int k = 0; k < actualCollisionTable.size(); k++) {
+                        int lastElementIndex = mTotalCollisions.size()-1;
+                        long lastElement = mTotalCollisions.get(lastElementIndex);
+
+                        //Last hop of the actualCollisionTable has NOT to be considered
+                        //because has the same number of collisions of the previous one
+                        //So the last element to be considered in actualCollisionTable is:
+                        //actualCollisionTable.get(actualCollisionTable.size()-2)
+                        int lastElementActualCollisionTableIndex = actualCollisionTable.size()-2;
+                        long lastElementActualCollisionTable = actualCollisionTable.get(lastElementActualCollisionTableIndex);
+
+                        if ((lastElementActualCollisionTableIndex) > lowerboundDiameter){
+                            lowerboundDiameter = lastElementActualCollisionTableIndex;
+                        }
+
+                        if((actualCollisionTable.size() - 1) <= mTotalCollisions.size()) {
+                            for(int k = 0; k < actualCollisionTable.size() - 1; k++) {
                                 long sumCollisions = mTotalCollisions.get(k) + actualCollisionTable.get(k);
                                 mTotalCollisions.put(k, sumCollisions);
                             }
-                            for(int k = actualCollisionTable.size(); k < mTotalCollisions.size(); k++) {
-                                long sumCollisions = mTotalCollisions.get(k) + actualCollisionTable.get(actualCollisionTable.size()-1);
+                            for(int k = actualCollisionTable.size() - 1; k < mTotalCollisions.size(); k++) {
+                                long sumCollisions = mTotalCollisions.get(k) + lastElementActualCollisionTable;
                                 mTotalCollisions.put(k, sumCollisions);
                             }
                         } else {
@@ -94,12 +107,13 @@ public class MultithreadBMinHash extends MinHash {
                                 long sumCollisions = mTotalCollisions.get(k) + actualCollisionTable.get(k);
                                 mTotalCollisions.put(k, sumCollisions);
                             }
-                            for(int k = mTotalCollisions.size(); k < actualCollisionTable.size(); k++) {
+                            for(int k = mTotalCollisions.size(); k < actualCollisionTable.size() - 1; k++) {
                                 long sumCollisions = lastElement + actualCollisionTable.get(k);
                                 mTotalCollisions.put(k, sumCollisions);
                             }
                         }
-                        logger.debug("Collision table computation completed!");
+                        logger.debug("Collision table computation completed on seed {}!", count);
+                        count++;
 
                     } catch (ExecutionException e) {
                         logger.error("Failed to get result", e);
@@ -112,12 +126,12 @@ public class MultithreadBMinHash extends MinHash {
                     logger.error("Future is cancelled!");
                 }
             }
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         executor.shutdown();
-
         hopTable = hopTable();
         logger.debug("Hop table derived from collision table: {}", hopTable);
 
@@ -192,7 +206,7 @@ public class MultithreadBMinHash extends MinHash {
             hopCollision = new Int2LongLinkedOpenHashMap();
             hopCollision.put(h, 1);
 
-            while(hopCollision.get(h) != hopCollision.getOrDefault(h-1,0)) {
+            while(hopCollision.getOrDefault(h, 0) != hopCollision.getOrDefault(h-1, 0)) {
                 h += 1;
                 logger.debug("(seed {}) Starting computation on hop {}", index, h);
 
@@ -239,6 +253,7 @@ public class MultithreadBMinHash extends MinHash {
                 for(int c = 0; c < mutable.length; c++) {
                     counter += Long.bitCount(mutable[c]);
                 }
+
                 hopCollision.put(h, counter);
                 logger.debug("(seed {}) Hop Collision {}", index, hopCollision);
 
