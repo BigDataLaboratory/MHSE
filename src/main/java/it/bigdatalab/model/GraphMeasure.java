@@ -1,8 +1,10 @@
 package it.bigdatalab.model;
 
+import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
-import it.bigdatalab.utils.PropertiesManager;
+
+import java.util.HashMap;
 
 public class GraphMeasure {
     private int mLowerBoundDiameter;
@@ -20,6 +22,7 @@ public class GraphMeasure {
     private int numNodes;
     private long numArcs;
     private String mDirection;
+    private HashMap<Integer, Double> seedsTime;
 
 
     public GraphMeasure(Int2DoubleSortedMap hopTable){
@@ -31,6 +34,7 @@ public class GraphMeasure {
         this.numSeeds = -1;
         this.mSeedsList = "";
         this.minHashNodeIDs = "";
+        this.seedsTime = new HashMap<>();
         this.mThreshold = Float.parseFloat(PropertiesManager.getProperty("minhash.threshold"));
         this.mLowerBoundDiameter = hopTable.size()-1;
         this.mAvgDistance = averageDistance();
@@ -113,6 +117,14 @@ public class GraphMeasure {
     /*******************************************************************************
      *                                  GETTER METHODS
      * ****************************************************************************/
+
+    /**
+     * @return time in ms for each seed
+     */
+    public HashMap<Integer, Double> getSeedsTime() {
+        return seedsTime;
+    }
+
 
     /**
      * @return graph's number of nodes
@@ -222,6 +234,13 @@ public class GraphMeasure {
     /*******************************************************************************
      *                                  SETTER METHODS
      * ****************************************************************************/
+
+    /**
+     * @param seedsTime time for each seed
+     */
+    public void setSeedsTime(HashMap seedsTime) {
+        this.seedsTime = seedsTime;
+    }
 
     /**
      * @param numNodes graph's number of nodes
