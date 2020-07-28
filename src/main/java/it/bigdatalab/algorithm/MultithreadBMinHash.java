@@ -28,7 +28,6 @@ public class MultithreadBMinHash extends MinHash {
     private Int2LongSortedMap mTotalCollisions;
     private int mNumberOfThreads;
     private HashMap<Integer, Double> mSeedTime;
-    private final Object mLock = new Object();
 
     /**
      * Creates a new BooleanMinHash instance with default values

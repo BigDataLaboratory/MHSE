@@ -1,5 +1,6 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
@@ -28,6 +29,23 @@ public class SEMHSE extends MinHash {
      */
     public SEMHSE() throws DirectionNotSetException, SeedsException, IOException {
         super();
+
+        if(isSeedsRandom) {
+            createSeeds();
+        } else {
+            String propertyName = "minhash.seeds";
+            String seedsString = PropertiesManager.getProperty(propertyName);
+            int[] seeds = Arrays.stream(seedsString.split(",")).mapToInt(Integer::parseInt).toArray();
+            if (numSeeds != seeds.length) {
+                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
+                throw new SeedsException(message);
+            }
+            mSeeds = new IntArrayList();
+            for (int i = 0; i < seeds.length; i++) {
+                mSeeds.add(seeds[i]);
+            }
+        }
+
         mTotalCollisions = new Int2LongLinkedOpenHashMap();
         totalCollisionsPerHashFunction = new int[numSeeds];     //for each hash function get the number of total collisions
         graphSignature = new long[numSeeds];
@@ -213,7 +231,7 @@ public class SEMHSE extends MinHash {
         Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
         mTotalCollisions.forEach((key, value) -> {
                 Double r = ((double) (value * mGraph.numNodes()) / this.numSeeds);
-                hopTable.put(key, r);
+                hopTable.put(key.intValue(), r.doubleValue());
         });
         return hopTable;
     }
