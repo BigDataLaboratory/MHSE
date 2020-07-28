@@ -121,8 +121,6 @@ public class StandaloneBMinHash extends MinHash {
                     if (((nodeMask & value) >>> remainderPositionNode) == 0) { // check if node bit is 0
                         for (int l = 0; l < d; l++) {
                             final int neighbour = successors[l];
-
-
                             int quotientNeigh = neighbour >>> MASK;
                             long remainderPositionNeigh = (neighbour << REMAINDER) >>> REMAINDER;
 

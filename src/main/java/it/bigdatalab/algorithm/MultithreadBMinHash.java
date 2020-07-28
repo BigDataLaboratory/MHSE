@@ -145,6 +145,7 @@ public class MultithreadBMinHash extends MinHash {
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mSeeds.size());
         graphMeasure.setSeedsTime(mSeedTime);
+        graphMeasure.setNumberOfThreads(mNumberOfThreads);
 
         String minHashNodeIDsString = "";
         String separator = ",";

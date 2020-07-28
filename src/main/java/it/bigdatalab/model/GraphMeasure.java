@@ -23,6 +23,7 @@ public class GraphMeasure {
     private long numArcs;
     private String mDirection;
     private HashMap<Integer, Double> seedsTime;
+    private int numberOfThreads;
 
 
     public GraphMeasure(Int2DoubleSortedMap hopTable){
@@ -42,6 +43,8 @@ public class GraphMeasure {
         this.mTotalCouples = totalCouplesReachable();
         this.mTotalCouplePercentage = totalCouplesPercentage();
         this.mDirection = PropertiesManager.getProperty("minhash.direction");
+        //Number of threads is 1 by default, it will be modified only in multithread versions
+        this.numberOfThreads = 1;
 
     }
 
@@ -231,6 +234,12 @@ public class GraphMeasure {
         return mHopTable;
     }
 
+    /**
+     * @return Number of parallel thread used by the algorithm
+     */
+
+    public int getNumberOfThreads() { return numberOfThreads; }
+
     /*******************************************************************************
      *                                  SETTER METHODS
      * ****************************************************************************/
@@ -289,6 +298,14 @@ public class GraphMeasure {
      */
     public void setMinHashNodeIDs(String minHashNodeIDs) {
         this.minHashNodeIDs = minHashNodeIDs;
+    }
+
+    /**
+     * @param numberOfThreads Number of parallel thread used by the algorithm
+     */
+
+    public void setNumberOfThreads(int numberOfThreads) {
+        this.numberOfThreads = numberOfThreads;
     }
 
 }
