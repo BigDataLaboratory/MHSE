@@ -1,10 +1,11 @@
 package it.bigdatalab.model;
 
+import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
-import it.bigdatalab.utils.PropertiesManager;
 
 public class GraphMeasure {
+    private long mMaxMemoryUsed;
     private int mLowerBoundDiameter;
     private double mAvgDistance;
     private double mEffectiveDiameter;
@@ -197,10 +198,17 @@ public class GraphMeasure {
     }
 
     /**
-     * @return type of direction to send messages to node's neighbours: out or in
+     * @return max memory used by application
      */
-    public String getDirection() {
-        return mDirection;
+    public long getMaxMemoryUsed() {
+        return mMaxMemoryUsed;
+    }
+
+    /**
+     * @param maxMemoryUsed max memory used by application
+     */
+    public void setMaxMemoryUsed(long maxMemoryUsed) {
+        this.mMaxMemoryUsed = maxMemoryUsed;
     }
 
     /**
@@ -215,11 +223,19 @@ public class GraphMeasure {
      * ****************************************************************************/
 
     /**
+     * @return type of direction to send messages to node's neighbours: out or in
+     */
+    public String getDirection() {
+        return mDirection;
+    }
+
+    /**
      * @param numNodes graph's number of nodes
      */
     public void setNumNodes(int numNodes) {
         this.numNodes = numNodes;
     }
+
 
     /**
      * @param numArcs graph's number of edges

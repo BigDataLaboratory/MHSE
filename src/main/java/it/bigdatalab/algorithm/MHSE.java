@@ -1,12 +1,12 @@
 package it.bigdatalab.algorithm;
 
-import it.unimi.dsi.fastutil.ints.*;
+import it.bigdatalab.model.GraphMeasure;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
-import it.bigdatalab.model.GraphMeasure;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * Implementation of MHSE (MinHash Signature Estimation) algorithm
@@ -40,17 +40,12 @@ public class MHSE extends MinHash {
         int hop = 0;
         NodeIterator nodeIter;
 
-        while(signatureIsChanged){
+        while (signatureIsChanged) {
             logger.info("Analyzing hop " + hop);
             signatureIsChanged = false;
             double overallJaccard = 0d;
             if(hop == 0){
                 initializeGraph();
-                String graphSignatureStr = "";
-                for(int i=0; i<graphSignature.length;i++){
-                    graphSignatureStr += (graphSignature[i] + ",");
-                }
-                logger.info("Graph signature is: " + graphSignatureStr);
 
                 // jaccard computation
                 nodeIter = mGraph.nodeIterator();
@@ -94,11 +89,13 @@ public class MHSE extends MinHash {
                 hop++;
             }
             logger.info("Hop " + hop + " completed");
+            memoryUsed();
         }
 
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
+        graphMeasure.setMaxMemoryUsed(getMaxUsedMemory());
         return graphMeasure;
     }
 
@@ -129,7 +126,6 @@ public class MHSE extends MinHash {
     public boolean updateNodeSignature(int node) {
         boolean signatureIsChanged = false;
         long[] newSignature = signatures.get(node);         //new signature to be updated
-        long[] nodeSignature = oldSignatures.get(node);     //old signature to NOT be modified
 
         LazyIntIterator neighIter = mGraph.successors(node);
         int d = mGraph.outdegree(node);
@@ -148,7 +144,6 @@ public class MHSE extends MinHash {
         }
         return signatureIsChanged;
     }
-
 
 
     /**

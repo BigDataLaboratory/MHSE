@@ -1,9 +1,9 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.model.GraphMeasure;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
-import it.bigdatalab.model.GraphMeasure;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -97,6 +97,7 @@ public class SEMHSE extends MinHash {
                     logger.debug("Hop {} for seed n.{} completed", hop, i);
                     hop++;
                 }
+                memoryUsed();
             }
 
             logger.info("Total number of collisions for seed n.{} : {}", i, collisions);
@@ -133,8 +134,10 @@ public class SEMHSE extends MinHash {
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
+        graphMeasure.setMaxMemoryUsed(getMaxUsedMemory());
         return graphMeasure;
     }
+
 
     /**
      * Initialization of the graph structures

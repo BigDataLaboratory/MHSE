@@ -2,11 +2,14 @@ package it.bigdatalab.algorithm;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import it.unimi.dsi.fastutil.ints.*;
-import it.unimi.dsi.webgraph.ImmutableGraph;
-import it.unimi.dsi.webgraph.Transform;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
+import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.webgraph.ImmutableGraph;
+import it.unimi.dsi.webgraph.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +28,7 @@ public abstract class MinHash {
     private boolean isSeedsRandom;
     private boolean runTests;
     private String direction;
+    private long mMemoryUsed;
 
     protected Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
 
@@ -33,6 +37,9 @@ public abstract class MinHash {
     }
 
     private void initialize() throws IOException, DirectionNotSetException, SeedsException {
+
+        mMemoryUsed = 0;
+
         runTests = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.runTests"));
 
         isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isSeedsRandom"));
@@ -103,6 +110,20 @@ public abstract class MinHash {
         for(int i = 0; i < numSeeds; i++) {
             mSeeds.add(random.nextInt());
         }
+    }
+
+
+    public void memoryUsed() {
+        // Calculate the used memory
+        long memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        logger.debug("Old memory value: {} Actual used memory: {}", mMemoryUsed, memory);
+        if (memory > mMemoryUsed) {
+            mMemoryUsed = memory;
+        }
+    }
+
+    public long getMaxUsedMemory() {
+        return mMemoryUsed;
     }
 
     /***
