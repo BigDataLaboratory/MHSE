@@ -126,6 +126,7 @@ public class MHSE extends MinHash {
     public boolean updateNodeSignature(int node) {
         boolean signatureIsChanged = false;
         long[] newSignature = signatures.get(node);         //new signature to be updated
+        long[] nodeSignature = oldSignatures.get(node);
 
         LazyIntIterator neighIter = mGraph.successors(node);
         int d = mGraph.outdegree(node);
