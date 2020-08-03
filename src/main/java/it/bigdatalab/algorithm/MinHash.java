@@ -25,6 +25,7 @@ public abstract class MinHash {
     private String inputFilePath;
     private boolean runTests;
     private String direction;
+    private long mMemoryUsed;
 
     protected Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
 
@@ -34,6 +35,7 @@ public abstract class MinHash {
 
     private void initialize() throws IOException, DirectionNotSetException {
 
+        mMemoryUsed = 0;
         runTests = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.runTests"));
 
         isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isSeedsRandom"));
@@ -93,6 +95,19 @@ public abstract class MinHash {
         }
     }
 
+    public void memoryUsed() {
+        // Calculate the used memory
+        System.gc();
+        long memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        logger.debug("Old memory value: {} Actual used memory: {}", mMemoryUsed, memory);
+        if (memory > mMemoryUsed) {
+            mMemoryUsed = memory;
+        }
+    }
+
+    public long getMaxUsedMemory() {
+        return mMemoryUsed;
+    }
 
     public abstract GraphMeasure runAlgorithm();
 

@@ -119,6 +119,7 @@ public class SEMHSE extends MinHash {
                     logger.debug("Hop {} for seed n.{} completed", hop, i);
                     hop++;
                 }
+                memoryUsed();
             }
 
             logger.info("Total number of collisions for seed n.{} : {}", i, collisions);
@@ -173,6 +174,7 @@ public class SEMHSE extends MinHash {
             minHashNodeIDsString += (minHashNodeIDs[i] + separator);
         }
         graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
+        graphMeasure.setMaxMemoryUsed(getMaxUsedMemory());
         return graphMeasure;
     }
 

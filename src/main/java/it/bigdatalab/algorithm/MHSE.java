@@ -116,11 +116,13 @@ public class MHSE extends MinHash {
                 hop++;
             }
             logger.info("Hop " + hop + " completed");
+            memoryUsed();
         }
 
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
+        graphMeasure.setMaxMemoryUsed(getMaxUsedMemory());
 
         String seedsListString = "";
         String separator = ",";

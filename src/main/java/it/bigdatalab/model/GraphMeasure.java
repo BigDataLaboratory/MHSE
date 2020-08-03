@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
 import java.util.HashMap;
 
 public class GraphMeasure {
+    private long mMaxMemoryUsed;
     private int mLowerBoundDiameter;
     private double mAvgDistance;
     private double mEffectiveDiameter;
@@ -240,9 +241,25 @@ public class GraphMeasure {
 
     public int getNumberOfThreads() { return numberOfThreads; }
 
+    /**
+     * @return max memory used by application
+     */
+
+    public long getMaxMemoryUsed() {
+        return mMaxMemoryUsed;
+    }
+
+
     /*******************************************************************************
      *                                  SETTER METHODS
      * ****************************************************************************/
+
+    /**
+     * @param maxMemoryUsed max memory used by application
+     */
+    public void setMaxMemoryUsed(long maxMemoryUsed) {
+        this.mMaxMemoryUsed = maxMemoryUsed;
+    }
 
     /**
      * @param seedsTime time for each seed
