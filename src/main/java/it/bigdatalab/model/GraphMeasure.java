@@ -70,7 +70,7 @@ public class GraphMeasure {
 
     /**
      * @return effective diameter of the graph (computed using hop table), defined as the 90th percentile distance between nodes,
-     * that is the maximum distance that allows to connect the of all reachable pairs
+     * that is the minimum distance that allows to connect the 90th percent of all reachable pairs
      */
     private double effectiveDiameter() {
         if(mHopTable.size() == 0) {
@@ -78,14 +78,17 @@ public class GraphMeasure {
         }
 
         int lowerBoundDiameter = mHopTable.size()-1;
-        double numCollisions = mHopTable.get(lowerBoundDiameter);
+        double totalCouplesReachable = mHopTable.get(lowerBoundDiameter);
 
         int d = 1;
-        while((mHopTable.get(d)/numCollisions) < mThreshold) {
+        while((mHopTable.get(d)/totalCouplesReachable) < mThreshold) {
             d += 1;
         }
-
-        return ((d-1) + interpolate(mHopTable.get(d-1), mHopTable.get(d), mThreshold * numCollisions));
+        double result = (d-1) + interpolate(mHopTable.get(d-1), mHopTable.get(d), mThreshold * totalCouplesReachable);
+        if(result < 0){
+            result = 0;
+        }
+        return result ;
     }
 
     /**
