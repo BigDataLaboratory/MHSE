@@ -68,11 +68,6 @@ public class MHSE extends MinHash {
             double overallJaccard = 0d;
             if(hop == 0){
                 initializeGraph();
-                String graphSignatureStr = "";
-                for(int i=0; i<graphSignature.length;i++){
-                    graphSignatureStr += (graphSignature[i] + ",");
-                }
-                logger.info("Graph signature is: " + graphSignatureStr);
 
                 // jaccard computation
                 nodeIter = mGraph.nodeIterator();
@@ -192,7 +187,6 @@ public class MHSE extends MinHash {
         }
         return signatureIsChanged;
     }
-
 
 
     /**

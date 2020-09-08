@@ -43,6 +43,8 @@ public class GraphMeasure {
         this.mEffectiveDiameter = effectiveDiameter();
         this.mTotalCouples = totalCouplesReachable();
         this.mTotalCouplePercentage = totalCouplesPercentage();
+        this.mSeedsList = PropertiesManager.getProperty("minhash.seeds");
+        this.numSeeds = mSeedsList.split(",").length;
         this.mDirection = PropertiesManager.getProperty("minhash.direction");
         //Number of threads is 1 by default, it will be modified only in multithread versions
         this.numberOfThreads = 1;
