@@ -1,8 +1,13 @@
 package it.bigdatalab.algorithm;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 
 public class MinHashFactory {
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHashFactory");
+
 
     /**
      * Empty constructor
@@ -19,6 +24,8 @@ public class MinHashFactory {
      */
     public MinHash getAlgorithm (AlgorithmEnum type) throws MinHash.DirectionNotSetException, MinHash.SeedsException, IOException {
         MinHash minHashAlgorithm = null;
+        boolean error = false;
+
         switch (type){
             case MHSE:
                 minHashAlgorithm = new MHSE();
@@ -29,6 +36,12 @@ public class MinHashFactory {
             case StandaloneBMinHash:
                 minHashAlgorithm = new StandaloneBMinHash();
                 break;
+            default:
+                error = true;
+                logger.error("Algorithm name not recognized");
+        }
+        if(!error){
+            logger.info("Selected " + type + " algorithm");
         }
         return minHashAlgorithm;
     }

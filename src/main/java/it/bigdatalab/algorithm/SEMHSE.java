@@ -1,9 +1,12 @@
 package it.bigdatalab.algorithm;
 
-import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
+import it.bigdatalab.model.GraphMeasure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -12,6 +15,8 @@ import java.util.Arrays;
  * Implementation of SE-MHSE (Space Efficient - MinHash Signature Estimation) algorithm
  */
 public class SEMHSE extends MinHash {
+
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.SEMHSE");
 
     private Int2LongSortedMap mTotalCollisions;
     private int[] totalCollisionsPerHashFunction;
@@ -24,6 +29,23 @@ public class SEMHSE extends MinHash {
      */
     public SEMHSE() throws DirectionNotSetException, SeedsException, IOException {
         super();
+
+        if(isSeedsRandom) {
+            createSeeds();
+        } else {
+            String propertyName = "minhash.seeds";
+            String seedsString = PropertiesManager.getProperty(propertyName);
+            int[] seeds = Arrays.stream(seedsString.split(",")).mapToInt(Integer::parseInt).toArray();
+            if (numSeeds != seeds.length) {
+                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
+                throw new SeedsException(message);
+            }
+            mSeeds = new IntArrayList();
+            for (int i = 0; i < seeds.length; i++) {
+                mSeeds.add(seeds[i]);
+            }
+        }
+
         mTotalCollisions = new Int2LongLinkedOpenHashMap();
         totalCollisionsPerHashFunction = new int[numSeeds];     //for each hash function get the number of total collisions
         graphSignature = new long[numSeeds];
@@ -128,16 +150,33 @@ public class SEMHSE extends MinHash {
         }
 
         logger.info("Starting computation of the hop table from collision table");
-        hopTable = hopTable(mTotalCollisions);
+        hopTable = hopTable();
         logger.info("Computation of the hop table completed");
 
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
+
+        String seedsListString = "";
+        String separator = ",";
+        IntListIterator seedsIterator = mSeeds.listIterator();
+        while(seedsIterator.hasNext()){
+            int seed = seedsIterator.nextInt();
+            seedsListString += (seed + separator);
+        }
+        graphMeasure.setSeedsList(seedsListString);
+        graphMeasure.setNumSeeds(seedsListString.split(",").length);
+
+
+        String minHashNodeIDsString = "";
+        separator = ",";
+        for(int i=0;i<numSeeds;i++){
+            minHashNodeIDsString += (minHashNodeIDs[i] + separator);
+        }
+        graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
         graphMeasure.setMaxMemoryUsed(getMaxUsedMemory());
         return graphMeasure;
     }
-
 
     /**
      * Initialization of the graph structures
@@ -154,9 +193,10 @@ public class SEMHSE extends MinHash {
             hashes.put(node,hashValue);
             if(hashValue < graphSignature[seedIndex]){
                 graphSignature[seedIndex] = hashValue;
+                minHashNodeIDs[seedIndex] = node;
             }
         }
-        logger.info("MinHash for seed {} is {}", seedIndex, graphSignature[seedIndex]);
+        logger.info("MinHash for seed {} is {}, belonging to node ID {}", seedIndex, graphSignature[seedIndex], minHashNodeIDs[seedIndex]);
     }
 
     /**
@@ -187,16 +227,14 @@ public class SEMHSE extends MinHash {
 
     /***
      * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
-     * @param totalCollisions
      * @return hop table
      */
-    public Int2DoubleSortedMap hopTable(Int2LongSortedMap totalCollisions) {
+    private Int2DoubleSortedMap hopTable() {
         Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
-        totalCollisions.forEach((key, value) -> {
+        mTotalCollisions.forEach((key, value) -> {
                 Double r = ((double) (value * mGraph.numNodes()) / this.numSeeds);
-                hopTable.put(key, r);
+                hopTable.put(key.intValue(), r.doubleValue());
         });
-
         return hopTable;
     }
 

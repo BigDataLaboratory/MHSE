@@ -4,6 +4,8 @@ import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
 
+import java.util.HashMap;
+
 public class GraphMeasure {
     private long mMaxMemoryUsed;
     private int mLowerBoundDiameter;
@@ -15,12 +17,13 @@ public class GraphMeasure {
     private Int2DoubleSortedMap mHopTable;
     private String mAlgorithmName;
     private float mThreshold;
+    private String minHashNodeIDs;
     private String mSeedsList;
     private int numSeeds;
     private int numNodes;
     private long numArcs;
     private String mDirection;
-
+    private HashMap<Integer, Double> seedsTime;
 
     public GraphMeasure(Int2DoubleSortedMap hopTable){
         this.mHopTable = hopTable;
@@ -28,6 +31,10 @@ public class GraphMeasure {
         this.mAlgorithmName = "";
         this.numNodes = -1;
         this.numArcs = -1;
+        this.numSeeds = -1;
+        this.mSeedsList = "";
+        this.minHashNodeIDs = "";
+        this.seedsTime = new HashMap<>();
         this.mThreshold = Float.parseFloat(PropertiesManager.getProperty("minhash.threshold"));
         this.mLowerBoundDiameter = hopTable.size()-1;
         this.mAvgDistance = averageDistance();
@@ -61,7 +68,7 @@ public class GraphMeasure {
 
     /**
      * @return effective diameter of the graph (computed using hop table), defined as the 90th percentile distance between nodes,
-     * that is the maximum distance that allows to connect the of all reachable pairs
+     * that is the minimum distance that allows to connect the 90th percent of all reachable pairs
      */
     private double effectiveDiameter() {
         if(mHopTable.size() == 0) {
@@ -115,6 +122,14 @@ public class GraphMeasure {
     /*******************************************************************************
      *                                  GETTER METHODS
      * ****************************************************************************/
+
+    /**
+     * @return time in ms for each seed
+     */
+    public HashMap<Integer, Double> getSeedsTime() {
+        return seedsTime;
+    }
+
 
     /**
      * @return graph's number of nodes
@@ -187,6 +202,13 @@ public class GraphMeasure {
     }
 
     /**
+     * @return Comma separated IDs of minHash nodes
+     */
+    public String getMinHashNodeIDs() {
+        return minHashNodeIDs;
+    }
+
+    /**
      * @return list of seeds
      */
     public String getSeedsList() {
@@ -201,17 +223,10 @@ public class GraphMeasure {
     }
 
     /**
-     * @return max memory used by application
+     * @return type of direction to send messages to node's neighbours: out or in
      */
-    public long getMaxMemoryUsed() {
-        return mMaxMemoryUsed;
-    }
-
-    /**
-     * @param maxMemoryUsed max memory used by application
-     */
-    public void setMaxMemoryUsed(long maxMemoryUsed) {
-        this.mMaxMemoryUsed = maxMemoryUsed;
+    public String getDirection() {
+        return mDirection;
     }
 
     /**
@@ -221,15 +236,31 @@ public class GraphMeasure {
         return mHopTable;
     }
 
+    /**
+     * @return max memory used by application
+     */
+
+    public long getMaxMemoryUsed() {
+        return mMaxMemoryUsed;
+    }
+
+
     /*******************************************************************************
      *                                  SETTER METHODS
      * ****************************************************************************/
 
     /**
-     * @return type of direction to send messages to node's neighbours: out or in
+     * @param maxMemoryUsed max memory used by application
      */
-    public String getDirection() {
-        return mDirection;
+    public void setMaxMemoryUsed(long maxMemoryUsed) {
+        this.mMaxMemoryUsed = maxMemoryUsed;
+    }
+
+    /**
+     * @param seedsTime time for each seed
+     */
+    public void setSeedsTime(HashMap seedsTime) {
+        this.seedsTime = seedsTime;
     }
 
     /**
@@ -239,12 +270,18 @@ public class GraphMeasure {
         this.numNodes = numNodes;
     }
 
-
     /**
      * @param numArcs graph's number of edges
      */
     public void setNumArcs(long numArcs) {
         this.numArcs = numArcs;
+    }
+
+    /**
+     * @param numSeeds Number of seeds
+     */
+    public void setNumSeeds(int numSeeds) {
+        this.numSeeds = numSeeds;
     }
 
     /**
@@ -259,6 +296,20 @@ public class GraphMeasure {
      */
     public void setAlgorithmName(String algorithmName) {
         this.mAlgorithmName = algorithmName;
+    }
+
+    /**
+     * @param seedsList Comma separated seeds
+     */
+    public void setSeedsList(String seedsList) {
+        this.mSeedsList = seedsList;
+    }
+
+    /**
+     * @param minHashNodeIDs Comma separated IDs of minHash nodes
+     */
+    public void setMinHashNodeIDs(String minHashNodeIDs) {
+        this.minHashNodeIDs = minHashNodeIDs;
     }
 
 }

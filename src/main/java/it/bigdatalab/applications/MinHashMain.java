@@ -21,7 +21,7 @@ public class MinHashMain {
     private boolean runTests;
     private int numTests;
 
-    private static final Logger logger = LoggerFactory.getLogger("it.misebigdatalab");
+    private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.MinHashMain");
 
     /**
      * Run Minhash algorithm, exit from the process if direction of message transmission or seeds list are not

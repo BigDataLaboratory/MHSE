@@ -2,44 +2,40 @@ package it.bigdatalab.algorithm;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import it.bigdatalab.model.GraphMeasure;
-import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
-import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.Transform;
+import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Random;
 
 public abstract class MinHash {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.misebigdatalab.algorithm");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHash");
 
     protected IntArrayList mSeeds;
     protected ImmutableGraph mGraph;
     protected int numSeeds;
+    protected int[] minHashNodeIDs;
+    protected boolean isSeedsRandom;
     private String inputFilePath;
-    private boolean isSeedsRandom;
     private boolean runTests;
     private String direction;
     private long mMemoryUsed;
 
     protected Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
 
-    public MinHash() throws IOException, DirectionNotSetException, SeedsException {
+    public MinHash() throws IOException, DirectionNotSetException {
         initialize();
     }
 
-    private void initialize() throws IOException, DirectionNotSetException, SeedsException {
+    private void initialize() throws IOException, DirectionNotSetException {
 
         mMemoryUsed = 0;
-
         runTests = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.runTests"));
 
         isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isSeedsRandom"));
@@ -63,28 +59,11 @@ public abstract class MinHash {
             mGraph = Transform.transpose(mGraph);
             logger.info("Transposing graph ended");
         } else {
-            //TODO Create DirectionNotSetException
             throw new DirectionNotSetException("Direction property (\"minhash.direction\") not correctly set in properties file");
         }
 
-        if(isSeedsRandom) {
-            createSeeds();
-        } else {
-            String propertyName = "minhash.seeds";
-            String seedsString = PropertiesManager.getProperty(propertyName);
-            int[] seeds = Arrays.stream(seedsString.split(",")).mapToInt(Integer::parseInt).toArray();
-            numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
-
-            if (numSeeds != seeds.length) {
-                String message = "Specified different number of seeds in properties.  \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
-                throw new SeedsException(message);
-            }
-            mSeeds = new IntArrayList();
-            for (int i = 0; i < seeds.length; i++) {
-                mSeeds.add(seeds[i]);
-            }
-
-        }
+        numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
+        minHashNodeIDs = new int[numSeeds];
 
     }
 
@@ -101,20 +80,24 @@ public abstract class MinHash {
 
     /***
      *  Generate a random integer and append it
-     *  on the seeds list
+     *  to the seeds list
      */
-    private void createSeeds() {
+    protected void createSeeds() {
         mSeeds = new IntArrayList();
         Random random = new Random();
 
         for(int i = 0; i < numSeeds; i++) {
-            mSeeds.add(random.nextInt());
+            int randomNum = random.nextInt();
+            while(mSeeds.contains(randomNum)){
+                randomNum = random.nextInt();
+            }
+            mSeeds.add(randomNum);
         }
     }
 
-
     public void memoryUsed() {
         // Calculate the used memory
+        System.gc();
         long memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         logger.debug("Old memory value: {} Actual used memory: {}", mMemoryUsed, memory);
         if (memory > mMemoryUsed) {
@@ -124,24 +107,6 @@ public abstract class MinHash {
 
     public long getMaxUsedMemory() {
         return mMemoryUsed;
-    }
-
-    /***
-     * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
-     * @param totalCollisions
-     * @return
-     */
-    public Int2DoubleSortedMap hopTable(Int2LongOpenHashMap totalCollisions) {
-        Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
-        totalCollisions.forEach((key, value) -> {
-            if(key != 0) {
-                Double r = ((double) (value * mGraph.numNodes()) / this.numSeeds);
-                hopTable.put(key, r);
-            }
-        });
-        hopTable.put(0, mGraph.numNodes());
-
-        return hopTable;
     }
 
     public abstract GraphMeasure runAlgorithm();
