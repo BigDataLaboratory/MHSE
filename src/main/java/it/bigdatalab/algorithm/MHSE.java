@@ -18,7 +18,6 @@ public class MHSE extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSE");
 
-    //TODO check if Int2ObjectSortedMap<long[]> is better
     private Int2ObjectOpenHashMap<long[]> signatures;
     private Int2ObjectOpenHashMap<long[]> oldSignatures;
     private long[] graphSignature;

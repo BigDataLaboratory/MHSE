@@ -3,6 +3,8 @@ package it.bigdatalab.model;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 import java.util.HashMap;
 
@@ -15,6 +17,7 @@ public class GraphMeasure {
     private double mTotalCouplePercentage;
     private long mTime; //time elapsed in milliseconds
     private Int2DoubleSortedMap mHopTable;
+    private Int2ObjectOpenHashMap<int[]> collisionsTable;       //for each hop a list of collisions for each hash function
     private String mAlgorithmName;
     private float mThreshold;
     private String minHashNodeIDs;
@@ -237,6 +240,13 @@ public class GraphMeasure {
     }
 
     /**
+     * @return Collisions tables for each hop and hash function
+     */
+    public Int2ObjectOpenHashMap<int[]> getCollisionsTable() {
+        return collisionsTable;
+    }
+
+    /**
      * @return max memory used by application
      */
 
@@ -312,4 +322,10 @@ public class GraphMeasure {
         this.minHashNodeIDs = minHashNodeIDs;
     }
 
+    /**
+     * @param collisionsTable The map of the collisions for each hop and for each hash function
+     */
+    public void setCollisionsTable(Int2ObjectOpenHashMap<int[]> collisionsTable) {
+        this.collisionsTable = collisionsTable;
+    }
 }

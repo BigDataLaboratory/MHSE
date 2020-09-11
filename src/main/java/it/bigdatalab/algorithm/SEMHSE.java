@@ -20,6 +20,7 @@ public class SEMHSE extends MinHash {
 
     private Int2LongSortedMap mTotalCollisions;
     private int[] totalCollisionsPerHashFunction;
+    private Int2ObjectOpenHashMap<int[]> collisionsTable;
     private Int2LongOpenHashMap hashes;
     private Int2LongOpenHashMap oldHashes;
     private long[] graphSignature;
@@ -27,7 +28,7 @@ public class SEMHSE extends MinHash {
     /**
      * Creates a SE-MHSE instance with default values
      */
-    public SEMHSE() throws DirectionNotSetException, SeedsException, IOException {
+    public SEMHSE() throws DirectionNotSetException, IOException {
         super();
 
         if(isSeedsRandom) {
@@ -38,7 +39,8 @@ public class SEMHSE extends MinHash {
             int[] seeds = Arrays.stream(seedsString.split(",")).mapToInt(Integer::parseInt).toArray();
             if (numSeeds != seeds.length) {
                 String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
-                throw new SeedsException(message);
+//                throw new SeedsException(message);
+                logger.warn(message);
             }
             mSeeds = new IntArrayList();
             for (int i = 0; i < seeds.length; i++) {
@@ -48,6 +50,7 @@ public class SEMHSE extends MinHash {
 
         mTotalCollisions = new Int2LongLinkedOpenHashMap();
         totalCollisionsPerHashFunction = new int[numSeeds];     //for each hash function get the number of total collisions
+        collisionsTable = new Int2ObjectOpenHashMap<int[]>();       //for each hop a list of collisions for each hash function
         graphSignature = new long[numSeeds];
         Arrays.fill(graphSignature, Long.MAX_VALUE);                            //initialize graph signature with Long.MAX_VALUE
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
@@ -71,6 +74,13 @@ public class SEMHSE extends MinHash {
             hashes = new Int2LongOpenHashMap(mGraph.numNodes());
 
             while (signatureIsChanged) {
+                int[] hopCollisions;
+                if(collisionsTable.containsKey(hop)){
+                    hopCollisions = collisionsTable.get(hop);
+                } else {
+                    hopCollisions = new int[numSeeds];
+                }
+
                 //first hop - initialization
                 if (hop == 0) {
                     initializeGraph(i);
@@ -111,6 +121,9 @@ public class SEMHSE extends MinHash {
                         }
                     }
                 }
+                hopCollisions[i] = collisions;
+                collisionsTable.put(hop, hopCollisions);
+
                 logger.debug("Number of collisions: {}", collisions);
 
                 if (signatureIsChanged) {
@@ -131,7 +144,7 @@ public class SEMHSE extends MinHash {
                 lowerBoundDiameter = (hop - 1);
                 // Normalize collisions of all the previous hash functions,
                 // for all the missing hops between previousLowerBoundDiameter and lowerBoundDiameter
-                // because new lowerBoundDiameter reaced
+                // because new lowerBoundDiameter reached
                 for (int j = 0; j < i; j++) { //previous hash functions
                     for (int k = lowerBoundDiameter; k > previousLowerBoundDiameter; k--) { //all hops between previousLowerBoundDiameter and lowerBoundDiameter
                         long previousValue = mTotalCollisions.get(k);
@@ -153,9 +166,13 @@ public class SEMHSE extends MinHash {
         hopTable = hopTable();
         logger.info("Computation of the hop table completed");
 
+        //normalize collisionsTable
+//        normalizeCollisionsTable();
+
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
+        graphMeasure.setCollisionsTable(collisionsTable);
 
         String seedsListString = "";
         String separator = ",";
@@ -177,6 +194,8 @@ public class SEMHSE extends MinHash {
         graphMeasure.setMaxMemoryUsed(getMaxUsedMemory());
         return graphMeasure;
     }
+
+
 
     /**
      * Initialization of the graph structures
@@ -238,6 +257,25 @@ public class SEMHSE extends MinHash {
         return hopTable;
     }
 
+    /***
+     * TODO
+     * Normalization of the collisionsTable.
+     * For each hop check if one of the hash functions reached the end of computation.
+     * If so, we have to substitute the 0 value in the table with
+     * the maximum value of the other hash functions of the same hop
+     */
+    /*
+    private void normalizeCollisionsTable() {
+        int lowerBoundDiameter = collisionsTable.size() - 1;
+        logger.debug("Diameter: " + lowerBoundDiameter);
+        for(int i=0; i<lowerBoundDiameter; i++){
+            int[] hopCollisions = collisionsTable.get(i);
+            int maxColls = Arrays.stream(hopCollisions).max().getAsInt();
+            int[] newHopCollisions = Arrays.stream(hopCollisions).map(x -> x == 0 ? maxColls : x).toArray();
+            collisionsTable.put(i, newHopCollisions);
+        }
+    }
+    */
 
 }
 
