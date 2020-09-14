@@ -121,12 +121,12 @@ public class SEMHSE extends MinHash {
                         }
                     }
                 }
-                hopCollisions[i] = collisions;
-                collisionsTable.put(hop, hopCollisions);
-
-                logger.debug("Number of collisions: {}", collisions);
 
                 if (signatureIsChanged) {
+                    hopCollisions[i] = collisions;
+                    collisionsTable.put(hop, hopCollisions);
+                    logger.debug("Number of collisions: {}", collisions);
+
                     long previousValue = mTotalCollisions.get(hop);
                     mTotalCollisions.put(hop, previousValue + collisions);
                     logger.debug("Hop {} for seed n.{} completed", hop, i);
@@ -167,7 +167,7 @@ public class SEMHSE extends MinHash {
         logger.info("Computation of the hop table completed");
 
         //normalize collisionsTable
-//        normalizeCollisionsTable();
+        normalizeCollisionsTable();
 
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
@@ -258,24 +258,32 @@ public class SEMHSE extends MinHash {
     }
 
     /***
-     * TODO
+     * TODO Optimizable?
      * Normalization of the collisionsTable.
      * For each hop check if one of the hash functions reached the end of computation.
      * If so, we have to substitute the 0 value in the table with
      * the maximum value of the other hash functions of the same hop
      */
-    /*
     private void normalizeCollisionsTable() {
         int lowerBoundDiameter = collisionsTable.size() - 1;
         logger.debug("Diameter: " + lowerBoundDiameter);
-        for(int i=0; i<lowerBoundDiameter; i++){
+
+        //Start with hop 1
+        //There is no check for hop 0 because at hop 0 there is always (at least) 1 collision, never 0.
+        for(int i=1; i<=lowerBoundDiameter; i++){
+            int[] previousHopCollisions = collisionsTable.get(i-1);
             int[] hopCollisions = collisionsTable.get(i);
-            int maxColls = Arrays.stream(hopCollisions).max().getAsInt();
-            int[] newHopCollisions = Arrays.stream(hopCollisions).map(x -> x == 0 ? maxColls : x).toArray();
-            collisionsTable.put(i, newHopCollisions);
+            //TODO first if is better for performance?
+            if(Arrays.stream(hopCollisions).anyMatch(coll -> coll == 0)){
+                for(int j=0;j<hopCollisions.length;j++){
+                    if(hopCollisions[j] == 0){
+                        hopCollisions[j] = previousHopCollisions[j];
+                    }
+                }
+            }
+            collisionsTable.put(i, hopCollisions);
         }
     }
-    */
 
 }
 
