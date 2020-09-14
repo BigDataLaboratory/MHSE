@@ -21,6 +21,7 @@ public class SEMHSE extends MinHash {
     private Int2LongSortedMap mTotalCollisions;
     private int[] totalCollisionsPerHashFunction;
     private Int2ObjectOpenHashMap<int[]> collisionsTable;
+    private int[] lastHops;
     private Int2LongOpenHashMap hashes;
     private Int2LongOpenHashMap oldHashes;
     private long[] graphSignature;
@@ -51,6 +52,7 @@ public class SEMHSE extends MinHash {
         mTotalCollisions = new Int2LongLinkedOpenHashMap();
         totalCollisionsPerHashFunction = new int[numSeeds];     //for each hash function get the number of total collisions
         collisionsTable = new Int2ObjectOpenHashMap<int[]>();       //for each hop a list of collisions for each hash function
+        lastHops = new int[numSeeds];                           //for each hash function, the last hop executed
         graphSignature = new long[numSeeds];
         Arrays.fill(graphSignature, Long.MAX_VALUE);                            //initialize graph signature with Long.MAX_VALUE
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
@@ -126,7 +128,7 @@ public class SEMHSE extends MinHash {
                     hopCollisions[i] = collisions;
                     collisionsTable.put(hop, hopCollisions);
                     logger.debug("Number of collisions: {}", collisions);
-
+                    lastHops[i] = hop;
                     long previousValue = mTotalCollisions.get(hop);
                     mTotalCollisions.put(hop, previousValue + collisions);
                     logger.debug("Hop {} for seed n.{} completed", hop, i);
@@ -173,6 +175,7 @@ public class SEMHSE extends MinHash {
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setCollisionsTable(collisionsTable);
+        graphMeasure.setLastHops(lastHops);
 
         String seedsListString = "";
         String separator = ",";

@@ -4,7 +4,6 @@ import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 import java.util.HashMap;
 
@@ -27,9 +26,11 @@ public class GraphMeasure {
     private long numArcs;
     private String mDirection;
     private HashMap<Integer, Double> seedsTime;
+    private int[] lastHops;
 
     public GraphMeasure(Int2DoubleSortedMap hopTable){
         this.mHopTable = hopTable;
+        this.mMaxMemoryUsed = -1;
         this.mTime = -1;
         this.mAlgorithmName = "";
         this.numNodes = -1;
@@ -47,6 +48,8 @@ public class GraphMeasure {
         this.mSeedsList = PropertiesManager.getProperty("minhash.seeds");
         this.numSeeds = mSeedsList.split(",").length;
         this.mDirection = PropertiesManager.getProperty("minhash.direction");
+        this.lastHops = null;
+        this.collisionsTable = null;
 
     }
 
@@ -254,6 +257,13 @@ public class GraphMeasure {
         return mMaxMemoryUsed;
     }
 
+    /**
+     * @return Array containing the last hop executed for each hash function
+     */
+    public int[] getLastHops() {
+        return lastHops;
+    }
+
 
     /*******************************************************************************
      *                                  SETTER METHODS
@@ -327,5 +337,12 @@ public class GraphMeasure {
      */
     public void setCollisionsTable(Int2ObjectOpenHashMap<int[]> collisionsTable) {
         this.collisionsTable = collisionsTable;
+    }
+
+    /**
+     * @param lastHops Array containing the last hop for each hash function
+     */
+    public void setLastHops(int[] lastHops) {
+        this.lastHops = lastHops;
     }
 }
