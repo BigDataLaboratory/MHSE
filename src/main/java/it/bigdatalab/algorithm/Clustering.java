@@ -155,7 +155,7 @@ public class Clustering {
             Enumeration<Integer> k = x.keys();
 
             while( k.hasMoreElements() ){
-                int c = keys.nextElement();
+                int c = k.nextElement();
                 err += Math.abs(x.get(c)-xlast.get(c));
             }
             if(err<N*tol){
