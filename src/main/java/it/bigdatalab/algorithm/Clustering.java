@@ -28,7 +28,7 @@ public class Clustering {
 
 
     }
-    public void pagerank(ImmutableGraph G,float alpha , Dictionary personalization, int max_iter,double tol, Dictionary nstart,Dictionary dangling ){
+    public void pagerank(ImmutableGraph G,double alpha , Dictionary personalization, int max_iter,double tol, Dictionary nstart,Dictionary dangling ){
         Int2ObjectOpenHashMap<Double> Ranking ;
         // Create a copy in (right) stochastic form
         Dictionary <Integer,Double>  W = stochastic_graph(G);
@@ -37,6 +37,7 @@ public class Clustering {
         Dictionary <Integer,Double> p = new Hashtable <Integer, Double>();
         Dictionary <Integer, Double> dangling_weights = new Hashtable <Integer, Double>();
         List<Integer> dangling_nodes = new ArrayList<Integer>();
+        boolean converged = false;
         // Choose fixed starting vector if not given
         if(nstart.isEmpty()){
             NodeIterator nodeIterator = G.nodeIterator();
@@ -118,14 +119,15 @@ public class Clustering {
 
 
         // power iteration: make up to max_iter iterations
-
-        for (int i = 0; i<max_iter;i++){
+        int i =0;
+        while((converged == false ) && (i<max_iter)){
+        //for (int i = 0; i<max_iter;i++){
             Dictionary <Integer,Double> xlast = x;
 
             Enumeration<Integer> keysX = x.keys();
             while( keysX.hasMoreElements() ){
                 int key = keysX.nextElement();
-                x.put(key,0.0);
+                x.put(key,xlast.get(key));
 
             }
 
@@ -160,10 +162,16 @@ public class Clustering {
             }
             if(err<N*tol){
                 this.PageRank = x;
-            }
+                converged = true;
+                System.out.println("Converged");
 
+            }
+        i+=1;
         }
-        System.out.println("Error ! Pagerank not converged");
+        if(converged == false){
+            System.out.println("Error ! Pagerank not converged");
+        }
+
     }
 
     // Get the transition probability for each node
@@ -185,5 +193,14 @@ public class Clustering {
         }
         return(weights);
 
+    }
+
+    public void print_pagerank(){
+        Enumeration<Integer> k = this.PageRank.keys();
+
+        while( k.hasMoreElements() ){
+            int c = k.nextElement();
+            System.out.println("Nodo "+c+ " rank "+this.PageRank.get(c));
+        }
     }
 }
