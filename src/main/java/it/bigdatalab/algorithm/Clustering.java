@@ -195,12 +195,21 @@ public class Clustering {
 
     }
 
-    public void print_pagerank(){
+
+    public Dictionary get_pagerank(){
+        if(this.PageRank.isEmpty()){
+            System.out.println("You must calculate pagerank first!");
+            System.exit(-1);
+        }
+        return(this.PageRank);
+    }
+
+    /*public void print_pagerank(){
         Enumeration<Integer> k = this.PageRank.keys();
 
         while( k.hasMoreElements() ){
             int c = k.nextElement();
             System.out.println("Nodo "+c+ " rank "+this.PageRank.get(c));
         }
-    }
+    }*/
 }
