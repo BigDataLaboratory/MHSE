@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
+import it.unimi.dsi.webgraph.Transform;
 
 
 //import org.jgrapht.alg.scoring;
@@ -19,6 +20,7 @@ public class Clustering {
     private long [] clustersSignatures;
     private long [] clustersCentroids;
     private Dictionary<Integer,Double> PageRank;
+    private Dictionary<Integer,Double> APX_PageRank;
     private Int2ObjectOpenHashMap<long [] > clusterAssignments;
 
 
@@ -28,7 +30,7 @@ public class Clustering {
 
 
     }
-    public void pagerank(ImmutableGraph G,double alpha , Dictionary personalization, int max_iter,double tol, Dictionary nstart,Dictionary dangling ){
+    public void pagerank(ImmutableGraph G,double alpha , Dictionary personalization, int max_iter,double tol, Dictionary nstart,Dictionary dangling){
         Int2ObjectOpenHashMap<Double> Ranking ;
         // Create a copy in (right) stochastic form
         Dictionary <Integer,Double>  W = stochastic_graph(G);
@@ -203,13 +205,84 @@ public class Clustering {
         }
         return(this.PageRank);
     }
+    // This is the approximate pagerank proposed by Andersen et al. in "Local Graph Partitioning using PageRank Vectors" paper.
+    public void apx_pagerank(ImmutableGraph G,double alpha ,int v,double epsilon){
+        System.out.println("Transposing");
+        ImmutableGraph transposedG = Transform.transpose(G);
+        System.out.println("Done");
+        Dictionary<Integer,Double> p = new Hashtable<>();
+        Dictionary<Integer,Double> r = new Hashtable<>();
+        List <Integer> ratio;
+
+        NodeIterator nodeIterator = G.nodeIterator();
+        while(nodeIterator.hasNext()){
+            int vertex = nodeIterator.nextInt();
+            p.put(vertex,0.0);
+            if(vertex == v){
+                r.put(vertex,1.0);
+
+            }else{
+                r.put(vertex,0.0);
+            }
+        }
+
+        ratio = get_max_ratio(G,r,epsilon);
+        while(ratio.size()>0){
+            //for (int i =0;i<ratio.size();i++){
+                Random rand = new Random();
+                int randomElement = ratio.get(rand.nextInt(ratio.size()));
+                List <Dictionary<Integer,Double>> pushed = push(p,r,G,transposedG,randomElement,alpha);
+                p = pushed.get(0);
+                r = pushed.get(1);
+
+            //}
+            ratio = get_max_ratio(G,r,epsilon);
+
+        }
+        this.APX_PageRank = p;
+
+    }
+
+    public List <Dictionary<Integer,Double>>  push( Dictionary<Integer,Double> p, Dictionary<Integer,Double> r,ImmutableGraph G,ImmutableGraph transposedG,int u,double alpha){
+        Dictionary<Integer,Double> p1 = p;
+        Dictionary<Integer,Double> r1 = r;
+        p1.put(u,p.get(u)+alpha*r.get(u));
+        r1.put(u,(1-alpha)*r.get(u)/2);
+
+        LazyIntIterator successors = G.successors(u);
+        int nbr;
+        while((nbr=successors.nextInt())!=-1){
+            r1.put(nbr,r.get(nbr)+(1-alpha)*(r.get(u)/(2*G.outdegree(u))));
+        }
+        LazyIntIterator successorsTransposed = transposedG.successors(u);
+        int nbrT;
+        while((nbrT=successorsTransposed.nextInt())!=-1){
+            r1.put(nbrT,r.get(nbrT)+(1-alpha)*(r.get(u)/(2*transposedG.outdegree(u))));
+        }
+        List <Dictionary<Integer,Double>> result = new ArrayList<>();
+        result.add(p1);
+        result.add(r1);
+        return(result);
+    }
+
+    public List<Integer> get_max_ratio(ImmutableGraph G,Dictionary<Integer,Double> r,double epsilon) {
+        List<Integer> max_ratio = new ArrayList();
+        NodeIterator nodeIterator = G.nodeIterator();
+        while (nodeIterator.hasNext()) {
+            int vertex = nodeIterator.nextInt();
+            if (r.get(vertex) / G.outdegree(vertex) >= epsilon) {
+                max_ratio.add(vertex);
+            }
+        }
+        return (max_ratio);
+    }
 
     /*public void print_pagerank(){
-        Enumeration<Integer> k = this.PageRank.keys();
+        Enumeration<Integer> k = this.APX_PageRank.keys();
 
         while( k.hasMoreElements() ){
             int c = k.nextElement();
-            System.out.println("Nodo "+c+ " rank "+this.PageRank.get(c));
+            System.out.println("Nodo "+c+ " rank "+this.APX_PageRank.get(c));
         }
     }*/
 }
