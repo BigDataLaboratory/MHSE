@@ -18,7 +18,7 @@ public class GraphMeasure {
     private Int2DoubleSortedMap mHopTable;
     private Int2ObjectOpenHashMap<int[]> collisionsTable;       //for each hop a list of collisions for each hash function
     private String mAlgorithmName;
-    private float mThreshold;
+    private double mThreshold;
     private String minHashNodeIDs;
     private String mSeedsList;
     private int numSeeds;
@@ -39,7 +39,7 @@ public class GraphMeasure {
         this.mSeedsList = "";
         this.minHashNodeIDs = "";
         this.seedsTime = new HashMap<>();
-        this.mThreshold = Float.parseFloat(PropertiesManager.getProperty("minhash.threshold"));
+        this.mThreshold = Double.parseDouble(PropertiesManager.getProperty("minhash.threshold"));
         this.mLowerBoundDiameter = hopTable.size()-1;
         this.mAvgDistance = averageDistance();
         this.mEffectiveDiameter = effectiveDiameter();
@@ -88,6 +88,14 @@ public class GraphMeasure {
         while((mHopTable.get(d)/totalCouplesReachable) < mThreshold) {
             d += 1;
         }
+        System.out.println(interpolate(mHopTable.get(d-1), mHopTable.get(d), mThreshold * totalCouplesReachable));
+        System.out.println(mHopTable.get(d));
+        System.out.println(mHopTable.get(d-1));
+        System.out.println(d);
+        System.out.println(d-1);
+
+
+
         double result = (d-1) + interpolate(mHopTable.get(d-1), mHopTable.get(d), mThreshold * totalCouplesReachable);
         if(result < 0){
             result = 0;
@@ -189,7 +197,7 @@ public class GraphMeasure {
     /**
      * @return
      */
-    public float getThreshold() {
+    public double getThreshold() {
         return mThreshold;
     }
 
