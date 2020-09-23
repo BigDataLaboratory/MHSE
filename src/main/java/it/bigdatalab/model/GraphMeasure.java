@@ -88,13 +88,6 @@ public class GraphMeasure {
         while((mHopTable.get(d)/totalCouplesReachable) < mThreshold) {
             d += 1;
         }
-        System.out.println(interpolate(mHopTable.get(d-1), mHopTable.get(d), mThreshold * totalCouplesReachable));
-        System.out.println(mHopTable.get(d));
-        System.out.println(mHopTable.get(d-1));
-        System.out.println(d);
-        System.out.println(d-1);
-
-
 
         double result = (d-1) + interpolate(mHopTable.get(d-1), mHopTable.get(d), mThreshold * totalCouplesReachable);
         if(result < 0){
