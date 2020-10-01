@@ -84,15 +84,16 @@ public class GraphMeasure {
         int lowerBoundDiameter = mHopTable.size()-1;
         double totalCouplesReachable = mHopTable.get(lowerBoundDiameter);
 
-        int d = 1;
+        int d = 0;
         while((mHopTable.get(d)/totalCouplesReachable) < mThreshold) {
             d += 1;
         }
 
-        double result = (d-1) + interpolate(mHopTable.get(d-1), mHopTable.get(d), mThreshold * totalCouplesReachable);
-        if(result < 0){
-            result = 0;
+        double result = 0;
+        if(d != 0){
+            result = (d-1) + interpolate(mHopTable.get(d-1), mHopTable.get(d), mThreshold * totalCouplesReachable);
         }
+
         return result ;
     }
 
