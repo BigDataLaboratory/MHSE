@@ -73,8 +73,8 @@ public class EdgeList2WebGraph {
                 long normalizedTargetID;
 
                 if(fromJanusGraph) {
-                    logger.warn("It is specified that the edgelist file comes from JanusGraph");
-                    logger.warn("The edgelist will be normalized (i.e. normalizedID = ID/4 -1) and ordered");
+                    logger.debug("It is specified that the edgelist file comes from JanusGraph");
+                    logger.debug("The edgelist will be normalized (i.e. normalizedID = ID/4 -1) and ordered");
                     //JanusGraph IDs are always multiple of 4 and starts the numeration with ID 4,
                     //so we have to divide JanusGraph ID by 4 and subtract 1
                     //to have a numeration starting from ID 0

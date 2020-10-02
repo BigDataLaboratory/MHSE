@@ -95,7 +95,7 @@ public class MinHashMain {
                 int[] seeds = Arrays.stream(seedsString.split(",")).mapToInt(Integer::parseInt).toArray();
                 int numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
                 if (numSeeds != seeds.length) {
-                    String message = "Specified different number of seeds in properties.  \"mhse.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
+                    String message = "Specified different number of seeds in properties. \"mhse.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
                     throw new MinHash.SeedsException(message);
                 }
 

@@ -36,9 +36,6 @@ public class MinHashFactory {
             case StandaloneBMinHash:
                 minHashAlgorithm = new StandaloneBMinHash();
                 break;
-            case MultithreadBMinHash:
-                minHashAlgorithm = new MultithreadBMinHash();
-                break;
             default:
                 error = true;
                 logger.error("Algorithm name not recognized");

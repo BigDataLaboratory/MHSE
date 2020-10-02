@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Random;
 
 public abstract class MinHash {
@@ -26,15 +25,17 @@ public abstract class MinHash {
     private String inputFilePath;
     private boolean runTests;
     private String direction;
+    private long mMemoryUsed;
 
     protected Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
 
-    public MinHash() throws IOException, DirectionNotSetException, SeedsException {
+    public MinHash() throws IOException, DirectionNotSetException {
         initialize();
     }
 
-    private void initialize() throws IOException, DirectionNotSetException, SeedsException {
+    private void initialize() throws IOException, DirectionNotSetException {
 
+        mMemoryUsed = 0;
         runTests = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.runTests"));
 
         isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isSeedsRandom"));
@@ -64,23 +65,6 @@ public abstract class MinHash {
         numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
         minHashNodeIDs = new int[numSeeds];
 
-        if(isSeedsRandom) {
-            createSeeds();
-        } else {
-            String propertyName = "minhash.seeds";
-            String seedsString = PropertiesManager.getProperty(propertyName);
-            int[] seeds = Arrays.stream(seedsString.split(",")).mapToInt(Integer::parseInt).toArray();
-            if (numSeeds != seeds.length) {
-                String message = "Specified different number of seeds in properties.  \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
-                throw new SeedsException(message);
-            }
-            mSeeds = new IntArrayList();
-            for (int i = 0; i < seeds.length; i++) {
-                mSeeds.add(seeds[i]);
-            }
-
-        }
-
     }
 
     /***
@@ -98,7 +82,7 @@ public abstract class MinHash {
      *  Generate a random integer and append it
      *  to the seeds list
      */
-    private void createSeeds() {
+    protected void createSeeds() {
         mSeeds = new IntArrayList();
         Random random = new Random();
 
@@ -111,6 +95,19 @@ public abstract class MinHash {
         }
     }
 
+    public void memoryUsed() {
+        // Calculate the used memory
+        System.gc();
+        long memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        logger.debug("Old memory value: {} Actual used memory: {}", mMemoryUsed, memory);
+        if (memory > mMemoryUsed) {
+            mMemoryUsed = memory;
+        }
+    }
+
+    public long getMaxUsedMemory() {
+        return mMemoryUsed;
+    }
 
     public abstract GraphMeasure runAlgorithm();
 

@@ -3,10 +3,12 @@ package it.bigdatalab.model;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import java.util.HashMap;
 
 public class GraphMeasure {
+    private long mMaxMemoryUsed;
     private int mLowerBoundDiameter;
     private double mAvgDistance;
     private double mEffectiveDiameter;
@@ -14,8 +16,9 @@ public class GraphMeasure {
     private double mTotalCouplePercentage;
     private long mTime; //time elapsed in milliseconds
     private Int2DoubleSortedMap mHopTable;
+    private Int2ObjectOpenHashMap<int[]> collisionsTable;       //for each hop a list of collisions for each hash function
     private String mAlgorithmName;
-    private float mThreshold;
+    private double mThreshold;
     private String minHashNodeIDs;
     private String mSeedsList;
     private int numSeeds;
@@ -23,10 +26,11 @@ public class GraphMeasure {
     private long numArcs;
     private String mDirection;
     private HashMap<Integer, Double> seedsTime;
-
+    private int[] lastHops;
 
     public GraphMeasure(Int2DoubleSortedMap hopTable){
         this.mHopTable = hopTable;
+        this.mMaxMemoryUsed = -1;
         this.mTime = -1;
         this.mAlgorithmName = "";
         this.numNodes = -1;
@@ -35,13 +39,17 @@ public class GraphMeasure {
         this.mSeedsList = "";
         this.minHashNodeIDs = "";
         this.seedsTime = new HashMap<>();
-        this.mThreshold = Float.parseFloat(PropertiesManager.getProperty("minhash.threshold"));
+        this.mThreshold = Double.parseDouble(PropertiesManager.getProperty("minhash.threshold"));
         this.mLowerBoundDiameter = hopTable.size()-1;
         this.mAvgDistance = averageDistance();
         this.mEffectiveDiameter = effectiveDiameter();
         this.mTotalCouples = totalCouplesReachable();
         this.mTotalCouplePercentage = totalCouplesPercentage();
+        this.mSeedsList = PropertiesManager.getProperty("minhash.seeds");
+        this.numSeeds = mSeedsList.split(",").length;
         this.mDirection = PropertiesManager.getProperty("minhash.direction");
+        this.lastHops = null;
+        this.collisionsTable = null;
 
     }
 
@@ -66,7 +74,7 @@ public class GraphMeasure {
 
     /**
      * @return effective diameter of the graph (computed using hop table), defined as the 90th percentile distance between nodes,
-     * that is the maximum distance that allows to connect the of all reachable pairs
+     * that is the minimum distance that allows to connect the 90th percent of all reachable pairs
      */
     private double effectiveDiameter() {
         if(mHopTable.size() == 0) {
@@ -74,14 +82,19 @@ public class GraphMeasure {
         }
 
         int lowerBoundDiameter = mHopTable.size()-1;
-        double numCollisions = mHopTable.get(lowerBoundDiameter);
+        double totalCouplesReachable = mHopTable.get(lowerBoundDiameter);
 
-        int d = 1;
-        while((mHopTable.get(d)/numCollisions) < mThreshold) {
+        int d = 0;
+        while((mHopTable.get(d)/totalCouplesReachable) < mThreshold) {
             d += 1;
         }
 
-        return ((d-1) + interpolate(mHopTable.get(d-1), mHopTable.get(d), mThreshold * numCollisions));
+        double result = 0;
+        if(d != 0){
+            result = (d-1) + interpolate(mHopTable.get(d-1), mHopTable.get(d), mThreshold * totalCouplesReachable);
+        }
+
+        return result ;
     }
 
     /**
@@ -178,7 +191,7 @@ public class GraphMeasure {
     /**
      * @return
      */
-    public float getThreshold() {
+    public double getThreshold() {
         return mThreshold;
     }
 
@@ -231,9 +244,39 @@ public class GraphMeasure {
         return mHopTable;
     }
 
+    /**
+     * @return Collisions tables for each hop and hash function
+     */
+    public Int2ObjectOpenHashMap<int[]> getCollisionsTable() {
+        return collisionsTable;
+    }
+
+    /**
+     * @return max memory used by application
+     */
+
+    public long getMaxMemoryUsed() {
+        return mMaxMemoryUsed;
+    }
+
+    /**
+     * @return Array containing the last hop executed for each hash function
+     */
+    public int[] getLastHops() {
+        return lastHops;
+    }
+
+
     /*******************************************************************************
      *                                  SETTER METHODS
      * ****************************************************************************/
+
+    /**
+     * @param maxMemoryUsed max memory used by application
+     */
+    public void setMaxMemoryUsed(long maxMemoryUsed) {
+        this.mMaxMemoryUsed = maxMemoryUsed;
+    }
 
     /**
      * @param seedsTime time for each seed
@@ -291,4 +334,17 @@ public class GraphMeasure {
         this.minHashNodeIDs = minHashNodeIDs;
     }
 
+    /**
+     * @param collisionsTable The map of the collisions for each hop and for each hash function
+     */
+    public void setCollisionsTable(Int2ObjectOpenHashMap<int[]> collisionsTable) {
+        this.collisionsTable = collisionsTable;
+    }
+
+    /**
+     * @param lastHops Array containing the last hop for each hash function
+     */
+    public void setLastHops(int[] lastHops) {
+        this.lastHops = lastHops;
+    }
 }

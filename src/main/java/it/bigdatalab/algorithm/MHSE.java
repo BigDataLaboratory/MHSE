@@ -1,5 +1,6 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
@@ -17,7 +18,6 @@ public class MHSE extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSE");
 
-    //TODO check if Int2ObjectSortedMap<long[]> is better
     private Int2ObjectOpenHashMap<long[]> signatures;
     private Int2ObjectOpenHashMap<long[]> oldSignatures;
     private long[] graphSignature;
@@ -27,6 +27,23 @@ public class MHSE extends MinHash {
      */
     public MHSE() throws IOException, DirectionNotSetException, SeedsException {
         super();
+
+        if(isSeedsRandom) {
+            createSeeds();
+        } else {
+            String propertyName = "minhash.seeds";
+            String seedsString = PropertiesManager.getProperty(propertyName);
+            int[] seeds = Arrays.stream(seedsString.split(",")).mapToInt(Integer::parseInt).toArray();
+            if (numSeeds != seeds.length) {
+                String message = "Specified different number of seeds in properties.  \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
+                throw new SeedsException(message);
+            }
+            mSeeds = new IntArrayList();
+            for (int i = 0; i < seeds.length; i++) {
+                mSeeds.add(seeds[i]);
+            }
+        }
+
         signatures = new Int2ObjectOpenHashMap<long[]>(mGraph.numNodes());       //initialize signatures map with the expected number of elements(nodes) in the map
         oldSignatures = new Int2ObjectOpenHashMap<long[]>(mGraph.numNodes());
         graphSignature = new long[numSeeds];
@@ -50,11 +67,6 @@ public class MHSE extends MinHash {
             double overallJaccard = 0d;
             if(hop == 0){
                 initializeGraph();
-                String graphSignatureStr = "";
-                for(int i=0; i<graphSignature.length;i++){
-                    graphSignatureStr += (graphSignature[i] + ",");
-                }
-                logger.info("Graph signature is: " + graphSignatureStr);
 
                 // jaccard computation
                 nodeIter = mGraph.nodeIterator();
@@ -98,11 +110,13 @@ public class MHSE extends MinHash {
                 hop++;
             }
             logger.info("Hop " + hop + " completed");
+            memoryUsed();
         }
 
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
+        graphMeasure.setMaxMemoryUsed(getMaxUsedMemory());
 
         String seedsListString = "";
         String separator = ",";
@@ -172,7 +186,6 @@ public class MHSE extends MinHash {
         }
         return signatureIsChanged;
     }
-
 
 
     /**
