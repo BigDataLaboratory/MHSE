@@ -2,13 +2,17 @@ package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
+import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2LongSortedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.IntStream;
 
 public class StandaloneBMinHash extends MinHash {
 
@@ -34,9 +38,17 @@ public class StandaloneBMinHash extends MinHash {
             }
         } else {
             //Load minHash node IDs from properties file
+            String propertyNodeIDRange = "minhash.nodeIDRange";
             String propertyName = "minhash.nodeIDs";
             String minHashNodeIDsString = PropertiesManager.getProperty(propertyName);
-            minHashNodeIDs = Arrays.stream(minHashNodeIDsString.split(",")).mapToInt(Integer::parseInt).toArray();
+            String minHashNodeIDRangeString = PropertiesManager.getProperty(propertyNodeIDRange);
+
+            if (!minHashNodeIDRangeString.equals("")) {
+                int[] minHashNodeIDRange = Arrays.stream(minHashNodeIDRangeString.split(",")).mapToInt(Integer::parseInt).toArray();
+                minHashNodeIDs = IntStream.rangeClosed(minHashNodeIDRange[0], minHashNodeIDRange[1]).toArray();
+            } else {
+                minHashNodeIDs = Arrays.stream(minHashNodeIDsString.split(",")).mapToInt(Integer::parseInt).toArray();
+            }
             if (numSeeds != minHashNodeIDs.length) {
                 String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + minHashNodeIDs.length;
                 throw new SeedsException(message);
