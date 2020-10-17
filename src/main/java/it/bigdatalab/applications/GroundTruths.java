@@ -39,18 +39,21 @@ public class GroundTruths {
         long endTime;
         long totalTime;
         int max = 0;
+        int visited_nodes = 0 ;
         LongBigArrayBigList coda = new LongBigArrayBigList();
         ProgressLogger pl = new ProgressLogger();
         ParallelBreadthFirstVisit bfs = new ParallelBreadthFirstVisit(mGraph,4,false,pl);
         startTime = System.currentTimeMillis();
         System.out.println("Inizio calcolo del diametro in modo esaustivo ");
-        //bfs.visitAll();
+
         NodeIterator nodeIterator = mGraph.nodeIterator();
 
         while(nodeIterator.hasNext()){
             int vertex = nodeIterator.nextInt();
             bfs.clear();
-            bfs.visit(vertex);
+            int node_number = bfs.visit(vertex);
+            visited_nodes += node_number;
+
             if(max < bfs.maxDistance()){
                 max = bfs.maxDistance();
             }
@@ -58,8 +61,8 @@ public class GroundTruths {
         System.out.println(bfs.queue.size());
         endTime = System.currentTimeMillis();
         totalTime = endTime - startTime;
-        System.out.println("Diametro " + max);
-        System.out.println("Tempo impiegato "+totalTime);
+        System.out.println("Diametro " + max + " Numero di coppie raggiungibili "+ visited_nodes);
+        System.out.println("Tempo impiegato "+totalTime+ " Numero di coppie raggiungibili "+ visited_nodes);
     }
 
     public static void main(String args[]) throws IOException {
