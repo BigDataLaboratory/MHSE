@@ -11,6 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Random;
 
 public abstract class MinHash {
@@ -62,8 +65,22 @@ public abstract class MinHash {
             throw new DirectionNotSetException("Direction property (\"minhash.direction\") not correctly set in properties file");
         }
 
+        /*Dictionary<Integer,Double> personalization = new Hashtable<Integer, Double>();
+        Dictionary<Integer,Double> nstart = new Hashtable<Integer, Double>();
+        Dictionary<Integer,Double> dangling = new Hashtable<Integer, Double>();
+        */
+
+        Clustering cluster = new Clustering();
+
+        //cluster.pagerank(mGraph,0.85,personalization,100,1.0e-6,nstart,dangling);
+        cluster.apx_pagerank(mGraph,0.85,0,1.0e-6);
+        //cluster.print_pagerank();
+        
+        System.exit(1);
+
         numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
         minHashNodeIDs = new int[numSeeds];
+
 
     }
 
