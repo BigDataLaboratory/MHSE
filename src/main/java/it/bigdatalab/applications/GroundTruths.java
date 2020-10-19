@@ -157,9 +157,9 @@ public class GroundTruths {
 
         endTime = System.currentTimeMillis();
         totalTime = endTime - startTime;
-        System.out.println("Somma di tutte le distanze ="+ avg_distance);
-        System.out.println("Numero di nodi nel grago = "+ mGraph.numNodes());
-        double total_avg_distance =  avg_distance / (mGraph.numNodes()*(mGraph.numNodes()-1));
+        System.out.println("Somma di tutte le distanze = "+ avg_distance);
+        System.out.println("Numero di nodi nel grafo = "+ mGraph.numNodes());
+        double total_avg_distance =  (double) (avg_distance / (mGraph.numNodes()*(mGraph.numNodes()-1)));
         bfsResults.put("numNodes",mGraph.numNodes());
         bfsResults.put("numArcs",mGraph.numArcs());
         bfsResults.put("avg_distance",Double.toString(total_avg_distance));
