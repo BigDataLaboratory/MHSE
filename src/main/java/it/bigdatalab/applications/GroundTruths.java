@@ -10,7 +10,6 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -45,7 +44,7 @@ public class GroundTruths {
         long totalTime;
         int max = 0;
         long visited_nodes = 0 ;
-        double avg_distance = 0;
+        long avg_distance = 0;
         JSONObject bfsResults = new JSONObject();
         LongBigArrayBigList coda = new LongBigArrayBigList();
         LongBigArrayBigList queue = new LongBigArrayBigList();
@@ -158,6 +157,8 @@ public class GroundTruths {
 
         endTime = System.currentTimeMillis();
         totalTime = endTime - startTime;
+        System.out.println("Somma di tutte le distanze ="+ avg_distance);
+        System.out.println("Numero di nodi nel grago = "+ mGraph.numNodes());
         double total_avg_distance =  avg_distance / (mGraph.numNodes()*(mGraph.numNodes()-1));
         bfsResults.put("numNodes",mGraph.numNodes());
         bfsResults.put("numArcs",mGraph.numArcs());
