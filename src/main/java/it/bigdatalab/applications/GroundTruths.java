@@ -163,7 +163,7 @@ public class GroundTruths {
         System.out.println("Somma di tutte le distanze = "+ avg_distance);
         System.out.println("Numero di nodi nel grafo = "+ mGraph.numNodes());
         //BigDecimal total_avg_distance = new BigDecimal(avg_distance).divide(new BigDecimal(mGraph.numNodes()*(mGraph.numNodes()-1)));
-        double total_avg_distance =  (double) (avg_distance / (mGraph.numNodes()*(mGraph.numNodes()-1)));
+        double total_avg_distance =   ((double) avg_distance / (mGraph.numNodes()*(mGraph.numNodes()-1)));
         bfsResults.put("numNodes",mGraph.numNodes());
         bfsResults.put("numArcs",mGraph.numArcs());
         bfsResults.put("sum_distances",avg_distance);
