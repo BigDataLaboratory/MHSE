@@ -2,10 +2,7 @@ package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
-import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2LongSortedMap;
+import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +24,8 @@ public class MultithreadBMinHash extends MinHash {
     private static final int BIT = 1;
 
     private Int2LongSortedMap mTotalCollisions;
+    private Int2ObjectOpenHashMap<int[]> collisionsTable;
+    private int[] lastHops;
     private int mNumberOfThreads;
     private HashMap<Integer, Double> mSeedTime;
     private final Object mLock = new Object();
@@ -66,6 +65,8 @@ public class MultithreadBMinHash extends MinHash {
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
         this.mNumberOfThreads = getNumberOfMaxThreads(suggestedNumberOfThreads);
         mTotalCollisions = new Int2LongLinkedOpenHashMap();
+        collisionsTable = new Int2ObjectOpenHashMap<int[]>();
+        lastHops = new int[numSeeds];
     }
 
 
@@ -87,10 +88,22 @@ public class MultithreadBMinHash extends MinHash {
             List<Future<Int2LongLinkedOpenHashMap>> futures = executor.invokeAll(todo);
             int count = 0;
             int lowerboundDiameter = 0;
-            for (Future<Int2LongLinkedOpenHashMap> future : futures) {
+            for (int i = 0; i < this.numSeeds; i++) {
+                Future<Int2LongLinkedOpenHashMap> future = futures.get(i);
                 if (!future.isCancelled()) {
                     try {
                         Int2LongLinkedOpenHashMap actualCollisionTable = future.get();
+                        for (int h : actualCollisionTable.keySet()) {
+                            if (collisionsTable.containsKey(h)) {
+                                int[] hC = collisionsTable.get(h);
+                                hC[i] = (int) actualCollisionTable.get(h);
+                            } else {
+                                int[] hC = new int[numSeeds];
+                                hC[i] = (int) actualCollisionTable.get(h);
+                                collisionsTable.put(h, hC);
+                            }
+                        }
+                        lastHops[i] = actualCollisionTable.size() - 2;
                         logger.debug("Starting computation of collision table on seed {}", count);
 
                         //Recreating mTotalCollisions starting from tables of each thread
@@ -147,6 +160,7 @@ public class MultithreadBMinHash extends MinHash {
         }
 
         executor.shutdown();
+        normalizeCollisionsTable();
         hopTable = hopTable();
         logger.debug("Hop table derived from collision table: {}", hopTable);
 
@@ -154,6 +168,8 @@ public class MultithreadBMinHash extends MinHash {
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mSeeds.size());
+        graphMeasure.setCollisionsTable(collisionsTable);
+        graphMeasure.setLastHops(lastHops);
         graphMeasure.setSeedsTime(mSeedTime);
 
         String minHashNodeIDsString = "";
@@ -177,6 +193,47 @@ public class MultithreadBMinHash extends MinHash {
         return Runtime.getRuntime().availableProcessors();
     }
 
+    /***
+     * TODO Optimizable?
+     * Normalization of the collisionsTable.
+     * For each hop check if one of the hash functions reached the end of computation.
+     * If so, we have to substitute the 0 value in the table with
+     * the maximum value of the other hash functions of the same hop
+     */
+    private void normalizeCollisionsTable() {
+        int lowerBoundDiameter = collisionsTable.size() - 1;
+        logger.debug("Diameter: " + lowerBoundDiameter);
+
+        //Start with hop 1
+        //There is no check for hop 0 because at hop 0 there is always (at least) 1 collision, never 0.
+        for (int i = 1; i <= lowerBoundDiameter; i++) {
+            int[] previousHopCollisions = collisionsTable.get(i - 1);
+            int[] hopCollisions = collisionsTable.get(i);
+            //TODO first if is better for performance?
+            if (Arrays.stream(hopCollisions).anyMatch(coll -> coll == 0)) {
+                for (int j = 0; j < hopCollisions.length; j++) {
+                    if (hopCollisions[j] == 0) {
+                        hopCollisions[j] = previousHopCollisions[j];
+                    }
+                }
+            }
+            collisionsTable.put(i, hopCollisions);
+        }
+    }
+
+    /***
+     * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
+     * @return hop table
+     */
+
+    private Int2DoubleSortedMap hopTable() {
+        Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
+        mTotalCollisions.forEach((key, value) -> {
+            Double r = ((double) (value * mGraph.numNodes()) / this.numSeeds);
+            hopTable.put(key, r);
+        });
+        return hopTable;
+    }
 
     class IterationThread implements Callable<Int2LongLinkedOpenHashMap> {
 
@@ -223,7 +280,7 @@ public class MultithreadBMinHash extends MinHash {
             hopCollision.put(h, 1);
 
             while(hopCollision.getOrDefault(h, 0) != hopCollision.getOrDefault(h-1, 0)) {
-                h += 1;
+
                 logger.debug("(seed {}) Starting computation on hop {}", index, h);
 
                 // copy all the actual nodes hash in a new structure
@@ -285,20 +342,6 @@ public class MultithreadBMinHash extends MinHash {
             return (int) Math.ceil(numberOfNodes / (double) Integer.SIZE);
         }
 
-    }
-
-    /***
-     * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
-     * @return hop table
-     */
-
-    private Int2DoubleSortedMap hopTable() {
-        Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
-        mTotalCollisions.forEach((key, value) -> {
-            Double r = ((double) (value * mGraph.numNodes()) / this.numSeeds);
-            hopTable.put(key, r);
-        });
-        return hopTable;
     }
 
 }

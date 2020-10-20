@@ -1,10 +1,10 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
-import it.bigdatalab.model.GraphMeasure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,7 +134,7 @@ public class SEMHSE extends MinHash {
                     logger.debug("Hop {} for seed n.{} completed", hop, i);
                     hop++;
                 }
-                memoryUsed();
+                //memoryUsed();
             }
 
             logger.info("Total number of collisions for seed n.{} : {}", i, collisions);
