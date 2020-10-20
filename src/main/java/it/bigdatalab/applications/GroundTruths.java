@@ -89,7 +89,7 @@ public class GroundTruths {
                 // Guardare link per capire cosa sto facendo :
                 // http://webgraph.di.unimi.it/docs-big/it/unimi/dsi/big/webgraph/algo/ParallelBreadthFirstVisit.html#marker
                 // d parte da 0 perché il primo elemento della coda è il nodo radice, ovvero il nodo a distanza 0
-                //if(bfs.cutPoints.size() >0) {
+
                     int d = 0;
 
 
@@ -106,53 +106,6 @@ public class GroundTruths {
                         b+=1;
                     }
 
-//                    System.out.println(a);
-//                    System.out.println(b);
-//                    for (int p=0;p<bfs.queue.size();p++){
-//                        for(int q = )
-//                        if(bfs.cutPoints.getInt(f) == p){
-//                            f+=1;
-//                            d+=1;
-//                        }else{
-//                            avg_distance+=d;
-//                        }
-//                    }
-
-//                    if (distanza_check < d) {
-//                          distanza_check = d;
-//                    }
-
-//                    int u = 0;
-//                    int a = bfs.cutPoints.getInt(u);
-//                    u+=1;
-//                    int b = bfs.cutPoints.getInt(u);
-//
-//                    int len = bfs.cutPoints.size() - 1;
-//
-//                    while (b <= (bfs.cutPoints.getInt(len)-1)) {
-//
-//                        while (a < b) {
-//                            avg_distance += d;
-//                            a += 1;
-//                        }
-//                        d += 1;
-//                        u+=1;
-//                        b = bfs.cutPoints.getInt(u);
-//
-//                    }
-//                    System.out.println(a);
-//                    System.out.println(b);
-//                    System.exit(-1);
-//                    while(a < b ){
-//                        avg_distance += d;
-//                        a += 1;
-//                    }
-//                    if (distanza_check < d) {
-//                        distanza_check = d;
-//                    }
-           //  }
-
-
             }
 
 
@@ -162,7 +115,6 @@ public class GroundTruths {
         totalTime = endTime - startTime;
         System.out.println("Somma di tutte le distanze = "+ avg_distance);
         System.out.println("Numero di nodi nel grafo = "+ mGraph.numNodes());
-        //BigDecimal total_avg_distance = new BigDecimal(avg_distance).divide(new BigDecimal(mGraph.numNodes()*(mGraph.numNodes()-1)));
         double total_avg_distance =   ((double) avg_distance / (mGraph.numNodes()*(mGraph.numNodes()-1)));
         bfsResults.put("numNodes",mGraph.numNodes());
         bfsResults.put("numArcs",mGraph.numArcs());
