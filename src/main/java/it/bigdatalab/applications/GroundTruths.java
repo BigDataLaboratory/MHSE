@@ -16,9 +16,9 @@ public class GroundTruths {
     private String inputFilePath;
     private String outputFolderPath;
     private ImmutableGraph mGraph;
-    private double avgDistance;
-    private double diameter;
-    private double reachableCouples;
+//    private double avgDistance;
+//    private double diameter;
+//    private double reachableCouples;
     //private ProgressLogger pl;
 
     public GroundTruths() throws IOException {
@@ -44,7 +44,6 @@ public class GroundTruths {
         double visited_nodes = 0 ;
         double avg_distance = 0;
         double []NeighFunction ;
-
         double diameter;
         double eff_diameter;
         JSONObject bfsResults = new JSONObject();
@@ -54,11 +53,11 @@ public class GroundTruths {
 
         System.out.println("Inizio calcolo del diametro in modo esaustivo ");
         NeighFunction = neig.compute(mGraph,4,pl);
-        avgDistance = neig.averageDistance(NeighFunction);
+        avg_distance = neig.averageDistance(NeighFunction);
         diameter = neig.effectiveDiameter(1,NeighFunction);
         eff_diameter = neig.effectiveDiameter(0.9,NeighFunction);
         visited_nodes = NeighFunction[NeighFunction.length-1];
-        System.out.println("Average distance "+avgDistance);
+        System.out.println("Average distance "+avg_distance);
         System.out.println("Diameter "+diameter);
         System.out.println("90% Effective Diameter "+eff_diameter);
         System.out.println("Reachable pairs "+visited_nodes);
