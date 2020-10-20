@@ -3,8 +3,7 @@ package it.bigdatalab.applications;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.webgraph.ImmutableGraph;
-import it.unimi.dsi.webgraph.NodeIterator;
-import it.unimi.dsi.webgraph.algo.ParallelBreadthFirstVisit;
+import it.unimi.dsi.webgraph.algo.NeighbourhoodFunction;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,28 +37,50 @@ public class GroundTruths {
     }
 
     private void run() throws IOException{
-        long startTime;
-        long endTime;
-        long totalTime;
-        int max = 0;
-        long visited_nodes = 0 ;
-        long avg_distance = 0;
+//        long startTime;
+//        long endTime;
+//        long totalTime;
+//        int max = 0;
+        double visited_nodes = 0 ;
+        double avg_distance = 0;
+        double []NeighFunction ;
+
+        double diameter;
+        double eff_diameter;
         JSONObject bfsResults = new JSONObject();
         ProgressLogger pl = new ProgressLogger();
-        ParallelBreadthFirstVisit bfs = new ParallelBreadthFirstVisit(mGraph,4,false,pl);
-        startTime = System.currentTimeMillis();
+        //ParallelBreadthFirstVisit bfs = new ParallelBreadthFirstVisit(mGraph,4,false,pl);
+        NeighbourhoodFunction neig = new NeighbourhoodFunction();
+
         System.out.println("Inizio calcolo del diametro in modo esaustivo ");
+        NeighFunction = neig.compute(mGraph,4,pl);
+        avgDistance = neig.averageDistance(NeighFunction);
+        diameter = neig.effectiveDiameter(1,NeighFunction);
+        eff_diameter = neig.effectiveDiameter(0.9,NeighFunction);
+        visited_nodes = NeighFunction[NeighFunction.length-1];
+        System.out.println("Average distance "+avgDistance);
+        System.out.println("Diameter "+diameter);
+        System.out.println("90% Effective Diameter "+eff_diameter);
+        System.out.println("Reachable pairs "+visited_nodes);
+        bfsResults.put("numNodes",mGraph.numNodes());
+        bfsResults.put("numArcs",mGraph.numArcs());
+        bfsResults.put("reachable_couples",visited_nodes);
+        bfsResults.put("avg_distance", avg_distance);
+        bfsResults.put("diameter", diameter);
+        bfsResults.put("90EffectiveDiameter", eff_diameter);
+        writeResults(bfsResults);
+        //startTime = System.currentTimeMillis();
         // n times BFS
-        NodeIterator nodeIterator = mGraph.nodeIterator();
+       /* NodeIterator nodeIterator = mGraph.nodeIterator();
         while(nodeIterator.hasNext()){
             int vertex = nodeIterator.nextInt();
             bfs.clear();
             int node_number = bfs.visit(vertex);
             visited_nodes += node_number;
-            /* Info about cutPoints
+            *//* Info about cutPoints
                queue and cutPoints, too, provide useful information. In particular, the nodes in queue
                from the d-th to the (d +1)-th cutpoint are exactly the nodes at distance d from the source.
-             */
+             *//*
             String table;
             table = "{visitedNodes:"+Integer.toString(node_number);
             table += ",";
@@ -75,10 +96,10 @@ public class GroundTruths {
             if(max < bfs.maxDistance()){
                 max = bfs.maxDistance();
             }
-            /* Guardare link per capire cosa sto facendo :
+            *//* Guardare link per capire cosa sto facendo :
                 http://webgraph.di.unimi.it/docs-big/it/unimi/dsi/big/webgraph/algo/ParallelBreadthFirstVisit.html#marker
                 d parte da 0 perché il primo elemento della coda è il nodo radice, ovvero il nodo a distanza 0
-             */
+             *//*
             int d = 0;
             int a = 0;
             int b = 1;
@@ -97,8 +118,8 @@ public class GroundTruths {
 
 
         endTime = System.currentTimeMillis();
-        totalTime = endTime - startTime;
-        System.out.println("Somma di tutte le distanze = "+ avg_distance);
+        totalTime = endTime - startTime;*/
+        /*System.out.println("Somma di tutte le distanze = "+ avg_distance);
         System.out.println("Numero di nodi nel grafo = "+ mGraph.numNodes());
 
         double total_avg_distance =   ((double) avg_distance / ((double) mGraph.numNodes()*((double) (mGraph.numNodes()-1))));
@@ -109,10 +130,10 @@ public class GroundTruths {
 
         bfsResults.put("diameter",Integer.toString(max));
         bfsResults.put("reachableCouples",Long.toString(visited_nodes));
-        writeResults(bfsResults);
+
         System.out.println("Diametro " + max + " Numero di coppie raggiungibili "+ visited_nodes + " avg distance "+total_avg_distance);
         System.out.println("Tempo impiegato "+totalTime);
-
+        */
     }
 
     private void writeResults(JSONObject jsonResults){
