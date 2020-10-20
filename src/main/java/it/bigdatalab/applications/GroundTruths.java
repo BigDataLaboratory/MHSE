@@ -1,7 +1,6 @@
 package it.bigdatalab.applications;
 
 import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.longs.LongBigArrayBigList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.NodeIterator;
@@ -46,18 +45,12 @@ public class GroundTruths {
         long visited_nodes = 0 ;
         long avg_distance = 0;
         JSONObject bfsResults = new JSONObject();
-        LongBigArrayBigList coda = new LongBigArrayBigList();
-        LongBigArrayBigList queue = new LongBigArrayBigList();
         ProgressLogger pl = new ProgressLogger();
         ParallelBreadthFirstVisit bfs = new ParallelBreadthFirstVisit(mGraph,4,false,pl);
         startTime = System.currentTimeMillis();
         System.out.println("Inizio calcolo del diametro in modo esaustivo ");
-
-
         // n times BFS
         NodeIterator nodeIterator = mGraph.nodeIterator();
-
-        //int distanza_check = 0;
         while(nodeIterator.hasNext()){
             int vertex = nodeIterator.nextInt();
             bfs.clear();
@@ -67,7 +60,6 @@ public class GroundTruths {
                queue and cutPoints, too, provide useful information. In particular, the nodes in queue
                from the d-th to the (d +1)-th cutpoint are exactly the nodes at distance d from the source.
              */
-
             String table;
             table = "{visitedNodes:"+Integer.toString(node_number);
             table += ",";
@@ -79,34 +71,27 @@ public class GroundTruths {
                 }
             }
             table+="]}";
-
             bfsResults.put(Integer.toString(vertex),table);
-
             if(max < bfs.maxDistance()){
                 max = bfs.maxDistance();
             }
-
-                // Guardare link per capire cosa sto facendo :
-                // http://webgraph.di.unimi.it/docs-big/it/unimi/dsi/big/webgraph/algo/ParallelBreadthFirstVisit.html#marker
-                // d parte da 0 perché il primo elemento della coda è il nodo radice, ovvero il nodo a distanza 0
-
-                    int d = 0;
-
-
-                    int a = 0;
-                    int b = 1;
-                    while(b<bfs.cutPoints.size()) {
-                        for (int q = bfs.cutPoints.getInt(a); q < bfs.cutPoints.getInt(b); q++) {
-                            avg_distance += d;
-
-
-                        }
-                        d+=1;
-                        a+=1;
-                        b+=1;
-                    }
-
+            /* Guardare link per capire cosa sto facendo :
+                http://webgraph.di.unimi.it/docs-big/it/unimi/dsi/big/webgraph/algo/ParallelBreadthFirstVisit.html#marker
+                d parte da 0 perché il primo elemento della coda è il nodo radice, ovvero il nodo a distanza 0
+             */
+            int d = 0;
+            int a = 0;
+            int b = 1;
+            while(b<bfs.cutPoints.size()) {
+                for (int q = bfs.cutPoints.getInt(a); q < bfs.cutPoints.getInt(b); q++) {
+                    avg_distance += d;
+                }
+                d+=1;
+                a+=1;
+                b+=1;
             }
+
+        }
 
 
 
@@ -126,7 +111,7 @@ public class GroundTruths {
         writeResults(bfsResults);
         System.out.println("Diametro " + max + " Numero di coppie raggiungibili "+ visited_nodes + " avg distance "+total_avg_distance);
         System.out.println("Tempo impiegato "+totalTime);
-        //System.out.println("CONTROLLO Diametro "+distanza_check);
+
     }
 
     private void writeResults(JSONObject jsonResults){
