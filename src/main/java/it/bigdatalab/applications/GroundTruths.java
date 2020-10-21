@@ -15,6 +15,7 @@ public class GroundTruths {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHash");
     private String inputFilePath;
     private String outputFolderPath;
+    private int threadNumber;
     private ImmutableGraph mGraph;
 //    private double avgDistance;
 //    private double diameter;
@@ -33,6 +34,8 @@ public class GroundTruths {
         logger.info("Loading graph at filepath {}", inputFilePath);
         mGraph = ImmutableGraph.load(inputFilePath);
         logger.info("Loading graph completed successfully");
+        threadNumber =  Integer.parseInt(PropertiesManager.getProperty("goundTruth.threadNumber"));
+        logger.info("Number of Threads "+threadNumber);
 
     }
 
@@ -50,9 +53,7 @@ public class GroundTruths {
         ProgressLogger pl = new ProgressLogger();
         //ParallelBreadthFirstVisit bfs = new ParallelBreadthFirstVisit(mGraph,4,false,pl);
         NeighbourhoodFunction neig = new NeighbourhoodFunction();
-
-        System.out.println("Inizio calcolo del diametro in modo esaustivo ");
-        NeighFunction = neig.compute(mGraph,4,pl);
+        NeighFunction = neig.compute(mGraph,threadNumber,pl);
         avg_distance = neig.averageDistance(NeighFunction);
         diameter = neig.effectiveDiameter(1,NeighFunction);
         eff_diameter = neig.effectiveDiameter(0.9,NeighFunction);
