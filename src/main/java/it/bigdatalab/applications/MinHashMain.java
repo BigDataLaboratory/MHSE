@@ -67,6 +67,7 @@ public class MinHashMain {
         try {
             MinHashFactory mhf = new MinHashFactory();
             algorithm = mhf.getAlgorithm(AlgorithmEnum.valueOf(algorithmName));
+
         } catch(IllegalArgumentException iae){
             logger.error("There is no \"{}\" algorithm! ", algorithmName);
             iae.printStackTrace();

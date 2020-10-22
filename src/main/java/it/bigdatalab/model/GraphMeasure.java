@@ -15,6 +15,7 @@ public class GraphMeasure {
     private double mTotalCouples;
     private double mTotalCouplePercentage;
     private long mTime; //time elapsed in milliseconds
+    private long[] mTimePerSeed; // Time elapsed in milliseconds for each seed
     private Int2DoubleSortedMap mHopTable;
     private Int2ObjectOpenHashMap<int[]> collisionsTable;       //for each hop a list of collisions for each hash function
     private String mAlgorithmName;
@@ -203,6 +204,13 @@ public class GraphMeasure {
     }
 
     /**
+     * @return execution time for each seed
+     */
+    public long [] getTimePerSeed() {
+        return mTimePerSeed;
+    }
+
+    /**
      * @return algorithm's name
      */
     public String getAlgorithmName() {
@@ -311,6 +319,13 @@ public class GraphMeasure {
      */
     public void setTime(long time) {
         this.mTime = time;
+    }
+
+    /**
+     * @param time execution time
+     */
+    public void setTime(long[] time) {
+        this.mTimePerSeed = time;
     }
 
     /**

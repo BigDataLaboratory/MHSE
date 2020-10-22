@@ -36,6 +36,9 @@ public class MinHashFactory {
             case StandaloneBMinHash:
                 minHashAlgorithm = new StandaloneBMinHash();
                 break;
+            case Clustering:
+                Clustering clusteringAlgorithm = new Clustering();
+                break;
             default:
                 error = true;
                 logger.error("Algorithm name not recognized");

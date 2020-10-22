@@ -70,13 +70,12 @@ public abstract class MinHash {
         Dictionary<Integer,Double> dangling = new Hashtable<Integer, Double>();
         */
 
-        Clustering cluster = new Clustering();
+        //Clustering cluster = new Clustering();
 
         //cluster.pagerank(mGraph,0.85,personalization,100,1.0e-6,nstart,dangling);
-        cluster.apx_pagerank(mGraph,0.85,0,1.0e-6);
+        //cluster.apx_pagerank(mGraph,0.85,0,1.0e-6);
         //cluster.print_pagerank();
-        
-        System.exit(1);
+
 
         numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
         minHashNodeIDs = new int[numSeeds];
