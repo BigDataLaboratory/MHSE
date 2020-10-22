@@ -70,8 +70,9 @@ public abstract class MinHash {
         Dictionary<Integer,Double> dangling = new Hashtable<Integer, Double>();
         */
 
-        //Clustering cluster = new Clustering();
-
+//        Clustering cluster = new Clustering();
+//        cluster.runAlgorithm();
+//        System.exit(-1);
         //cluster.pagerank(mGraph,0.85,personalization,100,1.0e-6,nstart,dangling);
         //cluster.apx_pagerank(mGraph,0.85,0,1.0e-6);
         //cluster.print_pagerank();
@@ -125,7 +126,7 @@ public abstract class MinHash {
         return mMemoryUsed;
     }
 
-    public abstract GraphMeasure runAlgorithm();
+    public abstract GraphMeasure runAlgorithm() throws IOException;
 
     public static class SeedsException extends Throwable {
         public SeedsException(String message) {
