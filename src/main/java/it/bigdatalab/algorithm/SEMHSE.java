@@ -40,8 +40,9 @@ public class SEMHSE extends MinHash {
         NodeIterator nodeIter;
         int lowerBoundDiameter = 0;
         int previousLowerBoundDiameter;
-
+        long [] timePerSeed = new long[numSeeds];
         for (int i = 0; i < numSeeds; i++) {
+            long start = System.nanoTime();
             int hop = 0;
             int collisions = 0;
             boolean signatureIsChanged = true;
@@ -124,6 +125,7 @@ public class SEMHSE extends MinHash {
                 }
             }
             logger.info("Computation for hash function n.{} completed", i);
+            timePerSeed[i] = System.nanoTime()-start;
         }
 
         logger.info("Starting computation of the hop table from collision table");
@@ -133,6 +135,7 @@ public class SEMHSE extends MinHash {
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
+        graphMeasure.setTime(timePerSeed);
         return graphMeasure;
     }
 
