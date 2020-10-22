@@ -42,7 +42,7 @@ public class SEMHSE extends MinHash {
         int previousLowerBoundDiameter;
         long [] timePerSeed = new long[numSeeds];
         for (int i = 0; i < numSeeds; i++) {
-            long start = System.nanoTime();
+            long start = System.currentTimeMillis();
             int hop = 0;
             int collisions = 0;
             boolean signatureIsChanged = true;
