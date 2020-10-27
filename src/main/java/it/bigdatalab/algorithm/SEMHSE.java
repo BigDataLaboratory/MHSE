@@ -169,7 +169,9 @@ public class SEMHSE extends MinHash {
         logger.info("Computation of the hop table completed");
 
         //normalize collisionsTable
+        logger.info("Normalizing Collisions table...");
         normalizeCollisionsTable();
+        logger.info("Collisions table normalized!");
 
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
