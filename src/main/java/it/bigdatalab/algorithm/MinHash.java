@@ -2,6 +2,7 @@ package it.bigdatalab.algorithm;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import it.bigdatalab.utils.Preprocessing;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.Transform;
@@ -23,6 +24,7 @@ public abstract class MinHash {
     protected IntArrayList mSeeds;
     protected ImmutableGraph mGraph;
     protected int numSeeds;
+    protected boolean isolatedVertices;
     protected int[] minHashNodeIDs;
     protected boolean isSeedsRandom;
     private String inputFilePath;
@@ -40,6 +42,9 @@ public abstract class MinHash {
 
         mMemoryUsed = 0;
         runTests = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.runTests"));
+
+        isolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isolatedVertices"));
+        logger.info("Keep the isolated vertices? {}", isolatedVertices);
 
         isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isSeedsRandom"));
         logger.info("Has seeds list to be random? {}", isSeedsRandom);
@@ -63,6 +68,11 @@ public abstract class MinHash {
             logger.info("Transposing graph ended");
         } else {
             throw new DirectionNotSetException("Direction property (\"minhash.direction\") not correctly set in properties file");
+        }
+        if(!isolatedVertices){
+            Preprocessing mapper = new Preprocessing(mGraph);
+            mapper.run();
+            mGraph = mapper.get_mProccessedGraph();
         }
 
         /*Dictionary<Integer,Double> personalization = new Hashtable<Integer, Double>();
