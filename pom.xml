@@ -21,6 +21,11 @@
             <name>Simone Angelini</name>
             <email>sangelini@fub.it</email>
         </developer>
+        <developer>
+            <id>cruciani</id>
+            <name>Antonio Cruciani</name>
+            <email>antonio.cruciani@gssi.it</email>
+        </developer>
 
     </developers>
     <build>
