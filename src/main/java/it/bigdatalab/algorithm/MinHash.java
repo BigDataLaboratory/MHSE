@@ -2,11 +2,13 @@ package it.bigdatalab.algorithm;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import it.unimi.dsi.fastutil.ints.*;
-import it.unimi.dsi.webgraph.ImmutableGraph;
-import it.unimi.dsi.webgraph.Transform;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
+import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.webgraph.ImmutableGraph;
+import it.unimi.dsi.webgraph.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ public abstract class MinHash {
     private String inputFilePath;
     private boolean runTests;
     private String direction;
+    protected boolean excludeIsolated;
     private long mMemoryUsed;
 
     protected Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
@@ -40,6 +43,9 @@ public abstract class MinHash {
 
         isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isSeedsRandom"));
         logger.info("Has seeds list to be random? {}", isSeedsRandom);
+
+        excludeIsolated = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.excludeIsolated"));
+        logger.info("Have you excluded isolated nodes? {}", excludeIsolated);
 
         inputFilePath = PropertiesManager.getProperty("minhash.inputFilePath");
         logger.info("Loading graph at filepath {}", inputFilePath);
