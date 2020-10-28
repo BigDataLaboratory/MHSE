@@ -36,8 +36,8 @@ public class MinHashFactory {
             case StandaloneBMinHash:
                 minHashAlgorithm = new StandaloneBMinHash();
                 break;
-            case Clustering:
-                Clustering clusteringAlgorithm = new Clustering();
+            case MultithreadBMinHash:
+                minHashAlgorithm = new StandaloneBMinHash();
                 break;
             default:
                 error = true;
