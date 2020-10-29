@@ -159,12 +159,9 @@ public class StandaloneBMinHash extends MinHash {
                 for (int c = 0; c < mutable.length; c++) {
                     counter += Long.bitCount(mutable[c]);
                 }
-                logger.info("# seed {} # hop: {} \n COUNTER {}", i, (h), counter);
                 hopCollision.put(h, counter);
 
-                logger.info("HOPCOLLISION {} {}", hopCollision.getOrDefault(h, 0), hopCollision.getOrDefault(h - 1, 0));
                 if (hopCollision.getOrDefault(h, 0) != hopCollision.getOrDefault(h - 1, -1)) {
-
                     hopCollisions[i] = counter;
                     collisionsTable.put(h, hopCollisions);
                     lastHops[i] = h;
@@ -172,8 +169,6 @@ public class StandaloneBMinHash extends MinHash {
 
                 }
                 logger.info("# seed {} # hop: {} \n total collisions table {}", i, (h), mTotalCollisions);
-
-                logger.debug("(seed {}) LAST HOP {}", i, h);
                 logger.debug("(seed {}) Hop Collision {}", i, hopCollision);
             } while (hopCollision.getOrDefault(h, 0) != hopCollision.getOrDefault(h - 1, -1));
 
