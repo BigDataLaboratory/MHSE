@@ -76,6 +76,7 @@ public abstract class MinHash {
             int numNodes = mGraph.numNodes();
             int d;
             int s;
+            Boolean isBijective = true;
             while(numNodes-- != 0) {
                 int vertex = nodeIterator.nextInt();
                 d = nodeIterator.outdegree();
@@ -87,14 +88,20 @@ public abstract class MinHash {
             for (s = 0; s< indegree.length;s++){
                 if((indegree[s] == 0) && (outdegree[s] ==0)){
                     mappedGraph[s] = -1;
+                    if(isBijective) {
+                        isBijective = false;
+                    }
                 }else{
                     mappedGraph[s] = d;
                     d+=1;
                 }
             }
             numNodes = mGraph.numNodes();
-            mGraph = Transform.map(mGraph,mappedGraph);
+            if(!isBijective) {
+                mGraph = Transform.map(mGraph, mappedGraph);
+            }
             logger.info("Deleted {} nodes ",numNodes-mGraph.numNodes());
+
         }
 
         /*Dictionary<Integer,Double> personalization = new Hashtable<Integer, Double>();
