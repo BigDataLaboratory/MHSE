@@ -52,21 +52,9 @@ public abstract class MinHash {
         mGraph = ImmutableGraph.load(inputFilePath);
         logger.info("Loading graph completed successfully");
 
-        direction = PropertiesManager.getProperty("minhash.direction");
-        logger.info("Direction selected is {}", direction);
 
-        if(direction.equals("in")){
-            //Double transpose because more efficient
-            logger.info("Transposing graph...");
-            mGraph = Transform.transpose(Transform.transpose(mGraph));
-            logger.info("Transposing graph ended");
-        } else if(direction.equals("out")){
-            logger.info("Transposing graph...");
-            mGraph = Transform.transpose(mGraph);
-            logger.info("Transposing graph ended");
-        } else {
-            throw new DirectionNotSetException("Direction property (\"minhash.direction\") not correctly set in properties file");
-        }
+
+
         if(!isolatedVertices){
             logger.info("Deleting isolated nodes...");
             NodeIterator nodeIterator = mGraph.nodeIterator();
@@ -99,9 +87,27 @@ public abstract class MinHash {
             numNodes = mGraph.numNodes();
             if(!isBijective) {
                 mGraph = Transform.map(mGraph, mappedGraph);
+                logger.info("Deleted {} nodes ",numNodes-mGraph.numNodes());
+            }else {
+                logger.info("The graph does not contain isolated vertices");
             }
-            logger.info("Deleted {} nodes ",numNodes-mGraph.numNodes());
 
+        }
+
+        direction = PropertiesManager.getProperty("minhash.direction");
+        logger.info("Direction selected is {}", direction);
+
+        if(direction.equals("in")){
+            //Double transpose because more efficient
+            logger.info("Transposing graph...");
+            mGraph = Transform.transpose(Transform.transpose(mGraph));
+            logger.info("Transposing graph ended");
+        } else if(direction.equals("out")){
+            logger.info("Transposing graph...");
+            mGraph = Transform.transpose(mGraph);
+            logger.info("Transposing graph ended");
+        } else {
+            throw new DirectionNotSetException("Direction property (\"minhash.direction\") not correctly set in properties file");
         }
 
         /*Dictionary<Integer,Double> personalization = new Hashtable<Integer, Double>();
