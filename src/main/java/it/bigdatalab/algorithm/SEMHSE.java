@@ -18,8 +18,6 @@ public class SEMHSE extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.SEMHSE");
 
-    private Int2LongSortedMap mTotalCollisions;
-    private int[] totalCollisionsPerHashFunction;
     private Int2ObjectOpenHashMap<int[]> collisionsTable;
     private int[] lastHops;
     private Int2LongOpenHashMap hashes;
@@ -49,8 +47,6 @@ public class SEMHSE extends MinHash {
             }
         }
 
-        mTotalCollisions = new Int2LongLinkedOpenHashMap();
-        totalCollisionsPerHashFunction = new int[numSeeds];     //for each hash function get the number of total collisions
         collisionsTable = new Int2ObjectOpenHashMap<int[]>();       //for each hop a list of collisions for each hash function
         lastHops = new int[numSeeds];                           //for each hash function, the last hop executed
         graphSignature = new long[numSeeds];
@@ -65,8 +61,6 @@ public class SEMHSE extends MinHash {
     public GraphMeasure runAlgorithm() {
 
         NodeIterator nodeIter;
-        int lowerBoundDiameter = 0;
-        int previousLowerBoundDiameter;
 
         for (int i = 0; i < numSeeds; i++) {
             int hop = 0;
@@ -107,14 +101,14 @@ public class SEMHSE extends MinHash {
                     //collisions for this hash function, until this hop
                     collisions = 0;
                     //number of nodes updated
-                    int count = 0;
+//                    int count = 0;
 
                     //update of the hash values
                     nodeIter = mGraph.nodeIterator();
                     while (nodeIter.hasNext()) {
                         int node = nodeIter.nextInt();
                         if (updateNodeHashValue(node)) {
-                            count++;
+//                            count++;
                             signatureIsChanged = true;
                         }
                         //check if there is a collision between graph minhash and actual node hashValue
@@ -129,49 +123,25 @@ public class SEMHSE extends MinHash {
                     collisionsTable.put(hop, hopCollisions);
                     logger.debug("Number of collisions: {}", collisions);
                     lastHops[i] = hop;
-                    long previousValue = mTotalCollisions.get(hop);
-                    mTotalCollisions.put(hop, previousValue + collisions);
                     logger.debug("Hop {} for seed n.{} completed", hop, i);
                     hop++;
                 }
                 //memoryUsed();
             }
-
             logger.info("Total number of collisions for seed n.{} : {}", i, collisions);
-            totalCollisionsPerHashFunction[i] = collisions;
-            // collisions computation completed for this hash function
-            // updating the lower bound diameter
-            if ((hop - 1) > lowerBoundDiameter) {
-                previousLowerBoundDiameter = lowerBoundDiameter;
-                lowerBoundDiameter = (hop - 1);
-                // Normalize collisions of all the previous hash functions,
-                // for all the missing hops between previousLowerBoundDiameter and lowerBoundDiameter
-                // because new lowerBoundDiameter reached
-                for (int j = 0; j < i; j++) { //previous hash functions
-                    for (int k = lowerBoundDiameter; k > previousLowerBoundDiameter; k--) { //all hops between previousLowerBoundDiameter and lowerBoundDiameter
-                        long previousValue = mTotalCollisions.get(k);
-                        mTotalCollisions.put(k, previousValue + totalCollisionsPerHashFunction[j]);
-                    }
-                }
-            } else if ((hop - 1) < lowerBoundDiameter) {
-                // add collisions of this hash function to all the remaining hops
-                // between hop (excluded) and lowerBoundDiameter (included)
-                for (int k = lowerBoundDiameter; k > (hop - 1); k--) {
-                    long previousValue = mTotalCollisions.get(k);
-                    mTotalCollisions.put(k, previousValue + collisions);
-                }
-            }
             logger.info("Computation for hash function n.{} completed", i);
         }
 
-        logger.info("Starting computation of the hop table from collision table");
-        hopTable = hopTable();
-        logger.info("Computation of the hop table completed");
 
         //normalize collisionsTable
         logger.info("Normalizing Collisions table...");
         normalizeCollisionsTable();
         logger.info("Collisions table normalized!");
+
+        logger.info("Starting computation of the hop table from collision table");
+        hopTable = hopTable();
+        logger.info("Computation of the hop table completed");
+
 
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
@@ -253,14 +223,22 @@ public class SEMHSE extends MinHash {
      * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
      * @return hop table
      */
+
     private Int2DoubleSortedMap hopTable() {
         Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
-        mTotalCollisions.forEach((key, value) -> {
-                Double r = ((double) (value * mGraph.numNodes()) / this.numSeeds);
-                hopTable.put(key.intValue(), r.doubleValue());
-        });
+        int lastHop = collisionsTable.size() - 1;
+        long sumCollisions = 0;
+
+        for(int hop = 0; hop <= lastHop; hop++){
+            int[] collisions = collisionsTable.get(hop);
+            sumCollisions = Arrays.stream(collisions).sum();
+            double couples = (double) (sumCollisions * mGraph.numNodes()) / this.numSeeds;
+            hopTable.put(hop, couples);
+            logger.info("hop " + hop + " total collisions " + Arrays.stream(collisions).sum() + " couples: " + couples);
+        }
         return hopTable;
     }
+
 
     /***
      * TODO Optimizable?
