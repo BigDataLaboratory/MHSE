@@ -73,6 +73,7 @@ public abstract class MinHash {
             Preprocessing mapper = new Preprocessing(mGraph);
             mapper.run();
             mGraph = mapper.get_mProccessedGraph();
+
         }
 
         /*Dictionary<Integer,Double> personalization = new Hashtable<Integer, Double>();

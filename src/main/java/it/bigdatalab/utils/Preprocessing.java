@@ -37,9 +37,16 @@ public class Preprocessing {
                 d+=1;
             }
         }
+
         mProccessedGraph = Transform.map(mGraph,mappedGraph,pl);
+
+        System.out.println(mGraph.numNodes()-mProccessedGraph.numNodes() +" Isolated nodes deleted ");
+        System.out.println(mGraph.outdegree(0));
+        System.out.println(mProccessedGraph.outdegree(0));
+        System.out.println("Numero archi vechio grafo "+mGraph.numArcs() );
+        System.out.println("Numero archi nuovo grafo "+mProccessedGraph.numArcs());
     }
-    public  ImmutableGraph get_mProccessedGraph(){
+    public ImmutableGraph get_mProccessedGraph(){
         return(mProccessedGraph);
     }
 

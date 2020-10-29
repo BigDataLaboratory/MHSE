@@ -4,15 +4,16 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.law.rank.PageRank;
-import it.unimi.dsi.law.rank.PageRankGaussSeidel;
+
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
 import it.unimi.dsi.webgraph.Transform;
-import it.unimi.dsi.law.rank.PageRankPowerSeries;
-import it.unimi.dsi.law.rank.SpectralRanking;
+//import it.unimi.dsi.law.rank.PageRank;
+//import it.unimi.dsi.law.rank.PageRankGaussSeidel;
+//import it.unimi.dsi.law.rank.PageRankPowerSeries;
+//import it.unimi.dsi.law.rank.SpectralRanking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,15 +45,15 @@ public class Clustering extends MinHash {
     @Override
     public GraphMeasure runAlgorithm() throws IOException {
 
-
-        PageRankPowerSeries sr = new PageRankPowerSeries(mGraph);
-
-
-        SpectralRanking.StoppingCriterion stop1 = new SpectralRanking.IterationNumberStoppingCriterion(SpectralRanking.DEFAULT_MAX_ITER);
-        SpectralRanking.StoppingCriterion stop2 = new SpectralRanking.NormStoppingCriterion(SpectralRanking.DEFAULT_THRESHOLD);
-        SpectralRanking.StoppingCriterion stoppingCriterion = sr.or(stop1,stop2);
-        sr.stepUntil(stoppingCriterion);
-        System.out.println(sr.rank);
+//
+//        PageRankPowerSeries sr = new PageRankPowerSeries(mGraph);
+//
+//
+//        SpectralRanking.StoppingCriterion stop1 = new SpectralRanking.IterationNumberStoppingCriterion(SpectralRanking.DEFAULT_MAX_ITER);
+//        SpectralRanking.StoppingCriterion stop2 = new SpectralRanking.NormStoppingCriterion(SpectralRanking.DEFAULT_THRESHOLD);
+//        SpectralRanking.StoppingCriterion stoppingCriterion = sr.or(stop1,stop2);
+//        sr.stepUntil(stoppingCriterion);
+//        System.out.println(sr.rank);
         return null;
     }
 //    public void pagerank(ImmutableGraph G,double alpha , Dictionary personalization, int max_iter,double tol, Dictionary nstart,Dictionary dangling){

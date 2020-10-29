@@ -7,6 +7,7 @@ import it.unimi.dsi.webgraph.algo.NeighbourhoodFunction;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+ import it.unimi.dsi.webgraph.Stats;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -44,6 +45,7 @@ public class GroundTruths {
 //        long endTime;
 //        long totalTime;
 //        int max = 0;
+
         double visited_nodes = 0 ;
         double avg_distance = 0;
         double []NeighFunction ;
