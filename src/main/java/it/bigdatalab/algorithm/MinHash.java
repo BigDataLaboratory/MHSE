@@ -69,7 +69,6 @@ public abstract class MinHash {
         }
         if(!isolatedVertices){
             logger.info("Deleting isolated nodes...");
-            ProgressLogger pl = new ProgressLogger();
             NodeIterator nodeIterator = mGraph.nodeIterator();
             int[] indegree = new int[mGraph.numNodes()];
             int [] outdegree = new int[mGraph.numNodes()];
@@ -93,10 +92,9 @@ public abstract class MinHash {
                     d+=1;
                 }
             }
-            int oldNumNodes = mGraph.numNodes();
-            mGraph = Transform.map(mGraph,mappedGraph,pl);
-            logger.info("Deleted {} nodes ",oldNumNodes-mGraph.numNodes());
-
+            numNodes = mGraph.numNodes();
+            mGraph = Transform.map(mGraph,mappedGraph);
+            logger.info("Deleted {} nodes ",numNodes-mGraph.numNodes());
         }
 
         /*Dictionary<Integer,Double> personalization = new Hashtable<Integer, Double>();
