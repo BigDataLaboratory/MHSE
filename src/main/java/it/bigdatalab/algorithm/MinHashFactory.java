@@ -36,6 +36,9 @@ public class MinHashFactory {
             case StandaloneBMinHash:
                 minHashAlgorithm = new StandaloneBMinHash();
                 break;
+            case StandaloneBMinHashOptimized:
+                minHashAlgorithm = new StandaloneBMinHashOptimized();
+                break;
             case MultithreadBMinHash:
                 minHashAlgorithm = new StandaloneBMinHash();
                 break;

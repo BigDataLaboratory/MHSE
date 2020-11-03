@@ -16,7 +16,9 @@ public class GraphMeasure {
     private double mTotalCouplePercentage;
     private long mTime; //time elapsed in milliseconds
     private Int2DoubleSortedMap mHopTable;
+    private double[] mHopTableArray;
     private Int2ObjectOpenHashMap<int[]> collisionsTable;       //for each hop a list of collisions for each hash function
+    private int[][] mCollisionsMatrix;
     private String mAlgorithmName;
     private double mThreshold;
     private String minHashNodeIDs;
@@ -50,7 +52,31 @@ public class GraphMeasure {
         this.mDirection = PropertiesManager.getProperty("minhash.direction");
         this.lastHops = null;
         this.collisionsTable = null;
+    }
 
+    public GraphMeasure(double[] hopTable, int lowerBoundDiameter) {
+        this.mHopTable = null;
+        this.mHopTableArray = hopTable;
+        this.mMaxMemoryUsed = -1;
+        this.mTime = -1;
+        this.mAlgorithmName = "";
+        this.numNodes = -1;
+        this.numArcs = -1;
+        this.numSeeds = -1;
+        this.mSeedsList = "";
+        this.minHashNodeIDs = "";
+        this.seedsTime = new HashMap<>();
+        this.mThreshold = Double.parseDouble(PropertiesManager.getProperty("minhash.threshold"));
+        this.mLowerBoundDiameter = lowerBoundDiameter;
+        this.mAvgDistance = averageDistance();
+        this.mEffectiveDiameter = effectiveDiameter();
+        this.mTotalCouples = totalCouplesReachable();
+        this.mTotalCouplePercentage = totalCouplesPercentage();
+        this.mSeedsList = PropertiesManager.getProperty("minhash.seeds");
+        this.numSeeds = mSeedsList.split(",").length;
+        this.mDirection = PropertiesManager.getProperty("minhash.direction");
+        this.lastHops = null;
+        this.collisionsTable = null;
     }
 
     // empty constructor
@@ -62,14 +88,17 @@ public class GraphMeasure {
      * @return total number of reachable pairs (last hop)
      */
     private double totalCouplesReachable() {
-        return mHopTable.get(mLowerBoundDiameter);
+        return (mHopTable != null) ? mHopTable.get(mLowerBoundDiameter) : mHopTableArray[mLowerBoundDiameter];
     }
 
     /**
      * @return percentage of number of reachable pairs (last hop)
      */
     private double totalCouplesPercentage() {
-        return mHopTable.get(mLowerBoundDiameter) * mThreshold;
+        if (mHopTable != null)
+            return mHopTable.get(mLowerBoundDiameter) * mThreshold;
+        else
+            return mHopTableArray[mLowerBoundDiameter] * mThreshold;
     }
 
     /**
@@ -77,24 +106,25 @@ public class GraphMeasure {
      * that is the minimum distance that allows to connect the 90th percent of all reachable pairs
      */
     private double effectiveDiameter() {
-        if(mHopTable.size() == 0) {
+        if (mHopTable != null ? mHopTable.size() == 0 : mHopTableArray.length == 0) {
             return 0;
         }
 
-        int lowerBoundDiameter = mHopTable.size()-1;
-        double totalCouplesReachable = mHopTable.get(lowerBoundDiameter);
+        int lowerBoundDiameter = mHopTable != null ? mHopTable.size() - 1 : mHopTableArray.length - 1;
+        double totalCouplesReachable = mHopTable != null ? mHopTable.get(lowerBoundDiameter) : mHopTableArray[lowerBoundDiameter];
 
         int d = 0;
-        while((mHopTable.get(d)/totalCouplesReachable) < mThreshold) {
-            d += 1;
+        if (mHopTable != null) {
+            while ((mHopTable.get(d) / totalCouplesReachable) < mThreshold) {
+                d += 1;
+            }
+        } else {
+            while (mHopTableArray[d] / totalCouplesReachable < mThreshold) {
+                d += 1;
+            }
         }
 
-        double result = 0;
-        if(d != 0){
-            result = (d-1) + interpolate(mHopTable.get(d-1), mHopTable.get(d), mThreshold * totalCouplesReachable);
-        }
-
-        return result ;
+        return (d != 0) ? (d - 1) + interpolate((mHopTable != null ? mHopTable.get(d - 1) : mHopTableArray[d - 1]), (mHopTable != null ? mHopTable.get(d) : mHopTableArray[d]), mThreshold * totalCouplesReachable) : 0;
     }
 
     /**
@@ -102,23 +132,41 @@ public class GraphMeasure {
      * @return average distance for the graph
      */
     private double averageDistance() {
-        if(mHopTable.size() == 0) {
-            return 0;
-        }
-        int lowerBoundDiameter = mHopTable.size()-1;
-
+        int lowerBoundDiameter;
         double sumAvg = 0;
-        for(Int2DoubleMap.Entry entry : mHopTable.int2DoubleEntrySet()) {
-            int key = entry.getIntKey();
-            double value = entry.getDoubleValue();
-
-            if(key != 0) {
-                sumAvg+=(key*(value-mHopTable.get(key-1)));
-            } else {
-                sumAvg+=0;
+        // case map
+        if (mHopTable != null) {
+            if (mHopTable.size() == 0) {
+                return 0;
             }
+            lowerBoundDiameter = mHopTable.size() - 1;
+
+            for (Int2DoubleMap.Entry entry : mHopTable.int2DoubleEntrySet()) {
+                int key = entry.getIntKey();
+                double value = entry.getDoubleValue();
+
+                if (key != 0) {
+                    sumAvg += (key * (value - mHopTable.get(key - 1)));
+                } else {
+                    sumAvg += 0;
+                }
+            }
+            return (sumAvg / mHopTable.get(lowerBoundDiameter));
+        } else {
+            // case array
+            if (mHopTableArray.length == 0)
+                return 0;
+
+            lowerBoundDiameter = mHopTableArray.length - 1;
+            for (int i = 0; i < mHopTableArray.length; i++) {
+                if (i == 0) {
+                    sumAvg += 0;
+                } else {
+                    sumAvg += (i * (mHopTableArray[i] - mHopTableArray[i - 1]));
+                }
+            }
+            return (sumAvg / mHopTableArray[lowerBoundDiameter]);
         }
-        return (sumAvg/mHopTable.get(lowerBoundDiameter));
     }
 
     private double interpolate(double y0, double y1, double y) {
@@ -339,6 +387,13 @@ public class GraphMeasure {
      */
     public void setCollisionsTable(Int2ObjectOpenHashMap<int[]> collisionsTable) {
         this.collisionsTable = collisionsTable;
+    }
+
+    /**
+     * @param collisionsTable The map of the collisions for each hop and for each hash function
+     */
+    public void setCollisionsTable(int[][] collisionsTable) {
+        this.mCollisionsMatrix = collisionsTable;
     }
 
     /**
