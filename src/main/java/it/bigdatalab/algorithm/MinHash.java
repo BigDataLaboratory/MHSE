@@ -2,13 +2,13 @@ package it.bigdatalab.algorithm;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import it.unimi.dsi.fastutil.ints.*;
-import it.unimi.dsi.logging.ProgressLogger;
-import it.unimi.dsi.webgraph.ImmutableGraph;
-import it.unimi.dsi.webgraph.NodeIterator;
-import it.unimi.dsi.webgraph.Transform;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
+import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.webgraph.ImmutableGraph;
+import it.unimi.dsi.webgraph.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,45 +53,9 @@ public abstract class MinHash {
         logger.info("Loading graph completed successfully");
 
 
-
-
-        if(!isolatedVertices){
-            logger.info("Deleting isolated nodes...");
-            NodeIterator nodeIterator = mGraph.nodeIterator();
-            int[] indegree = new int[mGraph.numNodes()];
-            int [] outdegree = new int[mGraph.numNodes()];
-            int [] mappedGraph = new int[mGraph.numNodes()];
-            int numNodes = mGraph.numNodes();
-            int d;
-            int s;
-            Boolean isBijective = true;
-            while(numNodes-- != 0) {
-                int vertex = nodeIterator.nextInt();
-                d = nodeIterator.outdegree();
-                outdegree[vertex] = d;
-                int[] neighbours = nodeIterator.successorArray();
-                for (s = d; s-- != 0; ++indegree[neighbours[s]]) {}
-            }
-            d = 0;
-            for (s = 0; s< indegree.length;s++){
-                if((indegree[s] == 0) && (outdegree[s] ==0)){
-                    mappedGraph[s] = -1;
-                    if(isBijective) {
-                        isBijective = false;
-                    }
-                }else{
-                    mappedGraph[s] = d;
-                    d+=1;
-                }
-            }
-            numNodes = mGraph.numNodes();
-            if(!isBijective) {
-                mGraph = Transform.map(mGraph, mappedGraph);
-                logger.info("Deleted {} nodes ",numNodes-mGraph.numNodes());
-            }else {
-                logger.info("The graph does not contain isolated vertices");
-            }
-
+        if (!isolatedVertices) {
+            Preprocessing preprocessing = new Preprocessing();
+            mGraph = preprocessing.removeIsolatedNodes(mGraph);
         }
 
         direction = PropertiesManager.getProperty("minhash.direction");
