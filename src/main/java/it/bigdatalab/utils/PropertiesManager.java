@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class PropertiesManager {
+
     public static final Logger logger = LoggerFactory.getLogger("it.misebigdatalab.PropertiesManager");
     private static Properties prop = new Properties();
 
@@ -25,7 +26,7 @@ public class PropertiesManager {
      * Read properties file from etc folder
      * @throws IOException if file doesn't exist in the path specified
      */
-    public static void initialise() throws IOException {
+    private static void initialise() throws IOException {
         String propertiesFilePath = "etc/mhse.properties";
         String absolutePath = new File(propertiesFilePath).getAbsolutePath();
         if(!new File(absolutePath).exists()){

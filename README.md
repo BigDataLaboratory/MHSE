@@ -25,9 +25,7 @@ To have more info about application configuration, see relative section in the *
 To run tests on a graph encoded as *WebGraph* file you can follow the steps below (in this example we are going to run test on [enron graph](http://law.di.unimi.it/webdata/enron/)).
 We are going to assume that you have correctly cloned the [MHSE repository](https://github.com/BigDataLaboratory/MHSE) and we are going to refer to the root of the project as **mhseRoot**:
 - download [enron.graph and enron.properties](http://law.di.unimi.it/webdata/enron/) into a folder of your choice (we are going to refer to the path to this folder as **enronFolder**);
-
 - copy the content of */etc/enronMhse.properties* and overwrite it into */etc/mhse.properties*;
-
 - the *enronFolder* will contain the 2 enron files with the same name but different extension. We are going to refer to the path to one of this files **without extension** as **enronWebGraph**
 
 - from *mhseRoot* folder execute command `java -cp ./jar/mhse-1.0.jar it.unimi.dsi.webgraph.BVGraph -o -O -L enronWebGraph`, where you have to change enronWebGraph with your *enronWebGraph* path;
@@ -69,43 +67,28 @@ Here the explanation of sections and properties.
 Right now, only MHSE and SE-MHSE algorithms are developed.
 List of the properties for all the MinHash-based applications.
 - **minhash.suggestedNumberOfThreads** handles the parallelization of the algorithm. This property has to be an integer that indicates the number of parallel threads that have to be run. **TO BE ACTIVATED INTO NEXT RELEASE**
-
 - **minhash.inputFilePath** string path of the input file representing a graph in a *WebGraph* format. If your input graph has an *edgelist* format, see *EdgeList2WebGraph* application to make a conversion.
-
-- **minhash.outputFolderPath**  string path of the output folder path, that will contain results of the execution of the algorithm
-
+- **minhash.outputFolderPath**  string path of the output folder path, that will contain results of the execution of the algorithm``````
 - **minhash.isSeedsRandom** is a boolean value. If it is True, the list of seeds used in the hash functions will be random, else it will be loaded from *minhash.seeds* property 
-
 - **minhash.algorithmName** string name of the MinHash algorithm to be executed. A list of acceptable name values is available in the following class: it.bigdatalab.algorithm.AlgorithmEnum. Right now acceptable values are MHSE and SEMHSE.
-
 - **minhash.threshold** float value that is the threshold used for the *effective diameter*. Usually it is set to 0.9 (90% of total reachable couples of nodes)
-
 - **minhash.direction** direction of the MinHash messages. Acceptable values are *in* or *out*. If you set *in*, the MinHash is propagated from the destination node to the source node. If you set *out*, from the source to the destination node. This choice doesn't affect computation of all metrics (effective diameter, average distance and so on) but it could make a difference in convergence time.
-
 - **minhash.numSeeds** number of seeds used for MinHash algorithm
-
 - **minhash.seeds** list of seeds (comma separated values) to be used for the hash functions of the MinHash algorithm. Single test
-
 In this section, we list properties to run multiple tests of the same algorithm:
-
 - **minhash.runTests** is a boolean value. If it is *True*, Test mode will be activated and will be run multiple tests of the same algorithm. 
-
 - **minhash.numTests** integer value representing the number of tests to be done. We need to run algorithm multiple times to get significance test e.g. mean and variance of all tests. All output results will be written in JSON format (see Results section).
-
 - **minhash.seeds1** to **minhash.seedsX** are a series of lists of seeds to be used in multiple executions of the algorithm. The *X* number has to be the same of the number specified in *minhash.numTests* property.    
 
 ### EdgeList2WebGraph section
 In this section, we list properties used to translate a graph encoded in *edgelist* format into a *WebGraph* encoded file.
 - **edgeList2WebGraph.inputEdgelistFilePath** string path of the input file representing a graph in an *edgelist* format
-
 - **edgeList2WebGraph.outputFolderPath** string path of the output folder where the application will persist the graph encoded in *WebGraph* format
-
 - **edgeList2WebGraph.fromJanusGraph** is a boolean value. If True, normalize nodes IDs (JanusGraph encode node IDs as multiple of 4. This property divide IDs to have sequential IDs in the output)
 
 ### WebGraph2EdgeList section
 In this section, we list properties used to translate a graph encoded in *WebGraph* format into an *edgelist* encoded file.
 - **webGraph2EdgeList.inputFilePath** string path of the input file, representing a graph in an *WebGraph* format
-
 - **webGraph2EdgeList.outputFolderPath** string path of the output folder where the application will persist the graph encoded in an *edgelist* format
 
 ## Results
@@ -116,5 +99,4 @@ If you want to test MHSE and verify our results, download the Java code from the
 For example, if you are interested in the replication of tests stored in */results/amazon-2008* modify */etc/mhse.properties* according to the corresponding json object in */results/amazon-2008* and then execute the *MinHashMain* application. 
 For test replication purposes, you have to know that there are 2 types of graph. The replication of tests differs according to the type of the input graph:
 - *WebGraph* graphs: *amazon-2008*, *cnr-2000*, *com-dblp*, *dblp-2010*, *email-EuAll*, *enron*, *uk-2007-05@100000*, *web-NotreDame*. For these graphs you can download data from [this link](http://law.di.unimi.it/datasets.php), modify *MinHash* section of the */etc/mhse.properties* file and execute *MinHashMain* application directly. 
-
 - *Custom* graphs in *edgelist* format: *blackFridayRetweets*, *samplingItalianoRetweets*, *worldSeriesRetweets*. For these custom graphs you can download data from [this repository](https://github.com/BigDataLaboratory/Twitter), modify *EdgeList2WebGraph* section of the */etc/mhse.properties* file and execute *EdgeList2WebGraph* application to make a conversion into *WebGraph* format. After that you have to modify *MinHash* section of the */etc/mhse.properties* file and execute *MinHashMain* application. For further information about these graphs see the corresponding [*README*](https://github.com/BigDataLaboratory/Twitter/blob/master/Dataset/README.txt)
