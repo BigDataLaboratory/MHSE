@@ -1,15 +1,17 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntListIterator;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
-import it.bigdatalab.model.GraphMeasure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * Implementation of MHSE (MinHash Signature Estimation) algorithm
@@ -28,14 +30,14 @@ public class MHSE extends MinHash {
     public MHSE() throws IOException, DirectionNotSetException, SeedsException {
         super();
 
-        if(isSeedsRandom) {
+        if (mIsSeedsRandom) {
             createSeeds();
         } else {
             String propertyName = "minhash.seeds";
             String seedsString = PropertiesManager.getProperty(propertyName);
             int[] seeds = Arrays.stream(seedsString.split(",")).mapToInt(Integer::parseInt).toArray();
-            if (numSeeds != seeds.length) {
-                String message = "Specified different number of seeds in properties.  \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
+            if (mNumSeeds != seeds.length) {
+                String message = "Specified different number of seeds in properties.  \"minhash.numSeeds\" is " + mNumSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
                 throw new SeedsException(message);
             }
             mSeeds = new IntArrayList();
@@ -46,7 +48,7 @@ public class MHSE extends MinHash {
 
         signatures = new Int2ObjectOpenHashMap<long[]>(mGraph.numNodes());       //initialize signatures map with the expected number of elements(nodes) in the map
         oldSignatures = new Int2ObjectOpenHashMap<long[]>(mGraph.numNodes());
-        graphSignature = new long[numSeeds];
+        graphSignature = new long[mNumSeeds];
         Arrays.fill(graphSignature, Long.MAX_VALUE);                            //initialize graph signature with Long.MAX_VALUE
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
     }
@@ -130,8 +132,8 @@ public class MHSE extends MinHash {
 
         String minHashNodeIDsString = "";
         separator = ",";
-        for(int i=0;i<numSeeds;i++){
-            minHashNodeIDsString += (minHashNodeIDs[i] + separator);
+        for (int i = 0; i < mNumSeeds; i++) {
+            minHashNodeIDsString += (mMinHashNodeIDs[i] + separator);
         }
         graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
 
@@ -145,14 +147,14 @@ public class MHSE extends MinHash {
         NodeIterator nodeIter = mGraph.nodeIterator();
         while(nodeIter.hasNext()) {
             int node = nodeIter.nextInt();
-            long[] signature = new long[numSeeds];
+            long[] signature = new long[mNumSeeds];
             // create a new signature for each node and compute signature for the graph
-            for(int i=0; i<numSeeds;i++){
+            for (int i = 0; i < mNumSeeds; i++) {
                 signature[i] = hashFunction(node, mSeeds.getInt(i));
                 // check if this part of the signature is the minimum for the graph
                 if(signature[i] < graphSignature[i]){
                     graphSignature[i] = signature[i];
-                    minHashNodeIDs[i] = node;
+                    mMinHashNodeIDs[i] = node;
                 }
             }
             signatures.put(node, signature);

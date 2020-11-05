@@ -30,14 +30,14 @@ public class SEMHSE extends MinHash {
     public SEMHSE() throws DirectionNotSetException, IOException {
         super();
 
-        if(isSeedsRandom) {
+        if (mIsSeedsRandom) {
             createSeeds();
         } else {
             String propertyName = "minhash.seeds";
             String seedsString = PropertiesManager.getProperty(propertyName);
             int[] seeds = Arrays.stream(seedsString.split(",")).mapToInt(Integer::parseInt).toArray();
-            if (numSeeds != seeds.length) {
-                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
+            if (mNumSeeds != seeds.length) {
+                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
 //                throw new SeedsException(message);
                 logger.warn(message);
             }
@@ -48,8 +48,8 @@ public class SEMHSE extends MinHash {
         }
 
         collisionsTable = new Int2ObjectOpenHashMap<int[]>();       //for each hop a list of collisions for each hash function
-        lastHops = new int[numSeeds];                           //for each hash function, the last hop executed
-        graphSignature = new long[numSeeds];
+        lastHops = new int[mNumSeeds];                           //for each hash function, the last hop executed
+        graphSignature = new long[mNumSeeds];
         Arrays.fill(graphSignature, Long.MAX_VALUE);                            //initialize graph signature with Long.MAX_VALUE
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
     }
@@ -62,7 +62,7 @@ public class SEMHSE extends MinHash {
 
         NodeIterator nodeIter;
 
-        for (int i = 0; i < numSeeds; i++) {
+        for (int i = 0; i < mNumSeeds; i++) {
             int hop = 0;
             int collisions = 0;
             boolean signatureIsChanged = true;
@@ -74,7 +74,7 @@ public class SEMHSE extends MinHash {
                 if(collisionsTable.containsKey(hop)){
                     hopCollisions = collisionsTable.get(hop);
                 } else {
-                    hopCollisions = new int[numSeeds];
+                    hopCollisions = new int[mNumSeeds];
                 }
 
                 //first hop - initialization
@@ -162,8 +162,8 @@ public class SEMHSE extends MinHash {
 
         String minHashNodeIDsString = "";
         separator = ",";
-        for(int i=0;i<numSeeds;i++){
-            minHashNodeIDsString += (minHashNodeIDs[i] + separator);
+        for (int i = 0; i < mNumSeeds; i++) {
+            minHashNodeIDsString += (mMinHashNodeIDs[i] + separator);
         }
         graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
         graphMeasure.setMaxMemoryUsed(getMaxUsedMemory());
@@ -187,10 +187,10 @@ public class SEMHSE extends MinHash {
             hashes.put(node,hashValue);
             if(hashValue < graphSignature[seedIndex]){
                 graphSignature[seedIndex] = hashValue;
-                minHashNodeIDs[seedIndex] = node;
+                mMinHashNodeIDs[seedIndex] = node;
             }
         }
-        logger.info("MinHash for seed {} is {}, belonging to node ID {}", seedIndex, graphSignature[seedIndex], minHashNodeIDs[seedIndex]);
+        logger.info("MinHash for seed {} is {}, belonging to node ID {}", seedIndex, graphSignature[seedIndex], mMinHashNodeIDs[seedIndex]);
     }
 
     /**
@@ -232,7 +232,7 @@ public class SEMHSE extends MinHash {
         for(int hop = 0; hop <= lastHop; hop++){
             int[] collisions = collisionsTable.get(hop);
             sumCollisions = Arrays.stream(collisions).sum();
-            double couples = (double) (sumCollisions * mGraph.numNodes()) / this.numSeeds;
+            double couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
             hopTable.put(hop, couples);
             logger.info("hop " + hop + " total collisions " + Arrays.stream(collisions).sum() + " couples: " + couples);
         }

@@ -28,13 +28,12 @@ public class StandaloneBMinHash extends MinHash {
      */
     public StandaloneBMinHash() throws DirectionNotSetException, SeedsException, IOException {
         super();
-        collisionsTable = new Int2ObjectOpenHashMap<int[]>();       //for each hop a list of collisions for each hash function
-        lastHops = new int[numSeeds];                           //for each hash function, the last hop executed
+        collisionsTable = new Int2ObjectOpenHashMap<>();       //for each hop a list of collisions for each hash function
+        lastHops = new int[mNumSeeds];                           //for each hash function, the last hop executed
 
-        if(isSeedsRandom){
-            for(int i = 0;i<numSeeds; i++){
-                minHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
-            }
+        if (mIsSeedsRandom) {
+            for (int i = 0; i < mNumSeeds; i++)
+                mMinHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
         } else {
             //Load minHash node IDs from properties file
             String propertyNodeIDRange = "minhash.nodeIDRange";
@@ -44,12 +43,12 @@ public class StandaloneBMinHash extends MinHash {
 
             if (!minHashNodeIDRangeString.equals("")) {
                 int[] minHashNodeIDRange = Arrays.stream(minHashNodeIDRangeString.split(",")).mapToInt(Integer::parseInt).toArray();
-                minHashNodeIDs = IntStream.rangeClosed(minHashNodeIDRange[0], minHashNodeIDRange[1]).toArray();
+                mMinHashNodeIDs = IntStream.rangeClosed(minHashNodeIDRange[0], minHashNodeIDRange[1]).toArray();
             } else {
-                minHashNodeIDs = Arrays.stream(minHashNodeIDsString.split(",")).mapToInt(Integer::parseInt).toArray();
+                mMinHashNodeIDs = Arrays.stream(minHashNodeIDsString.split(",")).mapToInt(Integer::parseInt).toArray();
             }
-            if (numSeeds != minHashNodeIDs.length) {
-                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + minHashNodeIDs.length;
+            if (mNumSeeds != mMinHashNodeIDs.length) {
+                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and \"" + propertyName + "\" length is " + mMinHashNodeIDs.length;
                 throw new SeedsException(message);
             }
         }
@@ -63,7 +62,7 @@ public class StandaloneBMinHash extends MinHash {
      */
     public GraphMeasure runAlgorithm() {
 
-        for (int i = 0; i < this.numSeeds; i++) {
+        for (int i = 0; i < this.mNumSeeds; i++) {
 
             logger.info("Starting computation on seed {}", i);
 
@@ -77,7 +76,7 @@ public class StandaloneBMinHash extends MinHash {
 
             // Choose a random node is equivalent to compute the minhash
             //It could be set in mhse.properties file with the "minhash.nodeIDs" property
-            int randomNode = minHashNodeIDs[i];
+            int randomNode = mMinHashNodeIDs[i];
 
             // initialization of the collision "collisions" for the hop
             // we use a dict because we want to iterate over the nodes until
@@ -94,7 +93,7 @@ public class StandaloneBMinHash extends MinHash {
                 if (collisionsTable.containsKey(h)) {
                     hopCollisions = collisionsTable.get(h);
                 } else {
-                    hopCollisions = new int[numSeeds];
+                    hopCollisions = new int[mNumSeeds];
                 }
 
                 //first hop - initialization
@@ -154,8 +153,8 @@ public class StandaloneBMinHash extends MinHash {
                 if (signatureIsChanged) {
                     // count the collision between the node signature and the graph signature
                     collisions = 0;
-                    for (int c = 0; c < mutable.length; c++) {
-                        collisions += Long.bitCount(mutable[c]);
+                    for (long aMutable : mutable) {
+                        collisions += Long.bitCount(aMutable);
                     }
 
                     hopCollisions[i] = collisions;      //related to seed i at hop h
@@ -182,14 +181,14 @@ public class StandaloneBMinHash extends MinHash {
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
-        graphMeasure.setNumSeeds(numSeeds);
+        graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setCollisionsTable(collisionsTable);
         graphMeasure.setLastHops(lastHops);
 
         String minHashNodeIDsString = "";
         String separator = ",";
-        for(int i = 0; i < numSeeds; i++){
-            minHashNodeIDsString += (minHashNodeIDs[i] + separator);
+        for (int i = 0; i < mNumSeeds; i++) {
+            minHashNodeIDsString += (mMinHashNodeIDs[i] + separator);
         }
         graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
         return graphMeasure;
@@ -213,7 +212,7 @@ public class StandaloneBMinHash extends MinHash {
         for(int hop = 0; hop <= lastHop; hop++){
             int[] collisions = collisionsTable.get(hop);
             sumCollisions = Arrays.stream(collisions).sum();
-            double couples = (double) (sumCollisions * mGraph.numNodes()) / this.numSeeds;
+            double couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
             hopTable.put(hop, couples);
             logger.info("hop " + hop + " total collisions " + Arrays.stream(collisions).sum() + " couples: " + couples);
         }

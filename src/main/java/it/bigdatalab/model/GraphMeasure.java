@@ -30,6 +30,9 @@ public class GraphMeasure {
     private HashMap<Integer, Double> seedsTime;
     private int[] lastHops;
 
+    /**
+     * @param hopTable as a map
+     */
     public GraphMeasure(Int2DoubleSortedMap hopTable){
         this.mHopTable = hopTable;
         this.mMaxMemoryUsed = -1;
@@ -54,6 +57,10 @@ public class GraphMeasure {
         this.collisionsTable = null;
     }
 
+    /**
+     * @param hopTable           as an array
+     * @param lowerBoundDiameter computed when algorithm completed
+     */
     public GraphMeasure(double[] hopTable, int lowerBoundDiameter) {
         this.mHopTable = null;
         this.mHopTableArray = hopTable;

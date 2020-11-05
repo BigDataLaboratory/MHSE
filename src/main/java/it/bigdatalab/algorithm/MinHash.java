@@ -19,18 +19,13 @@ public abstract class MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHash");
 
-    protected IntArrayList mSeeds;
-    protected ImmutableGraph mGraph;
-    protected int numSeeds;
-    protected int[] minHashNodeIDs;
-    protected boolean isSeedsRandom;
-    private String inputFilePath;
-    private boolean runTests;
-    private String direction;
-    protected boolean excludeIsolated;
-    private long mMemoryUsed;
-
+    protected int mNumSeeds;
+    protected boolean mIsSeedsRandom;
     protected Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
+    IntArrayList mSeeds;
+    ImmutableGraph mGraph;
+    int[] mMinHashNodeIDs;
+    private long mMemoryUsed;
 
     public MinHash() throws IOException, DirectionNotSetException {
         initialize();
@@ -39,38 +34,46 @@ public abstract class MinHash {
     private void initialize() throws IOException, DirectionNotSetException {
 
         mMemoryUsed = 0;
-        runTests = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.runTests"));
+        boolean runTests = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.runTests"));
 
-        isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isSeedsRandom"));
-        logger.info("Has seeds list to be random? {}", isSeedsRandom);
+        boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isolatedVertices"));
+        logger.info("Keep the isolated vertices? {}", isolatedVertices);
 
-        excludeIsolated = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.excludeIsolated"));
-        logger.info("Have you excluded isolated nodes? {}", excludeIsolated);
+        mIsSeedsRandom = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isSeedsRandom"));
+        logger.info("Has seeds list to be random? {}", mIsSeedsRandom);
 
-        inputFilePath = PropertiesManager.getProperty("minhash.inputFilePath");
+        String inputFilePath = PropertiesManager.getProperty("minhash.inputFilePath");
         logger.info("Loading graph at filepath {}", inputFilePath);
         mGraph = ImmutableGraph.load(inputFilePath);
         logger.info("Loading graph completed successfully");
 
-        direction = PropertiesManager.getProperty("minhash.direction");
-        logger.info("Direction selected is {}", direction);
 
-        if(direction.equals("in")){
-            //Double transpose because more efficient
-            logger.info("Transposing graph...");
-            mGraph = Transform.transpose(Transform.transpose(mGraph));
-            logger.info("Transposing graph ended");
-        } else if(direction.equals("out")){
-            logger.info("Transposing graph...");
-            mGraph = Transform.transpose(mGraph);
-            logger.info("Transposing graph ended");
-        } else {
-            throw new DirectionNotSetException("Direction property (\"minhash.direction\") not correctly set in properties file");
+        if (!isolatedVertices) {
+            Preprocessing preprocessing = new Preprocessing();
+            mGraph = preprocessing.removeIsolatedNodes(mGraph);
         }
 
-        numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
-        minHashNodeIDs = new int[numSeeds];
+        String direction = PropertiesManager.getProperty("minhash.direction");
+        logger.info("Direction selected is {}", direction);
 
+        switch (direction) {
+            case "in":
+                //Double transpose because more efficient
+                logger.info("Transposing graph...");
+                mGraph = Transform.transpose(Transform.transpose(mGraph));
+                logger.info("Transposing graph ended");
+                break;
+            case "out":
+                logger.info("Transposing graph...");
+                mGraph = Transform.transpose(mGraph);
+                logger.info("Transposing graph ended");
+                break;
+            default:
+                throw new DirectionNotSetException("Direction property (\"minhash.direction\") not correctly set in properties file");
+        }
+
+        mNumSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
+        mMinHashNodeIDs = new int[mNumSeeds];
     }
 
     /***
@@ -79,29 +82,29 @@ public abstract class MinHash {
      * @param seed integer to be used as seed for the hash function
      * @return a long that is the hash for the node
      */
-    public long hashFunction(int node, int seed) {
+    long hashFunction(int node, int seed) {
         HashFunction hf = Hashing.murmur3_128(seed);
-        return hf.hashLong((long)node).asLong();
+        return hf.hashLong((long) node).asLong();
     }
 
     /***
      *  Generate a random integer and append it
      *  to the seeds list
      */
-    protected void createSeeds() {
+    void createSeeds() {
         mSeeds = new IntArrayList();
         Random random = new Random();
 
-        for(int i = 0; i < numSeeds; i++) {
+        for (int i = 0; i < mNumSeeds; i++) {
             int randomNum = random.nextInt();
-            while(mSeeds.contains(randomNum)){
+            while (mSeeds.contains(randomNum)) {
                 randomNum = random.nextInt();
             }
             mSeeds.add(randomNum);
         }
     }
 
-    public void memoryUsed() {
+    void memoryUsed() {
         // Calculate the used memory
         System.gc();
         long memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
@@ -111,11 +114,11 @@ public abstract class MinHash {
         }
     }
 
-    public long getMaxUsedMemory() {
+    long getMaxUsedMemory() {
         return mMemoryUsed;
     }
 
-    public abstract GraphMeasure runAlgorithm();
+    public abstract GraphMeasure runAlgorithm() throws IOException;
 
     public static class SeedsException extends Throwable {
         public SeedsException(String message) {
@@ -124,7 +127,7 @@ public abstract class MinHash {
     }
 
     public static class DirectionNotSetException extends Throwable {
-        public DirectionNotSetException(String message) {
+        DirectionNotSetException(String message) {
             super(message);
         }
     }
