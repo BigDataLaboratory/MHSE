@@ -64,7 +64,7 @@ public class EdgeList2WebGraph {
                 if(currentLine % 10000 == 0){
                     logger.info("First " + currentLine + " rows read");
                 }
-                String[] sSplit = sCurrentLine.split("\t");
+                String[] sSplit = sCurrentLine.split("\\s+");
 
                 long sourceID = Long.parseLong(sSplit[0]);
                 long targetID = Long.parseLong(sSplit[1]);
