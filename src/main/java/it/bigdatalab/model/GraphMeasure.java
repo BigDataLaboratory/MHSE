@@ -321,6 +321,13 @@ public class GraphMeasure {
         return lastHops;
     }
 
+    /**
+     * @return Collisions matrix for each hash function and hop
+     */
+    public int[][] getCollisionsMatrix() {
+        return mCollisionsMatrix;
+    }
+
 
     /*******************************************************************************
      *                                  SETTER METHODS
@@ -408,5 +415,12 @@ public class GraphMeasure {
      */
     public void setLastHops(int[] lastHops) {
         this.lastHops = lastHops;
+    }
+
+    /**
+     * @param collisionsMatrix Matrix of the collisions for each hash function and for each hop
+     */
+    public void setCollisionsMatrix(int[][] collisionsMatrix) {
+        this.mCollisionsMatrix = collisionsMatrix;
     }
 }

@@ -2,7 +2,9 @@ package it.bigdatalab.applications;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import it.bigdatalab.algorithm.*;
+import it.bigdatalab.algorithm.AlgorithmEnum;
+import it.bigdatalab.algorithm.MinHash;
+import it.bigdatalab.algorithm.MinHashFactory;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;

@@ -22,9 +22,9 @@ public abstract class MinHash {
     protected int mNumSeeds;
     protected boolean mIsSeedsRandom;
     protected Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
-    IntArrayList mSeeds;
-    ImmutableGraph mGraph;
-    int[] mMinHashNodeIDs;
+    protected IntArrayList mSeeds;
+    protected ImmutableGraph mGraph;
+    protected int[] mMinHashNodeIDs;
     private long mMemoryUsed;
 
     public MinHash() throws IOException, DirectionNotSetException {
@@ -91,7 +91,7 @@ public abstract class MinHash {
      *  Generate a random integer and append it
      *  to the seeds list
      */
-    void createSeeds() {
+    public void createSeeds() {
         mSeeds = new IntArrayList();
         Random random = new Random();
 
@@ -104,7 +104,7 @@ public abstract class MinHash {
         }
     }
 
-    void memoryUsed() {
+    public void memoryUsed() {
         // Calculate the used memory
         System.gc();
         long memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
@@ -114,7 +114,7 @@ public abstract class MinHash {
         }
     }
 
-    long getMaxUsedMemory() {
+    public long getMaxUsedMemory() {
         return mMemoryUsed;
     }
 

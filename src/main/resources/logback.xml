@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true">
+    <property file="src/main/resources/logback.properties"/>
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
@@ -13,19 +15,19 @@
         </encoder>
     </appender>
 
-    <logger name="it.misebigdatalab.algorithm" level="${LEVEL}" additivity="false" >
+    <logger name="it.misebigdatalab.algorithm" level="info" additivity="false">
         <appender-ref ref="FILE" />
         <appender-ref ref="STDOUT" />
 
     </logger>
 
-    <logger name="it.misebigdatalab" level="${LEVEL}" additivity="false">
+    <logger name="it.misebigdatalab" level="info" additivity="false">
         <appender-ref ref="FILE" />
         <appender-ref ref="STDOUT" />
 
     </logger>
 
-    <root level="DEBUG">
+    <root level="info">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

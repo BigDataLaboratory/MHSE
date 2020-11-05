@@ -8,12 +8,6 @@ import java.io.IOException;
 public class MinHashFactory {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHashFactory");
 
-
-    /**
-     * Empty constructor
-     */
-    public MinHashFactory(){}
-
     /**
      * Choose one of the algorithm to be executed by the type passed as parameter
      * @param type algorithm type
@@ -45,6 +39,7 @@ public class MinHashFactory {
             default:
                 error = true;
                 logger.error("Algorithm name not recognized");
+                break;
         }
         if(!error){
             logger.info("Selected " + type + " algorithm");
