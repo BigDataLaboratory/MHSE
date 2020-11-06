@@ -203,7 +203,6 @@ public class StandaloneBMinHash extends MinHash {
      * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
      * @return hop table
      */
-
     private Int2DoubleSortedMap hopTable() {
         Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
         int lastHop = collisionsTable.size() - 1;

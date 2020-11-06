@@ -2,8 +2,6 @@ package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +19,9 @@ public class StandaloneBMinHashOptimized extends MinHash {
     private static final long BIT = 1;
 
     /**
-     * Creates a new BooleanMinHash instance with default values
+     * Creates a new BooleanMinHasOptimized instance with default values
      */
-    StandaloneBMinHashOptimized() throws DirectionNotSetException, SeedsException, IOException {
+    public StandaloneBMinHashOptimized() throws DirectionNotSetException, SeedsException, IOException {
         super();
 
         if (mIsSeedsRandom) {
@@ -107,7 +105,7 @@ public class StandaloneBMinHashOptimized extends MinHash {
                     // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
                     // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
                     // This is equal to logical and operation.
-                    int remainderPositionRandomNode = ((randomNode << REMAINDER) >>> REMAINDER);
+                    int remainderPositionRandomNode = (randomNode << REMAINDER) >>> REMAINDER;
                     // quotient is randomNode >>> MASK
                     mutable[randomNode >>> MASK] |= (BIT) << remainderPositionRandomNode;
                     signatureIsChanged = true;
@@ -210,7 +208,6 @@ public class StandaloneBMinHashOptimized extends MinHash {
      * @return hop table
      */
     private double[] hopTable(int[][] collisionsMatrix, int lowerBound) {
-        Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
         long sumCollisions;
         double couples;
         double[] hoptable = new double[lowerBound + 1];
@@ -247,7 +244,6 @@ public class StandaloneBMinHashOptimized extends MinHash {
                 }
             }
         }
-
     }
 
 }

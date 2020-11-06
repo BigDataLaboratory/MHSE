@@ -82,7 +82,7 @@ public abstract class MinHash {
      * @param seed integer to be used as seed for the hash function
      * @return a long that is the hash for the node
      */
-    long hashFunction(int node, int seed) {
+    protected long hashFunction(int node, int seed) {
         HashFunction hf = Hashing.murmur3_128(seed);
         return hf.hashLong((long) node).asLong();
     }
