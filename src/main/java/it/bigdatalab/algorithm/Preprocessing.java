@@ -17,18 +17,11 @@ public class Preprocessing {
 
 
     /**
-     * Empty constructor
-     */
-    Preprocessing() {
-
-    }
-
-    /**
      * Remove isolated nodes, if any, from an input ImmutableGraph graph
      *
      * @return a new instance of ImmutableGraph without isolated nodes, if any
      */
-    ImmutableGraph removeIsolatedNodes(ImmutableGraph graph) {
+    protected ImmutableGraph removeIsolatedNodes(ImmutableGraph graph) {
         ImmutableGraph g = graph;
         logger.info("Deleting isolated nodes...");
 
