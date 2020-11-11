@@ -86,7 +86,6 @@ public class MinHashMain {
 
         //TODO REFACTOR?
         if(runTests) {
-            graphMeasure = new GraphMeasure();
             for(int i=1;i<=numTests;i++){
                 logger.info("Executing test n.{}", i);
                 //numTests executions
@@ -153,6 +152,24 @@ public class MinHashMain {
      * @param path output file path of the JSON file
      */
     private static void writeOnFile(GraphMeasure graphMeasure, String path) throws IOException {
+/*        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        ExclusionStrategy exclusionStrategy = new ExclusionStrategy() {
+            @Override
+            public boolean shouldSkipField(FieldAttributes fieldAttributes) {
+                fieldAttributes.n
+                return false;
+            }
+
+            @Override
+            public boolean shouldSkipClass(Class<?> aClass) {
+                return false;
+            }
+        }
+        try (FileWriter writer = new FileWriter(path)) {
+            gson.toJson(graphMeasure, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
         ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
         File output = new File(path);
         PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(output, true))); // append mode file writer

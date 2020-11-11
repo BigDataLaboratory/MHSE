@@ -1,5 +1,6 @@
 package it.bigdatalab.model;
 
+import com.google.gson.annotations.SerializedName;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
@@ -8,26 +9,48 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.HashMap;
 
 public class GraphMeasure {
+
+    @SerializedName("memory")
     private long mMaxMemoryUsed;
+    @SerializedName("lower_bound")
     private int mLowerBoundDiameter;
+    @SerializedName("avg_distance")
     private double mAvgDistance;
+    @SerializedName("effective_diameter")
     private double mEffectiveDiameter;
+    @SerializedName("total_couples")
     private double mTotalCouples;
+    @SerializedName("total_couples_perc")
     private double mTotalCouplePercentage;
+    @SerializedName("time")
     private long mTime; //time elapsed in milliseconds
+    @SerializedName("hop_table")
     private Int2DoubleSortedMap mHopTable;
+    @SerializedName("hop_table")
     private double[] mHopTableArray;
+    @SerializedName("collision_table")
     private Int2ObjectOpenHashMap<int[]> collisionsTable;       //for each hop a list of collisions for each hash function
+    @SerializedName("collision_table")
     private int[][] mCollisionsMatrix;
+    @SerializedName("algorithm")
     private String mAlgorithmName;
+    @SerializedName("threshold")
     private double mThreshold;
+    @SerializedName("minhash_node_ids")
     private String minHashNodeIDs;
+    @SerializedName("seed_list")
     private String mSeedsList;
+    @SerializedName("num_seed")
     private int numSeeds;
+    @SerializedName("num_nodes")
     private int numNodes;
+    @SerializedName("num_edges")
     private long numArcs;
+    @SerializedName("direction")
     private String mDirection;
+    @SerializedName("seeds_time")
     private HashMap<Integer, Double> seedsTime;
+    @SerializedName("last_hops")
     private int[] lastHops;
 
     /**
@@ -300,6 +323,13 @@ public class GraphMeasure {
     }
 
     /**
+     * @return hop table
+     */
+    public double[] getHopTableArray() {
+        return mHopTableArray;
+    }
+
+    /**
      * @return Collisions tables for each hop and hash function
      */
     public Int2ObjectOpenHashMap<int[]> getCollisionsTable() {
@@ -409,6 +439,14 @@ public class GraphMeasure {
     public void setCollisionsTable(int[][] collisionsTable) {
         this.mCollisionsMatrix = collisionsTable;
     }
+
+    /**
+     * @param hopTable
+     */
+    public void setHopTable(double[] hopTable) {
+        this.mHopTableArray = hopTable;
+    }
+
 
     /**
      * @param lastHops Array containing the last hop for each hash function

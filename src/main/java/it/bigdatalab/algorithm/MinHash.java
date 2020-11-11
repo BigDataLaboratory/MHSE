@@ -34,7 +34,6 @@ public abstract class MinHash {
     private void initialize() throws IOException, DirectionNotSetException {
 
         mMemoryUsed = 0;
-        boolean runTests = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.runTests"));
 
         boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isolatedVertices"));
         logger.info("Keep the isolated vertices? {}", isolatedVertices);

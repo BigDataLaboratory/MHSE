@@ -70,6 +70,7 @@ List of the properties for all the MinHash-based applications.
 - **minhash.inputFilePath** string path of the input file representing a graph in a *WebGraph* format. If your input graph has an *edgelist* format, see *EdgeList2WebGraph* application to make a conversion.
 - **minhash.outputFolderPath**  string path of the output folder path, that will contain results of the execution of the algorithm``````
 - **minhash.isSeedsRandom** is a boolean value. If it is True, the list of seeds used in the hash functions will be random, else it will be loaded from *minhash.seeds* property 
+
 - **minhash.algorithmName** string name of the MinHash algorithm to be executed. A list of acceptable name values is available in the following class: it.bigdatalab.algorithm.AlgorithmEnum. Right now acceptable values are MHSE and SEMHSE.
 - **minhash.threshold** float value that is the threshold used for the *effective diameter*. Usually it is set to 0.9 (90% of total reachable couples of nodes)
 - **minhash.direction** direction of the MinHash messages. Acceptable values are *in* or *out*. If you set *in*, the MinHash is propagated from the destination node to the source node. If you set *out*, from the source to the destination node. This choice doesn't affect computation of all metrics (effective diameter, average distance and so on) but it could make a difference in convergence time.

@@ -59,7 +59,7 @@ public class StandaloneBMinHashOptimized extends MinHash {
         int[][] collisionsMatrix = new int[mNumSeeds][N_ROWS];
         //for each hash function, the last hop executed
         int[] lastHops = new int[mNumSeeds];
-        double[] mHopTableArray;
+        double[] hopTableArray;
 
         int lowerBound = 0;
 
@@ -179,10 +179,10 @@ public class StandaloneBMinHashOptimized extends MinHash {
         normalizeCollisionsTable(collisionsMatrix, lowerBound, lastHops);
 
         logger.info("Starting computation of the hop table from collision table");
-        mHopTableArray = hopTable(collisionsMatrix, lowerBound);
+        hopTableArray = hopTable(collisionsMatrix, lowerBound);
         logger.info("Computation of the hop table completed");
 
-        GraphMeasure graphMeasure = new GraphMeasure(mHopTableArray, lowerBound);
+        GraphMeasure graphMeasure = new GraphMeasure(hopTableArray, lowerBound);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mNumSeeds);
