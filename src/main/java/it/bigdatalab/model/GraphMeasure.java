@@ -74,7 +74,6 @@ public class GraphMeasure {
         this.mTotalCouples = totalCouplesReachable();
         this.mTotalCouplePercentage = totalCouplesPercentage();
         this.mSeedsList = PropertiesManager.getProperty("minhash.seeds");
-        this.numSeeds = mSeedsList.split(",").length;
         this.mDirection = PropertiesManager.getProperty("minhash.direction");
         this.lastHops = null;
         this.collisionsTable = null;
@@ -103,7 +102,6 @@ public class GraphMeasure {
         this.mTotalCouples = totalCouplesReachable();
         this.mTotalCouplePercentage = totalCouplesPercentage();
         this.mSeedsList = PropertiesManager.getProperty("minhash.seeds");
-        this.numSeeds = mSeedsList.split(",").length;
         this.mDirection = PropertiesManager.getProperty("minhash.direction");
         this.lastHops = null;
         this.collisionsTable = null;

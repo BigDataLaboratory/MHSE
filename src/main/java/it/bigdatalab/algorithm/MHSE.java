@@ -128,7 +128,7 @@ public class MHSE extends MinHash {
             seedsListString += (seed + separator);
         }
         graphMeasure.setSeedsList(seedsListString);
-        graphMeasure.setNumSeeds(seedsListString.split(",").length);
+        graphMeasure.setNumSeeds(mNumSeeds);
 
         String minHashNodeIDsString = "";
         separator = ",";
