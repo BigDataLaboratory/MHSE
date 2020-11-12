@@ -34,7 +34,10 @@ public class MinHashFactory {
                 minHashAlgorithm = new StandaloneBMinHashOptimized();
                 break;
             case MultithreadBMinHash:
-                minHashAlgorithm = new StandaloneBMinHash();
+                minHashAlgorithm = new MultithreadBMinHash();
+                break;
+            case MultithreadBMinHashOptimized:
+                minHashAlgorithm = new MultithreadBMinHashOptimized();
                 break;
             default:
                 error = true;

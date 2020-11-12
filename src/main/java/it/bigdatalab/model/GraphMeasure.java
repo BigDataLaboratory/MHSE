@@ -6,8 +6,6 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-import java.util.HashMap;
-
 public class GraphMeasure {
 
     @SerializedName("memory")
@@ -49,7 +47,7 @@ public class GraphMeasure {
     @SerializedName("direction")
     private String mDirection;
     @SerializedName("seeds_time")
-    private HashMap<Integer, Double> seedsTime;
+    private double[] mSeedsTime;
     @SerializedName("last_hops")
     private int[] lastHops;
 
@@ -66,7 +64,6 @@ public class GraphMeasure {
         this.numSeeds = -1;
         this.mSeedsList = "";
         this.minHashNodeIDs = "";
-        this.seedsTime = new HashMap<>();
         this.mThreshold = Double.parseDouble(PropertiesManager.getProperty("minhash.threshold"));
         this.mLowerBoundDiameter = hopTable.size()-1;
         this.mAvgDistance = averageDistance();
@@ -94,7 +91,6 @@ public class GraphMeasure {
         this.numSeeds = -1;
         this.mSeedsList = "";
         this.minHashNodeIDs = "";
-        this.seedsTime = new HashMap<>();
         this.mThreshold = Double.parseDouble(PropertiesManager.getProperty("minhash.threshold"));
         this.mLowerBoundDiameter = lowerBoundDiameter;
         this.mAvgDistance = averageDistance();
@@ -210,8 +206,8 @@ public class GraphMeasure {
     /**
      * @return time in ms for each seed
      */
-    public HashMap<Integer, Double> getSeedsTime() {
-        return seedsTime;
+    public double[] getSeedsTime() {
+        return mSeedsTime;
     }
 
 
@@ -371,8 +367,8 @@ public class GraphMeasure {
     /**
      * @param seedsTime time for each seed
      */
-    public void setSeedsTime(HashMap seedsTime) {
-        this.seedsTime = seedsTime;
+    public void setSeedsTime(double[] seedsTime) {
+        this.mSeedsTime = seedsTime;
     }
 
     /**

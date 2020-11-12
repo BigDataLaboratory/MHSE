@@ -228,7 +228,6 @@ public class StandaloneBMinHash extends MinHash {
      */
     private void normalizeCollisionsTable() {
         int lowerBoundDiameter = collisionsTable.size() - 1;
-        logger.debug("Diameter: " + lowerBoundDiameter);
 
         //Start with hop 1
         //There is no check for hop 0 because at hop 0 there is always (at least) 1 collision, never 0.

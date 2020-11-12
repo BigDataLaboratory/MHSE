@@ -8,5 +8,6 @@ public enum AlgorithmEnum {
     SEMHSE,
     StandaloneBMinHash,
     StandaloneBMinHashOptimized,
-    MultithreadBMinHash
+    MultithreadBMinHash,
+    MultithreadBMinHashOptimized
 }

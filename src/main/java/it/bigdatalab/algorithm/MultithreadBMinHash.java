@@ -30,7 +30,7 @@ public class MultithreadBMinHash extends MinHash {
     private HashMap<Integer, Double> mSeedTime;
 
     /**
-     * Creates a new BooleanMinHash instance with default values
+     * Creates a new MultithreadBMinHash instance with default values
      */
     public MultithreadBMinHash() throws DirectionNotSetException, SeedsException, IOException {
         super();
@@ -166,7 +166,7 @@ public class MultithreadBMinHash extends MinHash {
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
-        graphMeasure.setNumSeeds(mSeeds.size());
+        graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setCollisionsTable(collisionsTable);
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setSeedsTime(mSeedTime);

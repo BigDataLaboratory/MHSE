@@ -232,7 +232,6 @@ public class StandaloneBMinHashOptimized extends MinHash {
      * the maximum value of the other hash functions of the same hop
      */
     private void normalizeCollisionsTable(int[][] collisionsMatrix, int lowerBound, int[] last) {
-        logger.debug("Diameter: " + lowerBound);
 
         for (int i = 0; i < last.length; i++) { // check last hop of each seed
             // if last hop is not the lower bound
