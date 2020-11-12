@@ -1,113 +1,97 @@
 package it.bigdatalab.applications;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import it.bigdatalab.algorithm.Preprocessing;
+import it.bigdatalab.model.GraphGtMeasure;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.webgraph.ImmutableGraph;
+import it.unimi.dsi.webgraph.NodeIterator;
 import it.unimi.dsi.webgraph.algo.NeighbourhoodFunction;
-import org.json.simple.JSONObject;
+import it.unimi.dsi.webgraph.algo.ParallelBreadthFirstVisit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
- import it.unimi.dsi.webgraph.Stats;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 public class GroundTruths {
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHash");
-    private String inputFilePath;
-    private String outputFolderPath;
-    private int threadNumber;
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.GroundTruths");
+
+    private String mMode;
+    private String mInputFilePath;
+    private String mOutputFolderPath;
+    private int mThreadNumber;
     private ImmutableGraph mGraph;
-//    private double avgDistance;
-//    private double diameter;
-//    private double reachableCouples;
-    //private ProgressLogger pl;
 
     public GroundTruths() throws IOException {
-
         initialize();
+    }
 
+    public static void main(String args[]) throws IOException {
+        GroundTruths groundTruths = new GroundTruths();
+
+        if (groundTruths.getMode().equals("WebGraph"))
+            groundTruths.writeResults(groundTruths.runWebGraphMode());
+        else
+            groundTruths.writeResults(groundTruths.runBFSMode());
     }
 
     private void initialize() throws IOException{
-        inputFilePath = PropertiesManager.getProperty("groundTruth.inputFilePath");
-        outputFolderPath = PropertiesManager.getProperty("groundTruth.outputFilePath");
-        logger.info("Loading graph at filepath {}", inputFilePath);
-        mGraph = ImmutableGraph.load(inputFilePath);
+        mInputFilePath = PropertiesManager.getProperty("groundTruth.inputFilePath");
+        mOutputFolderPath = PropertiesManager.getProperty("groundTruth.outputFilePath");
+        logger.info("Loading graph at filepath {}", mInputFilePath);
+        mGraph = ImmutableGraph.load(mInputFilePath);
         logger.info("Loading graph completed successfully");
-        threadNumber =  Integer.parseInt(PropertiesManager.getProperty("goundTruth.threadNumber"));
-        logger.info("Number of Threads "+threadNumber);
+        mThreadNumber = Integer.parseInt(PropertiesManager.getProperty("goundTruth.threadNumber"));
+        logger.info("Number of Threads " + mThreadNumber);
+        mMode = PropertiesManager.getProperty("groundTruth.mode");
 
+        boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isolatedVertices"));
+        logger.info("Keep the isolated vertices? {}", isolatedVertices);
+
+        if (!isolatedVertices) {
+            Preprocessing preprocessing = new Preprocessing();
+            mGraph = preprocessing.removeIsolatedNodes(mGraph);
+        }
     }
 
-    private void run() throws IOException{
-//        long startTime;
-//        long endTime;
-//        long totalTime;
-//        int max = 0;
-
-        double visited_nodes = 0 ;
-        double avg_distance = 0;
-        double []NeighFunction ;
-        double diameter;
-        double eff_diameter;
-        JSONObject bfsResults = new JSONObject();
+    private GraphGtMeasure runBFSMode() {
+        long startTime = System.currentTimeMillis();
         ProgressLogger pl = new ProgressLogger();
-        //ParallelBreadthFirstVisit bfs = new ParallelBreadthFirstVisit(mGraph,4,false,pl);
-        NeighbourhoodFunction neig = new NeighbourhoodFunction();
-        NeighFunction = neig.compute(mGraph,threadNumber,pl);
-        avg_distance = neig.averageDistance(NeighFunction);
-        diameter = neig.effectiveDiameter(1,NeighFunction);
-        eff_diameter = neig.effectiveDiameter(0.9,NeighFunction);
-        visited_nodes = NeighFunction[NeighFunction.length-1];
-        System.out.println("Average distance "+avg_distance);
-        System.out.println("Diameter "+diameter);
-        System.out.println("90% Effective Diameter "+eff_diameter);
-        System.out.println("Reachable pairs "+visited_nodes);
-        bfsResults.put("numNodes",mGraph.numNodes());
-        bfsResults.put("numArcs",mGraph.numArcs());
-        bfsResults.put("reachable_couples",visited_nodes);
-        bfsResults.put("avg_distance", avg_distance);
-        bfsResults.put("diameter", diameter);
-        bfsResults.put("90EffectiveDiameter", eff_diameter);
-        writeResults(bfsResults);
-        //startTime = System.currentTimeMillis();
+
+        long visitedNodes = 0;
+        double max = 0;
+        double avgDistance = 0;
+        ParallelBreadthFirstVisit bfs = new ParallelBreadthFirstVisit(mGraph, mThreadNumber, false, pl);
+
+        logger.info("# nodes {}, # edges {}",
+                mGraph.numNodes(), mGraph.numArcs());
+
         // n times BFS
-       /* NodeIterator nodeIterator = mGraph.nodeIterator();
+        NodeIterator nodeIterator = mGraph.nodeIterator();
         while(nodeIterator.hasNext()){
             int vertex = nodeIterator.nextInt();
             bfs.clear();
-            int node_number = bfs.visit(vertex);
-            visited_nodes += node_number;
-            *//* Info about cutPoints
-               queue and cutPoints, too, provide useful information. In particular, the nodes in queue
-               from the d-th to the (d +1)-th cutpoint are exactly the nodes at distance d from the source.
-             *//*
-            String table;
-            table = "{visitedNodes:"+Integer.toString(node_number);
-            table += ",";
-            table += "hops:[";
-            for (int k=0;k<bfs.cutPoints.size();k++){
-                table+=Integer.toString(bfs.cutPoints.getInt(k));
-                if(k!=bfs.cutPoints.size()-1){
-                    table+=",";
-                }
-            }
-            table+="]}";
-            bfsResults.put(Integer.toString(vertex),table);
+            int nodeNumber = bfs.visit(vertex);
+            visitedNodes += nodeNumber;
+
             if(max < bfs.maxDistance()){
                 max = bfs.maxDistance();
             }
-            *//* Guardare link per capire cosa sto facendo :
-                http://webgraph.di.unimi.it/docs-big/it/unimi/dsi/big/webgraph/algo/ParallelBreadthFirstVisit.html#marker
-                d parte da 0 perché il primo elemento della coda è il nodo radice, ovvero il nodo a distanza 0
-             *//*
+
+            // d start from 0 because the first element of the queue is the root node
+            // that is node at 0 distance
+            // check this link:
+            // http://webgraph.di.unimi.it/docs-big/it/unimi/dsi/big/webgraph/algo/ParallelBreadthFirstVisit.html#marker
             int d = 0;
             int a = 0;
             int b = 1;
             while(b<bfs.cutPoints.size()) {
                 for (int q = bfs.cutPoints.getInt(a); q < bfs.cutPoints.getInt(b); q++) {
-                    avg_distance += d;
+                    avgDistance += d;
                 }
                 d+=1;
                 a+=1;
@@ -116,44 +100,66 @@ public class GroundTruths {
 
         }
 
+        // avgDistance is the sum distances
+        double totalAvgDistance = (avgDistance / ((double) mGraph.numNodes() * ((double) (mGraph.numNodes() - 1))));
 
+        long endTime = System.currentTimeMillis();
 
+        logger.info("Avg distance {}, Diameter {}, Reachable Pairs {}",
+                totalAvgDistance, max, visitedNodes);
 
-        endTime = System.currentTimeMillis();
-        totalTime = endTime - startTime;*/
-        /*System.out.println("Somma di tutte le distanze = "+ avg_distance);
-        System.out.println("Numero di nodi nel grafo = "+ mGraph.numNodes());
+        GraphGtMeasure gtMeasure = new GraphGtMeasure(
+                mGraph.numNodes(), mGraph.numArcs(), totalAvgDistance, 0, max, visitedNodes);
 
-        double total_avg_distance =   ((double) avg_distance / ((double) mGraph.numNodes()*((double) (mGraph.numNodes()-1))));
-        bfsResults.put("numNodes",mGraph.numNodes());
-        bfsResults.put("numArcs",mGraph.numArcs());
-        bfsResults.put("sum_distances",avg_distance);
-        bfsResults.put("avg_distance", Double.toString(total_avg_distance));
-
-        bfsResults.put("diameter",Integer.toString(max));
-        bfsResults.put("reachableCouples",Long.toString(visited_nodes));
-
-        System.out.println("Diametro " + max + " Numero di coppie raggiungibili "+ visited_nodes + " avg distance "+total_avg_distance);
-        System.out.println("Tempo impiegato "+totalTime);
-        */
+        logger.info("Time elapsed {}", endTime - startTime);
+        return gtMeasure;
     }
 
-    private void writeResults(JSONObject jsonResults){
+    private GraphGtMeasure runWebGraphMode() throws IOException {
+        long startTime = System.currentTimeMillis();
 
-        try (FileWriter file = new FileWriter(outputFolderPath+"groundTruth.json")) {
+        double visitedNodes;
+        double avgDistance;
+        double[] neighFunction;
+        double diameter;
+        double effectiveDiameter;
 
-            file.write(jsonResults.toJSONString());
-            file.flush();
+        ProgressLogger pl = new ProgressLogger();
 
+        logger.info("# nodes {}, # edges {}",
+                mGraph.numNodes(), mGraph.numArcs());
+
+        neighFunction = NeighbourhoodFunction.compute(mGraph, mThreadNumber, pl);
+        avgDistance = NeighbourhoodFunction.averageDistance(neighFunction);
+        diameter = NeighbourhoodFunction.effectiveDiameter(1, neighFunction);
+        effectiveDiameter = NeighbourhoodFunction.effectiveDiameter(0.9, neighFunction);
+        visitedNodes = neighFunction[neighFunction.length - 1];
+
+        logger.info("Avg distance {}, Diameter {}, 90% Effective Diameter {}, Reachable Pairs {}",
+                avgDistance, diameter, effectiveDiameter, visitedNodes);
+
+        GraphGtMeasure gtMeasure = new GraphGtMeasure(
+                mGraph.numNodes(), mGraph.numArcs(), avgDistance, effectiveDiameter, diameter, visitedNodes);
+
+        long endTime = System.currentTimeMillis();
+        logger.info("Time elapsed {}", endTime - startTime);
+
+        return gtMeasure;
+    }
+
+    private void writeResults(GraphGtMeasure gtMeasure) {
+        String graphFileName = Paths.get(mInputFilePath).getFileName().toString();
+        String path = mOutputFolderPath + "/gt_" + graphFileName + ".json";
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        try (FileWriter writer = new FileWriter(path)) {
+            gson.toJson(gtMeasure, writer);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void main(String args[]) throws IOException {
-        GroundTruths main = new GroundTruths();
-        main.run();
-
+    private String getMode() {
+        return mMode;
     }
-
 }
