@@ -128,7 +128,8 @@ public class GroundTruths {
 
         logger.info("# nodes {}, # edges {}",
                 mGraph.numNodes(), mGraph.numArcs());
-
+        // Defining a new neighbourhood function f(.)
+        // This function is obtained by executing N breadth first visits.
         neighFunction = NeighbourhoodFunction.compute(mGraph, mThreadNumber, pl);
         avgDistance = NeighbourhoodFunction.averageDistance(neighFunction);
         diameter = NeighbourhoodFunction.effectiveDiameter(1, neighFunction);
