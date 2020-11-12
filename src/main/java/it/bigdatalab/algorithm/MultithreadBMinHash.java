@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.IntStream;
@@ -27,14 +26,14 @@ public class MultithreadBMinHash extends MinHash {
     private Int2ObjectOpenHashMap<int[]> collisionsTable;
     private int[] lastHops;
     private int mNumberOfThreads;
-    private HashMap<Integer, Double> mSeedTime;
+    private double[] mSeedTime;
 
     /**
      * Creates a new MultithreadBMinHash instance with default values
      */
     public MultithreadBMinHash() throws DirectionNotSetException, SeedsException, IOException {
         super();
-        mSeedTime = new HashMap();
+        mSeedTime = new double[mNumSeeds];
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads"));
         logger.info("Number of threads selected {}", suggestedNumberOfThreads);
 
@@ -331,7 +330,7 @@ public class MultithreadBMinHash extends MinHash {
                 logger.debug("(seed {}) Hop Collision {}", index, hopCollision);
             }
             double durationSeed = (System.nanoTime() - startSeedTime) / 1000000.0;
-            MultithreadBMinHash.this.mSeedTime.put(index, durationSeed);
+            MultithreadBMinHash.this.mSeedTime[index] = durationSeed;
             logger.debug("Seed # {} - Time {}", index, durationSeed);
             return hopCollision;
         }
