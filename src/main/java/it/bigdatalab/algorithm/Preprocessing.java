@@ -32,6 +32,7 @@ public class Preprocessing {
         logger.info("Deleting isolated nodes...");
 
         int numNodes = graph.numNodes();
+        int n = graph.numNodes();
         int d; // counter for outdegree iterator
         int s; // counter for indegree iterator
         boolean isBijective = true;
@@ -72,7 +73,8 @@ public class Preprocessing {
         if (!isBijective) {
             graph = Transform.map(graph, mappedGraph);
             // new # number of nodes of the input graph without isolated nodes
-            logger.info("Removed {} nodes ", numNodes - graph.numNodes());
+            logger.info("Removed {} nodes ", n - graph.numNodes());
+            logger.info("The graph has {} nodes",graph.numNodes());
         } else {
             logger.info("The graph does not contain isolated vertices");
         }
