@@ -5,7 +5,6 @@ import com.google.common.hash.Hashing;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.Transform;
@@ -26,11 +25,10 @@ public abstract class MinHash {
     protected int[] minHashNodeIDs;
     protected boolean isSeedsRandom;
     private String inputFilePath;
-    private boolean runTests;
     private String direction;
     private long mMemoryUsed;
 
-    protected Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
+    protected Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
 
     public MinHash() throws IOException, DirectionNotSetException {
         initialize();
@@ -39,7 +37,6 @@ public abstract class MinHash {
     private void initialize() throws IOException, DirectionNotSetException {
 
         mMemoryUsed = 0;
-        runTests = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.runTests"));
 
         isolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isolatedVertices"));
         logger.info("Keep the isolated vertices? {}", isolatedVertices);
@@ -74,19 +71,6 @@ public abstract class MinHash {
             throw new DirectionNotSetException("Direction property (\"minhash.direction\") not correctly set in properties file");
         }
 
-        /*Dictionary<Integer,Double> personalization = new Hashtable<Integer, Double>();
-        Dictionary<Integer,Double> nstart = new Hashtable<Integer, Double>();
-        Dictionary<Integer,Double> dangling = new Hashtable<Integer, Double>();
-        */
-
-//        Clustering cluster = new Clustering();
-//        cluster.runAlgorithm();
-//        System.exit(-1);
-        //cluster.pagerank(mGraph,0.85,personalization,100,1.0e-6,nstart,dangling);
-        //cluster.apx_pagerank(mGraph,0.85,0,1.0e-6);
-        //cluster.print_pagerank();
-
-
         numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
         minHashNodeIDs = new int[numSeeds];
 
@@ -108,17 +92,45 @@ public abstract class MinHash {
      *  Generate a random integer and append it
      *  to the seeds list
      */
-    protected void createSeeds() {
-        mSeeds = new IntArrayList();
+    protected IntArrayList createSeeds() {
+        IntArrayList seeds = new IntArrayList();
         Random random = new Random();
 
         for(int i = 0; i < numSeeds; i++) {
             int randomNum = random.nextInt();
-            while(mSeeds.contains(randomNum)){
+            while (seeds.contains(randomNum)) {
                 randomNum = random.nextInt();
             }
-            mSeeds.add(randomNum);
+            seeds.add(randomNum);
         }
+
+        return seeds;
+    }
+
+    public IntArrayList getSeeds() {
+        return mSeeds;
+    }
+
+    public void setSeeds(IntArrayList seeds) throws SeedsException {
+        if (numSeeds != seeds.size()) {
+            String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and length of seeds list is " + seeds.size();
+            throw new SeedsException(message);
+        }
+
+        this.mSeeds = seeds;
+    }
+
+    public int[] getNodes() {
+        return minHashNodeIDs;
+    }
+
+    public void setNodes(int[] nodes) throws SeedsException {
+        if (numSeeds != nodes.length) {
+            String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and length of nodes list is " + minHashNodeIDs.length;
+            throw new SeedsException(message);
+        }
+
+        this.minHashNodeIDs = nodes;
     }
 
     public void memoryUsed() {

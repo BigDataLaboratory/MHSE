@@ -4,6 +4,7 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -41,7 +42,7 @@ public class CreateSeeds {
         CreateSeeds createSeeds = new CreateSeeds();
         ImmutableGraph g = null;
 
-        boolean exist = new File(createSeeds.getInputFile() + ".graph").isFile() && !createSeeds.getInputFile().isEmpty();
+        boolean exist = new File(createSeeds.getInputFile() + Constants.GRAPH_EXTENSION).isFile() && !createSeeds.getInputFile().isEmpty();
         if (exist) {
             g = createSeeds.loadGraph();
         }
@@ -69,10 +70,10 @@ public class CreateSeeds {
      * Read properties for CreateSeeds application from property file
      */
     private void getProperties() {
-        mNumSeeds = Integer.parseInt(PropertiesManager.getProperty("seed.numSeeds", "256"));
+        mNumSeeds = Integer.parseInt(PropertiesManager.getProperty("seed.numSeeds", Constants.NUM_SEEDS_DEFAULT));
         mInputFilePath = PropertiesManager.getProperty("seed.inputFilePath");
         mOutFolderPath = PropertiesManager.getPropertyIfNotEmpty("seed.outFolderPath");
-        mNumTest = Integer.parseInt(PropertiesManager.getProperty("seed.numTest", "10"));
+        mNumTest = Integer.parseInt(PropertiesManager.getProperty("seed.numTest", Constants.NUM_TEST_DEFAULT));
     }
 
     /***
@@ -165,7 +166,7 @@ public class CreateSeeds {
     private void seedsToJson(List<IntArrayList> seeds) throws IOException {
         Gson gson = new GsonBuilder().create();
 
-        try (FileWriter writer = new FileWriter(mOutFolderPath + "seeds.json")) {
+        try (FileWriter writer = new FileWriter(mOutFolderPath + File.separator + "seeds.json")) {
             gson.toJson(seeds, writer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -182,7 +183,7 @@ public class CreateSeeds {
         Gson gson = new GsonBuilder().create();
         String graphFileName = Paths.get(mInputFilePath).getFileName().toString();
 
-        try (FileWriter writer = new FileWriter(mOutFolderPath + "nodes_" + graphFileName + ".json")) {
+        try (FileWriter writer = new FileWriter(mOutFolderPath + File.separator + "nodes_" + graphFileName + ".json")) {
             gson.toJson(nodes, writer);
         } catch (IOException e) {
             e.printStackTrace();

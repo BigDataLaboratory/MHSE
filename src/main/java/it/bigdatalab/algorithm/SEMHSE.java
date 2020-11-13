@@ -1,8 +1,9 @@
 package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
-import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
 import org.slf4j.Logger;
@@ -27,24 +28,11 @@ public class SEMHSE extends MinHash {
     /**
      * Creates a SE-MHSE instance with default values
      */
-    public SEMHSE() throws DirectionNotSetException, IOException {
+    public SEMHSE() throws DirectionNotSetException, IOException, SeedsException {
         super();
 
         if(isSeedsRandom) {
-            createSeeds();
-        } else {
-            String propertyName = "minhash.seeds";
-            String seedsString = PropertiesManager.getProperty(propertyName);
-            int[] seeds = Arrays.stream(seedsString.split(",")).mapToInt(Integer::parseInt).toArray();
-            if (numSeeds != seeds.length) {
-                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
-//                throw new SeedsException(message);
-                logger.warn(message);
-            }
-            mSeeds = new IntArrayList();
-            for (int i = 0; i < seeds.length; i++) {
-                mSeeds.add(seeds[i]);
-            }
+            setSeeds(createSeeds());
         }
 
         collisionsTable = new Int2ObjectOpenHashMap<int[]>();       //for each hop a list of collisions for each hash function
@@ -59,6 +47,8 @@ public class SEMHSE extends MinHash {
      * @return Computed metrics of the algorithm
      */
     public GraphMeasure runAlgorithm() {
+        long startTime = System.currentTimeMillis();
+        long totalTime;
 
         NodeIterator nodeIter;
 
@@ -132,6 +122,8 @@ public class SEMHSE extends MinHash {
             logger.info("Computation for hash function n.{} completed", i);
         }
 
+        totalTime = System.currentTimeMillis() - startTime;
+        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
         //normalize collisionsTable
         logger.info("Normalizing Collisions table...");
@@ -148,24 +140,10 @@ public class SEMHSE extends MinHash {
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setCollisionsTable(collisionsTable);
         graphMeasure.setLastHops(lastHops);
-
-        String seedsListString = "";
-        String separator = ",";
-        IntListIterator seedsIterator = mSeeds.listIterator();
-        while(seedsIterator.hasNext()){
-            int seed = seedsIterator.nextInt();
-            seedsListString += (seed + separator);
-        }
-        graphMeasure.setSeedsList(seedsListString);
-        graphMeasure.setNumSeeds(seedsListString.split(",").length);
-
-
-        String minHashNodeIDsString = "";
-        separator = ",";
-        for(int i=0;i<numSeeds;i++){
-            minHashNodeIDsString += (minHashNodeIDs[i] + separator);
-        }
-        graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
+        graphMeasure.setSeedsList(getSeeds());
+        graphMeasure.setNumSeeds(numSeeds);
+        graphMeasure.setTime(totalTime);
+        graphMeasure.setMinHashNodeIDs(getNodes());
         graphMeasure.setMaxMemoryUsed(getMaxUsedMemory());
         return graphMeasure;
     }
@@ -224,8 +202,8 @@ public class SEMHSE extends MinHash {
      * @return hop table
      */
 
-    private Int2DoubleSortedMap hopTable() {
-        Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
+    private Int2DoubleLinkedOpenHashMap hopTable() {
+        Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
         int lastHop = collisionsTable.size() - 1;
         long sumCollisions = 0;
 

@@ -2,7 +2,10 @@ package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2LongSortedMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,13 +174,7 @@ public class MultithreadBMinHash extends MinHash {
         graphMeasure.setCollisionsTable(collisionsTable);
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setSeedsTime(mSeedTime);
-
-        String minHashNodeIDsString = "";
-        String separator = ",";
-        for(int i=0;i<numSeeds;i++){
-            minHashNodeIDsString += (minHashNodeIDs[i] + separator);
-        }
-        graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
+        graphMeasure.setMinHashNodeIDs(getNodes());
         return graphMeasure;
     }
 
@@ -226,8 +223,8 @@ public class MultithreadBMinHash extends MinHash {
      * @return hop table
      */
 
-    private Int2DoubleSortedMap hopTable() {
-        Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
+    private Int2DoubleLinkedOpenHashMap hopTable() {
+        Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
         mTotalCollisions.forEach((key, value) -> {
             Double r = ((double) (value * mGraph.numNodes()) / this.numSeeds);
             hopTable.put(key, r);

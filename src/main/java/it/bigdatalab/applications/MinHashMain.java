@@ -1,16 +1,23 @@
 package it.bigdatalab.applications;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import it.bigdatalab.algorithm.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import it.bigdatalab.algorithm.AlgorithmEnum;
+import it.bigdatalab.algorithm.MinHash;
+import it.bigdatalab.algorithm.MinHashFactory;
 import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.PropertiesManager;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MinHashMain {
 
@@ -18,7 +25,9 @@ public class MinHashMain {
     private String algorithmName;
     private MinHash algorithm;
     private String inputFilePath;
-    private boolean runTests;
+    private boolean mIsSeedsRandom;
+    private String mInputFilePathSeed;
+    private String mInputFilePathNodes;
     private int numTests;
 
     private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.MinHashMain");
@@ -44,13 +53,49 @@ public class MinHashMain {
         }
     }
 
+    /**
+     * Write the statistics computed on the input graph in a JSON file
+     *
+     * @param graphMeasure input graph statistics
+     * @param path         output file path of the JSON file
+     */
+    private static void writeOnFile(GraphMeasure graphMeasure, String path) throws IOException {
+        path += Constants.JSON_EXTENSION;
+        Gson gson = new GsonBuilder().create();
+
+        Type gmListType = new TypeToken<List<GraphMeasure>>() {
+        }.getType();
+
+        boolean exist = new File(path).isFile();
+        List<GraphMeasure> graphMeasures = new ArrayList<>();
+
+        if (exist) {
+            FileReader fr = new FileReader(path);
+            graphMeasures = new Gson().fromJson(fr, gmListType);
+            fr.close();
+            // If graph measures list is empty
+            if (null == graphMeasures) {
+                graphMeasures = new ArrayList<>();
+            }
+        }
+
+        // Add new graphMeasure to the list
+        graphMeasures.add(graphMeasure);
+        // No append replace the whole file
+        FileWriter fw = new FileWriter(path);
+        gson.toJson(graphMeasures, fw);
+        fw.close();
+
+        logger.info("Graph measure wrote in " + path);
+    }
 
     /**
      * Run Minhash algorithm (specified in the algorithmName parameter) using properties read from properties file such as:
      * - inputFilePath  the path to the input file representing a graph in a WebGraph format. If the input graph has an edgelist format
      * - outputFolderPath the path to the output folder path that will contain results of the execution of the algorithm
      * - algorithmName represent the name of the MinHash algorithm to be executed (see AlghorithmEnum for available algorithms)
-     * - runTests if it is True, the Test mode will be activated, multiple tests will be run for the same algorithm.
+     * - mIsSeedsRandom if it is False, seeds' list and nodes' list must be read from external json file for testing purpose
+     * whose paths are set in mInputFilePathSeed and mInputFilePathNodes
      * - numTests number of tests to be executed
      * If algorithmName is empty or not available in AlgorithmEnum, exit from the process
      * @throws MinHash.DirectionNotSetException
@@ -61,8 +106,14 @@ public class MinHashMain {
         inputFilePath = PropertiesManager.getProperty("minhash.inputFilePath");
         outputFolderPath = PropertiesManager.getProperty("minhash.outputFolderPath");
         algorithmName = PropertiesManager.getProperty("minhash.algorithmName");
-        runTests = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.runTests"));
-        numTests = Integer.parseInt(PropertiesManager.getProperty("minhash.numTests"));
+
+        numTests = Integer.parseInt(PropertiesManager.getProperty("minhash.numTests", Constants.NUM_RUN_DEFAULT));
+        mIsSeedsRandom = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.isSeedsRandom"));
+        // read external json file for seeds' lists (mandatory) and nodes' lists (optional)
+        if (!mIsSeedsRandom) {
+            mInputFilePathSeed = PropertiesManager.getPropertyIfNotEmpty("minhash.inputFilePathSeed");
+            mInputFilePathNodes = PropertiesManager.getProperty("minhash.inputFilePathNodes");
+        }
 
         try {
             MinHashFactory mhf = new MinHashFactory();
@@ -72,93 +123,72 @@ public class MinHashMain {
             logger.error("There is no \"{}\" algorithm! ", algorithmName);
             iae.printStackTrace();
             System.exit(-4);
+        } catch (MinHash.DirectionNotSetException e) {
+            e.printStackTrace();
+            System.exit(-1);
         }
     }
-
 
     private void run() throws IOException, MinHash.SeedsException {
 
         GraphMeasure graphMeasure;
-        long startTime;
-        long endTime;
+        long startTime = System.currentTimeMillis();
         long totalTime;
 
-        //TODO REFACTOR?
-        if(runTests) {
-            graphMeasure = new GraphMeasure();
-            for(int i=1;i<=numTests;i++){
-                logger.info("Executing test n.{}", i);
-                //numTests executions
-                startTime = System.currentTimeMillis();
-                String propertyName = "minhash.seeds" + i;
-                String seedsString = PropertiesManager.getProperty(propertyName);
-                //check if the new seedsString has the same number of elements of the property mhse.numSeeds
-                int[] seeds = Arrays.stream(seedsString.split(",")).mapToInt(Integer::parseInt).toArray();
-                int numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
-                if (numSeeds != seeds.length) {
-                    String message = "Specified different number of seeds in properties. \"mhse.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
-                    throw new MinHash.SeedsException(message);
-                }
+        List<IntArrayList> seeds = new ArrayList<>();
+        List<int[]> nodes = new ArrayList<>();
 
-                PropertiesManager.setProperty("minhash.seeds", seedsString);
+        if (!mIsSeedsRandom) {
+            seeds = readSeedsFromJson();
+            nodes = readNodesFromJson();
+        }
 
-                try {
-                    MinHashFactory mhf = new MinHashFactory();
-                    algorithm = mhf.getAlgorithm(AlgorithmEnum.valueOf(algorithmName));
-                } catch(IllegalArgumentException iae){
-                    logger.error("There is no \"{}\" algorithm! ", algorithmName);
-                    iae.printStackTrace();
-                    System.exit(-4);
-                } catch (MinHash.DirectionNotSetException e) {
-                    e.printStackTrace();
-                    System.exit(-1);
-                }
+        if (!mIsSeedsRandom) {
+            numTests = numTests > seeds.size() ? seeds.size() : numTests;
+            logger.info("Max number of run test executable is {}", numTests);
+        }
 
-                graphMeasure = algorithm.runAlgorithm();
-                logger.info("\nLower Bound Diameter\t{}\nTotal Couples Reachable\t{}\nTotal couples Percentage\t{}\nAvg Distance\t{}\nEffective Diameter\t{}",
-                        graphMeasure.getLowerBoundDiameter(), new BigDecimal(graphMeasure.getTotalCouples()).toPlainString() , new BigDecimal(graphMeasure.getTotalCouplePercentage()).toPlainString(), graphMeasure.getAvgDistance(), graphMeasure.getEffectiveDiameter());
-                endTime = System.currentTimeMillis();
-                totalTime = endTime - startTime;
-                logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
-                graphMeasure.setAlgorithmName(algorithmName);
-                graphMeasure.setTime(totalTime);
-                String inputGraphName = new File(inputFilePath).getName();
-                String outputFilePath = outputFolderPath + File.separator + inputGraphName;
-                writeOnFile(graphMeasure, outputFilePath);
-                logger.info("Test n.{} executed correctly", i);
+        for (int i = 0; i < numTests; i++) {
+            if (!mIsSeedsRandom) {
+                algorithm.setSeeds(seeds.get(i));
+                algorithm.setNodes(nodes.get(i));
             }
-        } else {
-            //Single execution
-            startTime = System.currentTimeMillis();
             graphMeasure = algorithm.runAlgorithm();
             logger.info("\nLower Bound Diameter\t{}\nTotal Couples Reachable\t{}\nTotal couples Percentage\t{}\nAvg Distance\t{}\nEffective Diameter\t{}",
-                    graphMeasure.getLowerBoundDiameter(), new BigDecimal(graphMeasure.getTotalCouples()).toPlainString() , new BigDecimal(graphMeasure.getTotalCouplePercentage()).toPlainString(), graphMeasure.getAvgDistance(), graphMeasure.getEffectiveDiameter());
+                    graphMeasure.getLowerBoundDiameter(), new BigDecimal(graphMeasure.getTotalCouples()).toPlainString(), new BigDecimal(graphMeasure.getTotalCouplePercentage()).toPlainString(), graphMeasure.getAvgDistance(), graphMeasure.getEffectiveDiameter());
 
-            endTime = System.currentTimeMillis();
-            totalTime = endTime - startTime;
-            logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
             graphMeasure.setAlgorithmName(algorithmName);
-            graphMeasure.setTime(totalTime);
-
-            String graphName = new File(inputFilePath).getName();
-            String outputFilePath = outputFolderPath + File.separator + graphName;
+            String inputGraphName = new File(inputFilePath).getName();
+            String outputFilePath = outputFolderPath + File.separator + inputGraphName;
             writeOnFile(graphMeasure, outputFilePath);
+            logger.info("Test n.{} executed correctly", i + 1);
         }
+
+        totalTime = System.currentTimeMillis() - startTime;
+        logger.info("Application successfully completed. Time elapsed (in milliseconds) {}", totalTime);
     }
 
     /**
-     * Write the statistics computed on the input graph in a JSON file
-     * @param graphMeasure input graph statistics
-     * @param path output file path of the JSON file
+     * @return list of seeds' list read from external json file
+     * @throws FileNotFoundException
      */
-    private static void writeOnFile(GraphMeasure graphMeasure, String path) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-        File output = new File(path);
-        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(output, true))); // append mode file writer
-        out.println();
-        objectMapper.writeValue(out, graphMeasure);
-        out.close();
-        logger.info("Graph measure wrote in " + path);
+    private List<IntArrayList> readSeedsFromJson() throws FileNotFoundException {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<IntArrayList>>() {
+        }.getType();
+        return gson.fromJson(new FileReader(mInputFilePathSeed), listType);
+    }
+
+    /**
+     *
+     * @return list of nodes' list read from external json file
+     * @throws FileNotFoundException
+     */
+    private List<int[]> readNodesFromJson() throws FileNotFoundException {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<int[]>>() {
+        }.getType();
+        return gson.fromJson(new FileReader(mInputFilePathNodes), listType);
     }
 
     public static void main(String[] args) {

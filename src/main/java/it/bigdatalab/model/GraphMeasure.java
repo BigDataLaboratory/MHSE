@@ -1,13 +1,19 @@
 package it.bigdatalab.model;
 
 import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
-import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class GraphMeasure {
+
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.model.GraphMeasure");
+
     private long mMaxMemoryUsed;
     private int mLowerBoundDiameter;
     private double mAvgDistance;
@@ -16,12 +22,12 @@ public class GraphMeasure {
     private double mTotalCouplePercentage;
     private long mTime; //time elapsed in milliseconds
     private long[] mTimePerSeed; // Time elapsed in milliseconds for each seed
-    private Int2DoubleSortedMap mHopTable;
+    private Int2DoubleLinkedOpenHashMap mHopTable;
     private Int2ObjectOpenHashMap<int[]> collisionsTable;       //for each hop a list of collisions for each hash function
     private String mAlgorithmName;
     private double mThreshold;
-    private String minHashNodeIDs;
-    private String mSeedsList;
+    private int[] minHashNodeIDs;
+    private IntArrayList mSeedsList;
     private int numSeeds;
     private int numNodes;
     private long numArcs;
@@ -29,7 +35,8 @@ public class GraphMeasure {
     private HashMap<Integer, Double> seedsTime;
     private int[] lastHops;
 
-    public GraphMeasure(Int2DoubleSortedMap hopTable){
+
+    public GraphMeasure(Int2DoubleLinkedOpenHashMap hopTable) {
         this.mHopTable = hopTable;
         this.mMaxMemoryUsed = -1;
         this.mTime = -1;
@@ -37,8 +44,6 @@ public class GraphMeasure {
         this.numNodes = -1;
         this.numArcs = -1;
         this.numSeeds = -1;
-        this.mSeedsList = "";
-        this.minHashNodeIDs = "";
         this.seedsTime = new HashMap<>();
         this.mThreshold = Double.parseDouble(PropertiesManager.getProperty("minhash.threshold"));
         this.mLowerBoundDiameter = hopTable.size()-1;
@@ -46,8 +51,7 @@ public class GraphMeasure {
         this.mEffectiveDiameter = effectiveDiameter();
         this.mTotalCouples = totalCouplesReachable();
         this.mTotalCouplePercentage = totalCouplesPercentage();
-        this.mSeedsList = PropertiesManager.getProperty("minhash.seeds");
-        this.numSeeds = mSeedsList.split(",").length;
+        this.mSeedsList = null;
         this.mDirection = PropertiesManager.getProperty("minhash.direction");
         this.lastHops = null;
         this.collisionsTable = null;
@@ -109,9 +113,9 @@ public class GraphMeasure {
         int lowerBoundDiameter = mHopTable.size()-1;
 
         double sumAvg = 0;
-        for(Int2DoubleMap.Entry entry : mHopTable.int2DoubleEntrySet()) {
-            int key = entry.getIntKey();
-            double value = entry.getDoubleValue();
+        for (Map.Entry<Integer, Double> entry : mHopTable.entrySet()) {
+            int key = entry.getKey();
+            double value = entry.getValue();
 
             if(key != 0) {
                 sumAvg+=(key*(value-mHopTable.get(key-1)));
@@ -220,15 +224,15 @@ public class GraphMeasure {
     /**
      * @return Comma separated IDs of minHash nodes
      */
-    public String getMinHashNodeIDs() {
+    public int[] getMinHashNodeIDs() {
         return minHashNodeIDs;
     }
 
     /**
-     * @return list of seeds
+     * @param minHashNodeIDs Comma separated IDs of minHash nodes
      */
-    public String getSeedsList() {
-        return mSeedsList;
+    public void setMinHashNodeIDs(int[] minHashNodeIDs) {
+        this.minHashNodeIDs = minHashNodeIDs;
     }
 
     /**
@@ -246,10 +250,10 @@ public class GraphMeasure {
     }
 
     /**
-     * @return hop table
+     * @return list of seeds
      */
-    public Int2DoubleSortedMap getHopTable() {
-        return mHopTable;
+    public IntArrayList getSeedsList() {
+        return mSeedsList;
     }
 
     /**
@@ -338,15 +342,15 @@ public class GraphMeasure {
     /**
      * @param seedsList Comma separated seeds
      */
-    public void setSeedsList(String seedsList) {
+    public void setSeedsList(IntArrayList seedsList) {
         this.mSeedsList = seedsList;
     }
 
     /**
-     * @param minHashNodeIDs Comma separated IDs of minHash nodes
+     * @return hop table
      */
-    public void setMinHashNodeIDs(String minHashNodeIDs) {
-        this.minHashNodeIDs = minHashNodeIDs;
+    public Int2DoubleLinkedOpenHashMap getHopTable() {
+        return mHopTable;
     }
 
     /**
@@ -361,5 +365,9 @@ public class GraphMeasure {
      */
     public void setLastHops(int[] lastHops) {
         this.lastHops = lastHops;
+    }
+
+    public void setHopTable(Int2DoubleLinkedOpenHashMap hopTable) {
+        this.mHopTable = hopTable;
     }
 }

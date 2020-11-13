@@ -1,15 +1,15 @@
 package it.bigdatalab.algorithm;
 
-import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.*;
+import it.bigdatalab.model.GraphMeasure;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
-import it.bigdatalab.model.GraphMeasure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Implementation of MHSE (MinHash Signature Estimation) algorithm
@@ -29,19 +29,7 @@ public class MHSE extends MinHash {
         super();
 
         if(isSeedsRandom) {
-            createSeeds();
-        } else {
-            String propertyName = "minhash.seeds";
-            String seedsString = PropertiesManager.getProperty(propertyName);
-            int[] seeds = Arrays.stream(seedsString.split(",")).mapToInt(Integer::parseInt).toArray();
-            if (numSeeds != seeds.length) {
-                String message = "Specified different number of seeds in properties.  \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + seeds.length;
-                throw new SeedsException(message);
-            }
-            mSeeds = new IntArrayList();
-            for (int i = 0; i < seeds.length; i++) {
-                mSeeds.add(seeds[i]);
-            }
+            setSeeds(createSeeds());
         }
 
         signatures = new Int2ObjectOpenHashMap<long[]>(mGraph.numNodes());       //initialize signatures map with the expected number of elements(nodes) in the map
@@ -56,6 +44,8 @@ public class MHSE extends MinHash {
      * @return Metrics of the algorithm
      */
     public GraphMeasure runAlgorithm() {
+        long startTime = System.currentTimeMillis();
+        long totalTime;
 
         boolean signatureIsChanged = true;
         int hop = 0;
@@ -110,31 +100,23 @@ public class MHSE extends MinHash {
                 hop++;
             }
             logger.info("Hop " + hop + " completed");
-            memoryUsed();
         }
 
+        totalTime = System.currentTimeMillis() - startTime;
+        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
+
+        for (Map.Entry m : hopTable.int2DoubleEntrySet()) {
+            logger.debug("key {} ", m.getKey());
+            logger.debug("v {} ", m.getValue());
+        }
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setMaxMemoryUsed(getMaxUsedMemory());
-
-        String seedsListString = "";
-        String separator = ",";
-        IntListIterator seedsIterator = mSeeds.listIterator();
-        while(seedsIterator.hasNext()){
-            int seed = seedsIterator.nextInt();
-            seedsListString += (seed + separator);
-        }
-        graphMeasure.setSeedsList(seedsListString);
-        graphMeasure.setNumSeeds(seedsListString.split(",").length);
-
-        String minHashNodeIDsString = "";
-        separator = ",";
-        for(int i=0;i<numSeeds;i++){
-            minHashNodeIDsString += (minHashNodeIDs[i] + separator);
-        }
-        graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
-
+        graphMeasure.setSeedsList(getSeeds());
+        graphMeasure.setNumSeeds(numSeeds);
+        graphMeasure.setTime(totalTime);
+        graphMeasure.setMinHashNodeIDs(getNodes());
 
         return graphMeasure;
     }
