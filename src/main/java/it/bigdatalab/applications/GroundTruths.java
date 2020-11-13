@@ -131,9 +131,13 @@ public class GroundTruths {
         // Defining a new neighbourhood function f(.)
         // This function is obtained by executing N breadth first visits.
         neighFunction = NeighbourhoodFunction.compute(mGraph, mThreadNumber, pl);
+        // Get the average distance using the NeighbourhoodFunction
         avgDistance = NeighbourhoodFunction.averageDistance(neighFunction);
+        // Get the diameter lowerbound using the function of effective diameter with alpha = 1
         diameter = NeighbourhoodFunction.effectiveDiameter(1, neighFunction);
+        // Get the 90% of the diameter using alpha = 0.9
         effectiveDiameter = NeighbourhoodFunction.effectiveDiameter(0.9, neighFunction);
+        // Get the number of reachable pairs
         visitedNodes = neighFunction[neighFunction.length - 1];
 
         logger.info("Avg distance {}, Diameter {}, 90% Effective Diameter {}, Reachable Pairs {}",
