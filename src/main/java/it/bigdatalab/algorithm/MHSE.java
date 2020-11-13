@@ -1,6 +1,7 @@
 package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -57,7 +58,7 @@ public class MHSE extends MinHash {
      * Execution of the MHSE algorithm
      * @return Metrics of the algorithm
      */
-    public GraphMeasure runAlgorithm() {
+    public Measure runAlgorithm() {
 
         boolean signatureIsChanged = true;
         int hop = 0;

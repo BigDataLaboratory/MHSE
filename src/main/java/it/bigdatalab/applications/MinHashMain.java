@@ -1,16 +1,18 @@
 package it.bigdatalab.applications;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import it.bigdatalab.algorithm.AlgorithmEnum;
 import it.bigdatalab.algorithm.MinHash;
 import it.bigdatalab.algorithm.MinHashFactory;
-import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
 
@@ -77,9 +79,27 @@ public class MinHashMain {
     }
 
 
+    /**
+     * Write the statistics computed on the input graph in a JSON file
+     *
+     * @param graphMeasure input graph statistics
+     * @param path         output file path of the JSON file
+     */
+    private static void writeOnFile(Measure graphMeasure, String path) throws IOException {
+        Gson gson = new GsonBuilder().create();
+
+        try (FileWriter writer = new FileWriter(path)) {
+            gson.toJson(graphMeasure, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        logger.info("Graph measure wrote in " + path);
+    }
+
     private void run() throws IOException, MinHash.SeedsException {
 
-        GraphMeasure graphMeasure;
+        Measure graphMeasure;
         long startTime;
         long endTime;
         long totalTime;
@@ -144,39 +164,6 @@ public class MinHashMain {
             String outputFilePath = outputFolderPath + File.separator + graphName;
             writeOnFile(graphMeasure, outputFilePath);
         }
-    }
-
-    /**
-     * Write the statistics computed on the input graph in a JSON file
-     * @param graphMeasure input graph statistics
-     * @param path output file path of the JSON file
-     */
-    private static void writeOnFile(GraphMeasure graphMeasure, String path) throws IOException {
-/*        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        ExclusionStrategy exclusionStrategy = new ExclusionStrategy() {
-            @Override
-            public boolean shouldSkipField(FieldAttributes fieldAttributes) {
-                fieldAttributes.n
-                return false;
-            }
-
-            @Override
-            public boolean shouldSkipClass(Class<?> aClass) {
-                return false;
-            }
-        }
-        try (FileWriter writer = new FileWriter(path)) {
-            gson.toJson(graphMeasure, writer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-        ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-        File output = new File(path);
-        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(output, true))); // append mode file writer
-        out.println();
-        objectMapper.writeValue(out, graphMeasure);
-        out.close();
-        logger.info("Graph measure wrote in " + path);
     }
 
     public static void main(String[] args) {

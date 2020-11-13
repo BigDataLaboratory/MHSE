@@ -1,6 +1,7 @@
 package it.bigdatalab.algorithm;
 
-import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.GraphMeasureOpt;
+import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
@@ -69,7 +70,7 @@ public class MultithreadBMinHashOptimized extends MinHash {
      * @return Computed metrics of the algorithm
      */
 
-    public GraphMeasure runAlgorithm() {
+    public Measure runAlgorithm() {
         logger.debug("Number of threads to be used {}", mNumberOfThreads);
         int[][] collisionsMatrix = new int[mNumSeeds][];
         int[] lastHops = new int[mNumSeeds];
@@ -130,7 +131,7 @@ public class MultithreadBMinHashOptimized extends MinHash {
         hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
         logger.debug("Hop table derived from collision table: {}", hopTableArray);
 
-        GraphMeasure graphMeasure = new GraphMeasure(hopTableArray, lowerboundDiameter);
+        GraphMeasureOpt graphMeasure = new GraphMeasureOpt(hopTableArray, lowerboundDiameter);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mNumSeeds);

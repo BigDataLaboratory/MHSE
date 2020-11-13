@@ -1,6 +1,7 @@
 package it.bigdatalab.algorithm;
 
-import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.GraphMeasureOpt;
+import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +55,7 @@ public class StandaloneBMinHashOptimized extends MinHash {
      *
      * @return Computed metrics of the algorithm
      */
-    public GraphMeasure runAlgorithm() {
+    public Measure runAlgorithm() {
         // seed as rows, hop as columns - cell values are collissions for each hash function at hop
         int[][] collisionsMatrix = new int[mNumSeeds][N_ROWS];
         //for each hash function, the last hop executed
@@ -182,7 +183,7 @@ public class StandaloneBMinHashOptimized extends MinHash {
         hopTableArray = hopTable(collisionsMatrix, lowerBound);
         logger.info("Computation of the hop table completed");
 
-        GraphMeasure graphMeasure = new GraphMeasure(hopTableArray, lowerBound);
+        GraphMeasureOpt graphMeasure = new GraphMeasureOpt(hopTableArray, lowerBound);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mNumSeeds);

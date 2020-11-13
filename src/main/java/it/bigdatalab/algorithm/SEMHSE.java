@@ -1,6 +1,7 @@
 package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.LazyIntIterator;
@@ -58,7 +59,7 @@ public class SEMHSE extends MinHash {
      * Execution of the SE-MHSE algorithm
      * @return Computed metrics of the algorithm
      */
-    public GraphMeasure runAlgorithm() {
+    public Measure runAlgorithm() {
 
         NodeIterator nodeIter;
 

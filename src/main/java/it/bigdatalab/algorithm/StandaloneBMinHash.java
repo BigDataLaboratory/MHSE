@@ -1,6 +1,7 @@
 package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.*;
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public class StandaloneBMinHash extends MinHash {
      *
      * @return Computed metrics of the algorithm
      */
-    public GraphMeasure runAlgorithm() {
+    public Measure runAlgorithm() {
 
         for (int i = 0; i < this.mNumSeeds; i++) {
 

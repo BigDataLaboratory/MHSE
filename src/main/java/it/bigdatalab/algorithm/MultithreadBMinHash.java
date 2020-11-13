@@ -1,6 +1,7 @@
 package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -73,7 +74,7 @@ public class MultithreadBMinHash extends MinHash {
      * @return Computed metrics of the algorithm
      */
 
-    public GraphMeasure runAlgorithm() {
+    public Measure runAlgorithm() {
         logger.debug("Number of threads to be used {}", mNumberOfThreads);
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
         List<IterationThread> todo = new ArrayList<IterationThread>(this.mNumSeeds);

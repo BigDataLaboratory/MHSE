@@ -2,7 +2,7 @@ package it.bigdatalab.algorithm;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
@@ -117,7 +117,7 @@ public abstract class MinHash {
         return mMemoryUsed;
     }
 
-    public abstract GraphMeasure runAlgorithm() throws IOException;
+    public abstract Measure runAlgorithm() throws IOException;
 
     public static class SeedsException extends Throwable {
         public SeedsException(String message) {
