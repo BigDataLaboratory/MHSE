@@ -5,9 +5,10 @@
 #suggestedNumberOfThreads
 minhash.suggestedNumberOfThreads=-1
 #input file path
-minhash.inputFilePath=/Users/antoniocruciani/Desktop/EnronWG/internet/enronNormalized
-minhash.outputFolderPath=/Users/antoniocruciani/Desktop/EnronWG/internet/
-minhash.isolatedVertices = False
+minhash.inputFilePath=/path/to/input/graph
+minhash.outputFolderPath=/path/to/output/folder/results
+# with false, keep the isolated nodes
+minhash.isolatedVertices=False
 minhash.isSeedsRandom=False
 #to have a list of acceptable names see class it.bigdatalab.algorithm.AlgorithmEnum
 minhash.algorithmName=MHSE
@@ -43,10 +44,21 @@ minhash.seeds10=360555216,1514681308,-1683104985,-1223483115,-896135679,13760485
 
 
 ### EdgeList2WebGraph ###
-edgeList2WebGraph.inputEdgelistFilePath=/Users/antoniocruciani/Desktop/worldSeriesRetweets
-edgeList2WebGraph.outputFolderPath=/Users/antoniocruciani/Desktop/EnronWG
+edgeList2WebGraph.inputEdgelistFilePath=/path/to/input/edgelist
+edgeList2WebGraph.outputFolderPath=/path/to/output/folder/webgraph
 edgeList2WebGraph.fromJanusGraph=False
 
 ### WebGraph2EdgeList ###
-webGraph2EdgeList.inputFilePath= /input/file/path
+webGraph2EdgeList.inputFilePath=/input/file/path
 webGraph2EdgeList.outputFolderPath=/output/folder/path
+
+### GroundTruths ###
+groundTruth.inputFilePath=/input/file/path
+groundTruth.outputFilePath=/output/folder/path
+goundTruth.threadNumber=4
+
+### Seeds ###
+seed.numSeeds=
+seed.inputFilePath=
+seed.outFolderPath=
+seed.numTest=

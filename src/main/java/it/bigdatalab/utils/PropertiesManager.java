@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidParameterException;
+import java.text.MessageFormat;
 import java.util.Properties;
 
 public class PropertiesManager {
@@ -47,7 +49,36 @@ public class PropertiesManager {
      * @param propertyName
      * @return property value
      */
-    public static String getProperty(String propertyName){
+    public static String getProperty(String propertyName) {
+        if (prop.getProperty(propertyName) == null) {
+            throw new InvalidParameterException(MessageFormat.format("Missing value for key {0}!", propertyName));
+        }
+        return prop.getProperty(propertyName);
+    }
+
+    /**
+     * Get property value by property name, if it's empty or null return the default value passed as input
+     *
+     * @param propertyName
+     * @param defaultValue
+     * @return property value
+     */
+    public static String getProperty(String propertyName, final String defaultValue) {
+        if (prop.getProperty(propertyName).isEmpty())
+            return defaultValue;
+        return prop.getProperty(propertyName, defaultValue);
+    }
+
+    /**
+     * Get property value by property name, if empty throw new exception
+     *
+     * @param propertyName
+     * @return property value
+     */
+    public static String getPropertyIfNotEmpty(String propertyName) {
+        if (prop.getProperty(propertyName) == null || prop.getProperty(propertyName).isEmpty()) {
+            throw new InvalidParameterException(MessageFormat.format("Missing value for key {0}!", propertyName));
+        }
         return prop.getProperty(propertyName);
     }
 
