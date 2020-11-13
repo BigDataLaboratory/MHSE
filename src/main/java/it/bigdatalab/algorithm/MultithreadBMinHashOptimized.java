@@ -97,6 +97,10 @@ public class MultithreadBMinHashOptimized extends MinHash {
                         collisionsMatrix[i] = hopCollisions;
 
                         for (int h = hopCollisions.length - 1; h >= 0; h--) {
+                            // for each seed compute last hop reached
+                            // checking if an hop has 0 value and the previous one has value != 0
+                            // starting from the end of array
+                            // compute also lower bound, comparing his value with the last hop found
                             if (hopCollisions[h] == 0 && hopCollisions[h - 1] > 0) {
                                 lastHops[i] = h - 1;
                                 if ((h - 1) > lowerboundDiameter)
