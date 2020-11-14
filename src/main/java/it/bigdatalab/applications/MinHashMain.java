@@ -2,6 +2,12 @@ package it.bigdatalab.applications;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.bigdatalab.algorithm.AlgorithmEnum;
+import it.bigdatalab.algorithm.MinHash;
+import it.bigdatalab.algorithm.MinHashFactory;
+import it.bigdatalab.model.Measure;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import it.bigdatalab.algorithm.AlgorithmEnum;
 import it.bigdatalab.algorithm.MinHash;

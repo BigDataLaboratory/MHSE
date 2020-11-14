@@ -1,9 +1,8 @@
 package it.bigdatalab.algorithm;
 
-import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,36 +11,40 @@ import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
-public class StandaloneBMinHash extends MinHash {
+public class StandaloneBMinHashOptimized extends MinHash {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHash");
-
-    private Int2ObjectOpenHashMap<int[]> collisionsTable;   //key is hop, value is collisions for each hash function at that hop
-    private int[] lastHops;
-
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHashOptimized");
+    private static final int N_ROWS = 5;
     private static final int MASK = 6; // 2^6
     private static final int REMAINDER = 58;
     private static final long BIT = 1;
 
     /**
-     * Creates a new BooleanMinHash instance with default values
+     * Creates a new BooleanMinHasOptimized instance with default values
      */
-    public StandaloneBMinHash() throws DirectionNotSetException, SeedsException, IOException {
+    public StandaloneBMinHashOptimized() throws DirectionNotSetException, SeedsException, IOException {
         super();
-        collisionsTable = new Int2ObjectOpenHashMap<>();       //for each hop a list of collisions for each hash function
-        lastHops = new int[mNumSeeds];                           //for each hash function, the last hop executed
 
         if (mIsSeedsRandom) {
-            for (int i = 0; i < mNumSeeds; i++)
+            for (int i = 0; i < mNumSeeds; i++) {
                 mMinHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
+            }
         } else {
             //Load minHash node IDs from properties file
             String propertyNodeIDRange = "minhash.nodeIDRange";
+            String propertyName = "minhash.nodeIDs";
+            String minHashNodeIDsString = PropertiesManager.getProperty(propertyName);
             String minHashNodeIDRangeString = PropertiesManager.getProperty(propertyNodeIDRange);
 
             if (!minHashNodeIDRangeString.equals("")) {
                 int[] minHashNodeIDRange = Arrays.stream(minHashNodeIDRangeString.split(",")).mapToInt(Integer::parseInt).toArray();
                 mMinHashNodeIDs = IntStream.rangeClosed(minHashNodeIDRange[0], minHashNodeIDRange[1]).toArray();
+            } else {
+                mMinHashNodeIDs = Arrays.stream(minHashNodeIDsString.split(",")).mapToInt(Integer::parseInt).toArray();
+            }
+            if (mNumSeeds != mMinHashNodeIDs.length) {
+                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and \"" + propertyName + "\" length is " + mMinHashNodeIDs.length;
+                throw new SeedsException(message);
             }
         }
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
@@ -53,12 +56,18 @@ public class StandaloneBMinHash extends MinHash {
      * @return Computed metrics of the algorithm
      */
     public Measure runAlgorithm() {
+        // seed as rows, hop as columns - cell values are collissions for each hash function at hop
+        int[][] collisionsMatrix = new int[mNumSeeds][N_ROWS];
+        //for each hash function, the last hop executed
+        int[] lastHops = new int[mNumSeeds];
+        double[] hopTableArray;
+
+        int lowerBound = 0;
 
         for (int i = 0; i < this.mNumSeeds; i++) {
 
             logger.info("Starting computation on seed {}", i);
 
-            Int2LongSortedMap hopCollision;
             int collisions = 0;
 
             // Set false as signature of all graph nodes
@@ -74,18 +83,21 @@ public class StandaloneBMinHash extends MinHash {
             // we use a dict because we want to iterate over the nodes until
             // the number of collisions in the actual hop
             // is different than the previous hop
-            hopCollision = new Int2LongLinkedOpenHashMap();
             int h = 0;
             boolean signatureIsChanged = true;
 
-            while(signatureIsChanged) {
+            while (signatureIsChanged) {
                 logger.debug("(seed {}) Starting computation on hop {}", i, h);
 
-                int[] hopCollisions;
-                if (collisionsTable.containsKey(h)) {
-                    hopCollisions = collisionsTable.get(h);
+
+                if (collisionsMatrix[i] != null && collisionsMatrix[i].length - 1 > h) {
                 } else {
-                    hopCollisions = new int[mNumSeeds];
+                    int[][] copy = new int[mNumSeeds][collisionsMatrix[i].length + N_ROWS];
+                    for (int height = 0; height < mNumSeeds; height++) {
+                        copy[height] = new int[collisionsMatrix[height].length + N_ROWS];
+                        System.arraycopy(collisionsMatrix[height], 0, copy[height], 0, collisionsMatrix[height].length);
+                        collisionsMatrix[height] = copy[height];
+                    }
                 }
 
                 //first hop - initialization
@@ -94,7 +106,7 @@ public class StandaloneBMinHash extends MinHash {
                     // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
                     // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
                     // This is equal to logical and operation.
-                    int remainderPositionRandomNode = ((randomNode << REMAINDER) >>> REMAINDER);
+                    int remainderPositionRandomNode = (randomNode << REMAINDER) >>> REMAINDER;
                     // quotient is randomNode >>> MASK
                     mutable[randomNode >>> MASK] |= (BIT) << remainderPositionRandomNode;
                     signatureIsChanged = true;
@@ -149,11 +161,12 @@ public class StandaloneBMinHash extends MinHash {
                         collisions += Long.bitCount(aMutable);
                     }
 
-                    hopCollisions[i] = collisions;      //related to seed i at hop h
-                    collisionsTable.put(h, hopCollisions);
-                    logger.debug("Number of collisions: {}", collisions);       //conteggio giusto
+                    collisionsMatrix[i][h] = collisions;
+
+                    logger.debug("Number of collisions: {}", collisions);
                     lastHops[i] = h;
-                    logger.debug("(seed {}) Hop Collision {}", i, hopCollision);
+                    if (h > lowerBound)
+                        lowerBound = h;
                     h += 1;
                 }
             }
@@ -164,17 +177,17 @@ public class StandaloneBMinHash extends MinHash {
 
 
         //normalize collisionsTable
-        normalizeCollisionsTable();
+        normalizeCollisionsTable(collisionsMatrix, lowerBound, lastHops);
 
         logger.info("Starting computation of the hop table from collision table");
-        hopTable = hopTable();
+        hopTableArray = hopTable(collisionsMatrix, lowerBound);
         logger.info("Computation of the hop table completed");
 
-        GraphMeasure graphMeasure = new GraphMeasure(hopTable);
+        GraphMeasureOpt graphMeasure = new GraphMeasureOpt(hopTableArray, lowerBound);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mNumSeeds);
-        graphMeasure.setCollisionsTable(collisionsTable);
+        graphMeasure.setCollisionsTable(collisionsMatrix);
         graphMeasure.setLastHops(lastHops);
 
         String minHashNodeIDsString = "";
@@ -195,45 +208,41 @@ public class StandaloneBMinHash extends MinHash {
      * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
      * @return hop table
      */
-    private Int2DoubleSortedMap hopTable() {
-        Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
-        int lastHop = collisionsTable.size() - 1;
-        long sumCollisions = 0;
-
-        for(int hop = 0; hop <= lastHop; hop++){
-            int[] collisions = collisionsTable.get(hop);
-            sumCollisions = Arrays.stream(collisions).sum();
-            double couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
-            hopTable.put(hop, couples);
-            logger.info("hop " + hop + " total collisions " + Arrays.stream(collisions).sum() + " couples: " + couples);
+    private double[] hopTable(int[][] collisionsMatrix, int lowerBound) {
+        long sumCollisions;
+        double couples;
+        double[] hoptable = new double[lowerBound + 1];
+        // lower bound is the max size of inner array
+        for (int hop = 0; hop < lowerBound + 1; hop++) {
+            sumCollisions = 0;
+            for (int seed = 0; seed < collisionsMatrix.length; seed++) {
+                sumCollisions += collisionsMatrix[seed][hop];
+            }
+            couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
+            hoptable[hop] = couples;
+            logger.info("hop " + hop + " total collisions " + sumCollisions + " couples: " + couples);
         }
-        return hopTable;
+        return hoptable;
     }
 
+
     /***
-     * TODO Optimizable?
      * Normalization of the collisionsTable.
      * For each hop check if one of the hash functions reached the end of computation.
      * If so, we have to substitute the 0 value in the table with
      * the maximum value of the other hash functions of the same hop
      */
-    private void normalizeCollisionsTable() {
-        int lowerBoundDiameter = collisionsTable.size() - 1;
+    private void normalizeCollisionsTable(int[][] collisionsMatrix, int lowerBound, int[] last) {
 
-        //Start with hop 1
-        //There is no check for hop 0 because at hop 0 there is always (at least) 1 collision, never 0.
-        for (int i = 1; i <= lowerBoundDiameter; i++) {
-            int[] previousHopCollisions = collisionsTable.get(i - 1);
-            int[] hopCollisions = collisionsTable.get(i);
-            //TODO first if is better for performance?
-            if (Arrays.stream(hopCollisions).anyMatch(coll -> coll == 0)) {
-                for (int j = 0; j < hopCollisions.length; j++) {
-                    if (hopCollisions[j] == 0) {
-                        hopCollisions[j] = previousHopCollisions[j];
-                    }
+        for (int i = 0; i < last.length; i++) { // check last hop of each seed
+            // if last hop is not the lower bound
+            // replace the 0 values from last hop + 1 until lower bound
+            // with the value of the previous hop for the same seed
+            if (last[i] < lowerBound) {
+                for (int j = last[i] + 1; j <= lowerBound; j++) {
+                    collisionsMatrix[i][j] = collisionsMatrix[i][j - 1];
                 }
             }
-            collisionsTable.put(i, hopCollisions);
         }
     }
 

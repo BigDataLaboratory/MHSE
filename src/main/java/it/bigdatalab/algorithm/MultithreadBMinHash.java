@@ -1,11 +1,9 @@
 package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2LongSortedMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.IntStream;
@@ -30,21 +27,20 @@ public class MultithreadBMinHash extends MinHash {
     private Int2ObjectOpenHashMap<int[]> collisionsTable;
     private int[] lastHops;
     private int mNumberOfThreads;
-    private HashMap<Integer, Double> mSeedTime;
-    private final Object mLock = new Object();
+    private double[] mSeedTime;
 
     /**
-     * Creates a new BooleanMinHash instance with default values
+     * Creates a new MultithreadBMinHash instance with default values
      */
     public MultithreadBMinHash() throws DirectionNotSetException, SeedsException, IOException {
         super();
-        mSeedTime = new HashMap();
+        mSeedTime = new double[mNumSeeds];
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads"));
         logger.info("Number of threads selected {}", suggestedNumberOfThreads);
 
-        if(isSeedsRandom){
-            for(int i = 0;i<numSeeds; i++){
-                minHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
+        if (mIsSeedsRandom) {
+            for (int i = 0; i < mNumSeeds; i++) {
+                mMinHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
             }
         } else {
             //Load minHash node IDs from properties file
@@ -54,13 +50,13 @@ public class MultithreadBMinHash extends MinHash {
             String minHashNodeIDRangeString = PropertiesManager.getProperty(propertyNodeIDRange);
             if (!minHashNodeIDRangeString.equals("")) {
                 int[] minHashNodeIDRange = Arrays.stream(minHashNodeIDRangeString.split(",")).mapToInt(Integer::parseInt).toArray();
-                minHashNodeIDs = IntStream.rangeClosed(minHashNodeIDRange[0], minHashNodeIDRange[1]).toArray();
+                mMinHashNodeIDs = IntStream.rangeClosed(minHashNodeIDRange[0], minHashNodeIDRange[1]).toArray();
             } else {
-                minHashNodeIDs = Arrays.stream(minHashNodeIDsString.split(",")).mapToInt(Integer::parseInt).toArray();
+                mMinHashNodeIDs = Arrays.stream(minHashNodeIDsString.split(",")).mapToInt(Integer::parseInt).toArray();
 
             }
-            if (numSeeds != minHashNodeIDs.length) {
-                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and \"" + propertyName + "\" length is " + minHashNodeIDs.length;
+            if (mNumSeeds != mMinHashNodeIDs.length) {
+                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and \"" + propertyName + "\" length is " + mMinHashNodeIDs.length;
                 throw new SeedsException(message);
             }
         }
@@ -69,7 +65,7 @@ public class MultithreadBMinHash extends MinHash {
         this.mNumberOfThreads = getNumberOfMaxThreads(suggestedNumberOfThreads);
         mTotalCollisions = new Int2LongLinkedOpenHashMap();
         collisionsTable = new Int2ObjectOpenHashMap<int[]>();
-        lastHops = new int[numSeeds];
+        lastHops = new int[mNumSeeds];
     }
 
 
@@ -78,12 +74,12 @@ public class MultithreadBMinHash extends MinHash {
      * @return Computed metrics of the algorithm
      */
 
-    public GraphMeasure runAlgorithm() {
+    public Measure runAlgorithm() {
         logger.debug("Number of threads to be used {}", mNumberOfThreads);
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
-        List<IterationThread> todo = new ArrayList<IterationThread>(this.numSeeds);
+        List<IterationThread> todo = new ArrayList<IterationThread>(this.mNumSeeds);
 
-        for(int i = 0; i < this.numSeeds; i++) {
+        for (int i = 0; i < this.mNumSeeds; i++) {
             todo.add(new IterationThread(mGraph, i));
         }
 
@@ -91,7 +87,7 @@ public class MultithreadBMinHash extends MinHash {
             List<Future<Int2LongLinkedOpenHashMap>> futures = executor.invokeAll(todo);
             int count = 0;
             int lowerboundDiameter = 0;
-            for (int i = 0; i < this.numSeeds; i++) {
+            for (int i = 0; i < this.mNumSeeds; i++) {
                 Future<Int2LongLinkedOpenHashMap> future = futures.get(i);
                 if (!future.isCancelled()) {
                     try {
@@ -101,7 +97,7 @@ public class MultithreadBMinHash extends MinHash {
                                 int[] hC = collisionsTable.get(h);
                                 hC[i] = (int) actualCollisionTable.get(h);
                             } else {
-                                int[] hC = new int[numSeeds];
+                                int[] hC = new int[mNumSeeds];
                                 hC[i] = (int) actualCollisionTable.get(h);
                                 collisionsTable.put(h, hC);
                             }
@@ -170,7 +166,7 @@ public class MultithreadBMinHash extends MinHash {
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
-        graphMeasure.setNumSeeds(mSeeds.size());
+        graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setCollisionsTable(collisionsTable);
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setSeedsTime(mSeedTime);
@@ -226,7 +222,7 @@ public class MultithreadBMinHash extends MinHash {
     private Int2DoubleLinkedOpenHashMap hopTable() {
         Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
         mTotalCollisions.forEach((key, value) -> {
-            Double r = ((double) (value * mGraph.numNodes()) / this.numSeeds);
+            Double r = ((double) (value * mGraph.numNodes()) / this.mNumSeeds);
             hopTable.put(key, r);
         });
         return hopTable;
@@ -258,7 +254,7 @@ public class MultithreadBMinHash extends MinHash {
 
             // Choose a random node is equivalent to compute the minhash
             //It could be set in mhse.properties file with the "minhash.nodeIDs" property
-            int randomNode = minHashNodeIDs[index];
+            int randomNode = mMinHashNodeIDs[index];
 
             // take a long number, if we divide it to a number power of 2, quotient is in the first 6 bit, remainder
             // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
@@ -329,7 +325,7 @@ public class MultithreadBMinHash extends MinHash {
                 logger.debug("(seed {}) Hop Collision {}", index, hopCollision);
             }
             double durationSeed = (System.nanoTime() - startSeedTime) / 1000000.0;
-            MultithreadBMinHash.this.mSeedTime.put(index, durationSeed);
+            MultithreadBMinHash.this.mSeedTime[index] = durationSeed;
             logger.debug("Seed # {} - Time {}", index, durationSeed);
             return hopCollision;
         }

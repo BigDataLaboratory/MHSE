@@ -6,13 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 public class MinHashFactory {
-
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHashFactory");
-
-    /**
-     * Empty constructor
-     */
-    public MinHashFactory(){}
 
     /**
      * Choose one of the algorithm to be executed by the type passed as parameter
@@ -36,12 +30,19 @@ public class MinHashFactory {
             case StandaloneBMinHash:
                 minHashAlgorithm = new StandaloneBMinHash();
                 break;
+            case StandaloneBMinHashOptimized:
+                minHashAlgorithm = new StandaloneBMinHashOptimized();
+                break;
             case MultithreadBMinHash:
-                minHashAlgorithm = new StandaloneBMinHash();
+                minHashAlgorithm = new MultithreadBMinHash();
+                break;
+            case MultithreadBMinHashOptimized:
+                minHashAlgorithm = new MultithreadBMinHashOptimized();
                 break;
             default:
                 error = true;
                 logger.error("Algorithm name not recognized");
+                break;
         }
         if(!error){
             logger.info("Selected " + type + " algorithm");

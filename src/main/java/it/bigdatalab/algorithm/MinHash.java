@@ -2,9 +2,10 @@ package it.bigdatalab.algorithm;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.Transform;
@@ -18,14 +19,11 @@ public abstract class MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHash");
 
+    protected int mNumSeeds;
+    protected boolean mIsSeedsRandom;
     protected IntArrayList mSeeds;
     protected ImmutableGraph mGraph;
-    protected int numSeeds;
-    protected boolean isolatedVertices;
-    protected int[] minHashNodeIDs;
-    protected boolean isSeedsRandom;
-    private String inputFilePath;
-    private String direction;
+    protected int[] mMinHashNodeIDs;
     private long mMemoryUsed;
 
     protected Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
@@ -38,13 +36,13 @@ public abstract class MinHash {
 
         mMemoryUsed = 0;
 
-        isolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isolatedVertices"));
+        boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isolatedVertices"));
         logger.info("Keep the isolated vertices? {}", isolatedVertices);
 
-        isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isSeedsRandom"));
-        logger.info("Has seeds list to be random? {}", isSeedsRandom);
+        mIsSeedsRandom = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isSeedsRandom"));
+        logger.info("Has seeds list to be random? {}", mIsSeedsRandom);
 
-        inputFilePath = PropertiesManager.getProperty("minhash.inputFilePath");
+        String inputFilePath = PropertiesManager.getProperty("minhash.inputFilePath");
         logger.info("Loading graph at filepath {}", inputFilePath);
         mGraph = ImmutableGraph.load(inputFilePath);
         logger.info("Loading graph completed successfully");
@@ -55,26 +53,27 @@ public abstract class MinHash {
             mGraph = preprocessing.removeIsolatedNodes(mGraph);
         }
 
-        direction = PropertiesManager.getProperty("minhash.direction");
+        String direction = PropertiesManager.getProperty("minhash.direction");
         logger.info("Direction selected is {}", direction);
 
-        if(direction.equals("in")){
-            //Double transpose because more efficient
-            logger.info("Transposing graph...");
-            mGraph = Transform.transpose(Transform.transpose(mGraph));
-            logger.info("Transposing graph ended");
-        } else if(direction.equals("out")){
-            logger.info("Transposing graph...");
-            mGraph = Transform.transpose(mGraph);
-            logger.info("Transposing graph ended");
-        } else {
-            throw new DirectionNotSetException("Direction property (\"minhash.direction\") not correctly set in properties file");
+        switch (direction) {
+            case "in":
+                //Double transpose because more efficient
+                logger.info("Transposing graph...");
+                mGraph = Transform.transpose(Transform.transpose(mGraph));
+                logger.info("Transposing graph ended");
+                break;
+            case "out":
+                logger.info("Transposing graph...");
+                mGraph = Transform.transpose(mGraph);
+                logger.info("Transposing graph ended");
+                break;
+            default:
+                throw new DirectionNotSetException("Direction property (\"minhash.direction\") not correctly set in properties file");
         }
 
-        numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
-        minHashNodeIDs = new int[numSeeds];
-
-
+        mNumSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
+        mMinHashNodeIDs = new int[mNumSeeds];
     }
 
     /***
@@ -83,20 +82,20 @@ public abstract class MinHash {
      * @param seed integer to be used as seed for the hash function
      * @return a long that is the hash for the node
      */
-    public long hashFunction(int node, int seed) {
+    protected long hashFunction(int node, int seed) {
         HashFunction hf = Hashing.murmur3_128(seed);
-        return hf.hashLong((long)node).asLong();
+        return hf.hashLong((long) node).asLong();
     }
 
     /***
      *  Generate a random integer and append it
      *  to the seeds list
      */
-    protected IntArrayList createSeeds() {
+    public IntArrayList createSeeds() {
         IntArrayList seeds = new IntArrayList();
         Random random = new Random();
 
-        for(int i = 0; i < numSeeds; i++) {
+        for (int i = 0; i < mNumSeeds; i++) {
             int randomNum = random.nextInt();
             while (seeds.contains(randomNum)) {
                 randomNum = random.nextInt();
@@ -112,7 +111,7 @@ public abstract class MinHash {
     }
 
     public void setSeeds(IntArrayList seeds) throws SeedsException {
-        if (numSeeds != seeds.size()) {
+        if (mNumSeeds != seeds.size()) {
             String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and length of seeds list is " + seeds.size();
             throw new SeedsException(message);
         }
@@ -121,16 +120,16 @@ public abstract class MinHash {
     }
 
     public int[] getNodes() {
-        return minHashNodeIDs;
+        return mMinHashNodeIDs;
     }
 
     public void setNodes(int[] nodes) throws SeedsException {
-        if (numSeeds != nodes.length) {
+        if (mNumSeeds != nodes.length) {
             String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + numSeeds + " and length of nodes list is " + minHashNodeIDs.length;
             throw new SeedsException(message);
         }
 
-        this.minHashNodeIDs = nodes;
+        this.mMinHashNodeIDs = nodes;
     }
 
     public void memoryUsed() {
@@ -147,16 +146,16 @@ public abstract class MinHash {
         return mMemoryUsed;
     }
 
-    public abstract GraphMeasure runAlgorithm() throws IOException;
+    public abstract Measure runAlgorithm() throws IOException;
 
     public static class SeedsException extends Throwable {
-        public SeedsException(String message) {
+         SeedsException(String message) {
             super(message);
         }
     }
 
     public static class DirectionNotSetException extends Throwable {
-        public DirectionNotSetException(String message) {
+        DirectionNotSetException(String message) {
             super(message);
         }
     }
