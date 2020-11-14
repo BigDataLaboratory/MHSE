@@ -3,7 +3,10 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2LongSortedMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -176,13 +179,7 @@ public class StandaloneBMinHash extends MinHash {
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setCollisionsTable(collisionsTable);
         graphMeasure.setLastHops(lastHops);
-
-        String minHashNodeIDsString = "";
-        String separator = ",";
-        for (int i = 0; i < mNumSeeds; i++) {
-            minHashNodeIDsString += (mMinHashNodeIDs[i] + separator);
-        }
-        graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
+        graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
         return graphMeasure;
     }
 
@@ -195,8 +192,8 @@ public class StandaloneBMinHash extends MinHash {
      * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
      * @return hop table
      */
-    private Int2DoubleSortedMap hopTable() {
-        Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
+    private Int2DoubleLinkedOpenHashMap hopTable() {
+        Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
         int lastHop = collisionsTable.size() - 1;
         long sumCollisions = 0;
 

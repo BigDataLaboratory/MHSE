@@ -1,24 +1,21 @@
 package it.bigdatalab.model;
 
 import com.google.gson.annotations.SerializedName;
+import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
-import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GraphMeasure extends Measure {
 
     @SerializedName("hop_table")
-    private Int2DoubleSortedMap mHopTable;
+    private Int2DoubleLinkedOpenHashMap mHopTable;
     @SerializedName("collision_table")
     private Int2ObjectOpenHashMap<int[]> collisionsTable;       //for each hop a list of collisions for each hash function
 
     /**
      * @param hopTable as a map
      */
-    public GraphMeasure(Int2DoubleSortedMap hopTable){
+    public GraphMeasure(Int2DoubleLinkedOpenHashMap hopTable) {
         this.mHopTable = hopTable;
         this.mLowerBoundDiameter = hopTable.size()-1;
         this.mAvgDistance = averageDistance();
@@ -100,7 +97,7 @@ public class GraphMeasure extends Measure {
     /**
      * @return hop table
      */
-    public Int2DoubleSortedMap getHopTable() {
+    public Int2DoubleLinkedOpenHashMap getHopTable() {
         return mHopTable;
     }
 

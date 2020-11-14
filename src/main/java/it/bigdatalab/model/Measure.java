@@ -2,6 +2,7 @@ package it.bigdatalab.model;
 
 import com.google.gson.annotations.SerializedName;
 import it.bigdatalab.utils.PropertiesManager;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 public abstract class Measure {
 
@@ -24,9 +25,9 @@ public abstract class Measure {
     @SerializedName("threshold")
     protected double mThreshold;
     @SerializedName("node_ids")
-    protected String minHashNodeIDs;
+    protected int[] minHashNodeIDs;
     @SerializedName("seed_list")
-    protected String mSeedsList;
+    protected IntArrayList mSeedsList;
     @SerializedName("num_seed")
     protected int numSeeds;
     @SerializedName("nodes")
@@ -49,10 +50,7 @@ public abstract class Measure {
         this.numNodes = -1;
         this.numArcs = -1;
         this.numSeeds = -1;
-        this.mSeedsList = "";
-        this.minHashNodeIDs = "";
         this.mThreshold = Double.parseDouble(PropertiesManager.getProperty("minhash.threshold"));
-        this.mSeedsList = PropertiesManager.getProperty("minhash.seeds");
         this.mDirection = PropertiesManager.getProperty("minhash.direction");
         this.lastHops = null;
     }
@@ -182,7 +180,7 @@ public abstract class Measure {
     /**
      * @return Comma separated IDs of minHash nodes
      */
-    public String getMinHashNodeIDs() {
+    public int[] getMinHashNodeIDs() {
         return minHashNodeIDs;
     }
 
@@ -194,21 +192,21 @@ public abstract class Measure {
     /**
      * @param minHashNodeIDs Comma separated IDs of minHash nodes
      */
-    public void setMinHashNodeIDs(String minHashNodeIDs) {
+    public void setMinHashNodeIDs(int[] minHashNodeIDs) {
         this.minHashNodeIDs = minHashNodeIDs;
     }
 
     /**
      * @return list of seeds
      */
-    public String getSeedsList() {
+    public IntArrayList getSeedsList() {
         return mSeedsList;
     }
 
     /**
      * @param seedsList Comma separated seeds
      */
-    public void setSeedsList(String seedsList) {
+    public void setSeedsList(IntArrayList seedsList) {
         this.mSeedsList = seedsList;
     }
 

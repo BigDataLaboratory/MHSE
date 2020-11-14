@@ -202,8 +202,8 @@ public class SEMHSE extends MinHash {
      * @return hop table
      */
 
-    private Int2DoubleSortedMap hopTable() {
-        Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
+    private Int2DoubleLinkedOpenHashMap hopTable() {
+        Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
         int lastHop = collisionsTable.size() - 1;
         long sumCollisions = 0;
 

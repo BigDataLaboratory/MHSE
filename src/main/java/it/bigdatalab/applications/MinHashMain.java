@@ -2,17 +2,11 @@ package it.bigdatalab.applications;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import it.bigdatalab.algorithm.AlgorithmEnum;
-import it.bigdatalab.algorithm.MinHash;
-import it.bigdatalab.algorithm.MinHashFactory;
-import it.bigdatalab.model.Measure;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import it.bigdatalab.algorithm.AlgorithmEnum;
 import it.bigdatalab.algorithm.MinHash;
 import it.bigdatalab.algorithm.MinHashFactory;
-import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -65,15 +59,15 @@ public class MinHashMain {
      * @param graphMeasure input graph statistics
      * @param path         output file path of the JSON file
      */
-    private static void writeOnFile(GraphMeasure graphMeasure, String path) throws IOException {
+    private static void writeOnFile(Measure graphMeasure, String path) throws IOException {
         path += Constants.JSON_EXTENSION;
         Gson gson = new GsonBuilder().create();
 
-        Type gmListType = new TypeToken<List<GraphMeasure>>() {
+        Type gmListType = new TypeToken<List<Measure>>() {
         }.getType();
 
         boolean exist = new File(path).isFile();
-        List<GraphMeasure> graphMeasures = new ArrayList<>();
+        List<Measure> graphMeasures = new ArrayList<>();
 
         if (exist) {
             FileReader fr = new FileReader(path);
@@ -137,7 +131,7 @@ public class MinHashMain {
 
     private void run() throws IOException, MinHash.SeedsException {
 
-        GraphMeasure graphMeasure;
+        Measure graphMeasure;
         long startTime = System.currentTimeMillis();
         long totalTime;
 
