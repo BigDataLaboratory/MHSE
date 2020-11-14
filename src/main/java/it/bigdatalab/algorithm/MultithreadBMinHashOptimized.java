@@ -43,18 +43,13 @@ public class MultithreadBMinHashOptimized extends MinHash {
         } else {
             //Load minHash node IDs from properties file
             String propertyNodeIDRange = "minhash.nodeIDRange";
-            String propertyName = "minhash.nodeIDs";
-            String minHashNodeIDsString = PropertiesManager.getProperty(propertyName);
             String minHashNodeIDRangeString = PropertiesManager.getProperty(propertyNodeIDRange);
             if (!minHashNodeIDRangeString.equals("")) {
                 int[] minHashNodeIDRange = Arrays.stream(minHashNodeIDRangeString.split(",")).mapToInt(Integer::parseInt).toArray();
                 mMinHashNodeIDs = IntStream.rangeClosed(minHashNodeIDRange[0], minHashNodeIDRange[1]).toArray();
-            } else {
-                mMinHashNodeIDs = Arrays.stream(minHashNodeIDsString.split(",")).mapToInt(Integer::parseInt).toArray();
-
             }
             if (mNumSeeds != mMinHashNodeIDs.length) {
-                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and \"" + propertyName + "\" length is " + mMinHashNodeIDs.length;
+                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and length is " + mMinHashNodeIDs.length;
                 throw new SeedsException(message);
             }
         }
@@ -71,7 +66,11 @@ public class MultithreadBMinHashOptimized extends MinHash {
      */
 
     public Measure runAlgorithm() {
+        long startTime = System.currentTimeMillis();
+        long totalTime;
+
         logger.debug("Number of threads to be used {}", mNumberOfThreads);
+
         int[][] collisionsMatrix = new int[mNumSeeds][];
         int[] lastHops = new int[mNumSeeds];
         double[] hopTableArray;
@@ -79,7 +78,7 @@ public class MultithreadBMinHashOptimized extends MinHash {
         int lowerboundDiameter = 0;
 
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
-        List<IterationThread> todo = new ArrayList<IterationThread>(this.mNumSeeds);
+        List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
             todo.add(new IterationThread(mGraph, i));
@@ -129,6 +128,9 @@ public class MultithreadBMinHashOptimized extends MinHash {
 
         executor.shutdown();
 
+        totalTime = System.currentTimeMillis() - startTime;
+        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
+
         normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter, lastHops);
 
         logger.info("Starting computation of the hop table from collision table");
@@ -142,6 +144,7 @@ public class MultithreadBMinHashOptimized extends MinHash {
         graphMeasure.setCollisionsTable(collisionsMatrix);
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setSeedsTime(mSeedTime);
+        graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
         return graphMeasure;
     }

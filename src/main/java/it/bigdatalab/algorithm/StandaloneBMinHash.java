@@ -19,9 +19,6 @@ public class StandaloneBMinHash extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHash");
 
-    private Int2ObjectOpenHashMap<int[]> collisionsTable;   //key is hop, value is collisions for each hash function at that hop
-    private int[] lastHops;
-
     private static final int MASK = 6; // 2^6
     private static final int REMAINDER = 58;
     private static final long BIT = 1;
@@ -31,8 +28,6 @@ public class StandaloneBMinHash extends MinHash {
      */
     public StandaloneBMinHash() throws DirectionNotSetException, SeedsException, IOException {
         super();
-        collisionsTable = new Int2ObjectOpenHashMap<>();       //for each hop a list of collisions for each hash function
-        lastHops = new int[mNumSeeds];                           //for each hash function, the last hop executed
 
         if (mIsSeedsRandom) {
             for (int i = 0; i < mNumSeeds; i++)
@@ -56,6 +51,14 @@ public class StandaloneBMinHash extends MinHash {
      * @return Computed metrics of the algorithm
      */
     public Measure runAlgorithm() {
+        long startTime = System.currentTimeMillis();
+        long totalTime;
+
+        Int2DoubleLinkedOpenHashMap hopTable;
+        //for each hop a list of collisions for each hash function
+        Int2ObjectOpenHashMap<int[]> collisionsTable = new Int2ObjectOpenHashMap<>();   //key is hop, value is collisions for each hash function at that hop
+        //for each hash function, the last hop executed
+        int[] lastHops = new int[mNumSeeds];
 
         for (int i = 0; i < this.mNumSeeds; i++) {
 
@@ -93,7 +96,6 @@ public class StandaloneBMinHash extends MinHash {
 
                 //first hop - initialization
                 if (h == 0) {
-
                     // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
                     // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
                     // This is equal to logical and operation.
@@ -165,12 +167,14 @@ public class StandaloneBMinHash extends MinHash {
             logger.debug("Ended computation on seed {}", i);
         }
 
+        totalTime = System.currentTimeMillis() - startTime;
+        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
         //normalize collisionsTable
-        normalizeCollisionsTable();
+        collisionsTable = normalizeCollisionsTable(collisionsTable);
 
         logger.info("Starting computation of the hop table from collision table");
-        hopTable = hopTable();
+        hopTable = hopTable(collisionsTable);
         logger.info("Computation of the hop table completed");
 
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
@@ -180,6 +184,7 @@ public class StandaloneBMinHash extends MinHash {
         graphMeasure.setCollisionsTable(collisionsTable);
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
+        graphMeasure.setTime(totalTime);
         return graphMeasure;
     }
 
@@ -192,13 +197,13 @@ public class StandaloneBMinHash extends MinHash {
      * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
      * @return hop table
      */
-    private Int2DoubleLinkedOpenHashMap hopTable() {
+    private Int2DoubleLinkedOpenHashMap hopTable(Int2ObjectOpenHashMap<int[]> ct) {
         Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
-        int lastHop = collisionsTable.size() - 1;
+        int lastHop = ct.size() - 1;
         long sumCollisions = 0;
 
         for(int hop = 0; hop <= lastHop; hop++){
-            int[] collisions = collisionsTable.get(hop);
+            int[] collisions = ct.get(hop);
             sumCollisions = Arrays.stream(collisions).sum();
             double couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
             hopTable.put(hop, couples);
@@ -214,14 +219,14 @@ public class StandaloneBMinHash extends MinHash {
      * If so, we have to substitute the 0 value in the table with
      * the maximum value of the other hash functions of the same hop
      */
-    private void normalizeCollisionsTable() {
-        int lowerBoundDiameter = collisionsTable.size() - 1;
+    private Int2ObjectOpenHashMap<int[]> normalizeCollisionsTable(Int2ObjectOpenHashMap<int[]> ct) {
+        int lowerBoundDiameter = ct.size() - 1;
 
         //Start with hop 1
         //There is no check for hop 0 because at hop 0 there is always (at least) 1 collision, never 0.
         for (int i = 1; i <= lowerBoundDiameter; i++) {
-            int[] previousHopCollisions = collisionsTable.get(i - 1);
-            int[] hopCollisions = collisionsTable.get(i);
+            int[] previousHopCollisions = ct.get(i - 1);
+            int[] hopCollisions = ct.get(i);
             //TODO first if is better for performance?
             if (Arrays.stream(hopCollisions).anyMatch(coll -> coll == 0)) {
                 for (int j = 0; j < hopCollisions.length; j++) {
@@ -230,8 +235,9 @@ public class StandaloneBMinHash extends MinHash {
                     }
                 }
             }
-            collisionsTable.put(i, hopCollisions);
+            ct.put(i, hopCollisions);
         }
+        return ct;
     }
 
 }

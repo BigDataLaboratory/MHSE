@@ -2,6 +2,7 @@ package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
+import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
@@ -47,6 +48,7 @@ public class MHSE extends MinHash {
         long startTime = System.currentTimeMillis();
         long totalTime;
 
+        Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
         boolean signatureIsChanged = true;
         int hop = 0;
         NodeIterator nodeIter;

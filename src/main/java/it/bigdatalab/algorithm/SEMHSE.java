@@ -51,6 +51,7 @@ public class SEMHSE extends MinHash {
         long startTime = System.currentTimeMillis();
         long totalTime;
 
+        Int2DoubleLinkedOpenHashMap hopTable;
         NodeIterator nodeIter;
 
         for (int i = 0; i < mNumSeeds; i++) {
@@ -134,7 +135,6 @@ public class SEMHSE extends MinHash {
         hopTable = hopTable();
         logger.info("Computation of the hop table completed");
 
-
         GraphMeasure graphMeasure = new GraphMeasure(hopTable);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
@@ -144,7 +144,6 @@ public class SEMHSE extends MinHash {
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(getNodes());
-        graphMeasure.setMaxMemoryUsed(getMaxUsedMemory());
         return graphMeasure;
     }
 

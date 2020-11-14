@@ -4,7 +4,6 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.Transform;
@@ -24,8 +23,6 @@ public abstract class MinHash {
     protected ImmutableGraph mGraph;
     protected int[] mMinHashNodeIDs;
     private long mMemoryUsed;
-
-    protected Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
 
     public MinHash() throws IOException, DirectionNotSetException {
         initialize();

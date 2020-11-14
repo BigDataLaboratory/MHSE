@@ -52,6 +52,9 @@ public class StandaloneBMinHashOptimized extends MinHash {
      * @return Computed metrics of the algorithm
      */
     public Measure runAlgorithm() {
+        long startTime = System.currentTimeMillis();
+        long totalTime;
+
         // seed as rows, hop as columns - cell values are collissions for each hash function at hop
         int[][] collisionsMatrix = new int[mNumSeeds][N_ROWS];
         //for each hash function, the last hop executed
@@ -171,6 +174,8 @@ public class StandaloneBMinHashOptimized extends MinHash {
             logger.debug("Ended computation on seed {}", i);
         }
 
+        totalTime = System.currentTimeMillis() - startTime;
+        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
         //normalize collisionsTable
         normalizeCollisionsTable(collisionsMatrix, lowerBound, lastHops);
@@ -186,6 +191,7 @@ public class StandaloneBMinHashOptimized extends MinHash {
         graphMeasure.setCollisionsTable(collisionsMatrix);
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
+        graphMeasure.setTime(totalTime);
         return graphMeasure;
     }
 
