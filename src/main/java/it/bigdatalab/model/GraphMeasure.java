@@ -4,8 +4,12 @@ import com.google.gson.annotations.SerializedName;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GraphMeasure extends Measure {
+
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.model.GraphMeasure");
 
     @SerializedName("hop_table")
     private Int2DoubleLinkedOpenHashMap mHopTable;
@@ -16,6 +20,7 @@ public class GraphMeasure extends Measure {
      * @param hopTable as a map
      */
     public GraphMeasure(Int2DoubleLinkedOpenHashMap hopTable) {
+        super();
         this.mHopTable = hopTable;
         this.mLowerBoundDiameter = hopTable.size()-1;
         this.mAvgDistance = averageDistance();
@@ -26,7 +31,7 @@ public class GraphMeasure extends Measure {
 
     // empty constructor
     public GraphMeasure() {
-
+        super();
     }
 
     /**
@@ -48,7 +53,7 @@ public class GraphMeasure extends Measure {
      * that is the minimum distance that allows to connect the 90th percent of all reachable pairs
      */
     private double effectiveDiameter() {
-        if (mHopTable != null) {
+        if (mHopTable == null) {
             return 0;
         }
 
@@ -56,9 +61,9 @@ public class GraphMeasure extends Measure {
         double totalCouplesReachable = mHopTable.get(lowerBoundDiameter);
 
         int d = 0;
-            while ((mHopTable.get(d) / totalCouplesReachable) < mThreshold) {
-                d += 1;
-            }
+        while ((mHopTable.get(d) / totalCouplesReachable) < mThreshold) {
+            d += 1;
+        }
 
         return (d != 0) ? (d - 1) + interpolate((mHopTable.get(d - 1)), (mHopTable.get(d)), mThreshold * totalCouplesReachable) : 0;
     }

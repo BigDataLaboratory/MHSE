@@ -113,6 +113,7 @@ public class MHSE extends MinHash {
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(getNodes());
+        logger.info("effective {}", graphMeasure.getEffectiveDiameter());
 
         return graphMeasure;
     }

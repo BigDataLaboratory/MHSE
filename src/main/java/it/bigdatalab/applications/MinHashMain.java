@@ -3,9 +3,12 @@ package it.bigdatalab.applications;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import it.bigdatalab.algorithm.AlgorithmEnum;
 import it.bigdatalab.algorithm.MinHash;
 import it.bigdatalab.algorithm.MinHashFactory;
+import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.PropertiesManager;
@@ -61,7 +64,14 @@ public class MinHashMain {
      */
     private static void writeOnFile(Measure graphMeasure, String path) throws IOException {
         path += Constants.JSON_EXTENSION;
-        Gson gson = new GsonBuilder().create();
+
+        RuntimeTypeAdapterFactory<Measure> typeAdapterFactory = RuntimeTypeAdapterFactory
+                .of(Measure.class, "type")
+                .registerSubtype(GraphMeasure.class, GraphMeasure.class.getName())
+                .registerSubtype(GraphMeasureOpt.class, GraphMeasureOpt.class.getName());
+
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(typeAdapterFactory)
+                .create();
 
         Type gmListType = new TypeToken<List<Measure>>() {
         }.getType();
@@ -71,7 +81,7 @@ public class MinHashMain {
 
         if (exist) {
             FileReader fr = new FileReader(path);
-            graphMeasures = new Gson().fromJson(fr, gmListType);
+            graphMeasures = gson.fromJson(fr, gmListType);
             fr.close();
             // If graph measures list is empty
             if (null == graphMeasures) {
@@ -83,7 +93,7 @@ public class MinHashMain {
         graphMeasures.add(graphMeasure);
         // No append replace the whole file
         FileWriter fw = new FileWriter(path);
-        gson.toJson(graphMeasures, fw);
+        gson.toJson(graphMeasures, gmListType, fw);
         fw.close();
 
         logger.info("Graph measure wrote in " + path);

@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
-public abstract class Measure {
+public class Measure {
 
     @SerializedName("memory_used")
     protected long mMaxMemoryUsed;
@@ -41,18 +41,9 @@ public abstract class Measure {
     @SerializedName("last_hops")
     protected int[] lastHops;
 
-
-    // empty constructor
     public Measure() {
-        this.mMaxMemoryUsed = -1;
-        this.mTime = -1;
-        this.mAlgorithmName = "";
-        this.numNodes = -1;
-        this.numArcs = -1;
-        this.numSeeds = -1;
         this.mThreshold = Double.parseDouble(PropertiesManager.getProperty("minhash.threshold"));
         this.mDirection = PropertiesManager.getProperty("minhash.direction");
-        this.lastHops = null;
     }
 
     public double interpolate(double y0, double y1, double y) {

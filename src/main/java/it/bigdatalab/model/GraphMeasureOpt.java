@@ -1,8 +1,12 @@
 package it.bigdatalab.model;
 
 import com.google.gson.annotations.SerializedName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GraphMeasureOpt extends Measure {
+
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.model.GraphMeasureOpt");
 
     @SerializedName("hop_table")
     private double[] mHopTable;

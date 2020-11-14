@@ -32,18 +32,14 @@ public class StandaloneBMinHashOptimized extends MinHash {
         } else {
             //Load minHash node IDs from properties file
             String propertyNodeIDRange = "minhash.nodeIDRange";
-            String propertyName = "minhash.nodeIDs";
-            String minHashNodeIDsString = PropertiesManager.getProperty(propertyName);
             String minHashNodeIDRangeString = PropertiesManager.getProperty(propertyNodeIDRange);
 
             if (!minHashNodeIDRangeString.equals("")) {
                 int[] minHashNodeIDRange = Arrays.stream(minHashNodeIDRangeString.split(",")).mapToInt(Integer::parseInt).toArray();
                 mMinHashNodeIDs = IntStream.rangeClosed(minHashNodeIDRange[0], minHashNodeIDRange[1]).toArray();
-            } else {
-                mMinHashNodeIDs = Arrays.stream(minHashNodeIDsString.split(",")).mapToInt(Integer::parseInt).toArray();
             }
             if (mNumSeeds != mMinHashNodeIDs.length) {
-                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and \"" + propertyName + "\" length is " + mMinHashNodeIDs.length;
+                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and length is " + mMinHashNodeIDs.length;
                 throw new SeedsException(message);
             }
         }
@@ -189,13 +185,7 @@ public class StandaloneBMinHashOptimized extends MinHash {
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setCollisionsTable(collisionsMatrix);
         graphMeasure.setLastHops(lastHops);
-
-        String minHashNodeIDsString = "";
-        String separator = ",";
-        for (int i = 0; i < mNumSeeds; i++) {
-            minHashNodeIDsString += (mMinHashNodeIDs[i] + separator);
-        }
-        graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
+        graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
         return graphMeasure;
     }
 

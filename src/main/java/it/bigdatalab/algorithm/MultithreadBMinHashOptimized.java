@@ -142,13 +142,7 @@ public class MultithreadBMinHashOptimized extends MinHash {
         graphMeasure.setCollisionsTable(collisionsMatrix);
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setSeedsTime(mSeedTime);
-
-        String minHashNodeIDsString = "";
-        String separator = ",";
-        for (int i = 0; i < mNumSeeds; i++) {
-            minHashNodeIDsString += (mMinHashNodeIDs[i] + separator);
-        }
-        graphMeasure.setMinHashNodeIDs(minHashNodeIDsString);
+        graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
         return graphMeasure;
     }
 
