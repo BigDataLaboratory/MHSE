@@ -10,10 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.stream.IntStream;
 
 import static it.bigdatalab.utils.Constants.N;
 
@@ -38,19 +36,6 @@ public class MultithreadBMinHashOptimized extends MinHash {
         if (isSeedsRandom) {
             for (int i = 0; i < mNumSeeds; i++) {
                 mMinHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
-            }
-        } else {
-            //todo move reading property in MinHashMain
-            //Load minHash node IDs from properties file
-            String propertyNodeIDRange = "minhash.nodeIDRange";
-            String minHashNodeIDRangeString = PropertiesManager.getProperty(propertyNodeIDRange);
-            if (!minHashNodeIDRangeString.equals("")) {
-                int[] minHashNodeIDRange = Arrays.stream(minHashNodeIDRangeString.split(",")).mapToInt(Integer::parseInt).toArray();
-                mMinHashNodeIDs = IntStream.rangeClosed(minHashNodeIDRange[0], minHashNodeIDRange[1]).toArray();
-            }
-            if (mNumSeeds != mMinHashNodeIDs.length) {
-                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and length is " + mMinHashNodeIDs.length;
-                throw new SeedsException(message);
             }
         }
 

@@ -3,14 +3,11 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
-import it.bigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.IntStream;
 
 import static it.bigdatalab.utils.Constants.MASK;
 import static it.bigdatalab.utils.Constants.REMAINDER;
@@ -29,21 +26,8 @@ public class StandaloneBMinHashOptimized extends MinHash {
             for (int i = 0; i < mNumSeeds; i++) {
                 mMinHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
             }
-        } else {
-            //todo move reading property in MinHashMain
-            //Load minHash node IDs from properties file
-            String propertyNodeIDRange = "minhash.nodeIDRange";
-            String minHashNodeIDRangeString = PropertiesManager.getProperty(propertyNodeIDRange);
-
-            if (!minHashNodeIDRangeString.equals("")) {
-                int[] minHashNodeIDRange = Arrays.stream(minHashNodeIDRangeString.split(",")).mapToInt(Integer::parseInt).toArray();
-                mMinHashNodeIDs = IntStream.rangeClosed(minHashNodeIDRange[0], minHashNodeIDRange[1]).toArray();
-            }
-            if (mNumSeeds != mMinHashNodeIDs.length) {
-                String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and length is " + mMinHashNodeIDs.length;
-                throw new SeedsException(message);
-            }
         }
+
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
     }
 

@@ -3,7 +3,6 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
-import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2LongSortedMap;
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.IntStream;
 
 import static it.bigdatalab.utils.Constants.MASK;
 import static it.bigdatalab.utils.Constants.REMAINDER;
@@ -32,16 +30,6 @@ public class StandaloneBMinHash extends MinHash {
         if (isSeedsRandom) {
             for (int i = 0; i < mNumSeeds; i++)
                 mMinHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
-        } else {
-            //todo move reading property in MinHashMain
-            //Load minHash node IDs from properties file
-            String propertyNodeIDRange = "minhash.nodeIDRange";
-            String minHashNodeIDRangeString = PropertiesManager.getProperty(propertyNodeIDRange);
-
-            if (!minHashNodeIDRangeString.equals("")) {
-                int[] minHashNodeIDRange = Arrays.stream(minHashNodeIDRangeString.split(",")).mapToInt(Integer::parseInt).toArray();
-                mMinHashNodeIDs = IntStream.rangeClosed(minHashNodeIDRange[0], minHashNodeIDRange[1]).toArray();
-            }
         }
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
     }
