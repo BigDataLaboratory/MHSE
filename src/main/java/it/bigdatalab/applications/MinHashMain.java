@@ -20,7 +20,9 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class MinHashMain {
 
@@ -58,6 +60,17 @@ public class MinHashMain {
         String direction = PropertiesManager.getProperty("minhash.direction");
         int numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
         double threshold = Double.parseDouble(PropertiesManager.getProperty("minhash.threshold"));
+
+        //Load minHash node IDs from properties file
+        //todo implement range to compute ground truth with boolean minhash
+        int[] minHashNodeIDs;
+        String nodeIDRange = PropertiesManager.getProperty("minhash.nodeIDRange");
+        if (!nodeIDRange.equals("")) {
+            int[] minHashNodeIDRange = Arrays.stream(nodeIDRange.split(",")).mapToInt(Integer::parseInt).toArray();
+            minHashNodeIDs = IntStream.rangeClosed(minHashNodeIDRange[0], minHashNodeIDRange[1]).toArray();
+            numSeeds = minHashNodeIDs.length;
+            logger.info("Set range for node ids = {}, numSeeds automatically reset to {}", minHashNodeIDRange, numSeeds);
+        }
 
         try {
             initialize(isolatedVertices, direction, numSeeds, threshold);
@@ -159,9 +172,6 @@ public class MinHashMain {
         if (!mIsSeedsRandom) {
             seeds = readSeedsFromJson();
             nodes = readNodesFromJson();
-        }
-
-        if (!mIsSeedsRandom) {
             mNumTests = mNumTests > seeds.size() ? seeds.size() : mNumTests;
             logger.info("Max number of run test executable is {}", mNumTests);
         }
