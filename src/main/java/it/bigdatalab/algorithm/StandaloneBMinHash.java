@@ -2,6 +2,7 @@ package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
+import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap;
@@ -15,24 +16,24 @@ import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
+import static it.bigdatalab.utils.Constants.MASK;
+import static it.bigdatalab.utils.Constants.REMAINDER;
+
 public class StandaloneBMinHash extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHash");
 
-    private static final int MASK = 6; // 2^6
-    private static final int REMAINDER = 58;
-    private static final long BIT = 1;
-
     /**
      * Creates a new BooleanMinHash instance with default values
      */
-    public StandaloneBMinHash() throws DirectionNotSetException, SeedsException, IOException {
-        super();
+    public StandaloneBMinHash(String inputFilePath, boolean isSeedsRandom, boolean isolatedVertices, String direction, int numSeeds, double threshold) throws DirectionNotSetException, SeedsException, IOException {
+        super(inputFilePath, isolatedVertices, direction, numSeeds, threshold);
 
-        if (mIsSeedsRandom) {
+        if (isSeedsRandom) {
             for (int i = 0; i < mNumSeeds; i++)
                 mMinHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
         } else {
+            //todo move reading property in MinHashMain
             //Load minHash node IDs from properties file
             String propertyNodeIDRange = "minhash.nodeIDRange";
             String minHashNodeIDRangeString = PropertiesManager.getProperty(propertyNodeIDRange);
@@ -101,7 +102,7 @@ public class StandaloneBMinHash extends MinHash {
                     // This is equal to logical and operation.
                     int remainderPositionRandomNode = ((randomNode << REMAINDER) >>> REMAINDER);
                     // quotient is randomNode >>> MASK
-                    mutable[randomNode >>> MASK] |= (BIT) << remainderPositionRandomNode;
+                    mutable[randomNode >>> MASK] |= (Constants.BIT) << remainderPositionRandomNode;
                     signatureIsChanged = true;
                 } else {   //next hops
                     signatureIsChanged = false;
@@ -177,7 +178,7 @@ public class StandaloneBMinHash extends MinHash {
         hopTable = hopTable(collisionsTable);
         logger.info("Computation of the hop table completed");
 
-        GraphMeasure graphMeasure = new GraphMeasure(hopTable);
+        GraphMeasure graphMeasure = new GraphMeasure(hopTable, mThreshold);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mNumSeeds);
@@ -185,6 +186,8 @@ public class StandaloneBMinHash extends MinHash {
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
         graphMeasure.setTime(totalTime);
+        graphMeasure.setDirection(mDirection);
+
         return graphMeasure;
     }
 
@@ -197,13 +200,13 @@ public class StandaloneBMinHash extends MinHash {
      * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
      * @return hop table
      */
-    private Int2DoubleLinkedOpenHashMap hopTable(Int2ObjectOpenHashMap<int[]> ct) {
+    private Int2DoubleLinkedOpenHashMap hopTable(Int2ObjectOpenHashMap<int[]> collisionsTable) {
         Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
-        int lastHop = ct.size() - 1;
+        int lastHop = collisionsTable.size() - 1;
         long sumCollisions = 0;
 
         for(int hop = 0; hop <= lastHop; hop++){
-            int[] collisions = ct.get(hop);
+            int[] collisions = collisionsTable.get(hop);
             sumCollisions = Arrays.stream(collisions).sum();
             double couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
             hopTable.put(hop, couples);

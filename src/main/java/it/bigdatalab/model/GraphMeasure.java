@@ -14,24 +14,19 @@ public class GraphMeasure extends Measure {
     @SerializedName("hop_table")
     private Int2DoubleLinkedOpenHashMap mHopTable;
     @SerializedName("collision_table")
-    private Int2ObjectOpenHashMap<int[]> collisionsTable;       //for each hop a list of collisions for each hash function
+    private Int2ObjectOpenHashMap<int[]> mCollisionsTable;       //for each hop a list of collisions for each hash function
 
     /**
      * @param hopTable as a map
      */
-    public GraphMeasure(Int2DoubleLinkedOpenHashMap hopTable) {
-        super();
+    public GraphMeasure(Int2DoubleLinkedOpenHashMap hopTable, double threshold) {
+        super(threshold);
         this.mHopTable = hopTable;
         this.mLowerBoundDiameter = hopTable.size()-1;
         this.mAvgDistance = averageDistance();
         this.mEffectiveDiameter = effectiveDiameter();
         this.mTotalCouples = totalCouplesReachable();
         this.mTotalCouplePercentage = totalCouplesPercentage();
-    }
-
-    // empty constructor
-    public GraphMeasure() {
-        super();
     }
 
     /**
@@ -110,7 +105,7 @@ public class GraphMeasure extends Measure {
      * @return Collisions tables for each hop and hash function
      */
     public Int2ObjectOpenHashMap<int[]> getCollisionsTable() {
-        return collisionsTable;
+        return mCollisionsTable;
     }
 
 
@@ -124,7 +119,7 @@ public class GraphMeasure extends Measure {
      * @param collisionsTable The map of the collisions for each hop and for each hash function
      */
     public void setCollisionsTable(Int2ObjectOpenHashMap<int[]> collisionsTable) {
-        this.collisionsTable = collisionsTable;
+        this.mCollisionsTable = collisionsTable;
     }
 
 }

@@ -1,7 +1,6 @@
 package it.bigdatalab.model;
 
 import com.google.gson.annotations.SerializedName;
-import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 public class Measure {
@@ -25,25 +24,26 @@ public class Measure {
     @SerializedName("threshold")
     protected double mThreshold;
     @SerializedName("node_ids")
-    protected int[] minHashNodeIDs;
+    protected int[] mMinHashNodeIDs;
     @SerializedName("seed_list")
     protected IntArrayList mSeedsList;
     @SerializedName("num_seed")
-    protected int numSeeds;
+    protected int mNumSeeds;
     @SerializedName("nodes")
-    protected int numNodes;
+    protected int mNumNodes;
     @SerializedName("edges")
-    protected long numArcs;
+    protected long mNumArcs;
     @SerializedName("direction")
     protected String mDirection;
     @SerializedName("seeds_time")
     protected double[] mSeedsTime;
     @SerializedName("last_hops")
-    protected int[] lastHops;
+    protected int[] mLastHops;
+    @SerializedName("run")
+    protected int mRun;
 
-    public Measure() {
-        this.mThreshold = Double.parseDouble(PropertiesManager.getProperty("minhash.threshold"));
-        this.mDirection = PropertiesManager.getProperty("minhash.direction");
+    public Measure(double threshold) {
+        this.mThreshold = threshold;
     }
 
     public double interpolate(double y0, double y1, double y) {
@@ -64,38 +64,17 @@ public class Measure {
     }
 
     /**
-     * @param seedsTime time for each seed
-     */
-    public void setSeedsTime(double[] seedsTime) {
-        this.mSeedsTime = seedsTime;
-    }
-
-    /**
      * @return graph's number of nodes
      */
     public int getNumNodes() {
-        return numNodes;
+        return mNumNodes;
     }
 
     /**
      * @param numNodes graph's number of nodes
      */
     public void setNumNodes(int numNodes) {
-        this.numNodes = numNodes;
-    }
-
-    /**
-     * @return graph's number of edges
-     */
-    public long getNumArcs() {
-        return numArcs;
-    }
-
-    /**
-     * @param numArcs graph's number of edges
-     */
-    public void setNumArcs(long numArcs) {
-        this.numArcs = numArcs;
+        this.mNumNodes = numNodes;
     }
 
     /**
@@ -134,10 +113,10 @@ public class Measure {
     }
 
     /**
-     * @return
+     * @return graph's number of edges
      */
-    public double getThreshold() {
-        return mThreshold;
+    public long getNumArcs() {
+        return mNumArcs;
     }
 
     /**
@@ -148,13 +127,6 @@ public class Measure {
     }
 
     /**
-     * @param time execution time
-     */
-    public void setTime(long time) {
-        this.mTime = time;
-    }
-
-    /**
      * @return algorithm's name
      */
     public String getAlgorithmName() {
@@ -162,29 +134,10 @@ public class Measure {
     }
 
     /**
-     * @param algorithmName algorithm's name
+     * @param numArcs graph's number of edges
      */
-    public void setAlgorithmName(String algorithmName) {
-        this.mAlgorithmName = algorithmName;
-    }
-
-    /**
-     * @return Comma separated IDs of minHash nodes
-     */
-    public int[] getMinHashNodeIDs() {
-        return minHashNodeIDs;
-    }
-
-
-    /*******************************************************************************
-     *                                  SETTER METHODS
-     * ****************************************************************************/
-
-    /**
-     * @param minHashNodeIDs Comma separated IDs of minHash nodes
-     */
-    public void setMinHashNodeIDs(int[] minHashNodeIDs) {
-        this.minHashNodeIDs = minHashNodeIDs;
+    public void setNumArcs(long numArcs) {
+        this.mNumArcs = numArcs;
     }
 
     /**
@@ -195,24 +148,10 @@ public class Measure {
     }
 
     /**
-     * @param seedsList Comma separated seeds
+     * @return threshold
      */
-    public void setSeedsList(IntArrayList seedsList) {
-        this.mSeedsList = seedsList;
-    }
-
-    /**
-     * @return numbers of seeds to use
-     */
-    public int getNumSeeds() {
-        return numSeeds;
-    }
-
-    /**
-     * @param numSeeds Number of seeds
-     */
-    public void setNumSeeds(int numSeeds) {
-        this.numSeeds = numSeeds;
+    public double getThreshold() {
+        return mThreshold;
     }
 
     /**
@@ -230,6 +169,80 @@ public class Measure {
     }
 
     /**
+     * @param threshold for diameter computing
+     */
+    public void setThreshold(double threshold) {
+        this.mThreshold = threshold;
+    }
+
+    /**
+     * @return Comma separated IDs of minHash nodes
+     */
+    public int[] getMinHashNodeIDs() {
+        return mMinHashNodeIDs;
+    }
+
+    /*******************************************************************************
+     *                                  SETTER METHODS
+     * ****************************************************************************/
+
+    /**
+     * @param minHashNodeIDs Comma separated IDs of minHash nodes
+     */
+    public void setMinHashNodeIDs(int[] minHashNodeIDs) {
+        this.mMinHashNodeIDs = minHashNodeIDs;
+    }
+
+    /**
+     * @return numbers of seeds to use
+     */
+    public int getNumSeeds() {
+        return mNumSeeds;
+    }
+
+    /**
+     * @param numSeeds Number of seeds
+     */
+    public void setNumSeeds(int numSeeds) {
+        this.mNumSeeds = numSeeds;
+    }
+
+    /**
+     * @return Array containing the last hop executed for each hash function
+     */
+    public int[] getLastHops() {
+        return mLastHops;
+    }
+
+    /**
+     * @return Array containing the last hop executed for each hash function
+     */
+    public void setLastHops(int[] lastHops) {
+        this.mLastHops = lastHops;
+    }
+
+    /**
+     * @return number of run
+     */
+    public int getRun() {
+        return mRun;
+    }
+
+    /**
+     * @param run number
+     */
+    public void setRun(int run) {
+        this.mRun = run;
+    }
+
+    /**
+     * @param seedsTime time for each seed
+     */
+    public void setSeedsTime(double[] seedsTime) {
+        this.mSeedsTime = seedsTime;
+    }
+
+    /**
      * @param maxMemoryUsed max memory used by application
      */
     public void setMaxMemoryUsed(long maxMemoryUsed) {
@@ -237,17 +250,31 @@ public class Measure {
     }
 
     /**
-     * @return Array containing the last hop executed for each hash function
+     * @param algorithmName algorithm's name
      */
-    public int[] getLastHops() {
-        return lastHops;
+    public void setAlgorithmName(String algorithmName) {
+        this.mAlgorithmName = algorithmName;
     }
 
     /**
-     * @return Array containing the last hop executed for each hash function
+     * @param time execution time
      */
-    public void setLastHops(int[] lastHops) {
-        this.lastHops = lastHops;
+    public void setTime(long time) {
+        this.mTime = time;
+    }
+
+    /**
+     * @param seedsList Comma separated seeds
+     */
+    public void setSeedsList(IntArrayList seedsList) {
+        this.mSeedsList = seedsList;
+    }
+
+    /**
+     * @param direction of minhashing
+     */
+    public void setDirection(String direction) {
+        this.mDirection = direction;
     }
 
 

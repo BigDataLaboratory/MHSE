@@ -20,8 +20,6 @@ public class SEMHSE extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.SEMHSE");
 
-    private Int2ObjectOpenHashMap<int[]> collisionsTable;
-    private int[] lastHops;
     private Int2LongOpenHashMap hashes;
     private Int2LongOpenHashMap oldHashes;
     private long[] graphSignature;
@@ -29,15 +27,13 @@ public class SEMHSE extends MinHash {
     /**
      * Creates a SE-MHSE instance with default values
      */
-    public SEMHSE() throws DirectionNotSetException, IOException, SeedsException {
-        super();
+    public SEMHSE(String inputFilePath, boolean isSeedsRandom, boolean isolatedVertices, String direction, int numSeeds, double threshold) throws DirectionNotSetException, IOException, SeedsException {
+        super(inputFilePath, isolatedVertices, direction, numSeeds, threshold);
 
-        if(mIsSeedsRandom) {
+        if (isSeedsRandom) {
             setSeeds(createSeeds());
         }
 
-        collisionsTable = new Int2ObjectOpenHashMap<int[]>();       //for each hop a list of collisions for each hash function
-        lastHops = new int[mNumSeeds];                           //for each hash function, the last hop executed
         graphSignature = new long[mNumSeeds];
         Arrays.fill(graphSignature, Long.MAX_VALUE);                            //initialize graph signature with Long.MAX_VALUE
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
@@ -51,7 +47,10 @@ public class SEMHSE extends MinHash {
         long startTime = System.currentTimeMillis();
         long totalTime;
 
+        Int2ObjectOpenHashMap<int[]> collisionsTable = new Int2ObjectOpenHashMap<>();       //for each hop a list of collisions for each hash function
         Int2DoubleLinkedOpenHashMap hopTable;
+        int[] lastHops = new int[mNumSeeds];                           //for each hash function, the last hop executed
+
         NodeIterator nodeIter;
 
         for (int i = 0; i < mNumSeeds; i++) {
@@ -128,14 +127,14 @@ public class SEMHSE extends MinHash {
 
         //normalize collisionsTable
         logger.info("Normalizing Collisions table...");
-        normalizeCollisionsTable();
+        collisionsTable = normalizeCollisionsTable(collisionsTable);
         logger.info("Collisions table normalized!");
 
         logger.info("Starting computation of the hop table from collision table");
-        hopTable = hopTable();
+        hopTable = hopTable(collisionsTable);
         logger.info("Computation of the hop table completed");
 
-        GraphMeasure graphMeasure = new GraphMeasure(hopTable);
+        GraphMeasure graphMeasure = new GraphMeasure(hopTable, mThreshold);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setCollisionsTable(collisionsTable);
@@ -144,6 +143,8 @@ public class SEMHSE extends MinHash {
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(getNodes());
+        graphMeasure.setDirection(mDirection);
+
         return graphMeasure;
     }
 
@@ -201,7 +202,7 @@ public class SEMHSE extends MinHash {
      * @return hop table
      */
 
-    private Int2DoubleLinkedOpenHashMap hopTable() {
+    private Int2DoubleLinkedOpenHashMap hopTable(Int2ObjectOpenHashMap<int[]> collisionsTable) {
         Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
         int lastHop = collisionsTable.size() - 1;
         long sumCollisions = 0;
@@ -224,7 +225,7 @@ public class SEMHSE extends MinHash {
      * If so, we have to substitute the 0 value in the table with
      * the maximum value of the other hash functions of the same hop
      */
-    private void normalizeCollisionsTable() {
+    private Int2ObjectOpenHashMap<int[]> normalizeCollisionsTable(Int2ObjectOpenHashMap<int[]> collisionsTable) {
         int lowerBoundDiameter = collisionsTable.size() - 1;
         logger.debug("Diameter: " + lowerBoundDiameter);
 
@@ -243,6 +244,7 @@ public class SEMHSE extends MinHash {
             }
             collisionsTable.put(i, hopCollisions);
         }
+        return collisionsTable;
     }
 
 }

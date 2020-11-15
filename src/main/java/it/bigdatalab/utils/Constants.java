@@ -2,6 +2,24 @@ package it.bigdatalab.utils;
 
 public class Constants {
 
+
+    /*******************************************************************************
+     *                        OPTIMIZED VERSIONS: ARRAY DIM
+     * ****************************************************************************/
+
+    public static final int N = 5;
+
+    /*******************************************************************************
+     *                            BINARY OPERATIONS
+     * ****************************************************************************/
+
+    public static final int MULTITHREAD_MASK = 5; // 2^6
+    public static final int MULTITHREAD_REMAINDER = 27;
+
+    public static final int MASK = 6; // 2^6
+    public static final int REMAINDER = 58;
+    public static final long BIT = 1;
+
     /*******************************************************************************
      *                                  SEED
      * ****************************************************************************/

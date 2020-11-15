@@ -26,10 +26,10 @@ public class MHSE extends MinHash {
     /**
      * Creates a new MHSE instance with default values
      */
-    public MHSE() throws IOException, DirectionNotSetException, SeedsException {
-        super();
+    public MHSE(String inputFilePath, boolean isSeedsRandom, boolean isolatedVertices, String direction, int numSeeds, double threshold) throws IOException, DirectionNotSetException, SeedsException {
+        super(inputFilePath, isolatedVertices, direction, numSeeds, threshold);
 
-        if(mIsSeedsRandom) {
+        if (isSeedsRandom) {
             setSeeds(createSeeds());
         }
 
@@ -107,7 +107,7 @@ public class MHSE extends MinHash {
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
-        GraphMeasure graphMeasure = new GraphMeasure(hopTable);
+        GraphMeasure graphMeasure = new GraphMeasure(hopTable, mThreshold);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setMaxMemoryUsed(getMaxUsedMemory());
@@ -115,6 +115,8 @@ public class MHSE extends MinHash {
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(getNodes());
+        graphMeasure.setDirection(mDirection);
+
         logger.info("effective {}", graphMeasure.getEffectiveDiameter());
 
         return graphMeasure;

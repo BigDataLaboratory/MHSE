@@ -2,6 +2,7 @@ package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
+import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap;
@@ -21,27 +22,25 @@ public class MultithreadBMinHash extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadBMinHash");
 
-    private static final int MASK = 5; // 2^6
-    private static final int REMAINDER = 27;
-    private static final int BIT = 1;
-
     private int mNumberOfThreads;
     private double[] mSeedTime;
 
     /**
      * Creates a new MultithreadBMinHash instance with default values
      */
-    public MultithreadBMinHash() throws DirectionNotSetException, SeedsException, IOException {
-        super();
+    public MultithreadBMinHash(String inputFilePath, boolean isSeedsRandom, boolean isolatedVertices, String direction, int numSeeds, double threshold) throws DirectionNotSetException, SeedsException, IOException {
+        super(inputFilePath, isolatedVertices, direction, numSeeds, threshold);
+
         mSeedTime = new double[mNumSeeds];
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads"));
         logger.info("Number of threads selected {}", suggestedNumberOfThreads);
 
-        if (mIsSeedsRandom) {
+        if (isSeedsRandom) {
             for (int i = 0; i < mNumSeeds; i++) {
                 mMinHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
             }
         } else {
+            //todo move reading property in MinHashMain
             //Load minHash node IDs from properties file
             String propertyNodeIDRange = "minhash.nodeIDRange";
             String minHashNodeIDRangeString = PropertiesManager.getProperty(propertyNodeIDRange);
@@ -130,7 +129,7 @@ public class MultithreadBMinHash extends MinHash {
         Int2DoubleLinkedOpenHashMap hopTable = hopTable(collisionsTable);
         logger.debug("Hop table derived from collision table: {}", hopTable);
 
-        GraphMeasure graphMeasure = new GraphMeasure(hopTable);
+        GraphMeasure graphMeasure = new GraphMeasure(hopTable, mThreshold);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mNumSeeds);
@@ -139,6 +138,8 @@ public class MultithreadBMinHash extends MinHash {
         graphMeasure.setSeedsTime(mSeedTime);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(getNodes());
+        graphMeasure.setDirection(mDirection);
+
         return graphMeasure;
     }
 
@@ -246,9 +247,9 @@ public class MultithreadBMinHash extends MinHash {
                     // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
                     // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
                     // This is equal to logical and operation.
-                    int remainderPositionRandomNode = ((randomNode << REMAINDER) >>> REMAINDER);
+                    int remainderPositionRandomNode = ((randomNode << Constants.MULTITHREAD_REMAINDER) >>> Constants.MULTITHREAD_REMAINDER);
                     // quotient is randomNode >>> MASK
-                    mutable[randomNode >>> MASK] |= (BIT) << remainderPositionRandomNode;
+                    mutable[randomNode >>> Constants.MULTITHREAD_MASK] |= (Constants.BIT) << remainderPositionRandomNode;
                     signatureIsChanged = true;
                 } else {
                     signatureIsChanged = false;
@@ -267,8 +268,8 @@ public class MultithreadBMinHash extends MinHash {
                         // and computing the OR between the node signature and
                         // the neighbor signature.
                         // store the new signature as the current one
-                        remainderPositionNode = (node << REMAINDER) >>> REMAINDER;
-                        quotientNode = node >>> MASK;
+                        remainderPositionNode = (node << Constants.MULTITHREAD_REMAINDER) >>> Constants.MULTITHREAD_REMAINDER;
+                        quotientNode = node >>> Constants.MULTITHREAD_MASK;
                         int value = immutable[quotientNode];
                         int bitNeigh;
                         int nodeMask = (1 << remainderPositionNode);
@@ -276,8 +277,8 @@ public class MultithreadBMinHash extends MinHash {
                         if (((nodeMask & value) >>> remainderPositionNode) == 0) { // check if node bit is 0
                             for (int l = 0; l < d; l++) {
                                 final int neighbour = successors[l];
-                                int quotientNeigh = neighbour >>> MASK;
-                                long remainderPositionNeigh = (neighbour << REMAINDER) >>> REMAINDER;
+                                int quotientNeigh = neighbour >>> Constants.MULTITHREAD_MASK;
+                                long remainderPositionNeigh = (neighbour << Constants.MULTITHREAD_REMAINDER) >>> Constants.MULTITHREAD_REMAINDER;
                                 bitNeigh = (((1 << remainderPositionNeigh) & immutable[quotientNeigh]) >>> remainderPositionNeigh) << remainderPositionNode;
                                 value = bitNeigh | nodeMask & immutable[quotientNode];
                                 if ((value >>> remainderPositionNode) == 1) {

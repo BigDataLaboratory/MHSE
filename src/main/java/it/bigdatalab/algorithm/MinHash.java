@@ -3,7 +3,6 @@ package it.bigdatalab.algorithm;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import it.bigdatalab.model.Measure;
-import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.Transform;
@@ -18,41 +17,43 @@ public abstract class MinHash {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHash");
 
     protected int mNumSeeds;
-    protected boolean mIsSeedsRandom;
+    protected double mThreshold;
+    protected String mDirection;
+
     protected IntArrayList mSeeds;
     protected ImmutableGraph mGraph;
     protected int[] mMinHashNodeIDs;
     private long mMemoryUsed;
 
-    public MinHash() throws IOException, DirectionNotSetException {
-        initialize();
+    public MinHash() {
     }
 
-    private void initialize() throws IOException, DirectionNotSetException {
+    public MinHash(String inputFilePath, boolean isolatedVertices, String direction, int numSeeds, double threshold) throws IOException, DirectionNotSetException {
+        this.mNumSeeds = numSeeds;
+        this.mThreshold = threshold;
+        this.mDirection = direction;
 
-        mMemoryUsed = 0;
+        loadGraph(inputFilePath, isolatedVertices);
+    }
 
-        boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isolatedVertices"));
-        logger.info("Keep the isolated vertices? {}", isolatedVertices);
+    private void loadGraph(String inputFilePath, boolean isolatedVertices) throws IOException, DirectionNotSetException {
 
-        mIsSeedsRandom = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isSeedsRandom"));
-        logger.info("Has seeds list to be random? {}", mIsSeedsRandom);
 
-        String inputFilePath = PropertiesManager.getProperty("minhash.inputFilePath");
         logger.info("Loading graph at filepath {}", inputFilePath);
         mGraph = ImmutableGraph.load(inputFilePath);
         logger.info("Loading graph completed successfully");
 
 
+        logger.info("Keep the isolated vertices? {}", isolatedVertices);
         if (!isolatedVertices) {
+            logger.info("Removing isolated vertices from the graph");
             Preprocessing preprocessing = new Preprocessing();
             mGraph = preprocessing.removeIsolatedNodes(mGraph);
+            logger.info("Removing isolated vertices completed");
         }
 
-        String direction = PropertiesManager.getProperty("minhash.direction");
-        logger.info("Direction selected is {}", direction);
-
-        switch (direction) {
+        logger.info("Direction selected is {}", mDirection);
+        switch (mDirection) {
             case "in":
                 //Double transpose because more efficient
                 logger.info("Transposing graph...");
@@ -68,7 +69,6 @@ public abstract class MinHash {
                 throw new DirectionNotSetException("Direction property (\"minhash.direction\") not correctly set in properties file");
         }
 
-        mNumSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
         mMinHashNodeIDs = new int[mNumSeeds];
     }
 

@@ -2,6 +2,7 @@ package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
+import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,25 +12,25 @@ import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
+import static it.bigdatalab.utils.Constants.MASK;
+import static it.bigdatalab.utils.Constants.REMAINDER;
+
 public class StandaloneBMinHashOptimized extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHashOptimized");
-    private static final int N_ROWS = 5;
-    private static final int MASK = 6; // 2^6
-    private static final int REMAINDER = 58;
-    private static final long BIT = 1;
 
     /**
      * Creates a new BooleanMinHasOptimized instance with default values
      */
-    public StandaloneBMinHashOptimized() throws DirectionNotSetException, SeedsException, IOException {
-        super();
+    public StandaloneBMinHashOptimized(String inputFilePath, boolean isSeedsRandom, boolean isolatedVertices, String direction, int numSeeds, double threshold) throws DirectionNotSetException, SeedsException, IOException {
+        super(inputFilePath, isolatedVertices, direction, numSeeds, threshold);
 
-        if (mIsSeedsRandom) {
+        if (isSeedsRandom) {
             for (int i = 0; i < mNumSeeds; i++) {
                 mMinHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
             }
         } else {
+            //todo move reading property in MinHashMain
             //Load minHash node IDs from properties file
             String propertyNodeIDRange = "minhash.nodeIDRange";
             String minHashNodeIDRangeString = PropertiesManager.getProperty(propertyNodeIDRange);
@@ -56,7 +57,7 @@ public class StandaloneBMinHashOptimized extends MinHash {
         long totalTime;
 
         // seed as rows, hop as columns - cell values are collissions for each hash function at hop
-        int[][] collisionsMatrix = new int[mNumSeeds][N_ROWS];
+        int[][] collisionsMatrix = new int[mNumSeeds][Constants.N];
         //for each hash function, the last hop executed
         int[] lastHops = new int[mNumSeeds];
         double[] hopTableArray;
@@ -91,9 +92,9 @@ public class StandaloneBMinHashOptimized extends MinHash {
 
                 if (collisionsMatrix[i] != null && collisionsMatrix[i].length - 1 > h) {
                 } else {
-                    int[][] copy = new int[mNumSeeds][collisionsMatrix[i].length + N_ROWS];
+                    int[][] copy = new int[mNumSeeds][collisionsMatrix[i].length + Constants.N];
                     for (int height = 0; height < mNumSeeds; height++) {
-                        copy[height] = new int[collisionsMatrix[height].length + N_ROWS];
+                        copy[height] = new int[collisionsMatrix[height].length + Constants.N];
                         System.arraycopy(collisionsMatrix[height], 0, copy[height], 0, collisionsMatrix[height].length);
                         collisionsMatrix[height] = copy[height];
                     }
@@ -107,7 +108,7 @@ public class StandaloneBMinHashOptimized extends MinHash {
                     // This is equal to logical and operation.
                     int remainderPositionRandomNode = (randomNode << REMAINDER) >>> REMAINDER;
                     // quotient is randomNode >>> MASK
-                    mutable[randomNode >>> MASK] |= (BIT) << remainderPositionRandomNode;
+                    mutable[randomNode >>> MASK] |= (Constants.BIT) << remainderPositionRandomNode;
                     signatureIsChanged = true;
                 } else {   //next hops
                     signatureIsChanged = false;
@@ -184,7 +185,7 @@ public class StandaloneBMinHashOptimized extends MinHash {
         hopTableArray = hopTable(collisionsMatrix, lowerBound);
         logger.info("Computation of the hop table completed");
 
-        GraphMeasureOpt graphMeasure = new GraphMeasureOpt(hopTableArray, lowerBound);
+        GraphMeasureOpt graphMeasure = new GraphMeasureOpt(hopTableArray, lowerBound, mThreshold);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mNumSeeds);
@@ -192,6 +193,8 @@ public class StandaloneBMinHashOptimized extends MinHash {
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
         graphMeasure.setTime(totalTime);
+        graphMeasure.setDirection(mDirection);
+
         return graphMeasure;
     }
 

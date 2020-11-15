@@ -24,14 +24,15 @@ import java.util.List;
 
 public class MinHashMain {
 
-    private String outputFolderPath;
-    private String algorithmName;
-    private MinHash algorithm;
-    private String inputFilePath;
+    private String mOutputFolderPath;
+    private String mAlgorithmName;
+    private MinHash mAlgorithm;
+    private String mInputFilePath;
     private boolean mIsSeedsRandom;
+
     private String mInputFilePathSeed;
     private String mInputFilePathNodes;
-    private int numTests;
+    private int mNumTests;
 
     private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.MinHashMain");
 
@@ -40,8 +41,26 @@ public class MinHashMain {
      * correctly set, or if input file is not correctly read from local file system.
      */
     public MinHashMain(){
+
+        this.mInputFilePath = PropertiesManager.getProperty("minhash.inputFilePath");
+        this.mOutputFolderPath = PropertiesManager.getProperty("minhash.outputFolderPath");
+        this.mAlgorithmName = PropertiesManager.getProperty("minhash.algorithmName");
+
+        this.mNumTests = Integer.parseInt(PropertiesManager.getProperty("minhash.numTests", Constants.NUM_RUN_DEFAULT));
+        this.mIsSeedsRandom = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.isSeedsRandom"));
+        // read external json file for seeds' lists (mandatory) and nodes' lists (optional)
+        if (!mIsSeedsRandom) {
+            mInputFilePathSeed = PropertiesManager.getPropertyIfNotEmpty("minhash.inputFilePathSeed");
+            mInputFilePathNodes = PropertiesManager.getProperty("minhash.inputFilePathNodes");
+        }
+
+        boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isolatedVertices"));
+        String direction = PropertiesManager.getProperty("minhash.direction");
+        int numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
+        double threshold = Double.parseDouble(PropertiesManager.getProperty("minhash.threshold"));
+
         try {
-            initialize();
+            initialize(isolatedVertices, direction, numSeeds, threshold);
         } catch (MinHash.DirectionNotSetException e) {
             logger.error(e.getMessage());
             e.printStackTrace();
@@ -53,6 +72,35 @@ public class MinHashMain {
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-3);
+        }
+    }
+
+    /**
+     * Run Minhash algorithm (specified in the algorithmName parameter) using properties read from properties file such as:
+     * - inputFilePath  the path to the input file representing a graph in a WebGraph format. If the input graph has an edgelist format
+     * - outputFolderPath the path to the output folder path that will contain results of the execution of the algorithm
+     * - algorithmName represent the name of the MinHash algorithm to be executed (see AlghorithmEnum for available algorithms)
+     * - mIsSeedsRandom if it is False, seeds' list and nodes' list must be read from external json file for testing purpose
+     * whose paths are set in mInputFilePathSeed and mInputFilePathNodes
+     * - numTests number of tests to be executed
+     * If algorithmName is empty or not available in AlgorithmEnum, exit from the process
+     *
+     * @throws MinHash.DirectionNotSetException
+     * @throws MinHash.SeedsException
+     * @throws IOException
+     */
+    private void initialize(boolean isolatedVertices, String direction, int numSeeds, double threshold) throws MinHash.DirectionNotSetException, MinHash.SeedsException, IOException {
+
+        try {
+            MinHashFactory mhf = new MinHashFactory();
+            mAlgorithm = mhf.getAlgorithm(AlgorithmEnum.valueOf(mAlgorithmName), mInputFilePath, mIsSeedsRandom, isolatedVertices, direction, numSeeds, threshold);
+        } catch (IllegalArgumentException iae) {
+            logger.error("There is no \"{}\" algorithm! ", mAlgorithmName);
+            iae.printStackTrace();
+            System.exit(-4);
+        } catch (MinHash.DirectionNotSetException e) {
+            e.printStackTrace();
+            System.exit(-1);
         }
     }
 
@@ -99,49 +147,9 @@ public class MinHashMain {
         logger.info("Graph measure wrote in " + path);
     }
 
-    /**
-     * Run Minhash algorithm (specified in the algorithmName parameter) using properties read from properties file such as:
-     * - inputFilePath  the path to the input file representing a graph in a WebGraph format. If the input graph has an edgelist format
-     * - outputFolderPath the path to the output folder path that will contain results of the execution of the algorithm
-     * - algorithmName represent the name of the MinHash algorithm to be executed (see AlghorithmEnum for available algorithms)
-     * - mIsSeedsRandom if it is False, seeds' list and nodes' list must be read from external json file for testing purpose
-     * whose paths are set in mInputFilePathSeed and mInputFilePathNodes
-     * - numTests number of tests to be executed
-     * If algorithmName is empty or not available in AlgorithmEnum, exit from the process
-     * @throws MinHash.DirectionNotSetException
-     * @throws MinHash.SeedsException
-     * @throws IOException
-     */
-    private void initialize() throws MinHash.DirectionNotSetException, MinHash.SeedsException, IOException {
-        inputFilePath = PropertiesManager.getProperty("minhash.inputFilePath");
-        outputFolderPath = PropertiesManager.getProperty("minhash.outputFolderPath");
-        algorithmName = PropertiesManager.getProperty("minhash.algorithmName");
-
-        numTests = Integer.parseInt(PropertiesManager.getProperty("minhash.numTests", Constants.NUM_RUN_DEFAULT));
-        mIsSeedsRandom = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.isSeedsRandom"));
-        // read external json file for seeds' lists (mandatory) and nodes' lists (optional)
-        if (!mIsSeedsRandom) {
-            mInputFilePathSeed = PropertiesManager.getPropertyIfNotEmpty("minhash.inputFilePathSeed");
-            mInputFilePathNodes = PropertiesManager.getProperty("minhash.inputFilePathNodes");
-        }
-
-        try {
-            MinHashFactory mhf = new MinHashFactory();
-            algorithm = mhf.getAlgorithm(AlgorithmEnum.valueOf(algorithmName));
-
-        } catch(IllegalArgumentException iae){
-            logger.error("There is no \"{}\" algorithm! ", algorithmName);
-            iae.printStackTrace();
-            System.exit(-4);
-        } catch (MinHash.DirectionNotSetException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-    }
-
     private void run() throws IOException, MinHash.SeedsException {
 
-        Measure graphMeasure;
+        Measure measure;
         long startTime = System.currentTimeMillis();
         long totalTime;
 
@@ -154,23 +162,24 @@ public class MinHashMain {
         }
 
         if (!mIsSeedsRandom) {
-            numTests = numTests > seeds.size() ? seeds.size() : numTests;
-            logger.info("Max number of run test executable is {}", numTests);
+            mNumTests = mNumTests > seeds.size() ? seeds.size() : mNumTests;
+            logger.info("Max number of run test executable is {}", mNumTests);
         }
 
-        for (int i = 0; i < numTests; i++) {
+        for (int i = 0; i < mNumTests; i++) {
             if (!mIsSeedsRandom) {
-                algorithm.setSeeds(seeds.get(i));
-                algorithm.setNodes(nodes.get(i));
+                mAlgorithm.setSeeds(seeds.get(i));
+                mAlgorithm.setNodes(nodes.get(i));
             }
-            graphMeasure = algorithm.runAlgorithm();
+            measure = mAlgorithm.runAlgorithm();
             logger.info("\nLower Bound Diameter\t{}\nTotal Couples Reachable\t{}\nTotal couples Percentage\t{}\nAvg Distance\t{}\nEffective Diameter\t{}",
-                    graphMeasure.getLowerBoundDiameter(), new BigDecimal(graphMeasure.getTotalCouples()).toPlainString(), new BigDecimal(graphMeasure.getTotalCouplePercentage()).toPlainString(), graphMeasure.getAvgDistance(), graphMeasure.getEffectiveDiameter());
+                    measure.getLowerBoundDiameter(), new BigDecimal(measure.getTotalCouples()).toPlainString(), new BigDecimal(measure.getTotalCouplePercentage()).toPlainString(), measure.getAvgDistance(), measure.getEffectiveDiameter());
+            measure.setAlgorithmName(mAlgorithmName);
+            measure.setRun(i + 1);
 
-            graphMeasure.setAlgorithmName(algorithmName);
-            String inputGraphName = new File(inputFilePath).getName();
-            String outputFilePath = outputFolderPath + File.separator + inputGraphName;
-            writeOnFile(graphMeasure, outputFilePath);
+            String inputGraphName = new File(mInputFilePath).getName();
+            String outputFilePath = mOutputFolderPath + File.separator + inputGraphName;
+            writeOnFile(measure, outputFilePath);
             logger.info("Test n.{} executed correctly", i + 1);
         }
 

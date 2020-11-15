@@ -2,26 +2,16 @@ package it.bigdatalab.algorithm;
 
 
 import it.bigdatalab.model.GraphMeasure;
-import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-import it.unimi.dsi.logging.ProgressLogger;
-import it.unimi.dsi.webgraph.ImmutableGraph;
-import it.unimi.dsi.webgraph.LazyIntIterator;
-import it.unimi.dsi.webgraph.NodeIterator;
-import it.unimi.dsi.webgraph.Transform;
+import java.io.IOException;
+import java.util.Dictionary;
+
 //import it.unimi.dsi.law.rank.PageRank;
 //import it.unimi.dsi.law.rank.PageRankGaussSeidel;
 //import it.unimi.dsi.law.rank.PageRankPowerSeries;
 //import it.unimi.dsi.law.rank.SpectralRanking;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 //import org.jgrapht.alg.scoring;
-
-import java.io.IOException;
-import java.util.*;
 
 
 public class Clustering extends MinHash {
@@ -34,9 +24,8 @@ public class Clustering extends MinHash {
     private Int2ObjectOpenHashMap<long [] > clusterAssignments;
 
 
-
     public Clustering() throws IOException, MinHash.DirectionNotSetException {
-        super();
+        //super();
         // Working on a new version of the clustering algorithm
 
 

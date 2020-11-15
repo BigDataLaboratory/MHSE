@@ -17,8 +17,8 @@ public class GraphMeasureOpt extends Measure {
      * @param hopTable           as an array
      * @param lowerBoundDiameter computed when algorithm completed
      */
-    public GraphMeasureOpt(double[] hopTable, int lowerBoundDiameter) {
-        super();
+    public GraphMeasureOpt(double[] hopTable, int lowerBoundDiameter, double threshold) {
+        super(threshold);
         this.mHopTable = hopTable;
         this.mLowerBoundDiameter = lowerBoundDiameter;
         this.mAvgDistance = averageDistance();
