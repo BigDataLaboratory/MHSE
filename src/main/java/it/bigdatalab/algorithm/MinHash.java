@@ -128,6 +128,10 @@ public abstract class MinHash {
         this.mMinHashNodeIDs = nodes;
     }
 
+    public void setNumSeeds(int numSeeds) {
+        this.mNumSeeds = numSeeds;
+    }
+
     public void memoryUsed() {
         // Calculate the used memory
         System.gc();

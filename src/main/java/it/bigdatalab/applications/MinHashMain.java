@@ -31,6 +31,7 @@ public class MinHashMain {
     private MinHash mAlgorithm;
     private String mInputFilePath;
     private boolean mIsSeedsRandom;
+    private int[] mRange;
 
     private String mInputFilePathSeed;
     private String mInputFilePathNodes;
@@ -62,14 +63,12 @@ public class MinHashMain {
         double threshold = Double.parseDouble(PropertiesManager.getProperty("minhash.threshold"));
 
         //Load minHash node IDs from properties file
-        //todo implement range to compute ground truth with boolean minhash
-        int[] minHashNodeIDs;
+        //this can be used to compute ground truth
         String nodeIDRange = PropertiesManager.getProperty("minhash.nodeIDRange");
         if (!nodeIDRange.equals("")) {
-            int[] minHashNodeIDRange = Arrays.stream(nodeIDRange.split(",")).mapToInt(Integer::parseInt).toArray();
-            minHashNodeIDs = IntStream.rangeClosed(minHashNodeIDRange[0], minHashNodeIDRange[1]).toArray();
-            numSeeds = minHashNodeIDs.length;
-            logger.info("Set range for node ids = {}, numSeeds automatically reset to {}", minHashNodeIDRange, numSeeds);
+            mRange = rangeNodes(nodeIDRange);
+            numSeeds = mRange[1] - mRange[0] + 1;
+            logger.info("Set range for node ids = {}, numSeeds automatically reset to {}", mRange, numSeeds);
         }
 
         try {
@@ -170,14 +169,20 @@ public class MinHashMain {
         List<int[]> nodes = new ArrayList<>();
 
         if (!mIsSeedsRandom) {
-            seeds = readSeedsFromJson();
-            nodes = readNodesFromJson();
-            mNumTests = mNumTests > seeds.size() ? seeds.size() : mNumTests;
-            logger.info("Max number of run test executable is {}", mNumTests);
+            // only for boolean version of minhash
+            if (mRange != null) {
+                int[] n = computeNodesFromRange(mRange[0], mRange[1]);
+                nodes.add(n);
+            } else {
+                seeds = readSeedsFromJson();
+                nodes = readNodesFromJson();
+                mNumTests = mNumTests > seeds.size() ? seeds.size() : mNumTests;
+                logger.info("Max number of run test executable is {}", mNumTests);
+            }
         }
 
         for (int i = 0; i < mNumTests; i++) {
-            if (!mIsSeedsRandom) {
+            if (!mIsSeedsRandom && mRange == null) {
                 mAlgorithm.setSeeds(seeds.get(i));
                 mAlgorithm.setNodes(nodes.get(i));
             }
@@ -218,6 +223,14 @@ public class MinHashMain {
         Type listType = new TypeToken<List<int[]>>() {
         }.getType();
         return gson.fromJson(new FileReader(mInputFilePathNodes), listType);
+    }
+
+    private int[] rangeNodes(String range) {
+        return Arrays.stream(range.split(",")).mapToInt(Integer::parseInt).toArray();
+    }
+
+    private int[] computeNodesFromRange(int start, int end) {
+        return IntStream.rangeClosed(start, end).toArray();
     }
 
     public static void main(String[] args) {
