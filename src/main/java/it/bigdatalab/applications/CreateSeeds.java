@@ -4,6 +4,7 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.bigdatalab.algorithm.Preprocessing;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -33,6 +34,7 @@ public class CreateSeeds {
     private int mNumTest;
     private String mInputFilePath;
     private String mOutFolderPath;
+    private boolean mIsolatedVertices;
 
     public CreateSeeds() {
         getProperties();
@@ -45,6 +47,8 @@ public class CreateSeeds {
         boolean exist = new File(createSeeds.getInputFile() + Constants.GRAPH_EXTENSION).isFile() && !createSeeds.getInputFile().isEmpty();
         if (exist) {
             g = createSeeds.loadGraph();
+            if (!createSeeds.getIsolatedVertices())
+                g = new Preprocessing().removeIsolatedNodes(g);
         }
 
         // list of seeds lists
@@ -73,6 +77,7 @@ public class CreateSeeds {
         mNumSeeds = Integer.parseInt(PropertiesManager.getProperty("seed.numSeeds", Constants.NUM_SEEDS_DEFAULT));
         mInputFilePath = PropertiesManager.getProperty("seed.inputFilePath");
         mOutFolderPath = PropertiesManager.getPropertyIfNotEmpty("seed.outFolderPath");
+        mIsolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("seed.isolatedVertices"));
         mNumTest = Integer.parseInt(PropertiesManager.getProperty("seed.numTest", Constants.NUM_TEST_DEFAULT));
     }
 
@@ -130,8 +135,7 @@ public class CreateSeeds {
      * @return associated nodes for a list of seeds
      */
     private int[] seedToNode(ImmutableGraph g, IntArrayList seeds) {
-        int[] minHashNodeIDs = minHashNodes(g, seeds);
-        return minHashNodeIDs;
+        return minHashNodes(g, seeds);
     }
 
     /**
@@ -217,6 +221,14 @@ public class CreateSeeds {
         return mInputFilePath;
     }
 
+    /**
+     * @return true if you keep the isolated vertices
+     */
+    public boolean getIsolatedVertices() {
+        return mIsolatedVertices;
+    }
+
+
     /*******************************************************************************
      *                                  SETTER METHODS
      * ****************************************************************************/
@@ -234,5 +246,13 @@ public class CreateSeeds {
     public void setNumSeeds(int numSeeds) {
         this.mNumSeeds = numSeeds;
     }
+
+    /**
+     * @param isolatedVertices true if you keep the isolated vertices
+     */
+    public void setIsolatedVertices(boolean isolatedVertices) {
+        this.mIsolatedVertices = isolatedVertices;
+    }
+
 
 }

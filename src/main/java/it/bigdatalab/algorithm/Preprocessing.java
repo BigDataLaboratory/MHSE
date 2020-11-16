@@ -21,7 +21,7 @@ public class Preprocessing {
      *
      * @return a new instance of ImmutableGraph without isolated nodes, if any
      */
-    protected ImmutableGraph removeIsolatedNodes(ImmutableGraph graph) {
+    public ImmutableGraph removeIsolatedNodes(ImmutableGraph graph) {
         ImmutableGraph g = graph;
         logger.info("Deleting isolated nodes...");
 
