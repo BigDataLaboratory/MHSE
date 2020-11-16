@@ -18,6 +18,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+
+
 public class GroundTruths {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.GroundTruths");
 
@@ -60,6 +62,11 @@ public class GroundTruths {
         }
     }
 
+    /**
+     * Execution of the Ground Truth algorithm performing
+     * N times a Breadth-first Visit
+     * @return Graph Measures
+     */
     private GraphGtMeasure runBFSMode() {
         long startTime = System.currentTimeMillis();
         ProgressLogger pl = new ProgressLogger();
@@ -117,6 +124,11 @@ public class GroundTruths {
         return gtMeasure;
     }
 
+    /**
+     * Execution of the Ground Truth algorithm using the
+     * NeighbourhoodFunction by WebGraph
+     * @return Graph Measures
+     */
     private GraphGtMeasure runWebGraphMode() throws IOException {
         long startTime = System.currentTimeMillis();
 
@@ -130,11 +142,16 @@ public class GroundTruths {
 
         logger.info("# nodes {}, # edges {}",
                 mGraph.numNodes(), mGraph.numArcs());
-
+        // Defining a new neighbourhood function f(.)
+        // This function is obtained by executing N breadth first visits.
         neighFunction = NeighbourhoodFunction.compute(mGraph, mThreadNumber, pl);
+        // Get the average distance using the NeighbourhoodFunction
         avgDistance = NeighbourhoodFunction.averageDistance(neighFunction);
+        // Get the diameter lowerbound using the function of effective diameter with alpha = 1
         diameter = NeighbourhoodFunction.effectiveDiameter(1, neighFunction);
+        // Get the 90% of the diameter using alpha = 0.9
         effectiveDiameter = NeighbourhoodFunction.effectiveDiameter(0.9, neighFunction);
+        // Get the number of reachable pairs
         visitedNodes = neighFunction[neighFunction.length - 1];
 
         logger.info("Avg distance {}, Diameter {}, 90% Effective Diameter {}, Reachable Pairs {}",
