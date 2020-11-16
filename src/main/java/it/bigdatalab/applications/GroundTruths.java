@@ -13,6 +13,7 @@ import it.unimi.dsi.webgraph.algo.ParallelBreadthFirstVisit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -24,6 +25,7 @@ public class GroundTruths {
     private String mInputFilePath;
     private String mOutputFolderPath;
     private int mThreadNumber;
+    private boolean mIsolatedVertices;
     private ImmutableGraph mGraph;
 
     public GroundTruths() throws IOException {
@@ -45,14 +47,14 @@ public class GroundTruths {
         logger.info("Loading graph at filepath {}", mInputFilePath);
         mGraph = ImmutableGraph.load(mInputFilePath);
         logger.info("Loading graph completed successfully");
-        mThreadNumber = Integer.parseInt(PropertiesManager.getProperty("goundTruth.threadNumber"));
+        mThreadNumber = Integer.parseInt(PropertiesManager.getProperty("groundTruth.threadNumber"));
         logger.info("Number of Threads " + mThreadNumber);
         mMode = PropertiesManager.getProperty("groundTruth.mode");
 
-        boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.isolatedVertices"));
-        logger.info("Keep the isolated vertices? {}", isolatedVertices);
+        mIsolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("groundTruth.isolatedVertices"));
+        logger.info("Keep the isolated vertices? {}", mIsolatedVertices);
 
-        if (!isolatedVertices) {
+        if (!mIsolatedVertices) {
             Preprocessing preprocessing = new Preprocessing();
             mGraph = preprocessing.removeIsolatedNodes(mGraph);
         }
@@ -149,7 +151,13 @@ public class GroundTruths {
 
     private void writeResults(GraphGtMeasure gtMeasure) {
         String graphFileName = Paths.get(mInputFilePath).getFileName().toString();
-        String path = mOutputFolderPath + "/gt_" + graphFileName + ".json";
+        String path = mOutputFolderPath +
+                File.separator +
+                "gt_" +
+                graphFileName +
+                "_" +
+                (mIsolatedVertices ? "with_iso" : "without_iso") +
+                ".json";
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         try (FileWriter writer = new FileWriter(path)) {
