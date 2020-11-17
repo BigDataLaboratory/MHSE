@@ -64,8 +64,11 @@ public class MinHashMain {
 
         //Load minHash node IDs from properties file
         //this can be used to compute ground truth
-        String nodeIDRange = PropertiesManager.getProperty("minhash.nodeIDRange");
-        if (!nodeIDRange.equals("")) {
+        boolean automaticRange = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.automaticRange"));
+        if (automaticRange) {
+
+        } else {
+            String nodeIDRange = PropertiesManager.getPropertyIfNotEmpty("minhash.nodeIDRange");
             mRange = rangeNodes(nodeIDRange);
             numSeeds = mRange[1] - mRange[0] + 1;
             logger.info("Set range for node ids = {}, numSeeds automatically reset to {}", mRange, numSeeds);
@@ -182,9 +185,13 @@ public class MinHashMain {
         }
 
         for (int i = 0; i < mNumTests; i++) {
-            if (!mIsSeedsRandom && mRange == null) {
-                mAlgorithm.setSeeds(seeds.get(i));
-                mAlgorithm.setNodes(nodes.get(i));
+            if (!mIsSeedsRandom) {
+                if (mRange != null) {
+                    mAlgorithm.setNodes(nodes.get(i));
+                } else {
+                    mAlgorithm.setSeeds(seeds.get(i));
+                    mAlgorithm.setNodes(nodes.get(i));
+                }
             }
             measure = mAlgorithm.runAlgorithm();
             logger.info("\nLower Bound Diameter\t{}\nTotal Couples Reachable\t{}\nTotal couples Percentage\t{}\nAvg Distance\t{}\nEffective Diameter\t{}",

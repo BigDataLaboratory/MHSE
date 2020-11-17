@@ -8,6 +8,7 @@ import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.NodeIterator;
+import it.unimi.dsi.webgraph.Transform;
 import it.unimi.dsi.webgraph.algo.NeighbourhoodFunction;
 import it.unimi.dsi.webgraph.algo.ParallelBreadthFirstVisit;
 import org.slf4j.Logger;
@@ -60,6 +61,11 @@ public class GroundTruths {
             Preprocessing preprocessing = new Preprocessing();
             mGraph = preprocessing.removeIsolatedNodes(mGraph);
         }
+
+        mGraph = Transform.transpose(Transform.transpose(mGraph));
+
+        logger.info("# nodes {}, # edges {}",
+                mGraph.numNodes(), mGraph.numArcs());
     }
 
     /**
@@ -75,9 +81,6 @@ public class GroundTruths {
         double max = 0;
         double avgDistance = 0;
         ParallelBreadthFirstVisit bfs = new ParallelBreadthFirstVisit(mGraph, mThreadNumber, false, pl);
-
-        logger.info("# nodes {}, # edges {}",
-                mGraph.numNodes(), mGraph.numArcs());
 
         // n times BFS
         NodeIterator nodeIterator = mGraph.nodeIterator();
@@ -140,8 +143,6 @@ public class GroundTruths {
 
         ProgressLogger pl = new ProgressLogger();
 
-        logger.info("# nodes {}, # edges {}",
-                mGraph.numNodes(), mGraph.numArcs());
         // Defining a new neighbourhood function f(.)
         // This function is obtained by executing N breadth first visits.
         neighFunction = NeighbourhoodFunction.compute(mGraph, mThreadNumber, pl);
