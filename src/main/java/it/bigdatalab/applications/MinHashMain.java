@@ -64,14 +64,15 @@ public class MinHashMain {
 
         //Load minHash node IDs from properties file
         //this can be used to compute ground truth
-        boolean automaticRange = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.automaticRange"));
+        // todo implement a behaviour for automatic range and node range
+        boolean automaticRange = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.automaticRange", "False"));
         if (automaticRange) {
-
-        } else if (!automaticRange) {
             String nodeIDRange = PropertiesManager.getPropertyIfNotEmpty("minhash.nodeIDRange");
             mRange = rangeNodes(nodeIDRange);
             numSeeds = mRange[1] - mRange[0] + 1;
             logger.info("Set range for node ids = {}, numSeeds automatically reset to {}", mRange, numSeeds);
+        } else if (!automaticRange) {
+
         }
 
         try {
