@@ -80,10 +80,12 @@ public class GraphMeasure extends Measure {
                 int key = entry.getIntKey();
                 double value = entry.getDoubleValue();
 
-                if (key != 0) {
-                    sumAvg += (key * (value - mHopTable.get(key - 1)));
-                } else {
+                if (key == 0) {
                     sumAvg += 0;
+                } else if (key == 1) {
+                    sumAvg += (key * value);
+                } else {
+                    sumAvg += (key * (value - mHopTable.get(key - 1)));
                 }
             }
             return (sumAvg / mHopTable.get(lowerBoundDiameter));
