@@ -76,10 +76,8 @@ public class GraphMeasureOpt extends Measure {
 
         lowerBoundDiameter = mHopTable.length - 1;
         for (int i = 0; i < mHopTable.length; i++) {
-            if (i == 0) {
+            if (i == 0 || i == 1) {
                 sumAvg += 0;
-            } else if (i == 1) {
-                sumAvg += (i * mHopTable[i]);
             } else {
                 sumAvg += (i * (mHopTable[i] - mHopTable[i - 1]));
             }
