@@ -10,6 +10,7 @@ import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.NodeIterator;
+import it.unimi.dsi.webgraph.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,6 +121,7 @@ public class CreateSeeds {
         ImmutableGraph graph = null;
         try {
             graph = ImmutableGraph.load(mInputFilePath);
+            graph = Transform.transpose(Transform.transpose(graph));
         } catch (IOException e) {
             e.printStackTrace();
         }
