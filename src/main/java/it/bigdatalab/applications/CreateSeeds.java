@@ -169,8 +169,17 @@ public class CreateSeeds {
      */
     private void seedsToJson(List<IntArrayList> seeds) throws IOException {
         Gson gson = new GsonBuilder().create();
+        String graphFileName = Paths.get(mInputFilePath).getFileName().toString();
 
-        try (FileWriter writer = new FileWriter(mOutFolderPath + File.separator + "seeds.json")) {
+        String path = mOutFolderPath +
+                File.separator +
+                "seeds_" +
+                graphFileName +
+                "_" +
+                (mIsolatedVertices ? "with_iso" : "without_iso") +
+                ".json";
+
+        try (FileWriter writer = new FileWriter(path)) {
             gson.toJson(seeds, writer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -186,8 +195,15 @@ public class CreateSeeds {
     private void nodesToJson(List<int[]> nodes) throws IOException {
         Gson gson = new GsonBuilder().create();
         String graphFileName = Paths.get(mInputFilePath).getFileName().toString();
+        String path = mOutFolderPath +
+                File.separator +
+                "nodes_" +
+                graphFileName +
+                "_" +
+                (mIsolatedVertices ? "with_iso" : "without_iso") +
+                ".json";
 
-        try (FileWriter writer = new FileWriter(mOutFolderPath + File.separator + "nodes_" + graphFileName + ".json")) {
+        try (FileWriter writer = new FileWriter(path)) {
             gson.toJson(nodes, writer);
         } catch (IOException e) {
             e.printStackTrace();

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static it.bigdatalab.utils.Constants.N;
+import static java.lang.Math.abs;
 
 public class MultithreadBMinHashOptimized extends MinHash {
 
@@ -229,14 +229,15 @@ public class MultithreadBMinHashOptimized extends MinHash {
             // we use a dict because we want to iterate over the nodes until
             // the number of collisions in the actual hop
             // is different than the previous hop
-            int[] hopTable = new int[N];
+            int[] hopTable = new int[Constants.N];
 
 
             while (signatureIsChanged) {
                 logger.debug("(seed {}) Starting computation on hop {}", index, h);
 
                 if (!(hopTable.length - 1 > h)) {
-                    int[] copy = new int[hopTable.length + N];
+                    // todo evaluate array dimensions
+                    int[] copy = new int[hopTable.length + abs(hopTable.length - h)];
                     System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
                     hopTable = copy;
                 }

@@ -67,7 +67,7 @@ public class MinHashMain {
         boolean automaticRange = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.automaticRange"));
         if (automaticRange) {
 
-        } else {
+        } else if (!automaticRange) {
             String nodeIDRange = PropertiesManager.getPropertyIfNotEmpty("minhash.nodeIDRange");
             mRange = rangeNodes(nodeIDRange);
             numSeeds = mRange[1] - mRange[0] + 1;
