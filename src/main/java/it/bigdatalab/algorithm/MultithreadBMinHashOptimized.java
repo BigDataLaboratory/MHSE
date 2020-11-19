@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static java.lang.Math.abs;
-
 public class MultithreadBMinHashOptimized extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadBMinHashOptimized");
@@ -80,6 +78,8 @@ public class MultithreadBMinHashOptimized extends MinHash {
                         collisionsMatrix[i] = hopCollisions;
                         int lastHop = hopCollisions.length - 1;
                         lastHops[i] = lastHop;
+                        logger.debug("lastHop {} lastHops[{}] {} lowerbound {}", lastHop, i, lastHops[i], lowerboundDiameter);
+                        logger.debug("hopcollision {}", hopCollisions);
                         if (lastHop > lowerboundDiameter) {
                             lowerboundDiameter = lastHop;
                         }
@@ -152,9 +152,7 @@ public class MultithreadBMinHashOptimized extends MinHash {
             // replace the 0 values from last hop + 1 until lower bound
             // with the value of the previous hop for the same seed
             if (last[i] < lowerBound) {
-
-                int l = lowerBound + 1 < collisionsMatrix[i].length ? collisionsMatrix[i].length : lowerBound + 1;
-                int copy[] = new int[l];
+                int[] copy = new int[lowerBound + 1];
                 System.arraycopy(collisionsMatrix[i], 0, copy, 0, collisionsMatrix[i].length);
                 collisionsMatrix[i] = copy;
 
@@ -219,18 +217,12 @@ public class MultithreadBMinHashOptimized extends MinHash {
             // we use a dict because we want to iterate over the nodes until
             // the number of collisions in the actual hop
             // is different than the previous hop
-            int[] hopTable = new int[Constants.N];
+            int[] hopTable = new int[1];
 
 
             while (signatureIsChanged) {
                 logger.debug("(seed {}) Starting computation on hop {}", index, h);
 
-                if (!(hopTable.length - 1 > h)) {
-                    // todo evaluate array dimensions
-                    int[] copy = new int[hopTable.length + abs(hopTable.length - h)];
-                    System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
-                    hopTable = copy;
-                }
 
                 //first hop - initialization
                 if (h == 0) {
@@ -290,6 +282,13 @@ public class MultithreadBMinHashOptimized extends MinHash {
                     collisions = 0;
                     for (int aMutable : mutable) {
                         collisions += Integer.bitCount(aMutable);
+                    }
+
+                    if (hopTable.length - 1 < h) {
+                        // todo evaluate array dimensions
+                        int[] copy = new int[h + 1];
+                        System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
+                        hopTable = copy;
                     }
 
                     hopTable[h] = collisions;
