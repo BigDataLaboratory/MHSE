@@ -79,8 +79,7 @@ public class GraphMeasure extends Measure {
             for (Int2DoubleMap.Entry entry : mHopTable.int2DoubleEntrySet()) {
                 int key = entry.getIntKey();
                 double value = entry.getDoubleValue();
-
-                if (key == 0 || key == 1) {
+                if (key == 0) {
                     sumAvg += 0;
                 } else {
                     sumAvg += (key * (value - mHopTable.get(key - 1)));
