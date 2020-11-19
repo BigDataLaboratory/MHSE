@@ -32,6 +32,8 @@ public class MinHashMain {
     private String mInputFilePath;
     private boolean mIsSeedsRandom;
     private int[] mRange;
+    private boolean mGroundTruth;
+
 
     private String mInputFilePathSeed;
     private String mInputFilePathNodes;
@@ -61,6 +63,7 @@ public class MinHashMain {
         String direction = PropertiesManager.getProperty("minhash.direction");
         int numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
         double threshold = Double.parseDouble(PropertiesManager.getProperty("minhash.threshold"));
+        mGroundTruth = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.groundTruth", "False"));
 
         //Load minHash node IDs from properties file
         //this can be used to compute ground truth
@@ -199,6 +202,11 @@ public class MinHashMain {
                     measure.getLowerBoundDiameter(), new BigDecimal(measure.getTotalCouples()).toPlainString(), new BigDecimal(measure.getTotalCouplePercentage()).toPlainString(), measure.getAvgDistance(), measure.getEffectiveDiameter());
             measure.setAlgorithmName(mAlgorithmName);
             measure.setRun(i + 1);
+            if (mGroundTruth) {
+                if (measure instanceof GraphMeasureOpt) {
+                    ((GraphMeasureOpt) measure).setCollisionsMatrix(null);
+                }
+            }
 
             String inputGraphName = new File(mInputFilePath).getName();
             String outputFilePath = mOutputFolderPath + File.separator + inputGraphName;
