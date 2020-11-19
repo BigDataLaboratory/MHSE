@@ -71,29 +71,19 @@ public class MultithreadBMinHashOptimized extends MinHash {
 
         try {
             List<Future<int[]>> futures = executor.invokeAll(todo);
-            int count = 0;
             for (int i = 0; i < this.mNumSeeds; i++) {
                 Future<int[]> future = futures.get(i);
                 if (!future.isCancelled()) {
                     try {
-                        logger.debug("Starting computation of collision table on seed {}", count);
+                        logger.debug("Starting computation of collision table on seed {}", i);
                         int[] hopCollisions = future.get();
                         collisionsMatrix[i] = hopCollisions;
-
-                        for (int h = hopCollisions.length - 1; h >= 0; h--) {
-                            // for each seed compute last hop reached
-                            // checking if an hop has 0 value and the previous one has value != 0
-                            // starting from the end of array
-                            // compute also lower bound, comparing his value with the last hop found
-                            if (hopCollisions[h] == 0 && hopCollisions[h - 1] > 0) {
-                                lastHops[i] = h - 1;
-                                if ((h - 1) > lowerboundDiameter)
-                                    lowerboundDiameter = h - 1;
-                                break;
-                            }
+                        int lastHop = hopCollisions.length - 1;
+                        lastHops[i] = lastHop;
+                        if (lastHop > lowerboundDiameter) {
+                            lowerboundDiameter = lastHop;
                         }
-                        logger.debug("Collision table computation completed on seed {}!", count);
-                        count++;
+                        logger.debug("Collision table computation completed on seed {}!", i);
 
                     } catch (ExecutionException e) {
                         logger.error("Failed to get result", e);
