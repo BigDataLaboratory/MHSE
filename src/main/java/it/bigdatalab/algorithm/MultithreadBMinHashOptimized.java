@@ -217,7 +217,7 @@ public class MultithreadBMinHashOptimized extends MinHash {
             // we use a dict because we want to iterate over the nodes until
             // the number of collisions in the actual hop
             // is different than the previous hop
-            int[] hopTable = new int[1];
+            int[] hopTable = new int[h];
 
 
             while (signatureIsChanged) {
@@ -284,12 +284,10 @@ public class MultithreadBMinHashOptimized extends MinHash {
                         collisions += Integer.bitCount(aMutable);
                     }
 
-                    if (hopTable.length - 1 < h) {
-                        // todo evaluate array dimensions
-                        int[] copy = new int[h + 1];
-                        System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
-                        hopTable = copy;
-                    }
+                    // todo evaluate array dimensions
+                    int[] copy = new int[h + 1];
+                    System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
+                    hopTable = copy;
 
                     hopTable[h] = collisions;
 
