@@ -21,10 +21,6 @@ public class GraphMeasureOpt extends Measure {
         super(threshold);
         this.mHopTable = hopTable;
         this.mLowerBoundDiameter = lowerBoundDiameter;
-        this.mAvgDistance = averageDistance();
-        this.mEffectiveDiameter = effectiveDiameter();
-        this.mTotalCouples = totalCouplesReachable();
-        this.mTotalCouplePercentage = totalCouplesPercentage();
     }
 
     /**

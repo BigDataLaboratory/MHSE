@@ -1,54 +1,52 @@
 package it.bigdatalab.algorithm;
 
+import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 public class MinHashFactory {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHashFactory");
 
-
     /**
      * Choose one of the algorithm to be executed by the type passed as parameter
+     *
      * @param type algorithm type
      * @return algorithm to be executed
-     * @throws MinHash.DirectionNotSetException
      * @throws MinHash.SeedsException
-     * @throws IOException
+     * @throws IllegalArgumentException
      */
-    public MinHash getAlgorithm(AlgorithmEnum type,
-                                String inputFilePath, boolean isSeedsRandom, boolean isolatedVertices, String direction, int numSeeds, double threshold) throws MinHash.DirectionNotSetException, MinHash.SeedsException, IOException {
-        MinHash minHashAlgorithm = null;
-        boolean error = false;
+    public MinHash getAlgorithm(ImmutableGraph g,
+                                AlgorithmEnum type,
+                                boolean isSeedsRandom,
+                                int numSeeds,
+                                double threshold,
+                                int threads) throws IllegalArgumentException, MinHash.SeedsException {
 
-        switch (type){
+        MinHash minHashAlgorithm = null;
+
+        switch (type) {
             case MHSE:
-                minHashAlgorithm = new MHSE(inputFilePath, isSeedsRandom, isolatedVertices, direction, numSeeds, threshold);
+                minHashAlgorithm = new MHSE(g, isSeedsRandom, numSeeds, threshold);
                 break;
             case SEMHSE:
-                minHashAlgorithm = new SEMHSE(inputFilePath, isSeedsRandom, isolatedVertices, direction, numSeeds, threshold);
+                minHashAlgorithm = new SEMHSE(g, isSeedsRandom, numSeeds, threshold);
                 break;
             case StandaloneBMinHash:
-                minHashAlgorithm = new StandaloneBMinHash(inputFilePath, isSeedsRandom, isolatedVertices, direction, numSeeds, threshold);
+                minHashAlgorithm = new StandaloneBMinHash(g, isSeedsRandom, numSeeds, threshold);
                 break;
             case StandaloneBMinHashOptimized:
-                minHashAlgorithm = new StandaloneBMinHashOptimized(inputFilePath, isSeedsRandom, isolatedVertices, direction, numSeeds, threshold);
+                minHashAlgorithm = new StandaloneBMinHashOptimized(g, isSeedsRandom, numSeeds, threshold);
                 break;
             case MultithreadBMinHash:
-                minHashAlgorithm = new MultithreadBMinHash(inputFilePath, isSeedsRandom, isolatedVertices, direction, numSeeds, threshold);
+                minHashAlgorithm = new MultithreadBMinHash(g, isSeedsRandom, numSeeds, threshold, threads);
                 break;
             case MultithreadBMinHashOptimized:
-                minHashAlgorithm = new MultithreadBMinHashOptimized(inputFilePath, isSeedsRandom, isolatedVertices, direction, numSeeds, threshold);
+                minHashAlgorithm = new MultithreadBMinHashOptimized(g, isSeedsRandom, numSeeds, threshold, threads);
                 break;
             default:
-                error = true;
-                logger.error("Algorithm name not recognized");
-                break;
+                throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
         }
-        if(!error){
-            logger.info("Selected " + type + " algorithm");
-        }
+        logger.info("Selected " + type + " algorithm");
         return minHashAlgorithm;
     }
 }

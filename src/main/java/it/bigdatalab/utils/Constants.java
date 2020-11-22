@@ -2,6 +2,21 @@ package it.bigdatalab.utils;
 
 public class Constants {
 
+    /*******************************************************************************
+     *                                     GENERIC
+     * ****************************************************************************/
+
+    public static final String TRUE = "True";
+    public static final String FALSE = "False";
+    public static final String NUM_THREAD_DEFAULT = "1";
+
+
+    /*******************************************************************************
+     *                                     DIRECTION
+     * ****************************************************************************/
+
+    public static final String IN_DIRECTION = "in";
+    public static final String OUT_DIRECTION = "out";
 
     /*******************************************************************************
      *                        OPTIMIZED VERSIONS: ARRAY DIM
@@ -13,12 +28,16 @@ public class Constants {
      *                            BINARY OPERATIONS
      * ****************************************************************************/
 
-    public static final int MULTITHREAD_MASK = 5; // 2^6
-    public static final int MULTITHREAD_REMAINDER = 27;
+    public static final int MASK = 5; // 2^6
+    public static final int REMAINDER = 27;
 
-    public static final int MASK = 6; // 2^6
-    public static final int REMAINDER = 58;
-    public static final long BIT = 1;
+    // for 64 array lenght (long)
+/*
+    public static final int MASK64 = 6; // 2^6
+    public static final int REMAINDER64 = 58;
+    public static final int BIT64 = 1;
+*/
+    public static final int BIT = 1;
 
     /*******************************************************************************
      *                                  SEED

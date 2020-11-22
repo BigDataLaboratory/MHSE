@@ -14,7 +14,7 @@ import java.util.Properties;
 public class PropertiesManager {
 
     public static final Logger logger = LoggerFactory.getLogger("it.misebigdatalab.PropertiesManager");
-    private static Properties prop = new Properties();
+    private static final Properties prop = new Properties();
 
     static {
         try {

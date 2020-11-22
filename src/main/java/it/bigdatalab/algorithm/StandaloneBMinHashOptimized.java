@@ -3,32 +3,28 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
+import it.bigdatalab.utils.Stats;
+import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static it.bigdatalab.utils.Constants.MASK;
-import static it.bigdatalab.utils.Constants.REMAINDER;
-
-public class StandaloneBMinHashOptimized extends MinHash {
+public class StandaloneBMinHashOptimized extends BMinHashOpt {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHashOptimized");
 
     /**
      * Creates a new BooleanMinHasOptimized instance with default values
      */
-    public StandaloneBMinHashOptimized(String inputFilePath, boolean isSeedsRandom, boolean isolatedVertices, String direction, int numSeeds, double threshold) throws DirectionNotSetException, SeedsException, IOException {
-        super(inputFilePath, isolatedVertices, direction, numSeeds, threshold);
+    public StandaloneBMinHashOptimized(final ImmutableGraph g, boolean isSeedsRandom, int numSeeds, double threshold) {
+        super(g, numSeeds, threshold);
 
         if (isSeedsRandom) {
             for (int i = 0; i < mNumSeeds; i++) {
                 mMinHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
             }
         }
-
-        logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
     }
 
     /**
@@ -56,8 +52,8 @@ public class StandaloneBMinHashOptimized extends MinHash {
 
             // Set false as signature of all graph nodes
             // used to computing the algorithm
-            long[] mutable = new long[lengthBitsArray(mGraph.numNodes())];
-            long[] immutable = new long[lengthBitsArray(mGraph.numNodes())];
+            int[] mutable = new int[lengthBitsArray(mGraph.numNodes())];
+            int[] immutable = new int[lengthBitsArray(mGraph.numNodes())];
 
             // Choose a random node is equivalent to compute the minhash
             //It could be set in mhse.properties file with the "minhash.nodeIDs" property
@@ -73,9 +69,9 @@ public class StandaloneBMinHashOptimized extends MinHash {
             while (signatureIsChanged) {
                 logger.debug("(seed {}) Starting computation on hop {}", i, h);
 
-
                 if (collisionsMatrix[i] != null && collisionsMatrix[i].length - 1 > h) {
                 } else {
+                    assert collisionsMatrix[i] != null;
                     int[][] copy = new int[mNumSeeds][collisionsMatrix[i].length + Constants.N];
                     for (int height = 0; height < mNumSeeds; height++) {
                         copy[height] = new int[collisionsMatrix[height].length + Constants.N];
@@ -90,9 +86,9 @@ public class StandaloneBMinHashOptimized extends MinHash {
                     // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
                     // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
                     // This is equal to logical and operation.
-                    int remainderPositionRandomNode = (randomNode << REMAINDER) >>> REMAINDER;
+                    int remainderPositionRandomNode = (randomNode << Constants.REMAINDER) >>> Constants.REMAINDER;
                     // quotient is randomNode >>> MASK
-                    mutable[randomNode >>> MASK] |= (Constants.BIT) << remainderPositionRandomNode;
+                    mutable[randomNode >>> Constants.MASK] |= (Constants.BIT) << remainderPositionRandomNode;
                     signatureIsChanged = true;
                 } else {   //next hops
                     signatureIsChanged = false;
@@ -100,7 +96,7 @@ public class StandaloneBMinHashOptimized extends MinHash {
                     // copy all the actual nodes hash in a new structure
                     System.arraycopy(mutable, 0, immutable, 0, mutable.length);
 
-                    long remainderPositionNode;
+                    int remainderPositionNode;
                     int quotientNode;
                     for (int n = 0; n < mGraph.numNodes(); n++) {
 
@@ -113,20 +109,20 @@ public class StandaloneBMinHashOptimized extends MinHash {
                         // and computing the OR between the node signature and
                         // the neighbor signature.
                         // store the new signature as the current one
-                        remainderPositionNode = (node << REMAINDER) >>> REMAINDER;
-                        quotientNode = node >>> MASK;
+                        remainderPositionNode = (node << Constants.REMAINDER) >>> Constants.REMAINDER;
+                        quotientNode = node >>> Constants.MASK;
 
-                        long value = immutable[quotientNode];
-                        long bitNeigh;
-                        long nodeMask = (1L << remainderPositionNode);
+                        int value = immutable[quotientNode];
+                        int bitNeigh;
+                        int nodeMask = (1 << remainderPositionNode);
 
                         if (((nodeMask & value) >>> remainderPositionNode) == 0) { // check if node bit is 0
                             for (int l = 0; l < d; l++) {
                                 final int neighbour = successors[l];
-                                int quotientNeigh = neighbour >>> MASK;
-                                long remainderPositionNeigh = (neighbour << REMAINDER) >>> REMAINDER;
+                                int quotientNeigh = neighbour >>> Constants.MASK;
+                                int remainderPositionNeigh = (neighbour << Constants.REMAINDER) >>> Constants.REMAINDER;
 
-                                bitNeigh = (((1L << remainderPositionNeigh) & immutable[quotientNeigh]) >>> remainderPositionNeigh) << remainderPositionNode;
+                                bitNeigh = (((1 << remainderPositionNeigh) & immutable[quotientNeigh]) >>> remainderPositionNeigh) << remainderPositionNode;
                                 value = bitNeigh | nodeMask & immutable[quotientNode];
                                 if ((value >>> remainderPositionNode) == 1) {
                                     signatureIsChanged = true;
@@ -141,8 +137,8 @@ public class StandaloneBMinHashOptimized extends MinHash {
                 if (signatureIsChanged) {
                     // count the collision between the node signature and the graph signature
                     collisions = 0;
-                    for (long aMutable : mutable) {
-                        collisions += Long.bitCount(aMutable);
+                    for (int aMutable : mutable) {
+                        collisions += Integer.bitCount(aMutable);
                     }
 
                     collisionsMatrix[i][h] = collisions;
@@ -177,37 +173,13 @@ public class StandaloneBMinHashOptimized extends MinHash {
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
         graphMeasure.setTime(totalTime);
-        graphMeasure.setDirection(mDirection);
+        graphMeasure.setAvgDistance(Stats.averageDistance(hopTableArray));
+        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTableArray, mThreshold));
+        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));
+        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
 
         return graphMeasure;
     }
-
-    private int lengthBitsArray(int numberOfNodes) {
-        return (int) Math.ceil(numberOfNodes / (double) Long.SIZE);
-    }
-
-
-    /***
-     * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
-     * @return hop table
-     */
-    private double[] hopTable(int[][] collisionsMatrix, int lowerBound) {
-        long sumCollisions;
-        double couples;
-        double[] hoptable = new double[lowerBound + 1];
-        // lower bound is the max size of inner array
-        for (int hop = 0; hop < lowerBound + 1; hop++) {
-            sumCollisions = 0;
-            for (int seed = 0; seed < collisionsMatrix.length; seed++) {
-                sumCollisions += collisionsMatrix[seed][hop];
-            }
-            couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
-            hoptable[hop] = couples;
-            logger.info("hop " + hop + " total collisions " + sumCollisions + " couples: " + couples);
-        }
-        return hoptable;
-    }
-
 
     /***
      * Normalization of the collisionsTable.
@@ -215,7 +187,8 @@ public class StandaloneBMinHashOptimized extends MinHash {
      * If so, we have to substitute the 0 value in the table with
      * the maximum value of the other hash functions of the same hop
      */
-    private void normalizeCollisionsTable(int[][] collisionsMatrix, int lowerBound, int[] last) {
+    @Override
+    public void normalizeCollisionsTable(int[][] collisionsMatrix, int lowerBound, int[] last) {
 
         for (int i = 0; i < last.length; i++) { // check last hop of each seed
             // if last hop is not the lower bound

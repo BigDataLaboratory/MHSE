@@ -1,15 +1,17 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
+import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -19,22 +21,22 @@ public class MHSE extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSE");
 
-    private Int2ObjectOpenHashMap<long[]> signatures;
+    private final Int2ObjectOpenHashMap<long[]> signatures;
     private Int2ObjectOpenHashMap<long[]> oldSignatures;
-    private long[] graphSignature;
+    private final long[] graphSignature;
 
     /**
      * Creates a new MHSE instance with default values
      */
-    public MHSE(String inputFilePath, boolean isSeedsRandom, boolean isolatedVertices, String direction, int numSeeds, double threshold) throws IOException, DirectionNotSetException, SeedsException {
-        super(inputFilePath, isolatedVertices, direction, numSeeds, threshold);
+    public MHSE(final ImmutableGraph g, boolean isSeedsRandom, int numSeeds, double threshold) throws SeedsException {
+        super(g, numSeeds, threshold);
 
         if (isSeedsRandom) {
-            setSeeds(createSeeds());
+            setSeeds(CreateSeeds.genSeeds(mNumSeeds));
         }
 
-        signatures = new Int2ObjectOpenHashMap<long[]>(mGraph.numNodes());       //initialize signatures map with the expected number of elements(nodes) in the map
-        oldSignatures = new Int2ObjectOpenHashMap<long[]>(mGraph.numNodes());
+        signatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());       //initialize signatures map with the expected number of elements(nodes) in the map
+        oldSignatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());
         graphSignature = new long[mNumSeeds];
         Arrays.fill(graphSignature, Long.MAX_VALUE);                            //initialize graph signature with Long.MAX_VALUE
         logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
@@ -69,14 +71,14 @@ public class MHSE extends MinHash {
                 signatureIsChanged = true;
             } else {
                 // copy all the actual signatures in a new structure
-                oldSignatures = new Int2ObjectOpenHashMap<long[]>(mGraph.numNodes());
+                oldSignatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());
                 nodeIter = mGraph.nodeIterator();
                 while(nodeIter.hasNext()) {
                     int node = nodeIter.nextInt();
                     long[] signature = signatures.get(node);
                     long[] oldSignature = new long[signature.length];
-                    //TODO Most efficient way to deep copy?
-                    System.arraycopy( signature, 0, oldSignature, 0, signature.length );
+
+                    System.arraycopy(signature, 0, oldSignature, 0, signature.length);
                     oldSignatures.put(node, oldSignature);
                 }
                 // updating the signatures
@@ -110,14 +112,14 @@ public class MHSE extends MinHash {
         GraphMeasure graphMeasure = new GraphMeasure(hopTable, mThreshold);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
-        graphMeasure.setMaxMemoryUsed(getMaxUsedMemory());
         graphMeasure.setSeedsList(getSeeds());
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(getNodes());
-        graphMeasure.setDirection(mDirection);
-
-        logger.info("effective {}", graphMeasure.getEffectiveDiameter());
+        graphMeasure.setAvgDistance(Stats.averageDistance(hopTable));
+        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTable, mThreshold));
+        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTable));
+        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTable, mThreshold));
 
         return graphMeasure;
     }
@@ -131,7 +133,7 @@ public class MHSE extends MinHash {
             long[] signature = new long[mNumSeeds];
             // create a new signature for each node and compute signature for the graph
             for (int i = 0; i < mNumSeeds; i++) {
-                signature[i] = hashFunction(node, mSeeds.getInt(i));
+                signature[i] = CreateSeeds.hashFunction(node, mSeeds.getInt(i));
                 // check if this part of the signature is the minimum for the graph
                 if(signature[i] < graphSignature[i]){
                     graphSignature[i] = signature[i];
@@ -150,7 +152,6 @@ public class MHSE extends MinHash {
     public boolean updateNodeSignature(int node) {
         boolean signatureIsChanged = false;
         long[] newSignature = signatures.get(node);         //new signature to be updated
-        long[] nodeSignature = oldSignatures.get(node);     //old signature to NOT be modified
 
         LazyIntIterator neighIter = mGraph.successors(node);
         int d = mGraph.outdegree(node);
@@ -173,19 +174,20 @@ public class MHSE extends MinHash {
 
     /**
      * Compute jaccard measure between two signatures
+     *
      * @param sig1 signature
      * @param sig2 signature
-     * @return
+     * @return jaccard value
      */
-    private double jaccard(long[] sig1, long[] sig2){
+    private double jaccard(long[] sig1, long[] sig2) {
         double intersection = 0d;
-        double union = (double)sig1.length;
-        for(int i=0; i<sig1.length; i++){
-            if(sig1[i] == sig2[i]){
+        double union = sig1.length;
+        for (int i = 0; i < sig1.length; i++) {
+            if (sig1[i] == sig2[i]) {
                 intersection = intersection + 1;
             }
         }
-        return intersection/union;
+        return intersection / union;
     }
 
 }

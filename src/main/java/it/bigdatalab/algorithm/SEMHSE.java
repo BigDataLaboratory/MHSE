@@ -1,16 +1,18 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
+import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -22,21 +24,20 @@ public class SEMHSE extends MinHash {
 
     private Int2LongOpenHashMap hashes;
     private Int2LongOpenHashMap oldHashes;
-    private long[] graphSignature;
+    private final long[] graphSignature;
 
     /**
      * Creates a SE-MHSE instance with default values
      */
-    public SEMHSE(String inputFilePath, boolean isSeedsRandom, boolean isolatedVertices, String direction, int numSeeds, double threshold) throws DirectionNotSetException, IOException, SeedsException {
-        super(inputFilePath, isolatedVertices, direction, numSeeds, threshold);
+    public SEMHSE(ImmutableGraph g, boolean isSeedsRandom, int numSeeds, double threshold) throws SeedsException {
+        super(g, numSeeds, threshold);
+        graphSignature = new long[mNumSeeds];
+        //initialize graph signature with Long.MAX_VALUE
+        Arrays.fill(graphSignature, Long.MAX_VALUE);
 
         if (isSeedsRandom) {
-            setSeeds(createSeeds());
+            setSeeds(CreateSeeds.genSeeds(mNumSeeds));
         }
-
-        graphSignature = new long[mNumSeeds];
-        Arrays.fill(graphSignature, Long.MAX_VALUE);                            //initialize graph signature with Long.MAX_VALUE
-        logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
     }
 
     /**
@@ -90,9 +91,8 @@ public class SEMHSE extends MinHash {
                     }
 
                     //collisions for this hash function, until this hop
+                    //i.e. number of nodes updated
                     collisions = 0;
-                    //number of nodes updated
-                    int count = 0;
 
                     //update of the hash values
                     nodeIter = mGraph.nodeIterator();
@@ -116,7 +116,6 @@ public class SEMHSE extends MinHash {
                     logger.debug("Hop {} for seed n.{} completed", hop, i);
                     hop++;
                 }
-                //memoryUsed();
             }
             logger.info("Total number of collisions for seed n.{} : {}", i, collisions);
             logger.info("Computation for hash function n.{} completed", i);
@@ -127,7 +126,7 @@ public class SEMHSE extends MinHash {
 
         //normalize collisionsTable
         logger.info("Normalizing Collisions table...");
-        collisionsTable = normalizeCollisionsTable(collisionsTable);
+        normalizeCollisionsTable(collisionsTable);
         logger.info("Collisions table normalized!");
 
         logger.info("Starting computation of the hop table from collision table");
@@ -143,7 +142,10 @@ public class SEMHSE extends MinHash {
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(getNodes());
-        graphMeasure.setDirection(mDirection);
+        graphMeasure.setAvgDistance(Stats.averageDistance(hopTable));
+        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTable, mThreshold));
+        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTable));
+        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTable, mThreshold));
 
         return graphMeasure;
     }
@@ -161,7 +163,7 @@ public class SEMHSE extends MinHash {
         NodeIterator nodeIter = mGraph.nodeIterator();
         while(nodeIter.hasNext()) {
             int node = nodeIter.nextInt();
-            long hashValue = hashFunction(node, seed);
+            long hashValue = CreateSeeds.hashFunction(node, seed);
             hashes.put(node,hashValue);
             if(hashValue < graphSignature[seedIndex]){
                 graphSignature[seedIndex] = hashValue;
@@ -225,18 +227,17 @@ public class SEMHSE extends MinHash {
      * If so, we have to substitute the 0 value in the table with
      * the maximum value of the other hash functions of the same hop
      */
-    private Int2ObjectOpenHashMap<int[]> normalizeCollisionsTable(Int2ObjectOpenHashMap<int[]> collisionsTable) {
+    private void normalizeCollisionsTable(Int2ObjectOpenHashMap<int[]> collisionsTable) {
         int lowerBoundDiameter = collisionsTable.size() - 1;
-        logger.debug("Diameter: " + lowerBoundDiameter);
 
         //Start with hop 1
         //There is no check for hop 0 because at hop 0 there is always (at least) 1 collision, never 0.
-        for(int i=1; i<=lowerBoundDiameter; i++){
-            int[] previousHopCollisions = collisionsTable.get(i-1);
+        for (int i = 1; i <= lowerBoundDiameter; i++) {
+            int[] previousHopCollisions = collisionsTable.get(i - 1);
             int[] hopCollisions = collisionsTable.get(i);
             //TODO first if is better for performance?
-            if(Arrays.stream(hopCollisions).anyMatch(coll -> coll == 0)){
-                for(int j=0;j<hopCollisions.length;j++){
+            if (Arrays.stream(hopCollisions).anyMatch(coll -> coll == 0)) {
+                for (int j = 0; j < hopCollisions.length; j++) {
                     if(hopCollisions[j] == 0){
                         hopCollisions[j] = previousHopCollisions[j];
                     }
@@ -244,7 +245,6 @@ public class SEMHSE extends MinHash {
             }
             collisionsTable.put(i, hopCollisions);
         }
-        return collisionsTable;
     }
 
 }

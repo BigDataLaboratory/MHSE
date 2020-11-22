@@ -3,42 +3,35 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
-import it.bigdatalab.utils.PropertiesManager;
+import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class MultithreadBMinHashOptimized extends MinHash {
+public class MultithreadBMinHashOptimized extends BMinHashOpt {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadBMinHashOptimized");
 
-    private int mNumberOfThreads;
-    private double[] mSeedTime;
+    private final int mNumberOfThreads;
+    private final double[] mSeedTime;
 
     /**
      * Creates a new MultithreadBMinHashOptimized instance with default values
      */
-    public MultithreadBMinHashOptimized(String inputFilePath, boolean isSeedsRandom, boolean isolatedVertices, String direction, int numSeeds, double threshold) throws DirectionNotSetException, SeedsException, IOException {
-        super(inputFilePath, isolatedVertices, direction, numSeeds, threshold);
-
+    public MultithreadBMinHashOptimized(final ImmutableGraph g, boolean isSeedsRandom, int numSeeds, double threshold, int threads) {
+        super(g, numSeeds, threshold);
+        this.mNumberOfThreads = threads;
         mSeedTime = new double[mNumSeeds];
-
-        int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads"));
-        logger.info("Number of threads selected {}", suggestedNumberOfThreads);
 
         if (isSeedsRandom) {
             for (int i = 0; i < mNumSeeds; i++) {
                 mMinHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
             }
         }
-
-        logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
-        this.mNumberOfThreads = getNumberOfMaxThreads(suggestedNumberOfThreads);
     }
 
 
@@ -121,22 +114,12 @@ public class MultithreadBMinHashOptimized extends MinHash {
         graphMeasure.setSeedsTime(mSeedTime);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
-        graphMeasure.setDirection(mDirection);
+        graphMeasure.setAvgDistance(Stats.averageDistance(hopTableArray));
+        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTableArray, mThreshold));
+        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));
+        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
 
         return graphMeasure;
-    }
-
-
-    /**
-     * Number of max threads to use for the computation
-     *
-     * @param suggestedNumberOfThreads if not equal to zero return the number of threads
-     *                                 passed as parameter, else the number of max threads available
-     * @return number of threads to use for the computation
-     */
-    private int getNumberOfMaxThreads(int suggestedNumberOfThreads) {
-        if (suggestedNumberOfThreads != 0) return suggestedNumberOfThreads;
-        return Runtime.getRuntime().availableProcessors();
     }
 
 
@@ -146,7 +129,8 @@ public class MultithreadBMinHashOptimized extends MinHash {
      * If so, we have to substitute the 0 value in the table with
      * the maximum value of the other hash functions of the same hop
      */
-    private void normalizeCollisionsTable(int[][] collisionsMatrix, int lowerBound, int[] last) {
+    @Override
+    public void normalizeCollisionsTable(int[][] collisionsMatrix, int lowerBound, int[] last) {
         for (int i = 0; i < last.length; i++) { // check last hop of each seed
             // if last hop is not the lower bound
             // replace the 0 values from last hop + 1 until lower bound
@@ -163,31 +147,10 @@ public class MultithreadBMinHashOptimized extends MinHash {
         }
     }
 
-    /***
-     * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
-     * @return hop table
-     */
-    private double[] hopTable(int[][] collisionsMatrix, int lowerBound) {
-        long sumCollisions;
-        double couples;
-        double[] hoptable = new double[lowerBound + 1];
-        // lower bound is the max size of inner array
-        for (int hop = 0; hop < lowerBound + 1; hop++) {
-            sumCollisions = 0;
-            for (int seed = 0; seed < collisionsMatrix.length; seed++) {
-                sumCollisions += collisionsMatrix[seed][hop];
-            }
-            couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
-            hoptable[hop] = couples;
-            logger.info("hop " + hop + " total collisions " + sumCollisions + " couples: " + couples);
-        }
-        return hoptable;
-    }
-
     class IterationThread implements Callable<int[]> {
 
-        private ImmutableGraph g;
-        private int index;
+        private final ImmutableGraph g;
+        private final int index;
 
         public IterationThread(ImmutableGraph g, int index) {
             this.g = g;
@@ -219,7 +182,6 @@ public class MultithreadBMinHashOptimized extends MinHash {
             // is different than the previous hop
             int[] hopTable = new int[h];
 
-
             while (signatureIsChanged) {
                 logger.debug("(seed {}) Starting computation on hop {}", index, h);
 
@@ -230,9 +192,9 @@ public class MultithreadBMinHashOptimized extends MinHash {
                     // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
                     // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
                     // This is equal to logical and operation.
-                    int remainderPositionRandomNode = (randomNode << Constants.MULTITHREAD_REMAINDER) >>> Constants.MULTITHREAD_REMAINDER;
+                    int remainderPositionRandomNode = (randomNode << Constants.REMAINDER) >>> Constants.REMAINDER;
                     // quotient is randomNode >>> MASK
-                    mutable[randomNode >>> Constants.MULTITHREAD_MASK] |= (Constants.BIT) << remainderPositionRandomNode;
+                    mutable[randomNode >>> Constants.MASK] |= (Constants.BIT) << remainderPositionRandomNode;
                     signatureIsChanged = true;
 
                 } else { // next hops
@@ -252,8 +214,8 @@ public class MultithreadBMinHashOptimized extends MinHash {
                         // and computing the OR between the node signature and
                         // the neighbor signature.
                         // store the new signature as the current one
-                        remainderPositionNode = (node << Constants.MULTITHREAD_REMAINDER) >>> Constants.MULTITHREAD_REMAINDER;
-                        quotientNode = node >>> Constants.MULTITHREAD_MASK;
+                        remainderPositionNode = (node << Constants.REMAINDER) >>> Constants.REMAINDER;
+                        quotientNode = node >>> Constants.MASK;
                         int value = immutable[quotientNode];
                         int bitNeigh;
                         int nodeMask = (1 << remainderPositionNode);
@@ -261,8 +223,9 @@ public class MultithreadBMinHashOptimized extends MinHash {
                         if (((nodeMask & value) >>> remainderPositionNode) == 0) { // check if node bit is 0
                             for (int l = 0; l < d; l++) {
                                 final int neighbour = successors[l];
-                                int quotientNeigh = neighbour >>> Constants.MULTITHREAD_MASK;
-                                long remainderPositionNeigh = (neighbour << Constants.MULTITHREAD_REMAINDER) >>> Constants.MULTITHREAD_REMAINDER;
+                                int quotientNeigh = neighbour >>> Constants.MASK;
+                                int remainderPositionNeigh = (neighbour << Constants.REMAINDER) >>> Constants.REMAINDER;
+
                                 bitNeigh = (((1 << remainderPositionNeigh) & immutable[quotientNeigh]) >>> remainderPositionNeigh) << remainderPositionNode;
                                 value = bitNeigh | nodeMask & immutable[quotientNode];
                                 if ((value >>> remainderPositionNode) == 1) {
@@ -284,7 +247,6 @@ public class MultithreadBMinHashOptimized extends MinHash {
                         collisions += Integer.bitCount(aMutable);
                     }
 
-                    // todo evaluate array dimensions
                     int[] copy = new int[h + 1];
                     System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
                     hopTable = copy;

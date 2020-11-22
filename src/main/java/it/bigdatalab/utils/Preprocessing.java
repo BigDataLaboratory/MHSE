@@ -1,4 +1,4 @@
-package it.bigdatalab.algorithm;
+package it.bigdatalab.utils;
 
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.NodeIterator;
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Preprocessing {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.Preprocessing");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.utils.Preprocessing");
 
 
     /**
@@ -21,9 +21,9 @@ public class Preprocessing {
      *
      * @return a new instance of ImmutableGraph without isolated nodes, if any
      */
-    public ImmutableGraph removeIsolatedNodes(ImmutableGraph graph) {
-        ImmutableGraph g = graph;
-        logger.info("Deleting isolated nodes...");
+    public static ImmutableGraph removeIsolatedNodes(ImmutableGraph graph) {
+        logger.info("Start removing isolated nodes from graph {}", graph.basename());
+        ImmutableGraph g = graph.copy();
 
         int numNodes = g.numNodes();
         int d; // counter for outdegree iterator
@@ -66,9 +66,9 @@ public class Preprocessing {
         if (!isBijective) {
             g = Transform.map(g, mappedGraph);
             // new # number of nodes of the input graph without isolated nodes
-            logger.info("Removed {} nodes ", numNodes - g.numNodes());
+            logger.info("Removed {} nodes from {}", g.numNodes() - numNodes, graph.basename());
         } else {
-            logger.info("The graph does not contain isolated vertices");
+            logger.info("The graph {} does not contain isolated vertices", graph.basename());
         }
 
         return g;

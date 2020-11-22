@@ -277,5 +277,31 @@ public class Measure {
         this.mDirection = direction;
     }
 
+    /**
+     * @param avgDistance of the graph
+     */
+    public void setAvgDistance(double avgDistance) {
+        this.mAvgDistance = avgDistance;
+    }
 
+    /**
+     * @param effectiveDiameter computed as threshold % of the real diameter
+     */
+    public void setEffectiveDiameter(double effectiveDiameter) {
+        this.mEffectiveDiameter = effectiveDiameter;
+    }
+
+    /**
+     * @param totalCouples of reachable nodes
+     */
+    public void setTotalCouples(double totalCouples) {
+        this.mTotalCouples = totalCouples;
+    }
+
+    /**
+     * @param totalCouplesPerc percentage of reachable nodes
+     */
+    public void setTotalCouplesPercentage(double totalCouplesPerc) {
+        this.mTotalCouplePercentage = totalCouplesPerc;
+    }
 }

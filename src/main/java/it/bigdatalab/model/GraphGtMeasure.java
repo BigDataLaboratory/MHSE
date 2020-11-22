@@ -10,7 +10,7 @@ public class GraphGtMeasure {
     private double mDiameter;
     @SerializedName("effective_diameter")
     private double mEffectiveDiameter;
-    @SerializedName("totale_couples")
+    @SerializedName("total_couples")
     private double mTotalCouples;
     @SerializedName("nodes")
     private int mNodes;

@@ -4,8 +4,8 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import it.bigdatalab.algorithm.Preprocessing;
 import it.bigdatalab.utils.Constants;
+import it.bigdatalab.utils.Preprocessing;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -49,7 +49,7 @@ public class CreateSeeds {
         if (exist) {
             g = createSeeds.loadGraph();
             if (!createSeeds.getIsolatedVertices())
-                g = new Preprocessing().removeIsolatedNodes(g);
+                g = Preprocessing.removeIsolatedNodes(g);
         }
 
         // list of seeds lists
@@ -58,7 +58,7 @@ public class CreateSeeds {
         ArrayList<int[]> nodesList = new ArrayList<>();
 
         for (int i = 0; i < createSeeds.getNumTest(); i++) {
-            IntArrayList seeds = createSeeds.genSeeds();
+            IntArrayList seeds = CreateSeeds.genSeeds(createSeeds.getNumSeeds());
             if (exist) {
                 int[] nodes = createSeeds.seedToNode(g.copy(), seeds);
                 nodesList.add(nodes);
@@ -86,11 +86,11 @@ public class CreateSeeds {
      *  Generate a random integer and append it
      *  to the seeds list
      */
-    private IntArrayList genSeeds() {
+    public static IntArrayList genSeeds(int numSeeds) {
         IntArrayList seeds = new IntArrayList();
         Random random = new Random();
 
-        for (int i = 0; i < mNumSeeds; i++) {
+        for (int i = 0; i < numSeeds; i++) {
             int randomNum = random.nextInt();
             while (seeds.contains(randomNum)) {
                 randomNum = random.nextInt();
@@ -106,7 +106,7 @@ public class CreateSeeds {
      * @param seed integer to be used as seed for the hash function
      * @return a long that is the hash for the node
      */
-    public long hashFunction(int node, int seed) {
+    public static long hashFunction(int node, int seed) {
         HashFunction hf = Hashing.murmur3_128(seed);
         return hf.hashLong((long) node).asLong();
     }
