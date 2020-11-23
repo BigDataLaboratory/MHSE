@@ -55,7 +55,7 @@ public class MultithreadBMinHash extends BMinHash {
         List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
-            todo.add(new IterationThread(mGraph, i));
+            todo.add(new IterationThread(mGraph.copy(), i));
         }
 
         try {
@@ -110,7 +110,6 @@ public class MultithreadBMinHash extends BMinHash {
 
         GraphMeasure graphMeasure = new GraphMeasure(hopTable, mThreshold);
         graphMeasure.setNumNodes(mGraph.numNodes());
-        graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setCollisionsTable(collisionsTable);
         graphMeasure.setLastHops(lastHops);

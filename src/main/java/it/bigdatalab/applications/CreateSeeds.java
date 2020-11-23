@@ -4,6 +4,7 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.bigdatalab.model.Parameter;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Preprocessing;
 import it.bigdatalab.utils.PropertiesManager;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -31,56 +33,45 @@ public class CreateSeeds {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.application.CreateSeeds");
 
-    private int mNumSeeds;
-    private int mNumTest;
-    private String mInputFilePath;
-    private String mOutFolderPath;
-    private boolean mIsolatedVertices;
+    private final Parameter mParam;
 
     public CreateSeeds() {
-        getProperties();
+        int numSeeds = Integer.parseInt(PropertiesManager.getProperty("seed.numSeeds", Constants.NUM_SEEDS_DEFAULT));
+        String inputFilePath = PropertiesManager.getProperty("seed.inputFilePath");
+        String outputFolderPath = PropertiesManager.getPropertyIfNotEmpty("seed.outFolderPath");
+        boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("seed.isolatedVertices"));
+        int numTest = Integer.parseInt(PropertiesManager.getProperty("seed.numTest", Constants.NUM_TEST_DEFAULT));
+        boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("seed.inMemory", Constants.FALSE));
+
+        mParam = new Parameter.Builder()
+                .setInputFilePathGraph(inputFilePath)
+                .setOutputFolderPath(outputFolderPath)
+                .setNumTests(numTest)
+                .setNumSeeds(numSeeds)
+                .setInMemory(inMemory)
+                .setIsolatedVertices(isolatedVertices).build();
+
+        logger.info("\n\n********************** Parameters **********************\n\n" +
+                        "# list of seeds/nodes to generate: {}\n" +
+                        "on graph read from: {}\n" +
+                        "loading graph in memory? {}\n" +
+                        "keep isolated nodes? {}\n" +
+                        "results will written in: {}\n" +
+                        "number of seeds to generate {}\n" +
+                        "\n********************************************************\n\n",
+                mParam.getNumTests(),
+                mParam.getInputFilePathGraph(),
+                mParam.isInMemory(),
+                mParam.keepIsolatedVertices(),
+                mParam.getOutputFolderPath(),
+                mParam.getNumSeeds());
     }
 
-    public static void main(String args[]) throws IOException {
+    public static void main(String[] args) throws IOException {
         CreateSeeds createSeeds = new CreateSeeds();
-        ImmutableGraph g = null;
-
-        boolean exist = new File(createSeeds.getInputFile() + Constants.GRAPH_EXTENSION).isFile() && !createSeeds.getInputFile().isEmpty();
-        if (exist) {
-            g = createSeeds.loadGraph();
-            if (!createSeeds.getIsolatedVertices())
-                g = Preprocessing.removeIsolatedNodes(g);
-        }
-
-        // list of seeds lists
-        ArrayList<IntArrayList> seedsList = new ArrayList<>();
-        // list of nodes arrays
-        ArrayList<int[]> nodesList = new ArrayList<>();
-
-        for (int i = 0; i < createSeeds.getNumTest(); i++) {
-            IntArrayList seeds = CreateSeeds.genSeeds(createSeeds.getNumSeeds());
-            if (exist) {
-                int[] nodes = createSeeds.seedToNode(g.copy(), seeds);
-                nodesList.add(nodes);
-            }
-            seedsList.add(seeds);
-            logger.info("Created list #{}/{}", i + 1, createSeeds.getNumTest());
-        }
-
-        createSeeds.seedsToJson(seedsList);
-        if (exist) createSeeds.nodesToJson(nodesList);
+        createSeeds.generate();
     }
 
-    /**
-     * Read properties for CreateSeeds application from property file
-     */
-    private void getProperties() {
-        mNumSeeds = Integer.parseInt(PropertiesManager.getProperty("seed.numSeeds", Constants.NUM_SEEDS_DEFAULT));
-        mInputFilePath = PropertiesManager.getProperty("seed.inputFilePath");
-        mOutFolderPath = PropertiesManager.getPropertyIfNotEmpty("seed.outFolderPath");
-        mIsolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("seed.isolatedVertices"));
-        mNumTest = Integer.parseInt(PropertiesManager.getProperty("seed.numTest", Constants.NUM_TEST_DEFAULT));
-    }
 
     /***
      *  Generate a random integer and append it
@@ -111,21 +102,45 @@ public class CreateSeeds {
         return hf.hashLong((long) node).asLong();
     }
 
+    private void generate() throws IOException {
+        boolean exist = new File(mParam.getInputFilePathGraph() + Constants.GRAPH_EXTENSION).isFile() && !mParam.getInputFilePathGraph().isEmpty();
+        if (exist) {
+            ImmutableGraph g = loadGraph(mParam.getInputFilePathGraph(), mParam.isInMemory(), mParam.keepIsolatedVertices());
+            // list of seeds lists
+            ArrayList<IntArrayList> seedsList = new ArrayList<>();
+            // list of nodes arrays
+            ArrayList<int[]> nodesList = new ArrayList<>();
+
+            for (int i = 0; i < mParam.getNumTests(); i++) {
+                IntArrayList seeds = CreateSeeds.genSeeds(mParam.getNumSeeds());
+                int[] nodes = seedToNode(g.copy(), seeds, mParam.getNumSeeds());
+                nodesList.add(nodes);
+                seedsList.add(seeds);
+                logger.info("Created list #{}/{}", i + 1, mParam.getNumTests());
+            }
+
+            seedsToJson(seedsList, mParam.getInputFilePathGraph(), mParam.getOutputFolderPath(), mParam.keepIsolatedVertices());
+            nodesToJson(nodesList, mParam.getInputFilePathGraph(), mParam.getOutputFolderPath(), mParam.keepIsolatedVertices());
+        } else
+            throw new FileNotFoundException("Graph file doesn't exist, please review your data in properties file");
+
+    }
+
     /**
      * Load an input graph in WebGraph format
      *
      * @return an ImmutableGraph instance
      */
-    private ImmutableGraph loadGraph() {
-        logger.info("Loading graph at filepath {}", mInputFilePath);
-        ImmutableGraph graph = null;
-        try {
-            graph = ImmutableGraph.load(mInputFilePath);
-            graph = Transform.transpose(Transform.transpose(graph));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        logger.info("Loading graph completed");
+    private ImmutableGraph loadGraph(String inputFilePath, boolean inMemory, boolean isolatedVertices) throws IOException {
+        logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
+        ImmutableGraph graph = inMemory ?
+                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
+                ImmutableGraph.load(inputFilePath);
+        logger.info("Loading graph completed successfully");
+
+        // check if it must remove isolated nodes
+        if (!isolatedVertices) graph = Preprocessing.removeIsolatedNodes(graph);
+
         return graph;
     }
 
@@ -136,8 +151,8 @@ public class CreateSeeds {
      * @param seeds seeds' list
      * @return associated nodes for a list of seeds
      */
-    private int[] seedToNode(ImmutableGraph g, IntArrayList seeds) {
-        return minHashNodes(g, seeds);
+    private int[] seedToNode(ImmutableGraph g, IntArrayList seeds, int numSeeds) {
+        return minHashNodes(g, seeds, numSeeds);
     }
 
     /**
@@ -146,8 +161,8 @@ public class CreateSeeds {
      *
      * @param g an input graph
      */
-    private int[] minHashNodes(ImmutableGraph g, IntArrayList seeds) {
-        int[] minHashNodeIDs = new int[mNumSeeds];
+    private int[] minHashNodes(ImmutableGraph g, IntArrayList seeds, int numSeeds) {
+        int[] minHashNodeIDs = new int[numSeeds];
 
         for (int s = 0; s < seeds.size(); s++) {
             NodeIterator nodeIter = g.nodeIterator();
@@ -169,16 +184,16 @@ public class CreateSeeds {
      *
      * @param seeds seeds list
      */
-    private void seedsToJson(List<IntArrayList> seeds) throws IOException {
+    private void seedsToJson(List<IntArrayList> seeds, String inputFilePath, String outputFolderPath, boolean isolatedVertices) {
         Gson gson = new GsonBuilder().create();
-        String graphFileName = Paths.get(mInputFilePath).getFileName().toString();
+        String graphFileName = Paths.get(inputFilePath).getFileName().toString();
 
-        String path = mOutFolderPath +
+        String path = outputFolderPath +
                 File.separator +
                 "seeds_" +
                 graphFileName +
                 "_" +
-                (mIsolatedVertices ? "with_iso" : "without_iso") +
+                (isolatedVertices ? "with_iso" : "without_iso") +
                 ".json";
 
         try (FileWriter writer = new FileWriter(path)) {
@@ -186,7 +201,7 @@ public class CreateSeeds {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        logger.info("Seeds list wrote in {}", mOutFolderPath);
+        logger.info("Seeds list wrote in {}", outputFolderPath);
     }
 
     /**
@@ -194,15 +209,15 @@ public class CreateSeeds {
      *
      * @param nodes nodes' list
      */
-    private void nodesToJson(List<int[]> nodes) throws IOException {
+    private void nodesToJson(List<int[]> nodes, String inputFilePath, String outputFolderPath, boolean isolatedVertices) {
         Gson gson = new GsonBuilder().create();
-        String graphFileName = Paths.get(mInputFilePath).getFileName().toString();
-        String path = mOutFolderPath +
+        String graphFileName = Paths.get(inputFilePath).getFileName().toString();
+        String path = outputFolderPath +
                 File.separator +
                 "nodes_" +
                 graphFileName +
                 "_" +
-                (mIsolatedVertices ? "with_iso" : "without_iso") +
+                (isolatedVertices ? "with_iso" : "without_iso") +
                 ".json";
 
         try (FileWriter writer = new FileWriter(path)) {
@@ -210,67 +225,6 @@ public class CreateSeeds {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        logger.info("Nodes list wrote in {}", mOutFolderPath);
+        logger.info("Nodes list wrote in {}", outputFolderPath);
     }
-
-
-    /*******************************************************************************
-     *                                  GETTER METHODS
-     * ****************************************************************************/
-
-    /**
-     * @return number of list of seeds to generate
-     */
-    public int getNumTest() {
-        return mNumTest;
-    }
-
-    /**
-     * @param numTest number of test
-     */
-    public void setNumTest(int numTest) {
-        this.mNumTest = numTest;
-    }
-
-    /**
-     * @return input file path of a graph
-     */
-    public String getInputFile() {
-        return mInputFilePath;
-    }
-
-    /**
-     * @return true if you keep the isolated vertices
-     */
-    public boolean getIsolatedVertices() {
-        return mIsolatedVertices;
-    }
-
-
-    /*******************************************************************************
-     *                                  SETTER METHODS
-     * ****************************************************************************/
-
-    /**
-     * @return max number of seeds
-     */
-    public int getNumSeeds() {
-        return mNumSeeds;
-    }
-
-    /**
-     * @param numSeeds max number of seeds
-     */
-    public void setNumSeeds(int numSeeds) {
-        this.mNumSeeds = numSeeds;
-    }
-
-    /**
-     * @param isolatedVertices true if you keep the isolated vertices
-     */
-    public void setIsolatedVertices(boolean isolatedVertices) {
-        this.mIsolatedVertices = isolatedVertices;
-    }
-
-
 }

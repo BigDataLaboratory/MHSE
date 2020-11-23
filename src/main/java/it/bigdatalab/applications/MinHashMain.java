@@ -203,8 +203,9 @@ public class MinHashMain {
         logger.info("Loading graph completed successfully");
 
         // check if it must remove isolated nodes
-        if (!isolatedVertices)
+        if (!isolatedVertices) {
             graph = Preprocessing.removeIsolatedNodes(graph);
+        }
 
         // transpose graph based on direction selected
         // and graph type loaded (original or transposed)

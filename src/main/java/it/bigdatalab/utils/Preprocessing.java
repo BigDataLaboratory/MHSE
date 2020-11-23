@@ -23,7 +23,7 @@ public class Preprocessing {
      */
     public static ImmutableGraph removeIsolatedNodes(final ImmutableGraph graph) {
         logger.info("Start removing isolated nodes from graph");
-        ImmutableGraph g = graph.copy();
+        ImmutableGraph g = graph;
 
         int numNodes = g.numNodes();
         int d; // counter for outdegree iterator

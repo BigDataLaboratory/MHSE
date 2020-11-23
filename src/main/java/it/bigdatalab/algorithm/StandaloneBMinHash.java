@@ -163,7 +163,6 @@ public class StandaloneBMinHash extends BMinHash {
 
         GraphMeasure graphMeasure = new GraphMeasure(hopTable, mThreshold);
         graphMeasure.setNumNodes(mGraph.numNodes());
-        graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setCollisionsTable(collisionsTable);
         graphMeasure.setLastHops(lastHops);

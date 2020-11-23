@@ -57,7 +57,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
         List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
-            todo.add(new IterationThread(mGraph, i));
+            todo.add(new IterationThread(mGraph.copy(), i));
         }
 
         try {
@@ -106,7 +106,6 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt(hopTableArray, lowerboundDiameter, mThreshold);
         graphMeasure.setNumNodes(mGraph.numNodes());
-        graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setCollisionsTable(collisionsMatrix);
         graphMeasure.setLastHops(lastHops);
@@ -179,11 +178,10 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
             // we use a dict because we want to iterate over the nodes until
             // the number of collisions in the actual hop
             // is different than the previous hop
-            int[] hopTable = null;
+            int[] hopTable = new int[1];
 
             while (signatureIsChanged) {
                 logger.debug("(seed {}) Starting computation on hop {}", index, h);
-
 
                 //first hop - initialization
                 if (h == 0) {
@@ -218,7 +216,6 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
                         int value = immutable[quotientNode];
                         int bitNeigh;
                         int nodeMask = (1 << remainderPositionNode);
-
                         if (((nodeMask & value) >>> remainderPositionNode) == 0) { // check if node bit is 0
                             for (int l = 0; l < d; l++) {
                                 final int neighbour = successors[l];

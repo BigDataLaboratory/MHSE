@@ -47,7 +47,7 @@ public class Stats {
         for (int i = 1; i < distance.length; i++) {
             m += (distance[i] * (double) i);
         }
-        return m / distance[lowerBoundDiameter];
+        return m / h[lowerBoundDiameter];
     }
 
     /**
@@ -127,6 +127,7 @@ public class Stats {
         double[] hopTable = h.clone();
         for (int i = hopTable.length; i-- != 1; hopTable[i] -= hopTable[i - 1]) {
         }
+
         return hopTable;
     }
 
