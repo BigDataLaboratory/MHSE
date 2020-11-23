@@ -72,7 +72,6 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
                         int lastHop = hopCollisions.length - 1;
                         lastHops[i] = lastHop;
                         logger.debug("lastHop {} lastHops[{}] {} lowerbound {}", lastHop, i, lastHops[i], lowerboundDiameter);
-                        logger.debug("hopcollision {}", hopCollisions);
                         if (lastHop > lowerboundDiameter) {
                             lowerboundDiameter = lastHop;
                         }
@@ -180,7 +179,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
             // we use a dict because we want to iterate over the nodes until
             // the number of collisions in the actual hop
             // is different than the previous hop
-            int[] hopTable = new int[h];
+            int[] hopTable = null;
 
             while (signatureIsChanged) {
                 logger.debug("(seed {}) Starting computation on hop {}", index, h);
@@ -246,6 +245,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
                     for (int aMutable : mutable) {
                         collisions += Integer.bitCount(aMutable);
                     }
+
 
                     int[] copy = new int[h + 1];
                     System.arraycopy(hopTable, 0, copy, 0, hopTable.length);

@@ -222,11 +222,13 @@ public class MinHashMain {
             }
         }
 
+/*todo
         logger.info("\n\n********************** Graph Info **********************\n" +
                         "# nodes:\t{}\n" +
                         "# edges:\t{}\n" +
                         "********************************************************\n\n",
                 graph.numNodes(), graph.numArcs());
+*/
 
         return graph;
     }

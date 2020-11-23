@@ -21,8 +21,8 @@ public class Preprocessing {
      *
      * @return a new instance of ImmutableGraph without isolated nodes, if any
      */
-    public static ImmutableGraph removeIsolatedNodes(ImmutableGraph graph) {
-        logger.info("Start removing isolated nodes from graph {}", graph.basename());
+    public static ImmutableGraph removeIsolatedNodes(final ImmutableGraph graph) {
+        logger.info("Start removing isolated nodes from graph");
         ImmutableGraph g = graph.copy();
 
         int numNodes = g.numNodes();
@@ -66,9 +66,9 @@ public class Preprocessing {
         if (!isBijective) {
             g = Transform.map(g, mappedGraph);
             // new # number of nodes of the input graph without isolated nodes
-            logger.info("Removed {} nodes from {}", g.numNodes() - numNodes, graph.basename());
+            logger.info("Removed #{} nodes from graph", g.numNodes() - numNodes);
         } else {
-            logger.info("The graph {} does not contain isolated vertices", graph.basename());
+            logger.info("The graph does not contain isolated vertices");
         }
 
         return g;
