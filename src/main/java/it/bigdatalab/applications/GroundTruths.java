@@ -4,12 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.bigdatalab.model.GraphGtMeasure;
 import it.bigdatalab.model.Parameter;
-import it.bigdatalab.utils.Preprocessing;
+import it.bigdatalab.utils.Constants;
+import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.NodeIterator;
-import it.unimi.dsi.webgraph.Transform;
 import it.unimi.dsi.webgraph.algo.NeighbourhoodFunction;
 import it.unimi.dsi.webgraph.algo.ParallelBreadthFirstVisit;
 import org.slf4j.Logger;
@@ -28,29 +28,37 @@ public class GroundTruths {
     private final String mMode;
     private final Parameter mParam;
 
-    public GroundTruths() {
+    public GroundTruths(Parameter param) {
+        this.mParam = param;
+        this.mMode = Constants.DEFAULT_MODE;
+    }
+
+    public GroundTruths(Parameter param, String mode) {
+        this.mParam = param;
+        this.mMode = mode;
+    }
+
+    public static void main(String[] args) throws IOException {
         String inputFilePath = PropertiesManager.getProperty("groundTruth.inputFilePath");
         String outputFolderPath = PropertiesManager.getProperty("groundTruth.outputFilePath");
         int threadNumber = Integer.parseInt(PropertiesManager.getProperty("groundTruth.threadNumber"));
         boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("groundTruth.isolatedVertices"));
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("groundTruth.inMemory"));
-        mMode = PropertiesManager.getProperty("groundTruth.mode");
+        String mode = PropertiesManager.getProperty("groundTruth.mode");
 
-        mParam = new Parameter.Builder()
+        Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(inputFilePath)
                 .setOutputFolderPath(outputFolderPath)
                 .setNumThreads(threadNumber)
                 .setInMemory(inMemory)
                 .setIsolatedVertices(isolatedVertices).build();
-    }
 
-    public static void main(String[] args) throws IOException {
-        GroundTruths groundTruths = new GroundTruths();
+        GroundTruths groundTruths = new GroundTruths(param, mode);
         groundTruths.computeGroundTruth();
     }
 
     private void computeGroundTruth() throws IOException {
-        ImmutableGraph g = loadGraph(mParam.getInputFilePathGraph(), mParam.isInMemory(), mParam.keepIsolatedVertices());
+        ImmutableGraph g = GraphUtils.loadGraph(mParam.getInputFilePathGraph(), mParam.isInMemory(), mParam.keepIsolatedVertices());
 
         if (getMode().equals("WebGraph"))
             writeResults(runWebGraphMode(g));
@@ -179,25 +187,6 @@ public class GroundTruths {
         return mMode;
     }
 
-    private ImmutableGraph loadGraph(String inputFilePath, boolean inMemory, boolean isolatedVertices) throws IOException {
-        logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
-        ImmutableGraph graph = inMemory ?
-                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
-                ImmutableGraph.load(inputFilePath);
-        logger.info("Loading graph completed successfully");
-
-        // check if it must remove isolated nodes
-        if (!isolatedVertices)
-            graph = Preprocessing.removeIsolatedNodes(graph);
-
-        logger.info("\n\n********************** Graph Info **********************\n" +
-                        "# nodes:\t{}\n" +
-                        "# edges:\t{}\n" +
-                        "********************************************************\n\n",
-                graph.numNodes(), graph.numArcs());
-
-        return graph;
-    }
 
     private void writeResults(GraphGtMeasure gtMeasure) {
         String graphFileName = Paths.get(mParam.getInputFilePathGraph()).getFileName().toString();

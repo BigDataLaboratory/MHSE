@@ -66,7 +66,7 @@ public class Preprocessing {
         if (!isBijective) {
             g = Transform.map(g, mappedGraph);
             // new # number of nodes of the input graph without isolated nodes
-            logger.info("Removed #{} nodes from graph", g.numNodes() - numNodes);
+            logger.info("Removed # {} nodes from graph", g.numNodes() - numNodes);
         } else {
             logger.info("The graph does not contain isolated vertices");
         }

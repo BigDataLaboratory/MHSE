@@ -13,12 +13,13 @@ import java.util.Properties;
 
 public class PropertiesManager {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.misebigdatalab.PropertiesManager");
-    private static final Properties prop = new Properties();
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.utils.PropertiesManager");
+
+    private static final Properties sProp = new Properties();
 
     static {
         try {
-            initialise();
+            load();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -26,35 +27,33 @@ public class PropertiesManager {
 
     /**
      * Read properties file from etc folder
+     *
      * @throws IOException if file doesn't exist in the path specified
      */
-    private static void initialise() throws IOException {
-        String propertiesFilePath = "etc/mhse.properties";
-        String absolutePath = new File(propertiesFilePath).getAbsolutePath();
-        if(!new File(absolutePath).exists()){
-            //TODO Add others default pahts
+    private static void load() throws IOException {
+        String absolutePath = new File(Constants.DEFAULT_PROPERTIES_PATH).getAbsolutePath();
+
+        if (!new File(absolutePath).exists()) {
             throw new IOException("Configuration file " + absolutePath + " does not exist!");
         }
 
-        try (InputStream input = new FileInputStream(propertiesFilePath)) {
-            // load mhse properties file
-            prop.load(input);
-            logger.info("Properties loaded from file {}", absolutePath);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        InputStream input = new FileInputStream(absolutePath);
+        // load mhse properties file
+        sProp.load(input);
+        logger.info("Properties loaded from file {}", absolutePath);
     }
 
     /**
      * Get property value by property name
+     *
      * @param propertyName
      * @return property value
      */
     public static String getProperty(String propertyName) {
-        if (prop.getProperty(propertyName) == null) {
+        if (sProp.getProperty(propertyName) == null) {
             throw new InvalidParameterException(MessageFormat.format("Missing value for key {0}!", propertyName));
         }
-        return prop.getProperty(propertyName);
+        return sProp.getProperty(propertyName);
     }
 
     /**
@@ -65,9 +64,9 @@ public class PropertiesManager {
      * @return property value
      */
     public static String getProperty(String propertyName, final String defaultValue) {
-        if (prop.getProperty(propertyName).isEmpty())
+        if (sProp.getProperty(propertyName) == null || sProp.getProperty(propertyName).isEmpty())
             return defaultValue;
-        return prop.getProperty(propertyName, defaultValue);
+        return sProp.getProperty(propertyName, defaultValue);
     }
 
     /**
@@ -77,18 +76,10 @@ public class PropertiesManager {
      * @return property value
      */
     public static String getPropertyIfNotEmpty(String propertyName) {
-        if (prop.getProperty(propertyName) == null || prop.getProperty(propertyName).isEmpty()) {
+        if (sProp.getProperty(propertyName) == null || sProp.getProperty(propertyName).isEmpty()) {
             throw new InvalidParameterException(MessageFormat.format("Missing value for key {0}!", propertyName));
         }
-        return prop.getProperty(propertyName);
+        return sProp.getProperty(propertyName);
     }
 
-    /**
-     * Set a new property name and a linked property value
-     * @param propertyName
-     * @param propertyValue
-     */
-    public static void setProperty(String propertyName, String propertyValue){
-        prop.setProperty(propertyName, propertyValue);
-    }
 }

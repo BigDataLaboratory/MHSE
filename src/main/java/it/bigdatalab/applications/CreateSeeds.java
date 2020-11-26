@@ -5,13 +5,13 @@ import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.bigdatalab.model.Parameter;
+import it.bigdatalab.model.SeedNode;
 import it.bigdatalab.utils.Constants;
-import it.bigdatalab.utils.Preprocessing;
+import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.NodeIterator;
-import it.unimi.dsi.webgraph.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +23,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 
 /**
@@ -35,7 +36,12 @@ public class CreateSeeds {
 
     private final Parameter mParam;
 
-    public CreateSeeds() {
+    public CreateSeeds(Parameter param) {
+        this.mParam = param;
+    }
+
+    public static void main(String[] args) throws IOException {
+
         int numSeeds = Integer.parseInt(PropertiesManager.getProperty("seed.numSeeds", Constants.NUM_SEEDS_DEFAULT));
         String inputFilePath = PropertiesManager.getProperty("seed.inputFilePath");
         String outputFolderPath = PropertiesManager.getPropertyIfNotEmpty("seed.outFolderPath");
@@ -43,7 +49,7 @@ public class CreateSeeds {
         int numTest = Integer.parseInt(PropertiesManager.getProperty("seed.numTest", Constants.NUM_TEST_DEFAULT));
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("seed.inMemory", Constants.FALSE));
 
-        mParam = new Parameter.Builder()
+        Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(inputFilePath)
                 .setOutputFolderPath(outputFolderPath)
                 .setNumTests(numTest)
@@ -59,19 +65,21 @@ public class CreateSeeds {
                         "results will written in: {}\n" +
                         "number of seeds to generate {}\n" +
                         "\n********************************************************\n\n",
-                mParam.getNumTests(),
-                mParam.getInputFilePathGraph(),
-                mParam.isInMemory(),
-                mParam.keepIsolatedVertices(),
-                mParam.getOutputFolderPath(),
-                mParam.getNumSeeds());
-    }
+                param.getNumTests(),
+                param.getInputFilePathGraph(),
+                param.isInMemory(),
+                param.keepIsolatedVertices(),
+                param.getOutputFolderPath(),
+                param.getNumSeeds());
 
-    public static void main(String[] args) throws IOException {
-        CreateSeeds createSeeds = new CreateSeeds();
-        createSeeds.generate();
-    }
 
+        CreateSeeds createSeeds = new CreateSeeds(param);
+        List<SeedNode> seedNode = createSeeds.generate();
+        List<IntArrayList> seeds = seedNode.stream().map(SeedNode::getSeeds).collect(Collectors.toList());
+        List<int[]> nodes = seedNode.stream().map(SeedNode::getNodes).collect(Collectors.toList());
+        createSeeds.seedsToJson(seeds);
+        createSeeds.nodesToJson(nodes);
+    }
 
     /***
      *  Generate a random integer and append it
@@ -99,50 +107,28 @@ public class CreateSeeds {
      */
     public static long hashFunction(int node, int seed) {
         HashFunction hf = Hashing.murmur3_128(seed);
-        return hf.hashLong((long) node).asLong();
+        return hf.hashLong(node).asLong();
     }
 
-    private void generate() throws IOException {
+    protected List<SeedNode> generate() throws IOException {
         boolean exist = new File(mParam.getInputFilePathGraph() + Constants.GRAPH_EXTENSION).isFile() && !mParam.getInputFilePathGraph().isEmpty();
+
         if (exist) {
-            ImmutableGraph g = loadGraph(mParam.getInputFilePathGraph(), mParam.isInMemory(), mParam.keepIsolatedVertices());
-            // list of seeds lists
-            ArrayList<IntArrayList> seedsList = new ArrayList<>();
-            // list of nodes arrays
-            ArrayList<int[]> nodesList = new ArrayList<>();
+            ImmutableGraph g = GraphUtils.loadGraph(mParam.getInputFilePathGraph(), mParam.isInMemory(), mParam.keepIsolatedVertices());
+            List<SeedNode> seedNode = new ArrayList<>();
 
             for (int i = 0; i < mParam.getNumTests(); i++) {
                 IntArrayList seeds = CreateSeeds.genSeeds(mParam.getNumSeeds());
-                int[] nodes = seedToNode(g.copy(), seeds, mParam.getNumSeeds());
-                nodesList.add(nodes);
-                seedsList.add(seeds);
+                int[] nodes = seedToNode(g, seeds, mParam.getNumSeeds());
+                seedNode.add(new SeedNode(seeds, nodes));
                 logger.info("Created list #{}/{}", i + 1, mParam.getNumTests());
             }
-
-            seedsToJson(seedsList, mParam.getInputFilePathGraph(), mParam.getOutputFolderPath(), mParam.keepIsolatedVertices());
-            nodesToJson(nodesList, mParam.getInputFilePathGraph(), mParam.getOutputFolderPath(), mParam.keepIsolatedVertices());
+            return seedNode;
         } else
             throw new FileNotFoundException("Graph file doesn't exist, please review your data in properties file");
 
     }
 
-    /**
-     * Load an input graph in WebGraph format
-     *
-     * @return an ImmutableGraph instance
-     */
-    private ImmutableGraph loadGraph(String inputFilePath, boolean inMemory, boolean isolatedVertices) throws IOException {
-        logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
-        ImmutableGraph graph = inMemory ?
-                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
-                ImmutableGraph.load(inputFilePath);
-        logger.info("Loading graph completed successfully");
-
-        // check if it must remove isolated nodes
-        if (!isolatedVertices) graph = Preprocessing.removeIsolatedNodes(graph);
-
-        return graph;
-    }
 
     /**
      * Get associated nodes for a list of seeds
@@ -184,7 +170,7 @@ public class CreateSeeds {
      *
      * @param seeds seeds list
      */
-    private void seedsToJson(List<IntArrayList> seeds, String inputFilePath, String outputFolderPath, boolean isolatedVertices) {
+    protected void seedsToJson(List<IntArrayList> seeds, String inputFilePath, String outputFolderPath, boolean isolatedVertices) {
         Gson gson = new GsonBuilder().create();
         String graphFileName = Paths.get(inputFilePath).getFileName().toString();
 
@@ -205,11 +191,33 @@ public class CreateSeeds {
     }
 
     /**
+     * Write the seeds' list in a JSON file
+     *
+     * @param seeds seeds list
+     */
+    protected void seedsToJson(List<IntArrayList> seeds) throws IOException {
+        Gson gson = new GsonBuilder().create();
+        String graphFileName = Paths.get(mParam.getInputFilePathGraph()).getFileName().toString();
+
+        String path = mParam.getOutputFolderPath() +
+                File.separator +
+                "seeds_" +
+                graphFileName +
+                "_" +
+                (mParam.keepIsolatedVertices() ? "with_iso" : "without_iso") +
+                ".json";
+
+        FileWriter writer = new FileWriter(path);
+        gson.toJson(seeds, writer);
+        logger.info("Seeds list wrote in {}", mParam.getOutputFolderPath());
+    }
+
+    /**
      * Write the nodes' list in a JSON file
      *
      * @param nodes nodes' list
      */
-    private void nodesToJson(List<int[]> nodes, String inputFilePath, String outputFolderPath, boolean isolatedVertices) {
+    protected void nodesToJson(List<int[]> nodes, String inputFilePath, String outputFolderPath, boolean isolatedVertices) {
         Gson gson = new GsonBuilder().create();
         String graphFileName = Paths.get(inputFilePath).getFileName().toString();
         String path = outputFolderPath +
@@ -226,5 +234,26 @@ public class CreateSeeds {
             e.printStackTrace();
         }
         logger.info("Nodes list wrote in {}", outputFolderPath);
+    }
+
+    /**
+     * Write the nodes' list in a JSON file
+     *
+     * @param nodes nodes' list
+     */
+    protected void nodesToJson(List<int[]> nodes) throws IOException {
+        Gson gson = new GsonBuilder().create();
+        String graphFileName = Paths.get(mParam.getInputFilePathGraph()).getFileName().toString();
+        String path = mParam.getOutputFolderPath() +
+                File.separator +
+                "nodes_" +
+                graphFileName +
+                "_" +
+                (mParam.keepIsolatedVertices() ? "with_iso" : "without_iso") +
+                ".json";
+
+        FileWriter writer = new FileWriter(path);
+        gson.toJson(nodes, writer);
+        logger.info("Nodes list wrote in {}", mParam.getOutputFolderPath());
     }
 }

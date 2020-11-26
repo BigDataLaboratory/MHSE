@@ -3,13 +3,19 @@ package it.bigdatalab.utils;
 public class Constants {
 
     /*******************************************************************************
+     *                                  DEFAULT PATH
+     * ****************************************************************************/
+
+    public static final String DEFAULT_PROPERTIES_PATH = "etc/mhse.properties";
+    public static final String DEFAULT_MODE = "WebGraph";
+
+    /*******************************************************************************
      *                                     GENERIC
      * ****************************************************************************/
 
     public static final String TRUE = "True";
     public static final String FALSE = "False";
     public static final String NUM_THREAD_DEFAULT = "1";
-
 
     /*******************************************************************************
      *                                     DIRECTION

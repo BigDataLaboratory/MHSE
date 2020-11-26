@@ -46,11 +46,6 @@ public class Measure {
         this.mThreshold = threshold;
     }
 
-    public double interpolate(double y0, double y1, double y) {
-        // (y1 - y0) is the delta neighbourhood
-        return (y - y0) / (y1 - y0);
-    }
-
 
     /*******************************************************************************
      *                                  GETTER METHODS

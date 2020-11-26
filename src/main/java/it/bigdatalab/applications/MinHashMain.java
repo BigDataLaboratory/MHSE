@@ -12,16 +12,19 @@ import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.model.Parameter;
 import it.bigdatalab.utils.Constants;
-import it.bigdatalab.utils.Preprocessing;
+import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
-import it.unimi.dsi.webgraph.Transform;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -31,100 +34,16 @@ import java.util.stream.IntStream;
 
 public class MinHashMain {
 
-    private final Parameter mParam;
-
     private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.MinHashMain");
+
+    private final Parameter mParam;
 
     /**
      * Run Minhash algorithm, exit from the process if direction of message transmission or seeds list are not
      * correctly set, or if input file is not correctly read from local file system.
      */
-    public MinHashMain() {
-
-        logger.info("\n\n\n" +
-                "|\\    /| |    |  |¯¯¯¯  |¯¯¯¯\n" +
-                "| \\  / | |----|  |____  |--- \n" +
-                "|  \\/  | |    |  _____| |____\n\n\n");
-
-        String inputFilePath = PropertiesManager.getPropertyIfNotEmpty("minhash.inputFilePath");
-        String outputFolderPath = PropertiesManager.getPropertyIfNotEmpty("minhash.outputFolderPath");
-        String algorithmName = PropertiesManager.getPropertyIfNotEmpty("minhash.algorithmName");
-
-        int numTests = Integer.parseInt(PropertiesManager.getProperty("minhash.numTests", Constants.NUM_RUN_DEFAULT));
-
-        int numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
-        boolean isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.isSeedsRandom"));
-
-        // read external json file for seeds' lists (mandatory) and nodes' lists (optional)
-        String inputFilePathSeed = null;
-        String inputFilePathNodes = null;
-        int[] range = null;
-        if (!isSeedsRandom) {
-            if (numSeeds == 0) {
-                //used to compute ground truth
-                String nodeIDRange = PropertiesManager.getPropertyIfNotEmpty("minhash.nodeIDRange");
-                range = rangeNodes(nodeIDRange);
-                numSeeds = range[1] - range[0] + 1;
-                logger.info("Set range for node ids = {}, numSeeds automatically reset to {}", range, numSeeds);
-            } else {
-                //Load minHash node IDs from properties file
-                inputFilePathSeed = PropertiesManager.getPropertyIfNotEmpty("minhash.inputFilePathSeed");
-                inputFilePathNodes = PropertiesManager.getProperty("minhash.inputFilePathNodes");
-            }
-        } else {
-            if (numSeeds == 0)
-                throw new IllegalArgumentException("# seeds must be set at value > 0 if seeds are random, please review your data");
-        }
-
-        boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.isolatedVertices"));
-        String direction = PropertiesManager.getPropertyIfNotEmpty("minhash.direction");
-        boolean transpose = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.transpose"));
-
-        double threshold = Double.parseDouble(PropertiesManager.getPropertyIfNotEmpty("minhash.threshold"));
-        boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.inMemory", Constants.FALSE));
-        int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
-        suggestedNumberOfThreads = getNumberOfMaxThreads(suggestedNumberOfThreads);
-
-        mParam = new Parameter.Builder()
-                .setAlgorithmName(algorithmName)
-                .setInputFilePathGraph(inputFilePath)
-                .setOutputFolderPath(outputFolderPath)
-                .setNumTests(numTests)
-                .setNumSeeds(numSeeds)
-                .setTranspose(transpose)
-                .setInMemory(inMemory)
-                .setSeedsRandom(isSeedsRandom)
-                .setInputFilePathNodes(inputFilePathNodes)
-                .setInputFilePathSeed(inputFilePathSeed)
-                .setIsolatedVertices(isolatedVertices)
-                .setRange(range)
-                .setThreshold(threshold)
-                .setDirection(direction)
-                .setNumThreads(suggestedNumberOfThreads)
-                .build();
-
-        logger.info("\n\n********************** Parameters **********************\n\n" +
-                        "# executions will be run {} time(s)\n" +
-                        "ready to start algorithm: {}\n" +
-                        "on graph (transpose version? {}) read from: {}\n" +
-                        "loading graph in memory? {}\n" +
-                        "keep isolated nodes? {}\n" +
-                        "results will written in: {}\n" +
-                        "number of seeds {}, automatic range? {}\n" +
-                        "direction is: {}\n" +
-                        "threshold for eff. diameter is: {}\n" +
-                        "number of threads: {}\n" +
-                        "\n********************************************************\n\n",
-                mParam.getNumTests(),
-                mParam.getAlgorithmName(),
-                mParam.isTranspose(), mParam.getInputFilePathGraph(),
-                mParam.isInMemory(),
-                mParam.keepIsolatedVertices(),
-                mParam.getOutputFolderPath(),
-                mParam.getNumSeeds(), mParam.isAutomaticRange(),
-                mParam.getDirection(),
-                mParam.getThreshold(),
-                mParam.getNumThreads());
+    public MinHashMain(Parameter param) {
+        this.mParam = param;
     }
 
     /**
@@ -195,43 +114,129 @@ public class MinHashMain {
         return Runtime.getRuntime().availableProcessors();
     }
 
-    private ImmutableGraph loadGraph(String inputFilePath, boolean transpose, boolean inMemory, boolean isolatedVertices, String direction) throws IOException {
-        logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
-        ImmutableGraph graph = inMemory ?
-                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
-                ImmutableGraph.load(inputFilePath);
-        logger.info("Loading graph completed successfully");
+    private static int[] rangeNodes(@NotNull String range) {
+        return Arrays.stream(range.split(",")).mapToInt(Integer::parseInt).toArray();
+    }
 
-        // check if it must remove isolated nodes
-        if (!isolatedVertices) {
-            graph = Preprocessing.removeIsolatedNodes(graph);
-        }
+    /**
+     * @return list of seeds' list read from external json file
+     * @throws FileNotFoundException
+     */
+    private List<IntArrayList> readSeedsFromJson(String inputFilePath) throws FileNotFoundException {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<IntArrayList>>() {
+        }.getType();
+        return gson.fromJson(new FileReader(inputFilePath), listType);
+    }
 
-        // transpose graph based on direction selected
-        // and graph type loaded (original or transposed)
-        if (transpose) {
-            if (direction.equals(Constants.IN_DIRECTION)) {
-                logger.info("Transposing graph cause direction is {}", direction);
-                graph = Transform.transpose(graph);
-                logger.debug("Transposing graph ended");
+    /**
+     * @return list of nodes' list read from external json file
+     * @throws FileNotFoundException
+     */
+    private List<int[]> readNodesFromJson(String inputFilePath) throws FileNotFoundException {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<int[]>>() {
+        }.getType();
+        return gson.fromJson(new FileReader(inputFilePath), listType);
+    }
+
+    public static void main(String[] args) {
+
+        logger.info("\n\n\n" +
+                "|\\    /| |    |  |¯¯¯¯  |¯¯¯¯\n" +
+                "| \\  / | |----|  |____  |--- \n" +
+                "|  \\/  | |    |  _____| |____\n\n\n");
+
+        String inputFilePath = PropertiesManager.getPropertyIfNotEmpty("minhash.inputFilePath");
+        String outputFolderPath = PropertiesManager.getPropertyIfNotEmpty("minhash.outputFolderPath");
+        String algorithmName = PropertiesManager.getPropertyIfNotEmpty("minhash.algorithmName");
+
+        int numTests = Integer.parseInt(PropertiesManager.getProperty("minhash.numTests", Constants.NUM_RUN_DEFAULT));
+
+        int numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
+        boolean isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.isSeedsRandom"));
+
+        // read external json file for seeds' lists (mandatory) and nodes' lists (optional)
+        String inputFilePathSeed = null;
+        String inputFilePathNodes = null;
+        int[] range = null;
+        if (!isSeedsRandom) {
+            if (numSeeds == 0) {
+                //used to compute ground truth
+                String nodeIDRange = PropertiesManager.getPropertyIfNotEmpty("minhash.nodeIDRange");
+                range = rangeNodes(nodeIDRange);
+                numSeeds = range[1] - range[0] + 1;
+                logger.info("Set range for node ids = {}, numSeeds automatically reset to {}", range, numSeeds);
+            } else {
+                //Load minHash node IDs from properties file
+                inputFilePathSeed = PropertiesManager.getPropertyIfNotEmpty("minhash.inputFilePathSeed");
+                inputFilePathNodes = PropertiesManager.getProperty("minhash.inputFilePathNodes");
             }
         } else {
-            if (direction.equals(Constants.OUT_DIRECTION)) {
-                logger.info("Transposing graph cause direction is {}", direction);
-                graph = Transform.transpose(graph);
-                logger.debug("Transposing graph ended");
-            }
+            if (numSeeds == 0)
+                throw new IllegalArgumentException("# seeds must be set at value > 0 if seeds are random, please review your data");
         }
 
-/*todo
-        logger.info("\n\n********************** Graph Info **********************\n" +
-                        "# nodes:\t{}\n" +
-                        "# edges:\t{}\n" +
-                        "********************************************************\n\n",
-                graph.numNodes(), graph.numArcs());
-*/
+        boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.isolatedVertices"));
+        String direction = PropertiesManager.getPropertyIfNotEmpty("minhash.direction");
+        boolean transpose = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.transpose"));
 
-        return graph;
+        double threshold = Double.parseDouble(PropertiesManager.getPropertyIfNotEmpty("minhash.threshold"));
+        boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.inMemory", Constants.FALSE));
+        int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
+        suggestedNumberOfThreads = getNumberOfMaxThreads(suggestedNumberOfThreads);
+
+        Parameter param = new Parameter.Builder()
+                .setAlgorithmName(algorithmName)
+                .setInputFilePathGraph(inputFilePath)
+                .setOutputFolderPath(outputFolderPath)
+                .setNumTests(numTests)
+                .setNumSeeds(numSeeds)
+                .setTranspose(transpose)
+                .setInMemory(inMemory)
+                .setSeedsRandom(isSeedsRandom)
+                .setInputFilePathNodes(inputFilePathNodes)
+                .setInputFilePathSeed(inputFilePathSeed)
+                .setIsolatedVertices(isolatedVertices)
+                .setRange(range)
+                .setThreshold(threshold)
+                .setDirection(direction)
+                .setNumThreads(suggestedNumberOfThreads)
+                .build();
+
+        logger.info("\n\n********************** Parameters **********************\n\n" +
+                        "# executions will be run {} time(s)\n" +
+                        "ready to start algorithm: {}\n" +
+                        "on graph (transpose version? {}) read from: {}\n" +
+                        "loading graph in memory? {}\n" +
+                        "keep isolated nodes? {}\n" +
+                        "results will written in: {}\n" +
+                        "number of seeds {}, automatic range? {}\n" +
+                        "direction is: {}\n" +
+                        "threshold for eff. diameter is: {}\n" +
+                        "number of threads: {}\n" +
+                        "\n********************************************************\n\n",
+                param.getNumTests(),
+                param.getAlgorithmName(),
+                param.isTranspose(), param.getInputFilePathGraph(),
+                param.isInMemory(),
+                param.keepIsolatedVertices(),
+                param.getOutputFolderPath(),
+                param.getNumSeeds(), param.isAutomaticRange(),
+                param.getDirection(),
+                param.getThreshold(),
+                param.getNumThreads());
+
+        MinHashMain main = new MinHashMain(param);
+        try {
+            main.run();
+        } catch (IOException | MinHash.SeedsException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private int[] computeNodesFromRange(int start, int end) {
+        return IntStream.rangeClosed(start, end).toArray();
     }
 
     private void run() throws IOException, MinHash.SeedsException {
@@ -258,7 +263,7 @@ public class MinHashMain {
             }
         }
 
-        final ImmutableGraph g = loadGraph(
+        final ImmutableGraph g = GraphUtils.loadGraph(
                 mParam.getInputFilePathGraph(),
                 mParam.isTranspose(),
                 mParam.isInMemory(),
@@ -322,45 +327,6 @@ public class MinHashMain {
 
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Application successfully completed. Time elapsed (in milliseconds) {}", totalTime);
-    }
-
-    /**
-     * @return list of seeds' list read from external json file
-     * @throws FileNotFoundException
-     */
-    private List<IntArrayList> readSeedsFromJson(String inputFilePath) throws FileNotFoundException {
-        Gson gson = new Gson();
-        Type listType = new TypeToken<List<IntArrayList>>() {
-        }.getType();
-        return gson.fromJson(new FileReader(inputFilePath), listType);
-    }
-
-    /**
-     * @return list of nodes' list read from external json file
-     * @throws FileNotFoundException
-     */
-    private List<int[]> readNodesFromJson(String inputFilePath) throws FileNotFoundException {
-        Gson gson = new Gson();
-        Type listType = new TypeToken<List<int[]>>() {
-        }.getType();
-        return gson.fromJson(new FileReader(inputFilePath), listType);
-    }
-
-    private int[] rangeNodes(@NotNull String range) {
-        return Arrays.stream(range.split(",")).mapToInt(Integer::parseInt).toArray();
-    }
-
-    private int[] computeNodesFromRange(int start, int end) {
-        return IntStream.rangeClosed(start, end).toArray();
-    }
-
-    public static void main(String[] args) {
-        MinHashMain main = new MinHashMain();
-        try {
-            main.run();
-        } catch (IOException | MinHash.SeedsException e) {
-            e.printStackTrace();
-        }
     }
 
 
