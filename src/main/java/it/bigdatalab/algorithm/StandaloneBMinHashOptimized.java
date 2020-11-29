@@ -37,7 +37,7 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
         long totalTime;
 
         // seed as rows, hop as columns - cell values are collissions for each hash function at hop
-        int[][] collisionsMatrix = new int[mNumSeeds][Constants.N];
+        int[][] collisionsMatrix = new int[mNumSeeds][1];
         //for each hash function, the last hop executed
         int[] lastHops = new int[mNumSeeds];
         double[] hopTableArray;
@@ -68,17 +68,6 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
 
             while (signatureIsChanged) {
                 logger.debug("(seed {}) Starting computation on hop {}", i, h);
-
-                if (collisionsMatrix[i] != null && collisionsMatrix[i].length - 1 > h) {
-                } else {
-                    assert collisionsMatrix[i] != null;
-                    int[][] copy = new int[mNumSeeds][collisionsMatrix[i].length + Constants.N];
-                    for (int height = 0; height < mNumSeeds; height++) {
-                        copy[height] = new int[collisionsMatrix[height].length + Constants.N];
-                        System.arraycopy(collisionsMatrix[height], 0, copy[height], 0, collisionsMatrix[height].length);
-                        collisionsMatrix[height] = copy[height];
-                    }
-                }
 
                 //first hop - initialization
                 if (h == 0) {
@@ -141,6 +130,10 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
                         collisions += Integer.bitCount(aMutable);
                     }
 
+                    int[] copy = new int[h + 1];
+                    System.arraycopy(collisionsMatrix[i], 0, copy, 0, collisionsMatrix[i].length);
+                    collisionsMatrix[i] = copy;
+
                     collisionsMatrix[i][h] = collisions;
 
                     logger.debug("Number of collisions: {}", collisions);
@@ -179,27 +172,6 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
 
         return graphMeasure;
-    }
-
-    /***
-     * Normalization of the collisionsTable.
-     * For each hop check if one of the hash functions reached the end of computation.
-     * If so, we have to substitute the 0 value in the table with
-     * the maximum value of the other hash functions of the same hop
-     */
-    @Override
-    public void normalizeCollisionsTable(int[][] collisionsMatrix, int lowerBound, int[] last) {
-
-        for (int i = 0; i < last.length; i++) { // check last hop of each seed
-            // if last hop is not the lower bound
-            // replace the 0 values from last hop + 1 until lower bound
-            // with the value of the previous hop for the same seed
-            if (last[i] < lowerBound) {
-                for (int j = last[i] + 1; j <= lowerBound; j++) {
-                    collisionsMatrix[i][j] = collisionsMatrix[i][j - 1];
-                }
-            }
-        }
     }
 
 }

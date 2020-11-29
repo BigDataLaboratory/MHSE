@@ -3,11 +3,23 @@ package it.bigdatalab.utils;
 public class Constants {
 
     /*******************************************************************************
-     *                                  DEFAULT PATH
+     *                                PATH&FILE
      * ****************************************************************************/
 
     public static final String DEFAULT_PROPERTIES_PATH = "etc/mhse.properties";
     public static final String DEFAULT_MODE = "WebGraph";
+    public static final String WEBGRAPH = DEFAULT_MODE;
+    public static final String BFS = "BFS";
+
+    public static final String NAMESEPARATOR = "_";
+    public static final String WITHISOLATED = "with_iso";
+    public static final String WITHOUTISOLATED = "without_iso";
+    public static final String SEEDNODE = "seednode";
+    public static final String GT = "gt_";
+
+
+    public static final String JSON_EXTENSION = ".json";
+    public static final String GRAPH_EXTENSION = ".graph";
 
     /*******************************************************************************
      *                                     GENERIC
@@ -53,12 +65,5 @@ public class Constants {
     public static final String NUM_SEEDS_DEFAULT = "256";
     public static final String NUM_RUN_DEFAULT = "1";
 
-
-    /*******************************************************************************
-     *                                  FILE
-     * ****************************************************************************/
-
-    public static final String JSON_EXTENSION = ".json";
-    public static final String GRAPH_EXTENSION = ".graph";
 
 }

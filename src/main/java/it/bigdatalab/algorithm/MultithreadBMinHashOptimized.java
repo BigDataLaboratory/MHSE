@@ -10,7 +10,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MultithreadBMinHashOptimized extends BMinHashOpt {
 
@@ -24,7 +29,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
      */
     public MultithreadBMinHashOptimized(final ImmutableGraph g, boolean isSeedsRandom, int numSeeds, double threshold, int threads) {
         super(g, numSeeds, threshold);
-        this.mNumberOfThreads = threads;
+        this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         mSeedTime = new double[mNumSeeds];
 
         if (isSeedsRandom) {
@@ -34,6 +39,17 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
         }
     }
 
+    /**
+     * Number of max threads to use for the computation
+     *
+     * @param suggestedNumberOfThreads if not equal to zero return the number of threads
+     *                                 passed as parameter, else the number of max threads available
+     * @return number of threads to use for the computation
+     */
+    private static int getNumberOfMaxThreads(int suggestedNumberOfThreads) {
+        if (suggestedNumberOfThreads != 0) return suggestedNumberOfThreads;
+        return Runtime.getRuntime().availableProcessors();
+    }
 
     /**
      * Execution of the MultithreadBMinHash algorithm
@@ -118,31 +134,6 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
 
         return graphMeasure;
-    }
-
-
-    /***
-     * Normalization of the collisionsTable.
-     * For each hop check if one of the hash functions reached the end of computation.
-     * If so, we have to substitute the 0 value in the table with
-     * the maximum value of the other hash functions of the same hop
-     */
-    @Override
-    public void normalizeCollisionsTable(int[][] collisionsMatrix, int lowerBound, int[] last) {
-        for (int i = 0; i < last.length; i++) { // check last hop of each seed
-            // if last hop is not the lower bound
-            // replace the 0 values from last hop + 1 until lower bound
-            // with the value of the previous hop for the same seed
-            if (last[i] < lowerBound) {
-                int[] copy = new int[lowerBound + 1];
-                System.arraycopy(collisionsMatrix[i], 0, copy, 0, collisionsMatrix[i].length);
-                collisionsMatrix[i] = copy;
-
-                for (int j = last[i] + 1; j <= lowerBound; j++) {
-                    collisionsMatrix[i][j] = collisionsMatrix[i][j - 1];
-                }
-            }
-        }
     }
 
     class IterationThread implements Callable<int[]> {
@@ -242,7 +233,6 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
                     for (int aMutable : mutable) {
                         collisions += Integer.bitCount(aMutable);
                     }
-
 
                     int[] copy = new int[h + 1];
                     System.arraycopy(hopTable, 0, copy, 0, hopTable.length);

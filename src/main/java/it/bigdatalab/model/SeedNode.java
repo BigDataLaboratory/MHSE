@@ -1,10 +1,13 @@
 package it.bigdatalab.model;
 
+import com.google.gson.annotations.SerializedName;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 public class SeedNode {
 
+    @SerializedName("seeds")
     private IntArrayList mSeeds;
+    @SerializedName("nodes")
     private int[] mNodes;
 
     public SeedNode(IntArrayList seeds, int[] nodes) {

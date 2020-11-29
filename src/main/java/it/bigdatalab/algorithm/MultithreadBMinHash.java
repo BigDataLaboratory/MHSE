@@ -13,7 +13,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MultithreadBMinHash extends BMinHash {
 
@@ -28,7 +33,7 @@ public class MultithreadBMinHash extends BMinHash {
     public MultithreadBMinHash(final ImmutableGraph g, boolean isSeedsRandom, int numSeeds, double threshold, int threads) {
         super(g, numSeeds, threshold);
         mSeedTime = new double[mNumSeeds];
-        this.mNumberOfThreads = threads;
+        this.mNumberOfThreads = getNumberOfMaxThreads(threads);
 
         if (isSeedsRandom) {
             for (int i = 0; i < mNumSeeds; i++) {
@@ -37,9 +42,21 @@ public class MultithreadBMinHash extends BMinHash {
         }
     }
 
+    /**
+     * Number of max threads to use for the computation
+     *
+     * @param suggestedNumberOfThreads if not equal to zero return the number of threads
+     *                                 passed as parameter, else the number of max threads available
+     * @return number of threads to use for the computation
+     */
+    private static int getNumberOfMaxThreads(int suggestedNumberOfThreads) {
+        if (suggestedNumberOfThreads != 0) return suggestedNumberOfThreads;
+        return Runtime.getRuntime().availableProcessors();
+    }
 
     /**
      * Execution of the MultithreadBMinHash algorithm
+     *
      * @return Computed metrics of the algorithm
      */
 

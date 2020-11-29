@@ -9,8 +9,7 @@ public class Parameter {
     private final int mNumSeeds;
     private final boolean mIsSeedsRandom;
     private final boolean mAutomaticRange;
-    private final String mInputFilePathSeed;
-    private final String mInputFilePathNodes;
+    private final String mInputFilePathSeedNode;
     private final int[] mRange;
 
     private final boolean mIsolatedVertices;
@@ -34,8 +33,7 @@ public class Parameter {
         this.mIsSeedsRandom = builder.isSeedsRandom;
         this.mAutomaticRange = builder.automaticRange;
 
-        this.mInputFilePathSeed = builder.inputFilePathSeed;
-        this.mInputFilePathNodes = builder.inputFilePathNodes;
+        this.mInputFilePathSeedNode = builder.inputFilePathSeedNode;
         this.mRange = builder.range;
 
         this.mIsolatedVertices = builder.isolatedVertices;
@@ -76,12 +74,8 @@ public class Parameter {
         return mAutomaticRange;
     }
 
-    public String getInputFilePathSeed() {
-        return mInputFilePathSeed;
-    }
-
-    public String getInputFilePathNodes() {
-        return mInputFilePathNodes;
+    public String getInputFilePathSeedNode() {
+        return mInputFilePathSeedNode;
     }
 
     public int[] getRange() {
@@ -121,8 +115,7 @@ public class Parameter {
         private int numSeeds;
         private boolean isSeedsRandom;
         private boolean automaticRange;
-        private String inputFilePathSeed;
-        private String inputFilePathNodes;
+        private String inputFilePathSeedNode;
         private int[] range;
 
         private boolean isolatedVertices;
@@ -172,13 +165,8 @@ public class Parameter {
             return this;
         }
 
-        public Builder setInputFilePathSeed(String inputFilePathSeed) {
-            this.inputFilePathSeed = inputFilePathSeed;
-            return this;
-        }
-
-        public Builder setInputFilePathNodes(String inputFilePathNodes) {
-            this.inputFilePathNodes = inputFilePathNodes;
+        public Builder setInputFilePathSeedNode(String inputFilePathSeedNode) {
+            this.inputFilePathSeedNode = inputFilePathSeedNode;
             return this;
         }
 

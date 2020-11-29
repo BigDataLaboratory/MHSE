@@ -11,8 +11,10 @@ import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.model.Parameter;
+import it.bigdatalab.model.SeedNode;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.GraphUtils;
+import it.bigdatalab.utils.GsonHelper;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -102,18 +104,6 @@ public class MinHashMain {
         logger.info("Graph measure wrote in " + path);
     }
 
-    /**
-     * Number of max threads to use for the computation
-     *
-     * @param suggestedNumberOfThreads if not equal to zero return the number of threads
-     *                                 passed as parameter, else the number of max threads available
-     * @return number of threads to use for the computation
-     */
-    private static int getNumberOfMaxThreads(int suggestedNumberOfThreads) {
-        if (suggestedNumberOfThreads != 0) return suggestedNumberOfThreads;
-        return Runtime.getRuntime().availableProcessors();
-    }
-
     private static int[] rangeNodes(@NotNull String range) {
         return Arrays.stream(range.split(",")).mapToInt(Integer::parseInt).toArray();
     }
@@ -157,8 +147,7 @@ public class MinHashMain {
         boolean isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.isSeedsRandom"));
 
         // read external json file for seeds' lists (mandatory) and nodes' lists (optional)
-        String inputFilePathSeed = null;
-        String inputFilePathNodes = null;
+        String inputFilePathSeedNode = null;
         int[] range = null;
         if (!isSeedsRandom) {
             if (numSeeds == 0) {
@@ -169,8 +158,7 @@ public class MinHashMain {
                 logger.info("Set range for node ids = {}, numSeeds automatically reset to {}", range, numSeeds);
             } else {
                 //Load minHash node IDs from properties file
-                inputFilePathSeed = PropertiesManager.getPropertyIfNotEmpty("minhash.inputFilePathSeed");
-                inputFilePathNodes = PropertiesManager.getProperty("minhash.inputFilePathNodes");
+                inputFilePathSeedNode = PropertiesManager.getPropertyIfNotEmpty("minhash.inputFilePathSeedNode");
             }
         } else {
             if (numSeeds == 0)
@@ -184,7 +172,6 @@ public class MinHashMain {
         double threshold = Double.parseDouble(PropertiesManager.getPropertyIfNotEmpty("minhash.threshold"));
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.inMemory", Constants.FALSE));
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
-        suggestedNumberOfThreads = getNumberOfMaxThreads(suggestedNumberOfThreads);
 
         Parameter param = new Parameter.Builder()
                 .setAlgorithmName(algorithmName)
@@ -195,8 +182,7 @@ public class MinHashMain {
                 .setTranspose(transpose)
                 .setInMemory(inMemory)
                 .setSeedsRandom(isSeedsRandom)
-                .setInputFilePathNodes(inputFilePathNodes)
-                .setInputFilePathSeed(inputFilePathSeed)
+                .setInputFilePathSeedNode(inputFilePathSeedNode)
                 .setIsolatedVertices(isolatedVertices)
                 .setRange(range)
                 .setThreshold(threshold)
@@ -247,8 +233,8 @@ public class MinHashMain {
         long startTime = System.currentTimeMillis();
         long totalTime;
 
-        List<IntArrayList> seeds = new ArrayList<>();
         List<int[]> nodes = new ArrayList<>();
+        List<SeedNode> seedsNodes = new ArrayList<>();
 
         if (!mParam.isSeedsRandom()) {
             // only for boolean version of minhash
@@ -256,9 +242,9 @@ public class MinHashMain {
                 int[] n = computeNodesFromRange(mParam.getRange()[0], mParam.getRange()[1]);
                 nodes.add(n);
             } else {
-                seeds = readSeedsFromJson(mParam.getInputFilePathSeed());
-                nodes = readNodesFromJson(mParam.getInputFilePathNodes());
-                if (numTest > seeds.size() || numTest > nodes.size())
+                seedsNodes = GsonHelper.fromJson(mParam.getInputFilePathSeedNode(), new TypeToken<List<SeedNode>>() {
+                }.getType());
+                if (numTest > seedsNodes.size())
                     throw new IllegalStateException("# run > list of seeds/nodes, please review your input");
             }
         }
@@ -283,9 +269,10 @@ public class MinHashMain {
 
             if (!mParam.isSeedsRandom()) {
                 if (mParam.getRange() == null) {
-                    minHash.setSeeds(seeds.get(i));
-                }
-                minHash.setNodes(nodes.get(i));
+                    minHash.setSeeds(seedsNodes.get(i).getSeeds());
+                    minHash.setNodes(seedsNodes.get(i).getNodes());
+                } else
+                    minHash.setNodes(nodes.get(i));
             }
 
             measure = minHash.runAlgorithm();

@@ -46,6 +46,16 @@ public class Measure {
         this.mThreshold = threshold;
     }
 
+    public Measure(int numSeeds, int lowerBound,
+                   double avgDistance, double effectiveDiameter,
+                   double totalCouple, double totalCouplePerc) {
+        this.mNumSeeds = numSeeds;
+        this.mLowerBoundDiameter = lowerBound;
+        this.mAvgDistance = avgDistance;
+        this.mEffectiveDiameter = effectiveDiameter;
+        this.mTotalCouples = totalCouple;
+        this.mTotalCouplePercentage = totalCouplePerc;
+    }
 
     /*******************************************************************************
      *                                  GETTER METHODS
@@ -66,10 +76,10 @@ public class Measure {
     }
 
     /**
-     * @param numNodes graph's number of nodes
+     * @return numbers of seeds to use
      */
-    public void setNumNodes(int numNodes) {
-        this.mNumNodes = numNodes;
+    public int getNumSeeds() {
+        return mNumSeeds;
     }
 
     /**
@@ -129,13 +139,6 @@ public class Measure {
     }
 
     /**
-     * @param numArcs graph's number of edges
-     */
-    public void setNumArcs(long numArcs) {
-        this.mNumArcs = numArcs;
-    }
-
-    /**
      * @return list of seeds
      */
     public IntArrayList getSeedsList() {
@@ -164,18 +167,19 @@ public class Measure {
     }
 
     /**
-     * @param threshold for diameter computing
-     */
-    public void setThreshold(double threshold) {
-        this.mThreshold = threshold;
-    }
-
-    /**
      * @return Comma separated IDs of minHash nodes
      */
     public int[] getMinHashNodeIDs() {
         return mMinHashNodeIDs;
     }
+
+    /**
+     * @return number of run
+     */
+    public int getRun() {
+        return mRun;
+    }
+
 
     /*******************************************************************************
      *                                  SETTER METHODS
@@ -189,10 +193,17 @@ public class Measure {
     }
 
     /**
-     * @return numbers of seeds to use
+     * @param numArcs graph's number of edges
      */
-    public int getNumSeeds() {
-        return mNumSeeds;
+    public void setNumArcs(long numArcs) {
+        this.mNumArcs = numArcs;
+    }
+
+    /**
+     * @param numNodes graph's number of nodes
+     */
+    public void setNumNodes(int numNodes) {
+        this.mNumNodes = numNodes;
     }
 
     /**
@@ -209,18 +220,20 @@ public class Measure {
         return mLastHops;
     }
 
+
+    /**
+     * @param threshold for diameter computing
+     */
+    public void setThreshold(double threshold) {
+        this.mThreshold = threshold;
+    }
+
+
     /**
      * @return Array containing the last hop executed for each hash function
      */
     public void setLastHops(int[] lastHops) {
         this.mLastHops = lastHops;
-    }
-
-    /**
-     * @return number of run
-     */
-    public int getRun() {
-        return mRun;
     }
 
     /**
@@ -292,6 +305,14 @@ public class Measure {
     public void setTotalCouples(double totalCouples) {
         this.mTotalCouples = totalCouples;
     }
+
+    /**
+     * @param lowerBoundDiameter lower bound of diameter
+     */
+    public void setLowerBoundDiameter(int lowerBoundDiameter) {
+        this.mLowerBoundDiameter = lowerBoundDiameter;
+    }
+
 
     /**
      * @param totalCouplesPerc percentage of reachable nodes

@@ -6,6 +6,7 @@ import it.bigdatalab.model.GraphGtMeasure;
 import it.bigdatalab.model.Parameter;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.GraphUtils;
+import it.bigdatalab.utils.GsonHelper;
 import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -22,18 +23,22 @@ import java.math.BigDecimal;
 import java.nio.file.Paths;
 
 
-public class GroundTruths {
+public class GroundTruth {
+
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.GroundTruths");
 
     private final String mMode;
     private final Parameter mParam;
+    private final ImmutableGraph mGraph;
 
-    public GroundTruths(Parameter param) {
+    public GroundTruth(ImmutableGraph g, Parameter param) {
+        this.mGraph = g;
         this.mParam = param;
         this.mMode = Constants.DEFAULT_MODE;
     }
 
-    public GroundTruths(Parameter param, String mode) {
+    public GroundTruth(ImmutableGraph g, Parameter param, String mode) {
+        this.mGraph = g;
         this.mParam = param;
         this.mMode = mode;
     }
@@ -53,17 +58,30 @@ public class GroundTruths {
                 .setInMemory(inMemory)
                 .setIsolatedVertices(isolatedVertices).build();
 
-        GroundTruths groundTruths = new GroundTruths(param, mode);
-        groundTruths.computeGroundTruth();
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
+
+        GroundTruth groundTruth = new GroundTruth(g, param, mode);
+        GraphGtMeasure graphMeasure = groundTruth.computeGroundTruth();
+
+        String path = param.getOutputFolderPath() +
+                File.separator +
+                Constants.GT +
+                Paths.get(param.getInputFilePathGraph()).getFileName().toString() +
+                Constants.NAMESEPARATOR +
+                (param.keepIsolatedVertices() ? Constants.WITHISOLATED : Constants.WITHOUTISOLATED) +
+                Constants.JSON_EXTENSION;
+
+        GsonHelper.toJson(graphMeasure, path);
     }
 
-    private void computeGroundTruth() throws IOException {
-        ImmutableGraph g = GraphUtils.loadGraph(mParam.getInputFilePathGraph(), mParam.isInMemory(), mParam.keepIsolatedVertices());
+    public GraphGtMeasure computeGroundTruth() {
 
-        if (getMode().equals("WebGraph"))
-            writeResults(runWebGraphMode(g));
-        else if (getMode().equals("BFS"))
-            writeResults(runBFSMode(g));
+        if (getMode().equals(Constants.WEBGRAPH))
+            return runWebGraphMode();
+        else if (getMode().equals(Constants.BFS))
+            return runBFSMode();
+        else
+            throw new IllegalArgumentException("You must choose between WebGraph or BFS mode, no other alternatives");
     }
 
     /**
@@ -72,17 +90,17 @@ public class GroundTruths {
      *
      * @return Graph Measures
      */
-    private GraphGtMeasure runBFSMode(ImmutableGraph g) {
+    private GraphGtMeasure runBFSMode() {
         long startTime = System.currentTimeMillis();
         ProgressLogger pl = new ProgressLogger();
 
         long visitedNodes = 0;
         double max = 0;
         double avgDistance = 0;
-        ParallelBreadthFirstVisit bfs = new ParallelBreadthFirstVisit(g, mParam.getNumThreads(), false, pl);
+        ParallelBreadthFirstVisit bfs = new ParallelBreadthFirstVisit(mGraph, mParam.getNumThreads(), false, pl);
 
         // n times BFS
-        NodeIterator nodeIterator = g.nodeIterator();
+        NodeIterator nodeIterator = mGraph.nodeIterator();
         while(nodeIterator.hasNext()){
             int vertex = nodeIterator.nextInt();
             bfs.clear();
@@ -111,12 +129,12 @@ public class GroundTruths {
         }
 
         // avgDistance is the sum distances
-        double totalAvgDistance = (avgDistance / ((double) g.numNodes() * ((double) (g.numNodes() - 1))));
+        double totalAvgDistance = (avgDistance / ((double) mGraph.numNodes() * ((double) (mGraph.numNodes() - 1))));
 
         long endTime = System.currentTimeMillis();
 
         GraphGtMeasure gtMeasure = new GraphGtMeasure(
-                g.numNodes(), g.numArcs(), totalAvgDistance, 0, max, visitedNodes);
+                mGraph.numNodes(), mGraph.numArcs(), totalAvgDistance, 0, max, visitedNodes);
 
         logger.info("\n\n********************* Stats ****************************\n\n" +
                         "Total Couples Reachable\t{}\n" +
@@ -125,7 +143,7 @@ public class GroundTruths {
                         "\n********************************************************\n\n",
                 BigDecimal.valueOf(gtMeasure.getTotalCouples()).toPlainString(),
                 gtMeasure.getAvgDistance(),
-                gtMeasure.getEffectiveDiameter());
+                gtMeasure.getDiameter());
 
         logger.info("Time elapsed {}", endTime - startTime);
         return gtMeasure;
@@ -137,7 +155,7 @@ public class GroundTruths {
      *
      * @return Graph Measures
      */
-    private GraphGtMeasure runWebGraphMode(ImmutableGraph g) {
+    private GraphGtMeasure runWebGraphMode() {
         long startTime = System.currentTimeMillis();
 
         double visitedNodes;
@@ -150,7 +168,7 @@ public class GroundTruths {
 
         // Defining a new neighbourhood function f(.)
         // This function is obtained by executing N breadth first visits.
-        neighFunction = NeighbourhoodFunction.compute(g, mParam.getNumThreads(), pl);
+        neighFunction = NeighbourhoodFunction.compute(mGraph, mParam.getNumThreads(), pl);
         // Get the average distance using the NeighbourhoodFunction
         avgDistance = NeighbourhoodFunction.averageDistance(neighFunction);
         // Get the diameter lowerbound using the function of effective diameter with alpha = 1
@@ -164,7 +182,7 @@ public class GroundTruths {
                 avgDistance, diameter, effectiveDiameter, visitedNodes);
 
         GraphGtMeasure gtMeasure = new GraphGtMeasure(
-                g.numNodes(), g.numArcs(), avgDistance, effectiveDiameter, diameter, visitedNodes);
+                mGraph.numNodes(), mGraph.numArcs(), avgDistance, effectiveDiameter, diameter, visitedNodes);
 
         logger.info("\n\n********************* Stats ****************************\n\n" +
                         "Total couples Reachable\t{}\n" +
@@ -181,10 +199,6 @@ public class GroundTruths {
         logger.info("Time elapsed {}", endTime - startTime);
 
         return gtMeasure;
-    }
-
-    private String getMode() {
-        return mMode;
     }
 
 
@@ -204,5 +218,9 @@ public class GroundTruths {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getMode() {
+        return mMode;
     }
 }
