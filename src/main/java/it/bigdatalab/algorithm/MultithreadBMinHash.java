@@ -1,5 +1,6 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
@@ -18,7 +19,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class MultithreadBMinHash extends BMinHash {
 
@@ -30,16 +30,20 @@ public class MultithreadBMinHash extends BMinHash {
     /**
      * Creates a new MultithreadBMinHash instance with default values
      */
-    public MultithreadBMinHash(final ImmutableGraph g, boolean isSeedsRandom, int numSeeds, double threshold, int threads) {
+    public MultithreadBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads) {
+        super(g, numSeeds, threshold, nodes);
+        mSeedTime = new double[mNumSeeds];
+        this.mNumberOfThreads = getNumberOfMaxThreads(threads);
+    }
+
+    /**
+     * Creates a new MultithreadBMinHash instance with default values
+     */
+    public MultithreadBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int threads) {
         super(g, numSeeds, threshold);
         mSeedTime = new double[mNumSeeds];
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
-
-        if (isSeedsRandom) {
-            for (int i = 0; i < mNumSeeds; i++) {
-                mMinHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
-            }
-        }
+        this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
     }
 
     /**
@@ -50,7 +54,7 @@ public class MultithreadBMinHash extends BMinHash {
      * @return number of threads to use for the computation
      */
     private static int getNumberOfMaxThreads(int suggestedNumberOfThreads) {
-        if (suggestedNumberOfThreads != 0) return suggestedNumberOfThreads;
+        if (suggestedNumberOfThreads > 0) return suggestedNumberOfThreads;
         return Runtime.getRuntime().availableProcessors();
     }
 
@@ -119,7 +123,6 @@ public class MultithreadBMinHash extends BMinHash {
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
-
         normalizeCollisionsTable(collisionsTable);
 
         Int2DoubleLinkedOpenHashMap hopTable = hopTable(collisionsTable);
@@ -132,7 +135,7 @@ public class MultithreadBMinHash extends BMinHash {
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setSeedsTime(mSeedTime);
         graphMeasure.setTime(totalTime);
-        graphMeasure.setMinHashNodeIDs(getNodes());
+        graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
         graphMeasure.setAvgDistance(Stats.averageDistance(hopTable));
         graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTable, mThreshold));
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTable));

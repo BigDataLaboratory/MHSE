@@ -179,9 +179,7 @@ class MHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -210,9 +208,7 @@ class MHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -241,9 +237,7 @@ class MHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -272,9 +266,7 @@ class MHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -303,9 +295,7 @@ class MHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -334,9 +324,8 @@ class MHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+
 
         Measure measure = algo.runAlgorithm();
 
@@ -365,9 +354,7 @@ class MHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -396,9 +383,7 @@ class MHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -427,9 +412,7 @@ class MHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         GraphMeasure measure = (GraphMeasure) algo.runAlgorithm();
 

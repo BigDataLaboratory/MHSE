@@ -8,6 +8,7 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -180,8 +181,7 @@ class MultithreadBMinHashOptimizedTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold(), param.getNumThreads());
-        algo.setNodes(nodes);
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
 
         Measure measure = algo.runAlgorithm();
 
@@ -211,8 +211,7 @@ class MultithreadBMinHashOptimizedTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold(), param.getNumThreads());
-        algo.setNodes(nodes);
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
 
         Measure measure = algo.runAlgorithm();
 
@@ -242,8 +241,7 @@ class MultithreadBMinHashOptimizedTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold(), param.getNumThreads());
-        algo.setNodes(nodes);
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
 
         Measure measure = algo.runAlgorithm();
 
@@ -273,8 +271,7 @@ class MultithreadBMinHashOptimizedTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold(), param.getNumThreads());
-        algo.setNodes(nodes);
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
 
         Measure measure = algo.runAlgorithm();
 
@@ -304,8 +301,7 @@ class MultithreadBMinHashOptimizedTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold(), param.getNumThreads());
-        algo.setNodes(nodes);
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
 
         Measure measure = algo.runAlgorithm();
 
@@ -335,8 +331,7 @@ class MultithreadBMinHashOptimizedTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold(), param.getNumThreads());
-        algo.setNodes(nodes);
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
 
         Measure measure = algo.runAlgorithm();
 
@@ -366,8 +361,7 @@ class MultithreadBMinHashOptimizedTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold(), param.getNumThreads());
-        algo.setNodes(nodes);
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
 
         Measure measure = algo.runAlgorithm();
 
@@ -397,8 +391,7 @@ class MultithreadBMinHashOptimizedTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold(), param.getNumThreads());
-        algo.setNodes(nodes);
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
 
         Measure measure = algo.runAlgorithm();
 
@@ -428,17 +421,28 @@ class MultithreadBMinHashOptimizedTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold(), param.getNumThreads());
-        algo.setNodes(nodes);
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
 
         GraphMeasureOpt measure = (GraphMeasureOpt) algo.runAlgorithm();
 
         // check hop table size (equals to lower bound + 1)
         // check collisions table # rows (equals to lower bound + 1)
         // check collisions table # cols (equals to # seed)
-        SoftAssertions hopAndCollision = new SoftAssertions();
-        hopAndCollision.assertThat(measure.getHopTable()).as("HopTable size").hasSize(measure.getLowerBoundDiameter() + 1);
-        hopAndCollision.assertThat(measure.getCollisionsMatrix()).as("CollisionsTable # rows # cols").hasDimensions(seeds.length, measure.getLowerBoundDiameter() + 1);
-        hopAndCollision.assertAll();
+        SoftAssertions assertions = new SoftAssertions();
+        assertions.assertThat(measure.getLastHops()).as("Last hops size").hasSize(seeds.length);
+        assertions.assertThat(measure.getHopTable()).as("HopTable size").hasSize(measure.getLowerBoundDiameter() + 1);
+        assertions.assertThat(measure.getCollisionsMatrix()).as("CollisionsTable # rows # cols").hasDimensions(seeds.length, measure.getLowerBoundDiameter() + 1);
+        assertions.assertAll();
     }
+
+    @Test
+    void testNormalizeCollisionsTable() {
+        int[][] collisionMatrix = new int[][]{{1, 4, 32, 55, 98, 101, 201}, {1, 4}, {1}, {1, 32}};
+        int nrows = 4;
+        int lowerBoundDiameter = 6;
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(null, 4, 0.9, new int[]{0, 1, 2, 3}, 1);
+        algo.normalizeCollisionsTable(collisionMatrix, lowerBoundDiameter);
+        assertThat(collisionMatrix).as("CollisionsTable # rows # cols").hasDimensions(nrows, lowerBoundDiameter + 1);
+    }
+
 }

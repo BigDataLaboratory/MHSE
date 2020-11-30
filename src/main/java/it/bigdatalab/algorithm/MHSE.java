@@ -6,6 +6,7 @@ import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
@@ -28,18 +29,26 @@ public class MHSE extends MinHash {
     /**
      * Creates a new MHSE instance with default values
      */
-    public MHSE(final ImmutableGraph g, boolean isSeedsRandom, int numSeeds, double threshold) throws SeedsException {
-        super(g, numSeeds, threshold);
-
-        if (isSeedsRandom) {
-            setSeeds(CreateSeeds.genSeeds(mNumSeeds));
-        }
+    public MHSE(final ImmutableGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
+        super(g, numSeeds, threshold, seeds);
 
         signatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());       //initialize signatures map with the expected number of elements(nodes) in the map
         oldSignatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());
         graphSignature = new long[mNumSeeds];
         Arrays.fill(graphSignature, Long.MAX_VALUE);                            //initialize graph signature with Long.MAX_VALUE
-        logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
+    }
+
+    /**
+     * Creates a new MHSE instance with default values
+     */
+    public MHSE(final ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
+        super(g, numSeeds, threshold);
+
+        this.mSeeds = CreateSeeds.genSeeds(mNumSeeds);
+        signatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());       //initialize signatures map with the expected number of elements(nodes) in the map
+        oldSignatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());
+        graphSignature = new long[mNumSeeds];
+        Arrays.fill(graphSignature, Long.MAX_VALUE);                            //initialize graph signature with Long.MAX_VALUE
     }
 
     /**
@@ -112,10 +121,10 @@ public class MHSE extends MinHash {
         GraphMeasure graphMeasure = new GraphMeasure(hopTable, mThreshold);
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
-        graphMeasure.setSeedsList(getSeeds());
+        graphMeasure.setSeedsList(mSeeds);
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
-        graphMeasure.setMinHashNodeIDs(getNodes());
+        graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
         graphMeasure.setAvgDistance(Stats.averageDistance(hopTable));
         graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTable, mThreshold));
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTable));

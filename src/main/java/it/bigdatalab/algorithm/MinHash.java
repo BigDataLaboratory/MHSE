@@ -22,48 +22,40 @@ public abstract class MinHash {
     public MinHash() {
     }
 
+    public MinHash(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) {
+        if (numSeeds != (nodes != null ? nodes.length : 0))
+            throw new SeedsException("Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and length of seeds list is " + nodes.length);
+        this.mNumSeeds = numSeeds;
+        this.mThreshold = threshold;
+        this.mGraph = g;
+        this.mMinHashNodeIDs = nodes;
+    }
+
+    public MinHash(final ImmutableGraph g, int numSeeds, double threshold, IntArrayList seeds) {
+        if (numSeeds != (seeds != null ? seeds.size() : 0))
+            throw new SeedsException("Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and length of seeds list is " + seeds.size());
+        this.mNumSeeds = numSeeds;
+        this.mThreshold = threshold;
+        this.mGraph = g;
+        this.mSeeds = seeds;
+        this.mMinHashNodeIDs = new int[mNumSeeds];
+    }
+
     public MinHash(final ImmutableGraph g, int numSeeds, double threshold) {
         this.mNumSeeds = numSeeds;
         this.mThreshold = threshold;
         this.mGraph = g;
-        mMinHashNodeIDs = new int[mNumSeeds];
+        this.mMinHashNodeIDs = new int[mNumSeeds];
     }
 
-
-    public IntArrayList getSeeds() {
-        return mSeeds;
-    }
-
-    public void setSeeds(IntArrayList seeds) throws SeedsException {
-        if (mNumSeeds != seeds.size()) {
-            String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and length of seeds list is " + seeds.size();
-            throw new SeedsException(message);
-        }
-
-        this.mSeeds = seeds;
-    }
+    public abstract Measure runAlgorithm() throws IOException;
 
     public int[] getNodes() {
         return mMinHashNodeIDs;
     }
 
-    public void setNodes(int[] nodes) throws SeedsException {
-        if (mNumSeeds != nodes.length) {
-            String message = "Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and length of nodes list is " + mMinHashNodeIDs.length;
-            throw new SeedsException(message);
-        }
-
-        this.mMinHashNodeIDs = nodes;
-    }
-
-    public void setNumSeeds(int numSeeds) {
-        this.mNumSeeds = numSeeds;
-    }
-
-    public abstract Measure runAlgorithm() throws IOException;
-
-    public static class SeedsException extends Throwable {
-         SeedsException(String message) {
+    public static class SeedsException extends IllegalArgumentException {
+        SeedsException(String message) {
             super(message);
         }
     }

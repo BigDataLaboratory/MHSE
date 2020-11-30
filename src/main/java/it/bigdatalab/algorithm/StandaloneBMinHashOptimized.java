@@ -1,5 +1,6 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
@@ -8,8 +9,6 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 public class StandaloneBMinHashOptimized extends BMinHashOpt {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHashOptimized");
@@ -17,14 +16,16 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
     /**
      * Creates a new BooleanMinHasOptimized instance with default values
      */
-    public StandaloneBMinHashOptimized(final ImmutableGraph g, boolean isSeedsRandom, int numSeeds, double threshold) {
-        super(g, numSeeds, threshold);
+    public StandaloneBMinHashOptimized(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) {
+        super(g, numSeeds, threshold, nodes);
+    }
 
-        if (isSeedsRandom) {
-            for (int i = 0; i < mNumSeeds; i++) {
-                mMinHashNodeIDs[i] = ThreadLocalRandom.current().nextInt(0, mGraph.numNodes());
-            }
-        }
+    /**
+     * Creates a new BooleanMinHasOptimized instance with default values
+     */
+    public StandaloneBMinHashOptimized(final ImmutableGraph g, int numSeeds, double threshold) {
+        super(g, numSeeds, threshold);
+        this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
     }
 
     /**
@@ -152,7 +153,7 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
         //normalize collisionsTable
-        normalizeCollisionsTable(collisionsMatrix, lowerBound, lastHops);
+        normalizeCollisionsTable(collisionsMatrix, lowerBound);
 
         logger.info("Starting computation of the hop table from collision table");
         hopTableArray = hopTable(collisionsMatrix, lowerBound);

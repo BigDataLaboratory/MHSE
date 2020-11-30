@@ -16,6 +16,10 @@ public abstract class BMinHash extends MinHash {
         super(g, numSeeds, threshold);
     }
 
+    public BMinHash(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) {
+        super(g, numSeeds, threshold, nodes);
+    }
+
     public int lengthBitsArray(int numberOfNodes) {
         return (int) Math.ceil(numberOfNodes / (double) Integer.SIZE);
     }
@@ -54,7 +58,6 @@ public abstract class BMinHash extends MinHash {
         for (int i = 1; i <= lowerBoundDiameter; i++) {
             int[] previousHopCollisions = ct.get(i - 1);
             int[] hopCollisions = ct.get(i);
-            //TODO first if is better for performance?
             if (Arrays.stream(hopCollisions).anyMatch(coll -> coll == 0)) {
                 for (int j = 0; j < hopCollisions.length; j++) {
                     if (hopCollisions[j] == 0) {

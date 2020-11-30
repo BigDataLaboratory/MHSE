@@ -48,18 +48,6 @@ public class MinHashMain {
         this.mParam = param;
     }
 
-    /**
-     * Run Minhash algorithm (specified in the algorithmName parameter) using properties read from properties file such as:
-     * - inputFilePath  the path to the input file representing a graph in a WebGraph format. If the input graph has an edgelist format
-     * - outputFolderPath the path to the output folder path that will contain results of the execution of the algorithm
-     * - algorithmName represent the name of the MinHash algorithm to be executed (see AlghorithmEnum for available algorithms)
-     * - mIsSeedsRandom if it is False, seeds' list and nodes' list must be read from external json file for testing purpose
-     * whose paths are set in mInputFilePathSeed and mInputFilePathNodes
-     * - numTests number of tests to be executed
-     * If algorithmName is empty or not available in AlgorithmEnum, exit from the process
-     *
-     */
-
 
     /**
      * Write the statistics computed on the input graph in a JSON file
@@ -215,7 +203,10 @@ public class MinHashMain {
 
         MinHashMain main = new MinHashMain(param);
         try {
-            main.run();
+            List<Measure> measures = main.run();
+            String inputGraphName = new File(param.getInputFilePathGraph()).getName();
+            String outputFilePath = param.getOutputFolderPath() + File.separator + inputGraphName + Constants.NAMESEPARATOR + param.getAlgorithmName() + Constants.JSON_EXTENSION;
+            GsonHelper.toJson(measures, outputFilePath);
         } catch (IOException | MinHash.SeedsException e) {
             e.printStackTrace();
         }
@@ -225,7 +216,17 @@ public class MinHashMain {
         return IntStream.rangeClosed(start, end).toArray();
     }
 
-    private void run() throws IOException, MinHash.SeedsException {
+    /**
+     * Run Minhash algorithm (specified in the algorithmName parameter) using properties read from properties file such as:
+     * - inputFilePath  the path to the input file representing a graph in a WebGraph format. If the input graph has an edgelist format
+     * - outputFolderPath the path to the output folder path that will contain results of the execution of the algorithm
+     * - algorithmName represent the name of the MinHash algorithm to be executed (see AlghorithmEnum for available algorithms)
+     * - mIsSeedsRandom if it is False, seeds' list and nodes' list must be read from external json file for testing purpose
+     * whose paths are set in mInputFilePathSeed and mInputFilePathNodes
+     * - numTests number of tests to be executed
+     * If algorithmName is empty or not available in AlgorithmEnum, exit from the process
+     */
+    public List<Measure> run() throws IOException, MinHash.SeedsException {
 
         Measure measure;
         int numTest = mParam.getNumTests();
@@ -233,20 +234,20 @@ public class MinHashMain {
         long startTime = System.currentTimeMillis();
         long totalTime;
 
-        List<int[]> nodes = new ArrayList<>();
         List<SeedNode> seedsNodes = new ArrayList<>();
+        List<Measure> measures = new ArrayList<>();
 
         if (!mParam.isSeedsRandom()) {
             // only for boolean version of minhash
             if (mParam.getRange() != null) {
                 int[] n = computeNodesFromRange(mParam.getRange()[0], mParam.getRange()[1]);
-                nodes.add(n);
+                seedsNodes.add(new SeedNode(null, n));
             } else {
                 seedsNodes = GsonHelper.fromJson(mParam.getInputFilePathSeedNode(), new TypeToken<List<SeedNode>>() {
                 }.getType());
-                if (numTest > seedsNodes.size())
-                    throw new IllegalStateException("# run > list of seeds/nodes, please review your input");
             }
+            if (numTest > seedsNodes.size())
+                throw new IllegalStateException("# run > list of seeds/nodes, please review your input");
         }
 
         final ImmutableGraph g = GraphUtils.loadGraph(
@@ -257,26 +258,14 @@ public class MinHashMain {
                 mParam.getDirection());
 
         MinHashFactory mhf = new MinHashFactory();
-        MinHash minHash = mhf.getAlgorithm(
-                g,
-                AlgorithmEnum.valueOf(mParam.getAlgorithmName()),
-                mParam.isSeedsRandom(),
-                mParam.getNumSeeds(),
-                mParam.getThreshold(),
-                mParam.getNumThreads());
 
         for (int i = 0; i < numTest; i++) {
 
-            if (!mParam.isSeedsRandom()) {
-                if (mParam.getRange() == null) {
-                    minHash.setSeeds(seedsNodes.get(i).getSeeds());
-                    minHash.setNodes(seedsNodes.get(i).getNodes());
-                } else
-                    minHash.setNodes(nodes.get(i));
-            }
+            MinHash minHash = mParam.isSeedsRandom() ?
+                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), mParam.getNumThreads()) :
+                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), seedsNodes.get(i).getSeeds(), seedsNodes.get(i).getNodes(), mParam.getNumThreads());
 
             measure = minHash.runAlgorithm();
-
             measure.setAlgorithmName(mParam.getAlgorithmName());
             measure.setRun(i + 1);
             measure.setDirection(mParam.getDirection());
@@ -303,18 +292,16 @@ public class MinHashMain {
                 measure.setMinHashNodeIDs(null);
             }
 
-            String inputGraphName = new File(mParam.getInputFilePathGraph()).getName();
-            String outputFilePath = mParam.getOutputFolderPath() + File.separator + inputGraphName;
-            writeOnFile(measure, outputFilePath);
+            measures.add(measure);
+            //writeOnFile(measure, outputFilePath);
+
             logger.info("\n\n********************************************************\n\n" +
                             "Test n.{} executed correctly\n\n" +
                             "********************************************************\n\n",
                     i + 1);
         }
-
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Application successfully completed. Time elapsed (in milliseconds) {}", totalTime);
+        return measures;
     }
-
-
 }

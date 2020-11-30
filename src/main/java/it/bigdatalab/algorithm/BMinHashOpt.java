@@ -8,6 +8,10 @@ public abstract class BMinHashOpt extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.BMinHashOpt");
 
+    public BMinHashOpt(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) {
+        super(g, numSeeds, threshold, nodes);
+    }
+
     public BMinHashOpt(final ImmutableGraph g, int numSeeds, double threshold) {
         super(g, numSeeds, threshold);
     }
@@ -22,23 +26,24 @@ public abstract class BMinHashOpt extends MinHash {
      * If so, we have to substitute the 0 value in the table with
      * the maximum value of the other hash functions of the same hop
      */
-    public void normalizeCollisionsTable(int[][] collisionsMatrix, int lowerBound, int[] last) {
+    public void normalizeCollisionsTable(int[][] collisionsMatrix, int lowerBound) {
 
-        for (int i = 0; i < last.length; i++) { // check last hop of each seed
+        for (int i = 0; i < collisionsMatrix.length; i++) { // check last hop of each seed
             // if last hop is not the lower bound
             // replace the 0 values from last hop + 1 until lower bound
             // with the value of the previous hop for the same seed
-            if (last[i] < lowerBound) {
+            if (collisionsMatrix[i].length - 1 < lowerBound) {
+                int oldLen = collisionsMatrix[i].length;
                 int[] copy = new int[lowerBound + 1];
                 System.arraycopy(collisionsMatrix[i], 0, copy, 0, collisionsMatrix[i].length);
                 collisionsMatrix[i] = copy;
-
-                for (int j = last[i] + 1; j <= lowerBound; j++) {
+                for (int j = oldLen; j <= lowerBound; j++) {
                     collisionsMatrix[i][j] = collisionsMatrix[i][j - 1];
                 }
             }
         }
     }
+
     /***
      * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
      * @return hop table

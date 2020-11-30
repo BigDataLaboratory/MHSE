@@ -4,10 +4,12 @@ import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.model.Parameter;
 import it.bigdatalab.utils.GraphUtils;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -179,8 +181,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
+        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -209,8 +210,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
+        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -239,8 +239,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
+        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -269,8 +268,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
+        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -299,8 +297,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
+        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -329,8 +326,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
+        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -359,8 +355,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
+        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -389,8 +384,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
+        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -419,15 +413,34 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
+        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         GraphMeasure measure = (GraphMeasure) algo.runAlgorithm();
 
-        SoftAssertions hopAndCollision = new SoftAssertions();
-        hopAndCollision.assertThat(measure.getHopTable()).as("HopTable size").hasSize(measure.getLowerBoundDiameter() + 1);
-        hopAndCollision.assertThat(measure.getCollisionsTable()).as("CollisionsTable # rows").hasSize(measure.getLowerBoundDiameter() + 1);
-        hopAndCollision.assertThat(measure.getCollisionsTable().values()).extracting(record -> record.length).as("CollisionsTable # cols").containsOnly(seeds.length);
-        hopAndCollision.assertAll();
+        SoftAssertions assertions = new SoftAssertions();
+        assertions.assertThat(measure.getLastHops()).as("Last hops size").hasSize(seeds.length);
+        assertions.assertThat(measure.getHopTable()).as("HopTable size").hasSize(measure.getLowerBoundDiameter() + 1);
+        assertions.assertThat(measure.getCollisionsTable()).as("CollisionsTable # rows").hasSize(measure.getLowerBoundDiameter() + 1);
+        assertions.assertThat(measure.getCollisionsTable().values()).extracting(record -> record.length).as("CollisionsTable # cols").containsOnly(seeds.length);
+        assertions.assertAll();
+    }
+
+    @Test
+    void testNormalizeCollisionsTable() {
+        Int2ObjectOpenHashMap<int[]> collisionTable = new Int2ObjectOpenHashMap<>();
+        collisionTable.put(0, new int[]{1, 0, 0, 0, 0, 0, 0});
+        collisionTable.put(1, new int[]{1, 4, 0, 0, 0, 0, 0});
+        collisionTable.put(2, new int[]{1, 32, 54, 0, 0, 0, 0});
+        collisionTable.put(3, new int[]{1, 4, 32, 55, 98, 101, 201});
+
+        int nseed = 7;
+        int lowerBoundDiameter = 3;
+        StandaloneBMinHash algo = new StandaloneBMinHash(null, nseed, 0.9, new int[]{0, 1, 2, 3, 4, 5, 6});
+        algo.normalizeCollisionsTable(collisionTable);
+
+        SoftAssertions collAssertion = new SoftAssertions();
+        collAssertion.assertThat(collisionTable).as("CollisionsTable # rows").hasSize(lowerBoundDiameter + 1);
+        collAssertion.assertThat(collisionTable.values()).extracting(record -> record.length).as("CollisionsTable # cols").containsOnly(nseed);
+        collAssertion.assertAll();
     }
 }

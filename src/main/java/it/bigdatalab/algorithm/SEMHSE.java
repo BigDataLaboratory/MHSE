@@ -7,6 +7,7 @@ import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
@@ -29,15 +30,22 @@ public class SEMHSE extends MinHash {
     /**
      * Creates a SE-MHSE instance with default values
      */
-    public SEMHSE(ImmutableGraph g, boolean isSeedsRandom, int numSeeds, double threshold) throws SeedsException {
-        super(g, numSeeds, threshold);
+    public SEMHSE(ImmutableGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
+        super(g, numSeeds, threshold, seeds);
         graphSignature = new long[mNumSeeds];
         //initialize graph signature with Long.MAX_VALUE
         Arrays.fill(graphSignature, Long.MAX_VALUE);
+    }
 
-        if (isSeedsRandom) {
-            setSeeds(CreateSeeds.genSeeds(mNumSeeds));
-        }
+    /**
+     * Creates a SE-MHSE instance with default values
+     */
+    public SEMHSE(ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
+        super(g, numSeeds, threshold);
+        this.mSeeds = CreateSeeds.genSeeds(mNumSeeds);
+        graphSignature = new long[mNumSeeds];
+        //initialize graph signature with Long.MAX_VALUE
+        Arrays.fill(graphSignature, Long.MAX_VALUE);
     }
 
     /**
@@ -138,10 +146,10 @@ public class SEMHSE extends MinHash {
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setCollisionsTable(collisionsTable);
         graphMeasure.setLastHops(lastHops);
-        graphMeasure.setSeedsList(getSeeds());
+        graphMeasure.setSeedsList(mSeeds);
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
-        graphMeasure.setMinHashNodeIDs(getNodes());
+        graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
         graphMeasure.setAvgDistance(Stats.averageDistance(hopTable));
         graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTable, mThreshold));
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTable));

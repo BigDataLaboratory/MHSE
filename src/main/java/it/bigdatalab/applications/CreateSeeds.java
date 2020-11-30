@@ -20,7 +20,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
+import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
@@ -55,6 +55,17 @@ public class CreateSeeds {
             seeds.add(randomNum);
         }
         return seeds;
+    }
+
+    /***
+     *  Generate a random integer and append it
+     *  to the seeds list
+     */
+    public static int[] genNodes(int numSeeds, int maxNumNodes) {
+        int[] nodes = new int[numSeeds];
+        for (int i = 0; i < numSeeds; i++)
+            nodes[i] = ThreadLocalRandom.current().nextInt(0, maxNumNodes);
+        return nodes;
     }
 
     /***

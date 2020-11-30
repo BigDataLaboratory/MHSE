@@ -3,7 +3,6 @@ package it.bigdatalab.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +36,7 @@ public class GsonHelper {
         }
     }
 
+
     /**
      * @param <T>                     the 1st type of the desired object
      * @param listOfModelClassObjects a list of objects of model class
@@ -50,21 +50,6 @@ public class GsonHelper {
         }
     }
 
-    @SafeVarargs
-    public static <T> void toJson(List<T> listOfModelClassObjects, String path, Class<T> supertype, Class<T>... subtypes) throws IOException {
-        if (supertype == null) return;
-
-        RuntimeTypeAdapterFactory<T> typeAdapterFactory = RuntimeTypeAdapterFactory.of(supertype, "type");
-        for (Class<T> subtype : subtypes) typeAdapterFactory.registerSubtype(subtype, subtype.getName());
-
-        Type type = new TypeToken<List<T>>() {
-        }.getType();
-        sGson = new GsonBuilder().registerTypeAdapterFactory(typeAdapterFactory).create();
-
-        try (FileWriter fileWriter = new FileWriter(path)) {
-            sGson.toJson(listOfModelClassObjects, type, fileWriter);
-        }
-    }
 
     /**
      * @param <T>           the type of the desired object

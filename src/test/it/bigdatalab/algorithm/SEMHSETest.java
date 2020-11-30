@@ -180,9 +180,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -211,9 +209,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -242,9 +238,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -273,9 +267,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -304,9 +296,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -335,9 +325,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -366,9 +354,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -397,9 +383,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -428,19 +412,18 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.isSeedsRandom(), param.getNumSeeds(), param.getThreshold());
-        algo.setNodes(nodes);
-        algo.setSeeds(new IntArrayList(seeds));
+        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         GraphMeasure measure = (GraphMeasure) algo.runAlgorithm();
 
         // check hop table size (equals to lower bound + 1)
         // check collisions table # rows (equals to lower bound + 1)
         // check collisions table # cols (equals to # seed)
-        SoftAssertions hopAndCollision = new SoftAssertions();
-        hopAndCollision.assertThat(measure.getHopTable()).as("HopTable size").hasSize(measure.getLowerBoundDiameter() + 1);
-        hopAndCollision.assertThat(measure.getCollisionsTable()).as("CollisionsTable # rows").hasSize(measure.getLowerBoundDiameter() + 1);
-        hopAndCollision.assertThat(measure.getCollisionsTable().values()).extracting(record -> record.length).as("CollisionsTable # cols").containsOnly(seeds.length);
-        hopAndCollision.assertAll();
+        SoftAssertions assertions = new SoftAssertions();
+        assertions.assertThat(measure.getLastHops()).as("Last hops size").hasSize(seeds.length);
+        assertions.assertThat(measure.getHopTable()).as("HopTable size").hasSize(measure.getLowerBoundDiameter() + 1);
+        assertions.assertThat(measure.getCollisionsTable()).as("CollisionsTable # rows").hasSize(measure.getLowerBoundDiameter() + 1);
+        assertions.assertThat(measure.getCollisionsTable().values()).extracting(record -> record.length).as("CollisionsTable # cols").containsOnly(seeds.length);
+        assertions.assertAll();
     }
 }

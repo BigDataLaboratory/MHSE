@@ -13,7 +13,7 @@ class GraphUtilsTest {
 
     @Test
     void testLoadGraph_InDirection() throws IOException {
-        String inputFilePath = new File("src/test/data/32-path.graph").getAbsolutePath();
+        String inputFilePath = new File("src/test/data/g_directed/32-path.graph").getAbsolutePath();
         inputFilePath = inputFilePath.substring(0, inputFilePath.lastIndexOf('.'));
         boolean transpose = false;
         boolean inMemory = true;
@@ -27,7 +27,7 @@ class GraphUtilsTest {
 
     @Test
     void testLoadGraph_OutDirection() throws IOException {
-        String inputFilePath = new File("src/test/data/32-path.graph").getAbsolutePath();
+        String inputFilePath = new File("src/test/data/g_directed/32-path.graph").getAbsolutePath();
         inputFilePath = inputFilePath.substring(0, inputFilePath.lastIndexOf('.'));
         boolean transpose = false;
         boolean inMemory = true;
@@ -41,7 +41,7 @@ class GraphUtilsTest {
 
     @Test
     void testLoadGraph_TransposedGraphInDirection() throws IOException {
-        String inputFilePath = new File("src/test/data/32t-path.graph").getAbsolutePath();
+        String inputFilePath = new File("src/test/data/g_directed/32t-path.graph").getAbsolutePath();
         inputFilePath = inputFilePath.substring(0, inputFilePath.lastIndexOf('.'));
         boolean transpose = true;
         boolean inMemory = true;
@@ -55,7 +55,7 @@ class GraphUtilsTest {
 
     @Test
     void testLoadGraph_TransposedGraphOutDirection() throws IOException {
-        String inputFilePath = new File("src/test/data/32t-path.graph").getAbsolutePath();
+        String inputFilePath = new File("src/test/data/g_directed/32t-path.graph").getAbsolutePath();
         inputFilePath = inputFilePath.substring(0, inputFilePath.lastIndexOf('.'));
         boolean transpose = true;
         boolean inMemory = true;
