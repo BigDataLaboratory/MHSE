@@ -29,9 +29,8 @@ public class GraphUtils {
 
         logger.info("\n\n********************** Graph Info **********************\n" +
                         "# nodes:\t{}\n" +
-                        "# edges:\t{}\n" +
                         "********************************************************\n\n",
-                graph.numNodes(), graph.numArcs());
+                graph.numNodes());
 
         return graph;
     }
