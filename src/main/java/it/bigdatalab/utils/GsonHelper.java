@@ -6,11 +6,13 @@ import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GsonHelper {
@@ -59,6 +61,8 @@ public class GsonHelper {
      * @throws FileNotFoundException
      */
     public static <T> List<T> fromJson(String inputFilePath, Type desiredType) throws FileNotFoundException {
-        return sGson.fromJson(new FileReader(inputFilePath), desiredType);
+        if (new File(inputFilePath).isFile())
+            return sGson.fromJson(new FileReader(inputFilePath), desiredType);
+        return new ArrayList<>();
     }
 }
