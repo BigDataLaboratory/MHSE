@@ -4,12 +4,11 @@ import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.model.Parameter;
 import it.bigdatalab.utils.GraphUtils;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,9 +22,8 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class StandaloneBMinHashTest {
-
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHashTest");
+public class MHSETest {
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSE");
 
     private Comparator<Integer> mLessThan;
 
@@ -154,18 +152,18 @@ class StandaloneBMinHashTest {
     }
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         this.mLessThan = (x, y) -> x <= y ? 0 : 1;
     }
 
     @AfterEach
-    void tearDown() {
+    public void tearDown() {
         this.mLessThan = null;
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("cycleProvider")
-    void testAlgorithm_DiCycle(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    public void testAlgorithm_DiCycle(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32-cycle.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -181,7 +179,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -194,7 +192,7 @@ class StandaloneBMinHashTest {
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("pathProvider")
-    void testAlgorithm_DiPath(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    public void testAlgorithm_DiPath(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32-path.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -210,7 +208,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -239,7 +237,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -268,7 +266,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -297,7 +295,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -326,7 +324,8 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+
 
         Measure measure = algo.runAlgorithm();
 
@@ -355,7 +354,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -384,7 +383,7 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -396,9 +395,9 @@ class StandaloneBMinHashTest {
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("pathProvider")
-    void testAlgorithm_DiPath_checkSizeCollisionHopTable(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
-        String path = new File("src/test/data/g_directed/32-path.graph").getAbsolutePath();
+    @MethodSource("inStarProvider")
+    void testAlgorithm_DiInStar_checkSizeCollisionHopTable(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32in-star.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(path)
@@ -413,34 +412,13 @@ class StandaloneBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         GraphMeasure measure = (GraphMeasure) algo.runAlgorithm();
 
-        SoftAssertions assertions = new SoftAssertions();
-        assertions.assertThat(measure.getLastHops()).as("Last hops size").hasSize(seeds.length);
-        assertions.assertThat(measure.getHopTable()).as("HopTable size").hasSize(measure.getLowerBoundDiameter() + 1);
-        assertions.assertThat(measure.getCollisionsTable()).as("CollisionsTable # rows").hasSize(measure.getLowerBoundDiameter() + 1);
-        assertions.assertThat(measure.getCollisionsTable().values()).extracting(record -> record.length).as("CollisionsTable # cols").containsOnly(seeds.length);
-        assertions.assertAll();
-    }
-
-    @Test
-    void testNormalizeCollisionsTable() {
-        Int2ObjectOpenHashMap<int[]> collisionTable = new Int2ObjectOpenHashMap<>();
-        collisionTable.put(0, new int[]{1, 0, 0, 0, 0, 0, 0});
-        collisionTable.put(1, new int[]{1, 4, 0, 0, 0, 0, 0});
-        collisionTable.put(2, new int[]{1, 32, 54, 0, 0, 0, 0});
-        collisionTable.put(3, new int[]{1, 4, 32, 55, 98, 101, 201});
-
-        int nseed = 7;
-        int lowerBoundDiameter = 3;
-        StandaloneBMinHash algo = new StandaloneBMinHash(null, nseed, 0.9, new int[]{0, 1, 2, 3, 4, 5, 6});
-        algo.normalizeCollisionsTable(collisionTable);
-
-        SoftAssertions collAssertion = new SoftAssertions();
-        collAssertion.assertThat(collisionTable).as("CollisionsTable # rows").hasSize(lowerBoundDiameter + 1);
-        collAssertion.assertThat(collisionTable.values()).extracting(record -> record.length).as("CollisionsTable # cols").containsOnly(nseed);
-        collAssertion.assertAll();
+        // check hop table size (equals to lower bound + 1)
+        SoftAssertions hopAndCollision = new SoftAssertions();
+        hopAndCollision.assertThat(measure.getHopTable()).as("HopTable size").hasSize(measure.getLowerBoundDiameter() + 1);
+        hopAndCollision.assertAll();
     }
 }

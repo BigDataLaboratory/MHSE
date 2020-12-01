@@ -206,7 +206,10 @@ public class MinHashMain {
             List<Measure> measures = main.run();
             String inputGraphName = new File(param.getInputFilePathGraph()).getName();
             String outputFilePath = param.getOutputFolderPath() + File.separator + inputGraphName + Constants.NAMESEPARATOR + param.getAlgorithmName() + Constants.JSON_EXTENSION;
-            GsonHelper.toJson(measures, outputFilePath);
+            List<Measure> measuresRead = GsonHelper.fromJson(outputFilePath, new TypeToken<List<Measure>>() {
+            }.getType());
+            measuresRead.addAll(measures);
+            GsonHelper.toJson(measuresRead, outputFilePath);
         } catch (IOException | MinHash.SeedsException e) {
             e.printStackTrace();
         }
