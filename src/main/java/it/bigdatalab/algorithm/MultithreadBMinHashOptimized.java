@@ -124,11 +124,14 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
         hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
         logger.debug("Hop table derived from collision table: {}", hopTableArray);
 
-        GraphMeasureOpt graphMeasure = new GraphMeasureOpt(hopTableArray, lowerboundDiameter, mThreshold);
+        GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumSeeds(mNumSeeds);
+        graphMeasure.setHopTable(hopTableArray);
         graphMeasure.setCollisionsTable(collisionsMatrix);
         graphMeasure.setLastHops(lastHops);
+        graphMeasure.setLowerBoundDiameter(lowerboundDiameter);
+        graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsTime(mSeedTime);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);

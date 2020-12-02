@@ -141,12 +141,15 @@ public class SEMHSE extends MinHash {
         hopTable = hopTable(collisionsTable);
         logger.info("Computation of the hop table completed");
 
-        GraphMeasure graphMeasure = new GraphMeasure(hopTable, mThreshold);
+        GraphMeasure graphMeasure = new GraphMeasure();
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setCollisionsTable(collisionsTable);
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setSeedsList(mSeeds);
+        graphMeasure.setHopTable(hopTable);
+        graphMeasure.setLowerBoundDiameter(hopTable.size() - 1);
+        graphMeasure.setThreshold(mThreshold);
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);

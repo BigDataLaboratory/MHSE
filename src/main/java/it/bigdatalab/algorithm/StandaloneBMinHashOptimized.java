@@ -159,14 +159,17 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
         hopTableArray = hopTable(collisionsMatrix, lowerBound);
         logger.info("Computation of the hop table completed");
 
-        GraphMeasureOpt graphMeasure = new GraphMeasureOpt(hopTableArray, lowerBound, mThreshold);
+        GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mNumSeeds);
-        graphMeasure.setCollisionsTable(collisionsMatrix);
+        graphMeasure.setCollisionsMatrix(collisionsMatrix);
+        graphMeasure.setHopTable(hopTableArray);
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
         graphMeasure.setTime(totalTime);
+        graphMeasure.setLowerBoundDiameter(lowerBound);
+        graphMeasure.setThreshold(mThreshold);
         graphMeasure.setAvgDistance(Stats.averageDistance(hopTableArray));
         graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTableArray, mThreshold));
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));

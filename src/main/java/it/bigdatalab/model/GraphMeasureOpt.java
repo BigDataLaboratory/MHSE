@@ -13,18 +13,8 @@ public class GraphMeasureOpt extends Measure {
     @SerializedName("collision_table")
     private int[][] mCollisionsMatrix;
 
-    public GraphMeasureOpt(double threshold) {
-        super(threshold);
-    }
+    public GraphMeasureOpt() {
 
-    /**
-     * @param hopTable           as an array
-     * @param lowerBoundDiameter computed when algorithm completed
-     */
-    public GraphMeasureOpt(double[] hopTable, int lowerBoundDiameter, double threshold) {
-        super(threshold);
-        this.mHopTable = hopTable;
-        this.mLowerBoundDiameter = lowerBoundDiameter;
     }
 
 

@@ -3,6 +3,7 @@ package it.bigdatalab.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,9 +20,17 @@ public class GsonHelper {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.utils.GsonHelper");
 
-    private static Gson sGson = new GsonBuilder().create();
+    private static final GsonBuilder gsonBuilder = new GsonBuilder();
 
     private GsonHelper() {
+    }
+
+    public static Gson getGson() {
+        return gsonBuilder.create();
+    }
+
+    public static Gson getGson(RuntimeTypeAdapterFactory<?> adapter) {
+        return gsonBuilder.registerTypeAdapterFactory(adapter).create();
     }
 
     /**
@@ -34,7 +43,7 @@ public class GsonHelper {
         }.getType();
 
         try (FileWriter fileWriter = new FileWriter(path)) {
-            sGson.toJson(modelClassObject, type, fileWriter);
+            getGson().toJson(modelClassObject, type, fileWriter);
         }
     }
 
@@ -48,7 +57,7 @@ public class GsonHelper {
         }.getType();
 
         try (FileWriter fileWriter = new FileWriter(path)) {
-            sGson.toJson(listOfModelClassObjects, type, fileWriter);
+            getGson().toJson(listOfModelClassObjects, type, fileWriter);
         }
     }
 
@@ -62,7 +71,32 @@ public class GsonHelper {
      */
     public static <T> List<T> fromJson(String inputFilePath, Type desiredType) throws FileNotFoundException {
         if (new File(inputFilePath).isFile())
-            return sGson.fromJson(new FileReader(inputFilePath), desiredType);
+            return getGson().fromJson(new FileReader(inputFilePath), desiredType);
+        return new ArrayList<>();
+    }
+
+    /**
+     * @param <T>                     the 1st type of the desired object
+     * @param listOfModelClassObjects a list of objects of model class
+     */
+    public static <T> void toJson(List<T> listOfModelClassObjects, String path, Type desiredType, RuntimeTypeAdapterFactory<?> adapter) throws IOException {
+
+        try (FileWriter fileWriter = new FileWriter(path)) {
+            getGson(adapter).toJson(listOfModelClassObjects, desiredType, fileWriter);
+        }
+    }
+
+
+    /**
+     * @param <T>           the type of the desired object
+     * @param inputFilePath path from which the object is to be deserialized
+     * @param desiredType   the specific genericized type of source.
+     * @return List<T> list of the desired objects
+     * @throws FileNotFoundException
+     */
+    public static <T> List<T> fromJson(String inputFilePath, Type desiredType, RuntimeTypeAdapterFactory<?> adapter) throws FileNotFoundException {
+        if (new File(inputFilePath).isFile())
+            return getGson(adapter).fromJson(new FileReader(inputFilePath), desiredType);
         return new ArrayList<>();
     }
 }

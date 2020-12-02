@@ -42,8 +42,8 @@ public class Measure {
     @SerializedName("run")
     protected int mRun;
 
-    public Measure(double threshold) {
-        this.mThreshold = threshold;
+
+    public Measure() {
     }
 
     public Measure(int numSeeds, int lowerBound,
@@ -313,11 +313,11 @@ public class Measure {
         this.mLowerBoundDiameter = lowerBoundDiameter;
     }
 
-
     /**
      * @param totalCouplesPerc percentage of reachable nodes
      */
     public void setTotalCouplesPercentage(double totalCouplesPerc) {
         this.mTotalCouplePercentage = totalCouplesPerc;
     }
+
 }

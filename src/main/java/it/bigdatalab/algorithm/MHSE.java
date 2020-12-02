@@ -118,9 +118,12 @@ public class MHSE extends MinHash {
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
-        GraphMeasure graphMeasure = new GraphMeasure(hopTable, mThreshold);
+        GraphMeasure graphMeasure = new GraphMeasure();
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
+        graphMeasure.setHopTable(hopTable);
+        graphMeasure.setLowerBoundDiameter(hopTable.size() - 1);
+        graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsList(mSeeds);
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);

@@ -52,10 +52,10 @@ public class MinHashMain {
     /**
      * Write the statistics computed on the input graph in a JSON file
      *
-     * @param graphMeasure input graph statistics
-     * @param path         output file path of the JSON file
+     * @param measures input graph statistics
+     * @param path     output file path of the JSON file
      */
-    private static void writeOnFile(Measure graphMeasure, String path) throws IOException {
+    private static void writeOnFile(List<Measure> measures, String path) throws IOException {
         path += Constants.JSON_EXTENSION;
 
         RuntimeTypeAdapterFactory<Measure> typeAdapterFactory = RuntimeTypeAdapterFactory
@@ -83,7 +83,7 @@ public class MinHashMain {
         }
 
         // Add new graphMeasure to the list
-        graphMeasures.add(graphMeasure);
+        graphMeasures.addAll(measures);
         // No append replace the whole file
         FileWriter fw = new FileWriter(path);
         gson.toJson(graphMeasures, gmListType, fw);
@@ -206,10 +206,24 @@ public class MinHashMain {
             List<Measure> measures = main.run();
             String inputGraphName = new File(param.getInputFilePathGraph()).getName();
             String outputFilePath = param.getOutputFolderPath() + File.separator + inputGraphName + Constants.NAMESEPARATOR + param.getAlgorithmName() + Constants.JSON_EXTENSION;
-            List<Measure> measuresRead = GsonHelper.fromJson(outputFilePath, new TypeToken<List<Measure>>() {
-            }.getType());
+            //writeOnFile(measures, outputFilePath);
+            RuntimeTypeAdapterFactory<Measure> adapter = RuntimeTypeAdapterFactory.of(Measure.class, "type")
+                    .registerSubtype(GraphMeasure.class, GraphMeasure.class.getName())
+                    .registerSubtype(GraphMeasureOpt.class, GraphMeasureOpt.class.getName());
+
+            List<Measure> measuresRead = GsonHelper.fromJson(
+                    outputFilePath, new TypeToken<List<Measure>>() {
+                    }.getType(), adapter);
+
             measuresRead.addAll(measures);
-            GsonHelper.toJson(measuresRead, outputFilePath);
+
+            GsonHelper.toJson(
+                    measuresRead,
+                    outputFilePath,
+                    new TypeToken<List<Measure>>() {
+                    }.getType(),
+                    adapter);
+
         } catch (IOException | MinHash.SeedsException e) {
             e.printStackTrace();
         }

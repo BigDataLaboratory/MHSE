@@ -128,8 +128,11 @@ public class MultithreadBMinHash extends BMinHash {
         Int2DoubleLinkedOpenHashMap hopTable = hopTable(collisionsTable);
         logger.debug("Hop table derived from collision table: {}", hopTable);
 
-        GraphMeasure graphMeasure = new GraphMeasure(hopTable, mThreshold);
+        GraphMeasure graphMeasure = new GraphMeasure();
         graphMeasure.setNumNodes(mGraph.numNodes());
+        graphMeasure.setHopTable(hopTable);
+        graphMeasure.setLowerBoundDiameter(hopTable.size() - 1);
+        graphMeasure.setThreshold(mThreshold);
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setCollisionsTable(collisionsTable);
         graphMeasure.setLastHops(lastHops);
