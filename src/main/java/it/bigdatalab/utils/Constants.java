@@ -1,5 +1,7 @@
 package it.bigdatalab.utils;
 
+import java.util.concurrent.TimeUnit;
+
 public class Constants {
 
     /*******************************************************************************
@@ -20,6 +22,12 @@ public class Constants {
 
     public static final String JSON_EXTENSION = ".json";
     public static final String GRAPH_EXTENSION = ".graph";
+
+    /*******************************************************************************
+     *                                     LOG
+     * ****************************************************************************/
+
+    public static long LOG_INTERVAL = TimeUnit.MILLISECONDS.toMillis(3000L);
 
     /*******************************************************************************
      *                                     GENERIC

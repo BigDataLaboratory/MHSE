@@ -9,6 +9,9 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+
 public class StandaloneBMinHashOptimized extends BMinHashOpt {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHashOptimized");
@@ -24,7 +27,7 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
      * Creates a new BooleanMinHasOptimized instance with default values
      */
     public StandaloneBMinHashOptimized(final ImmutableGraph g, int numSeeds, double threshold) {
-        super(g, numSeeds, threshold);
+        this(g, numSeeds, threshold, null);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
     }
 
@@ -36,6 +39,8 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
     public Measure runAlgorithm() {
         long startTime = System.currentTimeMillis();
         long totalTime;
+        long lastLogTime = startTime;
+        long logTime;
 
         // seed as rows, hop as columns - cell values are collissions for each hash function at hop
         int[][] collisionsMatrix = new int[mNumSeeds][1];
@@ -45,9 +50,9 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
 
         int lowerBound = 0;
 
-        for (int i = 0; i < this.mNumSeeds; i++) {
+        for (int s = 0; s < this.mNumSeeds; s++) {
 
-            logger.info("Starting computation on seed {}", i);
+            logger.info("Starting computation on seed {}", s);
 
             int collisions = 0;
 
@@ -58,7 +63,7 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
 
             // Choose a random node is equivalent to compute the minhash
             //It could be set in mhse.properties file with the "minhash.nodeIDs" property
-            int randomNode = mMinHashNodeIDs[i];
+            int randomNode = mMinHashNodeIDs[s];
 
             // initialization of the collision "collisions" for the hop
             // we use a dict because we want to iterate over the nodes until
@@ -68,7 +73,7 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
             boolean signatureIsChanged = true;
 
             while (signatureIsChanged) {
-                logger.debug("(seed {}) Starting computation on hop {}", i, h);
+                logger.debug("(seed {}) Starting computation on hop {}", s, h);
 
                 //first hop - initialization
                 if (h == 0) {
@@ -121,6 +126,19 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
                             }
                         }
                         mutable[quotientNode] = mutable[quotientNode] | value;
+                        logTime = System.currentTimeMillis();
+                        if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
+                            int maxHop = Arrays.stream(lastHops).summaryStatistics().getMax() + 1;
+                            logger.info("(seed # {}) # nodes analyzed {} / {} for hop {} / {} (upper bound), estimated time remaining {}",
+                                    s + 1,
+                                    n, mGraph.numNodes(),
+                                    h + 1, maxHop,
+                                    String.format("%d min, %d sec",
+                                            TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - startTime)) / (s + 1)) - (logTime - startTime)),
+                                            TimeUnit.MILLISECONDS.toSeconds(((mNumSeeds * (logTime - startTime)) / (s + 1)) - (logTime - startTime)) -
+                                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - startTime)) / (s + 1)) - (logTime - startTime)))));
+                            lastLogTime = logTime;
+                        }
                     }
                 }
 
@@ -132,21 +150,21 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
                     }
 
                     int[] copy = new int[h + 1];
-                    System.arraycopy(collisionsMatrix[i], 0, copy, 0, collisionsMatrix[i].length);
-                    collisionsMatrix[i] = copy;
+                    System.arraycopy(collisionsMatrix[s], 0, copy, 0, collisionsMatrix[s].length);
+                    collisionsMatrix[s] = copy;
 
-                    collisionsMatrix[i][h] = collisions;
+                    collisionsMatrix[s][h] = collisions;
 
                     logger.debug("Number of collisions: {}", collisions);
-                    lastHops[i] = h;
+                    lastHops[s] = h;
                     if (h > lowerBound)
                         lowerBound = h;
                     h += 1;
                 }
             }
 
-            logger.info("Total number of collisions for seed n.{} : {}", i, collisions);
-            logger.debug("Ended computation on seed {}", i);
+            logger.info("Total number of collisions for seed n.{} : {}", s, collisions);
+            logger.debug("Ended computation on seed {}", s);
         }
 
         totalTime = System.currentTimeMillis() - startTime;

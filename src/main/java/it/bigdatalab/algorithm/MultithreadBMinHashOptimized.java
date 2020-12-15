@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class MultithreadBMinHashOptimized extends BMinHashOpt {
 
@@ -23,6 +24,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
 
     private final int mNumberOfThreads;
     private final double[] mSeedTime;
+    private long startTime;
 
     /**
      * Creates a new MultithreadBMinHashOptimized instance with default values
@@ -62,7 +64,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
      */
 
     public Measure runAlgorithm() {
-        long startTime = System.currentTimeMillis();
+        startTime = System.currentTimeMillis();
         long totalTime;
 
         logger.debug("Number of threads to be used {}", mNumberOfThreads);
@@ -86,16 +88,13 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
                 Future<int[]> future = futures.get(i);
                 if (!future.isCancelled()) {
                     try {
-                        logger.debug("Starting computation of collision table on seed {}", i);
                         int[] hopCollisions = future.get();
                         collisionsMatrix[i] = hopCollisions;
                         int lastHop = hopCollisions.length - 1;
                         lastHops[i] = lastHop;
-                        logger.debug("lastHop {} lastHops[{}] {} lowerbound {}", lastHop, i, lastHops[i], lowerboundDiameter);
                         if (lastHop > lowerboundDiameter) {
                             lowerboundDiameter = lastHop;
                         }
-                        logger.debug("Collision table computation completed on seed {}!", i);
 
                     } catch (ExecutionException e) {
                         logger.error("Failed to get result", e);
@@ -120,9 +119,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
 
         normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
 
-        logger.info("Starting computation of the hop table from collision table");
         hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
-        logger.debug("Hop table derived from collision table: {}", hopTableArray);
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
@@ -146,17 +143,19 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
     class IterationThread implements Callable<int[]> {
 
         private final ImmutableGraph g;
-        private final int index;
+        private final int s;
 
-        public IterationThread(ImmutableGraph g, int index) {
+        public IterationThread(ImmutableGraph g, int s) {
             this.g = g;
-            this.index = index;
+            this.s = s;
         }
 
         @Override
         public int[] call() {
-            logger.info("Starting computation on seed {}", index);
-            long startSeedTime = System.nanoTime();
+            logger.info("Starting computation on seed {}", s);
+            long startSeedTime = System.currentTimeMillis();
+            long lastLogTime = startSeedTime;
+            long logTime;
 
             int collisions = 0;
 
@@ -167,7 +166,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
 
             // Choose a random node is equivalent to compute the minhash
             //It could be set in mhse.properties file with the "minhash.nodeIDs" property
-            int randomNode = mMinHashNodeIDs[index];
+            int randomNode = mMinHashNodeIDs[s];
 
             int h = 0;
             boolean signatureIsChanged = true;
@@ -179,7 +178,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
             int[] hopTable = new int[1];
 
             while (signatureIsChanged) {
-                logger.debug("(seed {}) Starting computation on hop {}", index, h);
+                logger.debug("(seed {}) Starting computation on hop {}", s, h);
 
                 //first hop - initialization
                 if (h == 0) {
@@ -230,6 +229,18 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
                         }
                         mutable[quotientNode] = mutable[quotientNode] | value;
 
+                        logTime = System.currentTimeMillis();
+                        if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
+                            logger.info("(seed # {}) # nodes analyzed {} / {} for hop {}, estimated time remaining {}",
+                                    s,
+                                    n, mGraph.numNodes(),
+                                    h + 1,
+                                    String.format("%d min, %d sec",
+                                            TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - MultithreadBMinHashOptimized.this.startTime)) / (s + 1)) - (logTime - MultithreadBMinHashOptimized.this.startTime)),
+                                            TimeUnit.MILLISECONDS.toSeconds(((mNumSeeds * (logTime - MultithreadBMinHashOptimized.this.startTime)) / (s + 1)) - (logTime - MultithreadBMinHashOptimized.this.startTime)) -
+                                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - MultithreadBMinHashOptimized.this.startTime)) / (s + 1)) - (logTime - MultithreadBMinHashOptimized.this.startTime)))));
+                            lastLogTime = logTime;
+                        }
                     }
                 }
 
@@ -247,16 +258,12 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
 
                     hopTable[h] = collisions;
 
-                    logger.debug("Number of collisions: {}", collisions);
                     h += 1;
                 }
             }
-            logger.info("Total number of collisions for seed n.{} : {}", index, collisions);
 
-            double durationSeed = (System.nanoTime() - startSeedTime) / 1000000.0;
-            MultithreadBMinHashOptimized.this.mSeedTime[index] = durationSeed;
+            MultithreadBMinHashOptimized.this.mSeedTime[s] = System.currentTimeMillis() - startSeedTime;
 
-            logger.debug("Seed # {} - Time {}", index, durationSeed);
             return hopTable;
         }
 

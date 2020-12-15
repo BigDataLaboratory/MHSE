@@ -3,6 +3,7 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
+import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -58,17 +59,18 @@ public class MHSE extends MinHash {
     public Measure runAlgorithm() {
         long startTime = System.currentTimeMillis();
         long totalTime;
+        long lastLogTime = startTime;
+        long logTime;
 
         Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
         boolean signatureIsChanged = true;
         int hop = 0;
         NodeIterator nodeIter;
 
-        while(signatureIsChanged){
-            logger.info("Analyzing hop " + hop);
+        while (signatureIsChanged) {
             signatureIsChanged = false;
             double overallJaccard = 0d;
-            if(hop == 0){
+            if (hop == 0) {
                 initializeGraph();
 
                 // jaccard computation
@@ -92,27 +94,30 @@ public class MHSE extends MinHash {
                 }
                 // updating the signatures
                 nodeIter = mGraph.nodeIterator();
-                int count = 0;
                 while(nodeIter.hasNext()) {
                     int node = nodeIter.nextInt();
-                    if (updateNodeSignature(node)){
-                        count++;
+                    if (updateNodeSignature(node)) {
                         signatureIsChanged = true;
                     }
                     //TODO can we optimized code inserting jaccard computation in updateNodeSignature?
                     //TODO we can set jaccard as member variable without redirect it for every hop, updating it only when signatureIsChanged is true
                     overallJaccard += jaccard(signatures.get(node), graphSignature);
+
+                    logTime = System.currentTimeMillis();
+                    if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
+                        logger.info("# nodes analyzed {} / {} for hop {}",
+                                node, mGraph.numNodes(),
+                                hop);
+                        lastLogTime = logTime;
+                    }
                 }
-                logger.info("Node Signatures modified: " + count);
             }
-            logger.info("Overall jaccard: " + overallJaccard);
 
             if(signatureIsChanged) {
                 double estimatedCouples = overallJaccard * mGraph.numNodes();
                 hopTable.put(hop, estimatedCouples);
                 hop++;
             }
-            logger.info("Hop " + hop + " completed");
         }
 
         totalTime = System.currentTimeMillis() - startTime;

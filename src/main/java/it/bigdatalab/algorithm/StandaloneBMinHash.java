@@ -13,6 +13,9 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+
 public class StandaloneBMinHash extends BMinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHash");
@@ -38,7 +41,10 @@ public class StandaloneBMinHash extends BMinHash {
      * @return Computed metrics of the algorithm
      */
     public Measure runAlgorithm() {
+        logger.info("Running {} algorithm", StandaloneBMinHash.class.getCanonicalName());
         long startTime = System.currentTimeMillis();
+        long lastLogTime = startTime;
+        long logTime;
         long totalTime;
 
         Int2DoubleLinkedOpenHashMap hopTable;
@@ -47,9 +53,7 @@ public class StandaloneBMinHash extends BMinHash {
         //for each hash function, the last hop executed
         int[] lastHops = new int[mNumSeeds];
 
-        for (int i = 0; i < this.mNumSeeds; i++) {
-
-            logger.info("Starting computation on seed {}", i);
+        for (int s = 0; s < this.mNumSeeds; s++) {
 
             // initialization of the collision "collisions" for the hop
             // we use a dict because we want to iterate over the nodes until
@@ -65,13 +69,13 @@ public class StandaloneBMinHash extends BMinHash {
 
             // Choose a random node is equivalent to compute the minhash
             //It could be set in mhse.properties file with the "minhash.nodeIDs" property
-            int randomNode = mMinHashNodeIDs[i];
+            int randomNode = mMinHashNodeIDs[s];
 
             int h = 0;
             boolean signatureIsChanged = true;
 
             while (signatureIsChanged) {
-                logger.debug("(seed {}) Starting computation on hop {}", i, h);
+                //logger.debug("(seed {}) Starting computation on hop {}", s, h);
 
                 int[] hopCollisions;
                 if (collisionsTable.containsKey(h)) {
@@ -130,6 +134,20 @@ public class StandaloneBMinHash extends BMinHash {
                             }
                         }
                         mutable[quotientNode] = mutable[quotientNode] | value;
+
+                        logTime = System.currentTimeMillis();
+                        if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
+                            int maxHop = Arrays.stream(lastHops).summaryStatistics().getMax() + 1;
+                            logger.info("(seed # {}) # nodes analyzed {} / {} for hop {} / {} (upper bound), estimated time remaining {}",
+                                    s + 1,
+                                    n, mGraph.numNodes(),
+                                    h + 1, maxHop,
+                                    String.format("%d min, %d sec",
+                                            TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - startTime)) / (s + 1)) - (logTime - startTime)),
+                                            TimeUnit.MILLISECONDS.toSeconds(((mNumSeeds * (logTime - startTime)) / (s + 1)) - (logTime - startTime)) -
+                                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - startTime)) / (s + 1)) - (logTime - startTime)))));
+                            lastLogTime = logTime;
+                        }
                     }
                 }
 
@@ -140,17 +158,12 @@ public class StandaloneBMinHash extends BMinHash {
                         collisions += Integer.bitCount(aMutable);
                     }
 
-                    hopCollisions[i] = collisions;      //related to seed i at hop h
+                    hopCollisions[s] = collisions;      //related to seed s at hop h
                     collisionsTable.put(h, hopCollisions);
-                    logger.debug("Number of collisions: {}", collisions);       //conteggio giusto
-                    lastHops[i] = h;
-                    logger.debug("(seed {}) Hop Collision {}", i, hopCollision);
+                    lastHops[s] = h;
                     h += 1;
                 }
             }
-
-            logger.info("Total number of collisions for seed n.{} : {}", i, collisions);
-            logger.debug("Ended computation on seed {}", i);
         }
 
         totalTime = System.currentTimeMillis() - startTime;
@@ -159,9 +172,7 @@ public class StandaloneBMinHash extends BMinHash {
         //normalize collisionsTable
         normalizeCollisionsTable(collisionsTable);
 
-        logger.info("Starting computation of the hop table from collision table");
         hopTable = hopTable(collisionsTable);
-        logger.info("Computation of the hop table completed");
 
         GraphMeasure graphMeasure = new GraphMeasure();
         graphMeasure.setNumNodes(mGraph.numNodes());
