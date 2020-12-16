@@ -52,8 +52,6 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
 
         for (int s = 0; s < this.mNumSeeds; s++) {
 
-            logger.info("Starting computation on seed {}", s);
-
             int collisions = 0;
 
             // Set false as signature of all graph nodes
@@ -73,7 +71,6 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
             boolean signatureIsChanged = true;
 
             while (signatureIsChanged) {
-                logger.debug("(seed {}) Starting computation on hop {}", s, h);
 
                 //first hop - initialization
                 if (h == 0) {
@@ -155,7 +152,6 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
 
                     collisionsMatrix[s][h] = collisions;
 
-                    logger.debug("Number of collisions: {}", collisions);
                     lastHops[s] = h;
                     if (h > lowerBound)
                         lowerBound = h;
@@ -163,8 +159,6 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
                 }
             }
 
-            logger.info("Total number of collisions for seed n.{} : {}", s, collisions);
-            logger.debug("Ended computation on seed {}", s);
         }
 
         totalTime = System.currentTimeMillis() - startTime;
@@ -173,9 +167,7 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
         //normalize collisionsTable
         normalizeCollisionsTable(collisionsMatrix, lowerBound);
 
-        logger.info("Starting computation of the hop table from collision table");
         hopTableArray = hopTable(collisionsMatrix, lowerBound);
-        logger.info("Computation of the hop table completed");
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());

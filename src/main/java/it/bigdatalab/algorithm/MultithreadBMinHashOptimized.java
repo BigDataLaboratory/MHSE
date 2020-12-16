@@ -152,7 +152,6 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
 
         @Override
         public int[] call() {
-            logger.info("Starting computation on seed {}", s);
             long startSeedTime = System.currentTimeMillis();
             long lastLogTime = startSeedTime;
             long logTime;
@@ -178,8 +177,6 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
             int[] hopTable = new int[1];
 
             while (signatureIsChanged) {
-                logger.debug("(seed {}) Starting computation on hop {}", s, h);
-
                 //first hop - initialization
                 if (h == 0) {
 

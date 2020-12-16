@@ -70,7 +70,6 @@ public class SEMHSE extends MinHash {
             int h = 0;
             int collisions = 0;
             boolean signatureIsChanged = true;
-            logger.info("Starting computation for hash function n.{}", s);
             hashes = new Int2LongOpenHashMap(mGraph.numNodes());
 
             while (signatureIsChanged) {
@@ -137,27 +136,19 @@ public class SEMHSE extends MinHash {
                 if (signatureIsChanged) {
                     hopCollisions[s] = collisions;
                     collisionsTable.put(h, hopCollisions);
-                    logger.debug("Number of collisions: {}", collisions);
                     lastHops[s] = h;
-                    logger.debug("Hop {} for seed n.{} completed", h, s);
                     h++;
                 }
             }
-            logger.info("Total number of collisions for seed n.{} : {}", s, collisions);
-            logger.info("Computation for hash function n.{} completed", s);
         }
 
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
         //normalize collisionsTable
-        logger.info("Normalizing Collisions table...");
         normalizeCollisionsTable(collisionsTable);
-        logger.info("Collisions table normalized!");
 
-        logger.info("Starting computation of the hop table from collision table");
         hopTable = hopTable(collisionsTable);
-        logger.info("Computation of the hop table completed");
 
         GraphMeasure graphMeasure = new GraphMeasure();
         graphMeasure.setNumNodes(mGraph.numNodes());
@@ -199,7 +190,6 @@ public class SEMHSE extends MinHash {
                 mMinHashNodeIDs[seedIndex] = node;
             }
         }
-        logger.info("MinHash for seed {} is {}, belonging to node ID {}", seedIndex, graphSignature[seedIndex], mMinHashNodeIDs[seedIndex]);
     }
 
     /**
@@ -243,7 +233,6 @@ public class SEMHSE extends MinHash {
             sumCollisions = Arrays.stream(collisions).sum();
             double couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
             hopTable.put(hop, couples);
-            logger.info("hop " + hop + " total collisions " + Arrays.stream(collisions).sum() + " couples: " + couples);
         }
         return hopTable;
     }

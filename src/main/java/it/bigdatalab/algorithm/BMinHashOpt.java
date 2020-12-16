@@ -60,7 +60,6 @@ public abstract class BMinHashOpt extends MinHash {
             }
             couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
             hoptable[hop] = couples;
-            logger.info("hop " + hop + " total collisions " + sumCollisions + " couples: " + couples);
         }
         return hoptable;
     }

@@ -38,7 +38,6 @@ public abstract class BMinHash extends MinHash {
             sumCollisions = Arrays.stream(collisions).sum();
             double couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
             hopTable.put(hop, couples);
-            logger.info("hop " + hop + " total collisions " + Arrays.stream(collisions).sum() + " couples: " + couples);
         }
         return hopTable;
     }
