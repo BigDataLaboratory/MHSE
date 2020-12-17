@@ -72,6 +72,7 @@ public class Constants {
     public static final String NUM_TEST_DEFAULT = "10";
     public static final String NUM_SEEDS_DEFAULT = "256";
     public static final String NUM_RUN_DEFAULT = "1";
+    public static final String LOG2M_DEFAULT = "8";
 
 
 }

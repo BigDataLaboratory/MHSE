@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of MHSE (MinHash Signature Estimation) algorithm
@@ -61,6 +62,7 @@ public class MHSE extends MinHash {
         long totalTime;
         long lastLogTime = startTime;
         long logTime;
+        long hopStartTime;
 
         Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
         boolean signatureIsChanged = true;
@@ -68,6 +70,8 @@ public class MHSE extends MinHash {
         NodeIterator nodeIter;
 
         while (signatureIsChanged) {
+            hopStartTime = System.currentTimeMillis();
+
             signatureIsChanged = false;
             double overallJaccard = 0d;
             if (hop == 0) {
@@ -75,7 +79,7 @@ public class MHSE extends MinHash {
 
                 // jaccard computation
                 nodeIter = mGraph.nodeIterator();
-                while(nodeIter.hasNext()) {
+                while (nodeIter.hasNext()) {
                     int node = nodeIter.nextInt();
                     overallJaccard += jaccard(signatures.get(node), graphSignature);
                 }
@@ -105,19 +109,26 @@ public class MHSE extends MinHash {
 
                     logTime = System.currentTimeMillis();
                     if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
-                        logger.info("# nodes analyzed {} / {} for hop {}",
+                        logger.info("# nodes analyzed {} / {} for hop {} [elapsed {}, node/s {}]",
                                 node, mGraph.numNodes(),
-                                hop);
+                                hop,
+                                TimeUnit.MILLISECONDS.toSeconds(logTime - hopStartTime),
+                                TimeUnit.MILLISECONDS.toSeconds(node / (logTime - hopStartTime)));
                         lastLogTime = logTime;
                     }
                 }
             }
 
-            if(signatureIsChanged) {
+            if (signatureIsChanged) {
                 double estimatedCouples = overallJaccard * mGraph.numNodes();
                 hopTable.put(hop, estimatedCouples);
                 hop++;
             }
+
+            logTime = System.currentTimeMillis();
+            logger.info("hop # {} completed. Time elapsed to complete computation {} s.",
+                    hop,
+                    (logTime - hopStartTime) / (double) 1000);
         }
 
         totalTime = System.currentTimeMillis() - startTime;

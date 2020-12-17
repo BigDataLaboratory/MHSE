@@ -1,34 +1,53 @@
-package it.bigdatalab.algorithm;
+package it.bigdatalab.applications;
 
-import com.martiansoftware.jsap.*;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
+import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.GraphMeasureOpt;
+import it.bigdatalab.model.Measure;
+import it.bigdatalab.utils.Constants;
+import it.bigdatalab.utils.GraphUtils;
+import it.bigdatalab.utils.GsonHelper;
+import it.bigdatalab.utils.PropertiesManager;
+import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.Util;
 import it.unimi.dsi.bits.Fast;
 import it.unimi.dsi.bits.LongArrayBitVector;
 import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-import it.unimi.dsi.fastutil.doubles.DoubleIterator;
-import it.unimi.dsi.fastutil.ints.*;
-import it.unimi.dsi.fastutil.io.BinIO;
-import it.unimi.dsi.fastutil.io.FastBufferedOutputStream;
+import it.unimi.dsi.fastutil.ints.AbstractInt2DoubleFunction;
+import it.unimi.dsi.fastutil.ints.Int2DoubleFunction;
+import it.unimi.dsi.fastutil.ints.IntArrays;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.IntSets;
 import it.unimi.dsi.fastutil.longs.LongBigList;
 import it.unimi.dsi.io.SafelyCloseable;
-import it.unimi.dsi.lang.ObjectParser;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.util.HyperLogLogCounterArray;
 import it.unimi.dsi.util.KahanSummation;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
-import it.unimi.dsi.webgraph.*;
+import it.unimi.dsi.webgraph.BVGraph;
+import it.unimi.dsi.webgraph.ImmutableGraph;
+import it.unimi.dsi.webgraph.LazyIntIterator;
+import it.unimi.dsi.webgraph.NodeIterator;
+import it.unimi.dsi.webgraph.Transform;
 import it.unimi.dsi.webgraph.algo.EliasFanoCumulativeOutdegreeList;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
+import java.io.File;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -206,7 +225,7 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
      * The default size of a buffer in bytes.
      */
     public static final int DEFAULT_BUFFER_SIZE = 4 * 1024 * 1024;
-    private static final Logger LOGGER = LoggerFactory.getLogger(HyperBall.class);
+    private static final Logger logger = LoggerFactory.getLogger(HyperBall.class);
     ;
     private static final long serialVersionUID = 1L;
     public static Int2DoubleFunction INV_SQUARE_DISCOUNT = new AbstractDiscountFunction() {
@@ -485,6 +504,19 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
     }
 
     /**
+     * Creates a new HyperBall instance using default values.
+     *
+     * @param g               the graph whose neighbourhood function you want to compute.
+     * @param gt              the transpose of <code>g</code> in case you want to perform systolic computations, or <code>null</code>.
+     * @param numberOfThreads number of threads to be used.
+     * @param log2m           the logarithm of the number of registers per counter.
+     * @param pl              a progress logger, or <code>null</code>.
+     */
+    public HyperBall(final ImmutableGraph g, final ImmutableGraph gt, final int numberOfThreads, final int log2m, final ProgressLogger pl) throws IOException {
+        this(g, null, log2m, pl, numberOfThreads, 0, 0, false);
+    }
+
+    /**
      * Creates a new HyperBall instance using default values and disabling systolic computation.
      *
      * @param g     the graph whose neighbourhood function you want to compute.
@@ -697,145 +729,76 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
         return totalWeight;
     }
 
-    public static void main(String arg[]) throws IOException, JSAPException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
-        SimpleJSAP jsap = new SimpleJSAP(HyperBall.class.getName(), "Runs HyperBall on the given graph, possibly computing positive geometric centralities.\n\nPlease note that to compute negative centralities on directed graphs (which is usually what you want) you have to compute positive centralities on the transpose.",
-                new Parameter[]{
-                        new FlaggedOption("log2m", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, JSAP.REQUIRED, 'l', "log2m", "The logarithm of the number of registers."),
-                        new FlaggedOption("upperBound", JSAP.LONGSIZE_PARSER, Long.toString(Long.MAX_VALUE), JSAP.NOT_REQUIRED, 'u', "upper-bound", "An upper bound to the number of iterations."),
-                        new FlaggedOption("threshold", JSAP.DOUBLE_PARSER, "-1", JSAP.NOT_REQUIRED, 't', "threshold", "A threshold that will be used to stop the computation by relative increment. If it is -1, the iteration will stop only when all registers do not change their value (recommended)."),
-                        new FlaggedOption("threads", JSAP.INTSIZE_PARSER, "0", JSAP.NOT_REQUIRED, 'T', "threads", "The number of threads to be used. If 0, the number will be estimated automatically."),
-                        new FlaggedOption("granularity", JSAP.INTSIZE_PARSER, Integer.toString(DEFAULT_GRANULARITY), JSAP.NOT_REQUIRED, 'g', "granularity", "The number of node per task in a multicore environment."),
-                        new FlaggedOption("bufferSize", JSAP.INTSIZE_PARSER, Util.formatBinarySize(DEFAULT_BUFFER_SIZE), JSAP.NOT_REQUIRED, 'b', "buffer-size", "The size of an I/O buffer in bytes."),
-                        new FlaggedOption("neighbourhoodFunction", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.NOT_REQUIRED, 'n', "neighbourhood-function", "Store an approximation the neighbourhood function in text format."),
-                        new FlaggedOption("sumOfDistances", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.NOT_REQUIRED, 'd', "sum-of-distances", "Store an approximation of the sum of distances from each node as a binary list of floats."),
-                        new FlaggedOption("harmonicCentrality", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.NOT_REQUIRED, 'h', "harmonic-centrality", "Store an approximation of the positive harmonic centrality (the sum of the reciprocals of distances from each node) as a binary list of floats."),
-                        new FlaggedOption("discountedGainCentrality", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.NOT_REQUIRED, 'z', "discounted-gain-centrality", "A positive discounted gain centrality to be approximated and stored; it is specified as O:F where O is the spec of an object of type Int2DoubleFunction and F is the name of the file where the binary list of floats will be stored. The spec can be either the name of a public field of HyperBall, or a constructor invocation of a class implementing Int2DoubleFunction.").setAllowMultipleDeclarations(true),
-                        new FlaggedOption("closenessCentrality", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.NOT_REQUIRED, 'c', "closeness-centrality", "Store an approximation of the positive closeness centrality of each node (the reciprocal of sum of the distances from each node) as a binary list of floats. Terminal nodes will have centrality equal to zero."),
-                        new FlaggedOption("linCentrality", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.NOT_REQUIRED, 'L', "lin-centrality", "Store an approximation of the positive Lin centrality of each node (the reciprocal of sum of the distances from each node multiplied by the square of the number of nodes reachable from the node) as a binary list of floats. Terminal nodes will have centrality equal to one."),
-                        new FlaggedOption("nieminenCentrality", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.NOT_REQUIRED, 'N', "nieminen-centrality", "Store an approximation of the positive Nieminen centrality of each node (the square of the number of nodes reachable from each node minus the sum of the distances from the node) as a binary list of floats."),
-                        new FlaggedOption("reachable", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.NOT_REQUIRED, 'r', "reachable", "Store an approximation of the number of nodes reachable from each node as a binary list of floats."),
-                        new FlaggedOption("seed", JSAP.LONG_PARSER, JSAP.NO_DEFAULT, JSAP.NOT_REQUIRED, 'S', "seed", "The random seed."),
-                        new FlaggedOption("weights", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.NOT_REQUIRED, 'W', "weights", "A binary list of nonnegative integers representing the weight of each node."),
-                        new Switch("spec", 's', "spec", "The basename is not a basename but rather a specification of the form <ImmutableGraphImplementation>(arg,arg,...)."),
-                        new Switch("offline", 'o', "offline", "Do not load the graph in main memory. If this option is used, the graph will be loaded in offline (for one thread) or mapped (for several threads) mode."),
-                        new Switch("external", 'e', "external", "Use an external dump file instead of core memory to store new counter values. Note that the file might be very large: you might need to set suitably the Java temporary directory (-Djava.io.tmpdir=DIR)."),
-                        new UnflaggedOption("basename", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.REQUIRED, JSAP.NOT_GREEDY, "The basename of the graph."),
-                        new UnflaggedOption("basenamet", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.NOT_REQUIRED, JSAP.NOT_GREEDY, "The basename of the transpose graph for systolic computations (strongly suggested). If it is equal to <basename>, the graph will be assumed to be symmetric and will be loaded just once."),
-                }
-        );
+    public static void main(String[] args) throws IOException {
+        long startTime = System.currentTimeMillis();
 
-        JSAPResult jsapResult = jsap.parse(arg);
-        if (jsap.messagePrinted()) System.exit(1);
+        String inputFilePath = PropertiesManager.getPropertyIfNotEmpty("hyperball.inputFilePath");
+        String outputFolderPath = PropertiesManager.getPropertyIfNotEmpty("hyperball.outputFolderPath");
+        double threshold = Double.parseDouble(PropertiesManager.getPropertyIfNotEmpty("hyperball.threshold"));
+        int threadNumber = Integer.parseInt(PropertiesManager.getProperty("hyperball.threadNumber", Constants.NUM_THREAD_DEFAULT));
+        boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("hyperball.isolatedVertices"));
+        boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("hyperball.inMemory", Constants.FALSE));
+        int numTest = Integer.parseInt(PropertiesManager.getProperty("hyperball.numTests", Constants.NUM_RUN_DEFAULT));
+        int log2m = Integer.parseInt(PropertiesManager.getProperty("hyperball.log2m", Constants.LOG2M_DEFAULT));
+        it.bigdatalab.model.Parameter param = new it.bigdatalab.model.Parameter.Builder()
+                .setInputFilePathGraph(inputFilePath)
+                .setOutputFolderPath(outputFolderPath)
+                .setThreshold(threshold)
+                .setAlgorithmName("Hyperball")
+                .setNumThreads(threadNumber)
+                .setInMemory(inMemory)
+                .setIsolatedVertices(isolatedVertices)
+                .setNumTests(numTest).build();
 
-        final boolean spec = jsapResult.getBoolean("spec");
-        final boolean external = jsapResult.getBoolean("external");
-        final boolean offline = jsapResult.getBoolean("offline");
-        final String neighbourhoodFunctionFile = jsapResult.getString("neighbourhoodFunction");
-        final boolean neighbourhoodFunction = jsapResult.userSpecified("neighbourhoodFunction");
-        final String sumOfDistancesFile = jsapResult.getString("sumOfDistances");
-        final boolean sumOfDistances = jsapResult.userSpecified("sumOfDistances");
-        final String harmonicCentralityFile = jsapResult.getString("harmonicCentrality");
-        final boolean harmonicCentrality = jsapResult.userSpecified("harmonicCentrality");
-        final String closenessCentralityFile = jsapResult.getString("closenessCentrality");
-        final boolean closenessCentrality = jsapResult.userSpecified("closenessCentrality");
-        final String linCentralityFile = jsapResult.getString("linCentrality");
-        final boolean linCentrality = jsapResult.userSpecified("linCentrality");
-        final String nieminenCentralityFile = jsapResult.getString("nieminenCentrality");
-        final boolean nieminenCentrality = jsapResult.userSpecified("nieminenCentrality");
-        final String reachableFile = jsapResult.getString("reachable");
-        final boolean reachable = jsapResult.userSpecified("reachable");
-        final String weightFile = jsapResult.getString("weights");
-        final String basename = jsapResult.getString("basename");
-        final String basenamet = jsapResult.getString("basenamet");
-        final ProgressLogger pl = new ProgressLogger(LOGGER);
-        final int log2m = jsapResult.getInt("log2m");
-        final int threads = jsapResult.getInt("threads");
-        final int bufferSize = jsapResult.getInt("bufferSize");
-        final int granularity = jsapResult.getInt("granularity");
-        final long seed = jsapResult.userSpecified("seed") ? jsapResult.getLong("seed") : Util.randomSeed();
+        List<Measure> measures = new ArrayList<>();
 
-        final String[] discountedGainCentralitySpec = jsapResult.getStringArray("discountedGainCentrality");
-        final Int2DoubleFunction[] discountFunction = new Int2DoubleFunction[discountedGainCentralitySpec.length];
-        final String[] discountedGainCentralityFile = new String[discountedGainCentralitySpec.length];
-        for (int i = 0; i < discountedGainCentralitySpec.length; i++) {
-            int pos = discountedGainCentralitySpec[i].indexOf(':');
-            if (pos < 0) throw new IllegalArgumentException("Wrong spec <" + discountedGainCentralitySpec[i] + ">");
-            discountedGainCentralityFile[i] = discountedGainCentralitySpec[i].substring(pos + 1);
-            String gainSpec = discountedGainCentralitySpec[i].substring(0, pos);
-            Int2DoubleFunction candidateFunction;
-            try {
-                candidateFunction = (Int2DoubleFunction) HyperBall.class.getField(gainSpec).get(null);
-            } catch (SecurityException e) {
-                throw new IllegalArgumentException("Field " + gainSpec + " exists but cannot be accessed", e);
-            } catch (ClassCastException e) {
-                throw new IllegalArgumentException("Field " + gainSpec + " exists but it is not of type Int2DoubleFunction", e);
-            } catch (NoSuchFieldException e) {
-                candidateFunction = null;
-            }
-            discountFunction[i] = candidateFunction == null ? ObjectParser.fromSpec(gainSpec, Int2DoubleFunction.class) : candidateFunction;
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
+        for (int i = 0; i < param.getNumTests(); i++) {
+            long runTime = System.currentTimeMillis();
+
+            HyperBall hyperBall = new HyperBall(g, null, threadNumber, log2m, new ProgressLogger());
+            hyperBall.run();
+            hyperBall.close();
+            double[] hopTable = hyperBall.neighbourhoodFunction.toDoubleArray();
+            logger.info("Neighbourhood function computed by Hyperball {}", hopTable);
+            GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
+            graphMeasure.setHopTable(hopTable);
+            graphMeasure.setLowerBoundDiameter(hopTable.length - 1);
+            graphMeasure.setAvgDistance(it.bigdatalab.utils.Stats.averageDistance(hopTable));
+            graphMeasure.setEffectiveDiameter(it.bigdatalab.utils.Stats.effectiveDiameter(hopTable, param.getThreshold()));
+            graphMeasure.setTotalCouples(it.bigdatalab.utils.Stats.totalCouplesReachable(hopTable));
+            graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTable, param.getThreshold()));
+            graphMeasure.setTime((System.currentTimeMillis() - runTime));
+            graphMeasure.setRun(i + 1);
+            measures.add(graphMeasure);
+
+            logger.info("\n\n********************************************************\n\n" +
+                            "Test n.{} executed correctly\n\n" +
+                            "********************************************************\n\n",
+                    i + 1);
         }
+        String inputGraphName = new File(param.getInputFilePathGraph()).getName();
+        String outputFilePath = param.getOutputFolderPath() + File.separator + inputGraphName + Constants.NAMESEPARATOR + param.getAlgorithmName() + Constants.JSON_EXTENSION;
 
-        final int[] weight = weightFile != null ? BinIO.loadInts(weightFile) : null;
+        RuntimeTypeAdapterFactory<Measure> adapter = RuntimeTypeAdapterFactory.of(Measure.class, "type")
+                .registerSubtype(GraphMeasure.class, GraphMeasure.class.getName())
+                .registerSubtype(GraphMeasureOpt.class, GraphMeasureOpt.class.getName());
 
-        final ImmutableGraph graph = spec
-                ? ObjectParser.fromSpec(basename, ImmutableGraph.class, GraphClassParser.PACKAGE)
-                : offline
-                ? ((numberOfThreads(threads) == 1 && basenamet == null ? ImmutableGraph.loadOffline(basename) : ImmutableGraph.loadMapped(basename, new ProgressLogger())))
-                : ImmutableGraph.load(basename, new ProgressLogger());
+        List<Measure> measuresRead = GsonHelper.fromJson(
+                outputFilePath, new TypeToken<List<Measure>>() {
+                }.getType(), adapter);
 
-        final ImmutableGraph grapht = basenamet == null ? null : basenamet.equals(basename) ? graph : spec ? ObjectParser.fromSpec(basenamet, ImmutableGraph.class, GraphClassParser.PACKAGE) :
-                offline ? ImmutableGraph.loadMapped(basenamet, new ProgressLogger()) : ImmutableGraph.load(basenamet, new ProgressLogger());
+        measuresRead.addAll(measures);
 
-        final HyperBall hyperBall = new HyperBall(graph, grapht, log2m, pl, threads, bufferSize, granularity, external, sumOfDistances || closenessCentrality || linCentrality || nieminenCentrality, harmonicCentrality, discountFunction, weight, seed);
-        hyperBall.run(jsapResult.getLong("upperBound"), jsapResult.getDouble("threshold"));
-        hyperBall.close();
+        GsonHelper.toJson(
+                measuresRead,
+                outputFilePath,
+                new TypeToken<List<Measure>>() {
+                }.getType(),
+                adapter);
 
-        if (neighbourhoodFunction) {
-            final PrintStream stream = new PrintStream(new FastBufferedOutputStream(new FileOutputStream(neighbourhoodFunctionFile)));
-            for (DoubleIterator i = hyperBall.neighbourhoodFunction.iterator(); i.hasNext(); )
-                stream.println(BigDecimal.valueOf(i.nextDouble()).toPlainString());
-            stream.close();
-        }
+        logger.info("Application successfully completed. Time elapsed (in milliseconds) {}", (System.currentTimeMillis()-startTime));
 
-        if (sumOfDistances) BinIO.storeFloats(hyperBall.sumOfDistances, sumOfDistancesFile);
-        if (harmonicCentrality) BinIO.storeFloats(hyperBall.sumOfInverseDistances, harmonicCentralityFile);
-        for (int i = 0; i < discountedGainCentralitySpec.length; i++)
-            BinIO.storeFloats(hyperBall.discountedCentrality[i], discountedGainCentralityFile[i]);
-        if (closenessCentrality) {
-            final int n = graph.numNodes();
-            final DataOutputStream dos = new DataOutputStream(new FastBufferedOutputStream(new FileOutputStream(closenessCentralityFile)));
-            for (int i = 0; i < n; i++)
-                dos.writeFloat(hyperBall.sumOfDistances[i] == 0 ? 0 : 1 / hyperBall.sumOfDistances[i]);
-            dos.close();
-        }
-        if (linCentrality) {
-            final int n = graph.numNodes();
-            final DataOutputStream dos = new DataOutputStream(new FastBufferedOutputStream(new FileOutputStream(linCentralityFile)));
-            for (int i = 0; i < n; i++) {
-                // Lin's index for isolated nodes is by (our) definition one (it's smaller than any other node).
-                if (hyperBall.sumOfDistances[i] == 0) dos.writeFloat(1);
-                else {
-                    final double count = hyperBall.count(i);
-                    dos.writeFloat((float) (count * count / hyperBall.sumOfDistances[i]));
-                }
-            }
-            dos.close();
-        }
-        if (nieminenCentrality) {
-            final int n = graph.numNodes();
-            final DataOutputStream dos = new DataOutputStream(new FastBufferedOutputStream(new FileOutputStream(nieminenCentralityFile)));
-            for (int i = 0; i < n; i++) {
-                final double count = hyperBall.count(i);
-                dos.writeFloat((float) (count * count - hyperBall.sumOfDistances[i]));
-            }
-            dos.close();
-        }
-        if (reachable) {
-            final int n = graph.numNodes();
-            final DataOutputStream dos = new DataOutputStream(new FastBufferedOutputStream(new FileOutputStream(reachableFile)));
-            for (int i = 0; i < n; i++) dos.writeFloat((float) hyperBall.count(i));
-            dos.close();
-        }
     }
 
     private void info(String s) {
@@ -974,7 +937,7 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
     protected void finalize() throws Throwable {
         try {
             if (!closed) {
-                LOGGER.warn("This " + this.getClass().getName() + " [" + toString() + "] should have been closed.");
+                logger.warn("This " + this.getClass().getName() + " [" + toString() + "] should have been closed.");
                 close();
             }
         } finally {
@@ -1042,7 +1005,7 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
             modified.set(0);
             totalIoMillis = 0;
             numberOfWrites = 0;
-            final ProgressLogger npl = pl == null ? null : new ProgressLogger(LOGGER, 1, TimeUnit.MINUTES, "arcs");
+            final ProgressLogger npl = pl == null ? null : new ProgressLogger(logger, 1, TimeUnit.MINUTES, "arcs");
 
             if (npl != null) {
                 arcs.set(0);

@@ -206,7 +206,7 @@ public class MinHashMain {
             List<Measure> measures = main.run();
             String inputGraphName = new File(param.getInputFilePathGraph()).getName();
             String outputFilePath = param.getOutputFolderPath() + File.separator + inputGraphName + Constants.NAMESEPARATOR + param.getAlgorithmName() + Constants.JSON_EXTENSION;
-            //writeOnFile(measures, outputFilePath);
+
             RuntimeTypeAdapterFactory<Measure> adapter = RuntimeTypeAdapterFactory.of(Measure.class, "type")
                     .registerSubtype(GraphMeasure.class, GraphMeasure.class.getName())
                     .registerSubtype(GraphMeasureOpt.class, GraphMeasureOpt.class.getName());
