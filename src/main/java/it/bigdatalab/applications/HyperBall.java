@@ -735,7 +735,7 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
         String inputFilePath = PropertiesManager.getPropertyIfNotEmpty("hyperball.inputFilePath");
         String outputFolderPath = PropertiesManager.getPropertyIfNotEmpty("hyperball.outputFolderPath");
         double threshold = Double.parseDouble(PropertiesManager.getPropertyIfNotEmpty("hyperball.threshold"));
-        int threadNumber = Integer.parseInt(PropertiesManager.getProperty("hyperball.threadNumber", Constants.NUM_THREAD_DEFAULT));
+        int threadNumber = Integer.parseInt(PropertiesManager.getProperty("hyperball.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
         boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("hyperball.isolatedVertices"));
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("hyperball.inMemory", Constants.FALSE));
         int numTest = Integer.parseInt(PropertiesManager.getProperty("hyperball.numTests", Constants.NUM_RUN_DEFAULT));
