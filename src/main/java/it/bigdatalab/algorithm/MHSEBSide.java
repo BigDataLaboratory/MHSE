@@ -96,10 +96,9 @@ public class MHSEBSide extends MinHash {
                             final int d = mGraph.outdegree(n);
                             final int[] successors = mGraph.successorArray(n);
                             for (int l = 0; l < d; l++) {
-                                final int neigh = successors[l];
-                                bitNeigh = (((1 << remainder) & oldSignatures[neigh][position]) >>> remainder) << remainder;
-                                value = bitNeigh | nodeMask & oldSignatures[neigh][position];
-                                if ((value >>> remainder) == 1) {
+                                if (((nodeMask & oldSignatures[successors[l]][position]) >>> remainder) == 1) {
+                                    bitNeigh = (((1 << remainder) & oldSignatures[successors[l]][position]) >>> remainder) << remainder;
+                                    value = bitNeigh | nodeMask & oldSignatures[successors[l]][position];
                                     signatureIsChanged = true;
                                     break;
                                 }
