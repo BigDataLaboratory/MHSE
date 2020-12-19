@@ -59,6 +59,8 @@ public class MHSEBSide extends MinHash {
         long hopStartTime;
 
         long[] collisionsVector = new long[1];
+        int[] position = new int[mNumSeeds];
+        int[] remainder = new int[mNumSeeds];
 
         boolean signatureIsChanged = true;
         int h = 0;
@@ -68,9 +70,9 @@ public class MHSEBSide extends MinHash {
 
             if (h == 0) {
                 for (int s = 0; s < mNumSeeds; s++) {
-                    int position = s >>> Constants.MASK;
-                    int remainder = (s << Constants.REMAINDER) >>> Constants.REMAINDER;
-                    signatures[mMinHashNodeIDs[s]][position] |= (Constants.BIT) << remainder;
+                    position[s] = s >>> Constants.MASK;
+                    remainder[s] = (s << Constants.REMAINDER) >>> Constants.REMAINDER;
+                    signatures[mMinHashNodeIDs[s]][position[s]] |= (Constants.BIT) << remainder[s];
                 }
 
                 signatureIsChanged = true;
@@ -85,26 +87,24 @@ public class MHSEBSide extends MinHash {
                     // update node signature
 
                     for (int s = 0; s < mNumSeeds; s++) {
-                        int position = s >>> Constants.MASK;
-                        int remainder = (s << Constants.REMAINDER) >>> Constants.REMAINDER;
 
-                        int nodeMask = (Constants.BIT << remainder);
-                        int value = signatures[n][position];
-                        int bitNeigh;
+                        int nodeMask = (Constants.BIT << remainder[s]);
 
-                        if (((nodeMask & value) >>> remainder) == 0) {
+                        if (((nodeMask & signatures[n][position[s]]) >>> remainder[s]) == 0) {
+                            int bitNeigh;
+                            int value = signatures[n][position[s]];
                             final int d = mGraph.outdegree(n);
                             final int[] successors = mGraph.successorArray(n);
                             for (int l = 0; l < d; l++) {
-                                if (((nodeMask & oldSignatures[successors[l]][position]) >>> remainder) == 1) {
-                                    bitNeigh = (((1 << remainder) & oldSignatures[successors[l]][position]) >>> remainder) << remainder;
-                                    value = bitNeigh | nodeMask & oldSignatures[successors[l]][position];
+                                if (((nodeMask & oldSignatures[successors[l]][position[s]]) >>> remainder[s]) == 1) {
+                                    bitNeigh = (((1 << remainder[s]) & oldSignatures[successors[l]][position[s]]) >>> remainder[s]) << remainder[s];
+                                    value = bitNeigh | nodeMask & oldSignatures[successors[l]][position[s]];
                                     signatureIsChanged = true;
                                     break;
                                 }
                             }
+                            signatures[n][position[s]] = signatures[n][position[s]] | value;
                         } // else is already 1
-                        signatures[n][position] = signatures[n][position] | value;
                     }
 
                     logTime = System.currentTimeMillis();
