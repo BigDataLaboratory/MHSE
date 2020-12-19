@@ -5,6 +5,7 @@ package it.bigdatalab.algorithm;
  */
 public enum AlgorithmEnum {
     MHSE,
+    MHSEBSide,
     SEMHSE,
     StandaloneBMinHash,
     StandaloneBMinHashOptimized,

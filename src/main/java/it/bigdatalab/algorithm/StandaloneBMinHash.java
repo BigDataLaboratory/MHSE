@@ -16,6 +16,15 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Implementation of StandaloneBMinHash (MinHash Signature Estimation standalone boolean version) algorithm
+ *
+ * @author Giambattista Amati
+ * @author Simone Angelini
+ * @author Antonio Cruciani
+ * @author Daniele Pasquini
+ * @author Paola Vocca
+ */
 public class StandaloneBMinHash extends BMinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHash");

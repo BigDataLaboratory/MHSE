@@ -11,7 +11,7 @@ class PropertiesManagerTest {
 
     @Test
     void testGetProperty_existingProperty() {
-        String inputFilePath = PropertiesManager.getProperty("minhash.inputFilePath");
+        String inputFilePath = PropertiesManager.getProperty("test.minhash.inputFilePath");
         String expected = "/test/path/to/input/graph";
         assertEquals(expected, inputFilePath);
     }
@@ -32,7 +32,7 @@ class PropertiesManagerTest {
 
     @Test
     void testGetProperty_withDefaultValueAndExistentProperty() {
-        String inputFilePath = PropertiesManager.getProperty("minhash.inputFilePath", "/test/path/existent");
+        String inputFilePath = PropertiesManager.getProperty("test.minhash.inputFilePath", "/test/path/existent");
         String expected = "/test/path/to/input/graph";
         assertEquals(expected, inputFilePath);
     }
@@ -47,7 +47,7 @@ class PropertiesManagerTest {
     @Test
     void testGetPropertyIfNotEmptyThrowsException_withExistentEmptyProperty() {
         Assertions.assertThrows(InvalidParameterException.class, () -> {
-            PropertiesManager.getPropertyIfNotEmpty("minhash.nodeIDRange");
+            PropertiesManager.getPropertyIfNotEmpty("test.minhash.nodeIDRange");
         });
     }
 

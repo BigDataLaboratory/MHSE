@@ -19,7 +19,13 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of MHSE (MinHash Signature Estimation) algorithm
- */
+ *
+ * @author Giambattista Amati
+ * @author Simone Angelini
+ * @author Antonio Cruciani
+ * @author Daniele Pasquini
+ * @author Paola Vocca
+ **/
 public class MHSE extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSE");

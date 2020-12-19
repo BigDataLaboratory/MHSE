@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implementation of MHSEBSide (MinHash Signature Estimation B-Side) algorithm
+ * Implementation of MHSEBSideS (MinHash Signature Estimation B-Side slow version) algorithm
  *
  * @author Giambattista Amati
  * @author Simone Angelini
@@ -20,30 +20,30 @@ import java.util.concurrent.TimeUnit;
  * @author Daniele Pasquini
  * @author Paola Vocca
  */
-public class MHSEBSide extends MinHash {
+public class MHSEBSideS extends MinHash {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.BMHSE");
-    private final int[][] signatures;
-    private final int[][] oldSignatures;
+    private final int[] signatures;
+    private final int[] oldSignatures;
 
     /**
-     * Creates a new MHSE B-Side instance with default values
+     * Creates a new BMHSE instance with default values
      */
-    public MHSEBSide(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) throws SeedsException {
+    public MHSEBSideS(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
 
-        signatures = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
-        oldSignatures = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
+        signatures = new int[lengthBitsArray(mNumSeeds * mGraph.numNodes())];
+        oldSignatures = new int[lengthBitsArray(mNumSeeds * mGraph.numNodes())];
     }
 
     /**
-     * Creates a new MHSE B-Side instance with default values
+     * Creates a new BMHSE instance with default values
      */
-    public MHSEBSide(final ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
+    public MHSEBSideS(final ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
 
-        signatures = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
-        oldSignatures = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
+        signatures = new int[lengthBitsArray(mNumSeeds * mGraph.numNodes())];
+        oldSignatures = new int[lengthBitsArray(mNumSeeds * mGraph.numNodes())];
     }
 
     public int lengthBitsArray(int value) {
@@ -68,44 +68,49 @@ public class MHSEBSide extends MinHash {
 
             if (h == 0) {
                 for (int s = 0; s < mNumSeeds; s++) {
-                    int position = s >>> Constants.MASK;
-                    int remainder = (s << Constants.REMAINDER) >>> Constants.REMAINDER;
-                    signatures[mMinHashNodeIDs[s]][position] |= (Constants.BIT) << remainder;
+                    int node = mMinHashNodeIDs[s] + (mGraph.numNodes() * s);
+                    int position = node >>> Constants.MASK;
+                    int remainder = (node << Constants.REMAINDER) >>> Constants.REMAINDER;
+
+                    signatures[position] |= (Constants.BIT) << remainder;
                 }
 
                 signatureIsChanged = true;
             } else {
                 signatureIsChanged = false;
 
-                for (int r = 0; r < mGraph.numNodes(); r++) {
-                    System.arraycopy(signatures[r], 0, oldSignatures[r], 0, signatures[r].length);
-                }
+                System.arraycopy(signatures, 0, oldSignatures, 0, signatures.length);
 
                 for (int n = 0; n < mGraph.numNodes(); n++) {
                     // update node signature
 
                     for (int s = 0; s < mNumSeeds; s++) {
-                        int position = s >>> Constants.MASK;
-                        int remainder = (s << Constants.REMAINDER) >>> Constants.REMAINDER;
+                        int node = n + (mGraph.numNodes() * s);
+                        int position = node >>> Constants.MASK;
+                        int remainder = (node << Constants.REMAINDER) >>> Constants.REMAINDER;
 
                         int nodeMask = (Constants.BIT << remainder);
-                        int value = signatures[n][position];
+                        int value = signatures[position];
                         int bitNeigh;
 
+                        //logger.info("hop {} FUORI IF nodo {} (originale {}) posizione {} remainder {} nodemask {} value {}", h, node, o, position, Integer.toBinaryString(remainder), Integer.toBinaryString(nodeMask), value);
                         if (((nodeMask & value) >>> remainder) == 0) {
                             final int d = mGraph.outdegree(n);
                             final int[] successors = mGraph.successorArray(n);
+                            //logger.info("hop {} DENTRO IF nodo {} (originale {}), posizione {} remainder {} nodemask {} value {}", h, node, o, position, Integer.toBinaryString(remainder), Integer.toBinaryString(nodeMask), value);
                             for (int l = 0; l < d; l++) {
-                                final int neigh = successors[l];
-                                bitNeigh = (((1 << remainder) & oldSignatures[neigh][position]) >>> remainder) << remainder;
-                                value = bitNeigh | nodeMask & oldSignatures[neigh][position];
+                                final int neigh = successors[l] + (mGraph.numNodes() * s);
+                                int neighPosition = neigh >>> Constants.MASK;
+                                int remainderNeigh = (neigh << Constants.REMAINDER) >>> Constants.REMAINDER;
+                                bitNeigh = (((1 << remainderNeigh) & oldSignatures[neighPosition]) >>> remainderNeigh) << remainder;
+                                value = bitNeigh | nodeMask & oldSignatures[position];
                                 if ((value >>> remainder) == 1) {
                                     signatureIsChanged = true;
                                     break;
                                 }
                             }
                         } // else is already 1
-                        signatures[n][position] = signatures[n][position] | value;
+                        signatures[position] = signatures[position] | value;
                     }
 
                     logTime = System.currentTimeMillis();
@@ -123,10 +128,8 @@ public class MHSEBSide extends MinHash {
             if (signatureIsChanged) {
                 // count the collision between the node signature and the graph signature
                 long collisions = 0;
-                for (int r = 0; r < mGraph.numNodes(); r++) {
-                    for (int c = 0; c < signatures[r].length; c++) {
-                        collisions += Integer.bitCount(signatures[r][c]);
-                    }
+                for (int aSig : signatures) {
+                    collisions += Integer.bitCount(aSig);
                 }
 
                 long[] copy = new long[h + 1];
@@ -152,7 +155,7 @@ public class MHSEBSide extends MinHash {
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setHopTable(hopTable);
-        graphMeasure.setLowerBoundDiameter(collisionsVector.length - 1);
+        graphMeasure.setLowerBoundDiameter(hopTable.length - 1);
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsList(mSeeds);
         graphMeasure.setNumSeeds(mNumSeeds);

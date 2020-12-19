@@ -20,6 +20,12 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of SE-MHSE (Space Efficient - MinHash Signature Estimation) algorithm
+ *
+ * @author Giambattista Amati
+ * @author Simone Angelini
+ * @author Antonio Cruciani
+ * @author Daniele Pasquini
+ * @author Paola Vocca
  */
 public class SEMHSE extends MinHash {
 
