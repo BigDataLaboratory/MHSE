@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * @author Daniele Pasquini
  * @author Paola Vocca
  */
-public class MHSEBSideS extends MinHash {
+public class MHSEXS extends MinHash {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.BMHSE");
     private final int[] signatures;
     private final int[] oldSignatures;
@@ -28,7 +28,7 @@ public class MHSEBSideS extends MinHash {
     /**
      * Creates a new BMHSE instance with default values
      */
-    public MHSEBSideS(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) throws SeedsException {
+    public MHSEXS(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
 
         signatures = new int[lengthBitsArray(mNumSeeds * mGraph.numNodes())];
@@ -38,7 +38,7 @@ public class MHSEBSideS extends MinHash {
     /**
      * Creates a new BMHSE instance with default values
      */
-    public MHSEBSideS(final ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
+    public MHSEXS(final ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
 
@@ -93,11 +93,9 @@ public class MHSEBSideS extends MinHash {
                         int value = signatures[position];
                         int bitNeigh;
 
-                        //logger.info("hop {} FUORI IF nodo {} (originale {}) posizione {} remainder {} nodemask {} value {}", h, node, o, position, Integer.toBinaryString(remainder), Integer.toBinaryString(nodeMask), value);
                         if (((nodeMask & value) >>> remainder) == 0) {
                             final int d = mGraph.outdegree(n);
                             final int[] successors = mGraph.successorArray(n);
-                            //logger.info("hop {} DENTRO IF nodo {} (originale {}), posizione {} remainder {} nodemask {} value {}", h, node, o, position, Integer.toBinaryString(remainder), Integer.toBinaryString(nodeMask), value);
                             for (int l = 0; l < d; l++) {
                                 final int neigh = successors[l] + (mGraph.numNodes() * s);
                                 int neighPosition = neigh >>> Constants.MASK;

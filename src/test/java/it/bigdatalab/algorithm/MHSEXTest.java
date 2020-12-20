@@ -7,6 +7,7 @@ import it.bigdatalab.utils.GraphUtils;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -20,7 +21,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class MHSEBSideTest {
+class MHSEXTest {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSEBSideTest");
 
@@ -178,7 +179,7 @@ class MHSEBSideTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEBSide algo = new MHSEBSide(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         GraphMeasureOpt measure = (GraphMeasureOpt) algo.runAlgorithm();
 
@@ -207,7 +208,7 @@ class MHSEBSideTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEBSide algo = new MHSEBSide(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -236,7 +237,7 @@ class MHSEBSideTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEBSide algo = new MHSEBSide(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -265,7 +266,7 @@ class MHSEBSideTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEBSide algo = new MHSEBSide(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -294,7 +295,7 @@ class MHSEBSideTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEBSide algo = new MHSEBSide(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -323,7 +324,7 @@ class MHSEBSideTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEBSide algo = new MHSEBSide(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -352,7 +353,7 @@ class MHSEBSideTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEBSide algo = new MHSEBSide(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -381,7 +382,7 @@ class MHSEBSideTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEBSide algo = new MHSEBSide(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
         Measure measure = algo.runAlgorithm();
 
@@ -390,5 +391,13 @@ class MHSEBSideTest {
                 .ignoringFields("mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
+    }
+
+    @Test
+    void testLenghtBitsArray() {
+        MHSEX algo = new MHSEX(null, 4, 0.9, new int[]{0, 1, 2, 3});
+        int expected = 1;
+        int actual = algo.lengthBitsArray(20);
+        assertThat(actual).isEqualTo(expected);
     }
 }

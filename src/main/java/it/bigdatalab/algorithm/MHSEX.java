@@ -9,11 +9,10 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implementation of MHSEBSide (MinHash Signature Estimation B-Side) algorithm
+ * Implementation of MHSE X (MinHash Signature Estimation X version) algorithm
  *
  * @author Giambattista Amati
  * @author Simone Angelini
@@ -21,30 +20,22 @@ import java.util.concurrent.TimeUnit;
  * @author Daniele Pasquini
  * @author Paola Vocca
  */
-public class MHSEBSide extends MinHash {
+public class MHSEX extends MinHash {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.BMHSE");
-    private final int[][] signatures;
-    private final int[][] oldSignatures;
 
     /**
-     * Creates a new MHSE B-Side instance with default values
+     * Creates a new MHSE X instance with default values
      */
-    public MHSEBSide(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) throws SeedsException {
+    public MHSEX(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
-
-        signatures = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
-        oldSignatures = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
     }
 
     /**
-     * Creates a new MHSE B-Side instance with default values
+     * Creates a new MHSE X instance with default values
      */
-    public MHSEBSide(final ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
+    public MHSEX(final ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
-
-        signatures = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
-        oldSignatures = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
     }
 
     public int lengthBitsArray(int value) {
@@ -62,14 +53,17 @@ public class MHSEBSide extends MinHash {
         long[] collisionsVector = new long[1];
         int[] position = new int[mNumSeeds];
         int[] remainder = new int[mNumSeeds];
-        int[] modified = new int[mGraph.numNodes()];
-        int[] oldModified = new int[mGraph.numNodes()];
 
-        Arrays.fill(modified, 0);
+        int[] trackerMutable = new int[lengthBitsArray(mGraph.numNodes())];
+        int[] trackerImmutable = new int[lengthBitsArray(mGraph.numNodes())];
+
+        int[][] signMutable = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
+        int[][] signImmutable = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
 
         boolean signatureIsChanged = true;
         int h = 0;
 
+        int nPosition, nRemainder, neighPosition, neighRemainder, neighMask;
         while (signatureIsChanged) {
             hopStartTime = System.currentTimeMillis();
 
@@ -77,8 +71,8 @@ public class MHSEBSide extends MinHash {
                 for (int s = 0; s < mNumSeeds; s++) {
                     position[s] = s >>> Constants.MASK;
                     remainder[s] = (s << Constants.REMAINDER) >>> Constants.REMAINDER;
-                    signatures[mMinHashNodeIDs[s]][position[s]] |= (Constants.BIT) << remainder[s];
-                    modified[mMinHashNodeIDs[s]] = 1;
+                    signMutable[mMinHashNodeIDs[s]][position[s]] |= (Constants.BIT) << remainder[s];
+                    trackerMutable[mMinHashNodeIDs[s] >>> Constants.MASK] |= (Constants.BIT) << ((mMinHashNodeIDs[s] << Constants.REMAINDER) >>> Constants.REMAINDER);
                 }
 
                 signatureIsChanged = true;
@@ -89,20 +83,38 @@ public class MHSEBSide extends MinHash {
                 for (int n = 0; n < mGraph.numNodes(); n++) {
                     final int d = mGraph.outdegree(n);
                     final int[] successors = mGraph.successorArray(n);
-                    for (int l = 0; l < d; l++) {
-                        if (oldModified[successors[l]] == 1) {
+
+                    nPosition = n >>> Constants.MASK;
+                    nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
+
+                    // for each neigh of the node n
+                    for (int l = d; l-- != 0; ) {
+                        // check if the neigh has been modified
+                        // in the previous hop. If true, it can modify
+                        // the node n
+                        neighPosition = successors[l] >>> Constants.MASK;
+                        neighRemainder = (successors[l] << Constants.REMAINDER) >>> Constants.REMAINDER;
+                        neighMask = (Constants.BIT << neighRemainder);
+
+                        if (((neighMask & trackerImmutable[neighPosition]) >>> neighRemainder) == 1) {
+                            // for each element of the signature of the node n
+                            int sMask;
                             for (int s = 0; s < mNumSeeds; s++) {
-                                int nodeMask = (Constants.BIT << remainder[s]);
-                                if (((nodeMask & signatures[n][position[s]]) >>> remainder[s]) == 0) {
+                                sMask = (Constants.BIT << remainder[s]);
+
+                                // check if the s-th element of the node n signature
+                                // it's 0, else jump to the next s-th element of the signature
+                                if (((sMask & signMutable[n][position[s]]) >>> remainder[s]) == 0) {
                                     int bitNeigh;
                                     int value;
-
-                                    if (((nodeMask & oldSignatures[successors[l]][position[s]]) >>> remainder[s]) == 1) {
-                                        bitNeigh = (((1 << remainder[s]) & oldSignatures[successors[l]][position[s]]) >>> remainder[s]) << remainder[s];
-                                        value = bitNeigh | nodeMask & oldSignatures[successors[l]][position[s]];
-                                        signatureIsChanged = true;
-                                        modified[n] = 1;
-                                        signatures[n][position[s]] = signatures[n][position[s]] | value;
+                                    // change the s-th element of the node n signature
+                                    // only if the s-th element of the neigh signature is 1
+                                    if (((sMask & signImmutable[successors[l]][position[s]]) >>> remainder[s]) == 1) {
+                                        bitNeigh = (((1 << remainder[s]) & signImmutable[successors[l]][position[s]]) >>> remainder[s]) << remainder[s];
+                                        value = bitNeigh | sMask & signImmutable[successors[l]][position[s]];
+                                        signatureIsChanged = true; // track the signature changes, to run the next hop
+                                        trackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
+                                        signMutable[n][position[s]] = signMutable[n][position[s]] | value;
                                     }
                                 } // else is already 1
                             }
@@ -114,22 +126,22 @@ public class MHSEBSide extends MinHash {
                                 n, mGraph.numNodes(),
                                 h,
                                 TimeUnit.MILLISECONDS.toSeconds(logTime - hopStartTime),
-                                TimeUnit.MILLISECONDS.toSeconds(n / (logTime - hopStartTime)));
+                                TimeUnit.MILLISECONDS.toSeconds((logTime - hopStartTime) / n));
                         lastLogTime = logTime;
                     }
                 }
 
             }
             if (signatureIsChanged) {
-                // count the collision between the node signature and the graph signature
-                long collisions = 0;
-                System.arraycopy(modified, 0, oldModified, 0, modified.length);
-                modified = new int[mGraph.numNodes()];
+                System.arraycopy(trackerMutable, 0, trackerImmutable, 0, trackerMutable.length);
+                trackerMutable = new int[lengthBitsArray(mGraph.numNodes())];
 
+                // count the collisions of the signatures
+                long collisions = 0;
                 for (int r = 0; r < mGraph.numNodes(); r++) {
-                    System.arraycopy(signatures[r], 0, oldSignatures[r], 0, signatures[r].length);
-                    for (int c = 0; c < signatures[r].length; c++) {
-                        collisions += Integer.bitCount(signatures[r][c]);
+                    System.arraycopy(signMutable[r], 0, signImmutable[r], 0, signMutable[r].length);
+                    for (int c = 0; c < signMutable[r].length; c++) {
+                        collisions += Integer.bitCount(signMutable[r][c]);
                     }
                 }
 

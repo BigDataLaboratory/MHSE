@@ -32,7 +32,7 @@ public class MinHashFactory {
                 minHashAlgorithm = new MHSE(g, numSeeds, threshold, seeds);
                 break;
             case MHSEBSide:
-                minHashAlgorithm = new MHSEBSide(g, numSeeds, threshold, nodes);
+                minHashAlgorithm = new MHSEX(g, numSeeds, threshold, nodes);
                 break;
             case SEMHSE:
                 minHashAlgorithm = new SEMHSE(g, numSeeds, threshold, seeds);
@@ -77,7 +77,7 @@ public class MinHashFactory {
                 minHashAlgorithm = new MHSE(g, numSeeds, threshold);
                 break;
             case MHSEBSide:
-                minHashAlgorithm = new MHSEBSide(g, numSeeds, threshold);
+                minHashAlgorithm = new MHSEX(g, numSeeds, threshold);
                 break;
             case SEMHSE:
                 minHashAlgorithm = new SEMHSE(g, numSeeds, threshold);
