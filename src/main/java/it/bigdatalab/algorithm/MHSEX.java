@@ -9,8 +9,6 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * Implementation of MHSE X (MinHash Signature Estimation X version) algorithm
  *
@@ -125,8 +123,8 @@ public class MHSEX extends MinHash {
                         logger.info("# nodes analyzed {} / {} for hop {} [elapsed {}, node/s {}]",
                                 n, mGraph.numNodes(),
                                 h,
-                                TimeUnit.MILLISECONDS.toSeconds(logTime - hopStartTime),
-                                TimeUnit.MILLISECONDS.toSeconds((logTime - hopStartTime) / (n + 1)));
+                                (logTime - hopStartTime) / (double) 1000,
+                                ((n + 1) / ((logTime - hopStartTime) / (double) 1000)));
                         lastLogTime = logTime;
                     }
                 }
