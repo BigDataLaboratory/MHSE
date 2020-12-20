@@ -9,8 +9,6 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * Implementation of MHSEBSide (MinHash Signature Estimation B-Side) algorithm
  *
@@ -80,40 +78,40 @@ public class MHSEBSide extends MinHash {
                 signatureIsChanged = false;
 
 
-                    // update node signature
+                // update node signature
+                for (int n = 0; n < mGraph.numNodes(); n++) {
 
                     for (int s = 0; s < mNumSeeds; s++) {
 
                         int nodeMask = (Constants.BIT << remainder[s]);
 
-                        for (int n = 0; n < mGraph.numNodes(); n++) {
-                            if (((nodeMask & signatures[n][position[s]]) >>> remainder[s]) == 0) {
-                                int bitNeigh;
-                                int value = signatures[n][position[s]];
-                                final int d = mGraph.outdegree(n);
-                                final int[] successors = mGraph.successorArray(n);
-                                for (int l = 0; l < d; l++) {
-                                    if (((nodeMask & oldSignatures[successors[l]][position[s]]) >>> remainder[s]) == 1) {
-                                        bitNeigh = (((1 << remainder[s]) & oldSignatures[successors[l]][position[s]]) >>> remainder[s]) << remainder[s];
-                                        value = bitNeigh | nodeMask & oldSignatures[successors[l]][position[s]];
-                                        signatureIsChanged = true;
-                                        break;
-                                    }
+                        if (((nodeMask & signatures[n][position[s]]) >>> remainder[s]) == 0) {
+                            int bitNeigh;
+                            int value = signatures[n][position[s]];
+                            final int d = mGraph.outdegree(n);
+                            final int[] successors = mGraph.successorArray(n);
+                            for (int l = 0; l < d; l++) {
+                                if (((nodeMask & oldSignatures[successors[l]][position[s]]) >>> remainder[s]) == 1) {
+                                    bitNeigh = (((1 << remainder[s]) & oldSignatures[successors[l]][position[s]]) >>> remainder[s]) << remainder[s];
+                                    value = bitNeigh | nodeMask & oldSignatures[successors[l]][position[s]];
+                                    signatureIsChanged = true;
+                                    break;
                                 }
-                                signatures[n][position[s]] = signatures[n][position[s]] | value;
-                            } // else is already 1
-                            logTime = System.currentTimeMillis();
-                            if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
-                                logger.info("# nodes analyzed {} / {} for hop {} [elapsed {}, node/s {}]",
-                                        n, mGraph.numNodes(),
-                                        h,
-                                        TimeUnit.MILLISECONDS.toSeconds(logTime - hopStartTime),
-                                        TimeUnit.MILLISECONDS.toSeconds(n / (logTime - hopStartTime)));
-                                lastLogTime = logTime;
                             }
-                        }
+                            signatures[n][position[s]] = signatures[n][position[s]] | value;
+                        } // else is already 1
 
                     }
+/*                    logTime = System.currentTimeMillis();
+                    if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
+                        logger.info("# nodes analyzed {} / {} for hop {} [elapsed {}, node/s {}]",
+                                n, mGraph.numNodes(),
+                                h,
+                                TimeUnit.MILLISECONDS.toSeconds(logTime - hopStartTime),
+                                TimeUnit.MILLISECONDS.toSeconds(n / (logTime - hopStartTime)));
+                        lastLogTime = logTime;
+                    }*/
+                }
 
             }
             if (signatureIsChanged) {
