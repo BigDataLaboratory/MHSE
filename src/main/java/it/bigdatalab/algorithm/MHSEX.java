@@ -126,7 +126,7 @@ public class MHSEX extends MinHash {
                                 n, mGraph.numNodes(),
                                 h,
                                 TimeUnit.MILLISECONDS.toSeconds(logTime - hopStartTime),
-                                TimeUnit.MILLISECONDS.toSeconds((logTime - hopStartTime) / n));
+                                TimeUnit.MILLISECONDS.toSeconds((logTime - hopStartTime) / (n + 1)));
                         lastLogTime = logTime;
                     }
                 }
