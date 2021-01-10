@@ -8,9 +8,9 @@ public class GroupVarInt {
     }
 
 
-    public static int log2(int x)
+    public static float log2(int x)
     {
-        return (int) (Math.log(x) / Math.log(2));
+        return (float) (Math.log(x) / Math.log(2));
     }
 
     public void EncodeList(int [] list)
@@ -19,7 +19,40 @@ public class GroupVarInt {
 
     }
     public int get_bytes_number(int number){
-        return (int) (Math.floor(log2(number)+1)/8);
+        // controlla il +1 finale
+        return (int) (Math.floor(log2(number)+1)/8)+1;
+    }
+
+    public int convertByteArrayToInt(byte[] data) {
+        if (data == null ) return 0x0;
+        if(data.length != 4){
+
+            byte []completeArray = new byte[4];
+            for(int i =0 ; i< 4-data.length;i++){
+                completeArray[i] = 0x0;
+
+            }
+
+            int k = 0;
+            for(int i =4-data.length ; i< 4;i++){
+                completeArray[i] = data[k];
+
+                k++;
+            }
+            return (int)(
+                    (0xff & completeArray[0]) << 24  |
+                            (0xff & completeArray[1]) << 16  |
+                            (0xff & completeArray[2]) << 8   |
+                            (0xff & completeArray[3]) << 0
+            );
+        }
+        // ----------
+        return (int)( // NOTE: type cast not necessary for int
+                (0xff & data[0]) << 24  |
+                        (0xff & data[1]) << 16  |
+                        (0xff & data[2]) << 8   |
+                        (0xff & data[3]) << 0
+        );
     }
     private static byte[] intToBytes(final int data, int size) {
         // Trasformo l'int in byte
@@ -31,11 +64,19 @@ public class GroupVarInt {
         };
         // prendo solo i bytes necessari per codificare l'intero in bytes
         byte [] converted = new byte[size];
-        int j = toBitArray.length;
-        for (int i = size;i>0;i--){
+
+        for (int i =0 ; i<toBitArray.length;i++){
+            System.out.println(toBitArray[i]);
+        }
+
+        int i = 0;
+        int j = toBitArray.length-1;
+        while(i <size){
             converted[i] = toBitArray[j];
+            i++;
             j--;
         }
+
         return(converted);
 
     }
@@ -70,26 +111,52 @@ public class GroupVarInt {
         for (i = 0; i<4; i++){
             if(i<group.length){
                 numbers_prefix[i] = get_bytes_number(group[i]);
+
                 byte [] encoded = new byte[numbers_prefix[i]];
+                System.out.println("PREF " + numbers_prefix[i]);
                 byte [] converted_resto;
                 k = group[i];
-                j = 0;
+
                 while(k>0){
-                    resto = k & 0x100; // k % 256
+                    j = 0;
+                    System.out.println("kappa "+k);
+                    resto = k & 0xFF; // k % 256
                     quotient = k>>8; // k // 256
                     // forse questo che sto per fare è inutile con gli interi e può essere bypassato usando gli shifts
                     converted_resto = intToBytes(resto,get_bytes_number(group[i]));
+//                    System.out.println("RESTO");
+//                    System.out.println(resto);
+//                    System.out.println(converted_resto );
+//                    System.out.println("lunghzza");
+//                    System.out.println(converted_resto.length);
+//                    System.out.println(converted_resto[0] & 0xff);
+//
+//
+//
+//                    System.out.println("ReSTO");
+//                    System.out.println("Result           : " + convertByteArrayToInt(converted_resto));
+//
+
+                    System.out.println(converted_resto.length);
+                    System.out.println(encoded.length);
                     for (l = 0; l<converted_resto.length; l++){
+                        System.out.println("j "+j);
+                        System.out.println("l "+l);
+                        System.out.println("lol "+converted_resto[l]);
                         encoded[j] = converted_resto[l];
+
                         j++;
                     }
                     k = quotient;
                 }
+
                 // copio il risultato sull'array finale
-                for(l = 0; j<encoded.length;l++){
+                for(l = 0; l<encoded.length;l++){
                     partial_encoding[index] = encoded[l];
                     index+=1;
                 }
+                System.out.println(convertByteArrayToInt(encoded));
+
             }else{
                 numbers_prefix[i] = 1;
             }
@@ -97,7 +164,8 @@ public class GroupVarInt {
         // Da controllare bene il -1
         byte selector = (byte) (((numbers_prefix[0] - 1) << 6) | ((numbers_prefix[1] - 1) << 4) | ((numbers_prefix[2] - 1) << 2) | (numbers_prefix[3] - 1));
         partial_encoding[0] = selector;
-
+        System.out.println("SELECTOR");
+        System.out.println(selector & 0xff);
         return(partial_encoding);
     }
 
