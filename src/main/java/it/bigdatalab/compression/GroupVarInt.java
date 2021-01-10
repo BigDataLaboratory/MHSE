@@ -21,41 +21,74 @@ public class GroupVarInt {
     public int get_bytes_number(int number){
         return (int) (Math.floor(log2(number)+1)/8);
     }
+    private static byte[] intToBytes(final int data, int size) {
+        // Trasformo l'int in byte
+        byte [] toBitArray = new byte[] {
+                (byte)((data >> 24) & 0xff),
+                (byte)((data >> 16) & 0xff),
+                (byte)((data >> 8) & 0xff),
+                (byte)((data >> 0) & 0xff),
+        };
+        // prendo solo i bytes necessari per codificare l'intero in bytes
+        byte [] converted = new byte[size];
+        int j = toBitArray.length;
+        for (int i = size;i>0;i--){
+            converted[i] = toBitArray[j];
+            j--;
+        }
+        return(converted);
+
+    }
     // Gets an array of at most 4 elements
-    public int EncodeGroup(int [] group){
+    public byte[] EncodeGroup(int [] group){
         /*
             Array for the number of bytes of each element of the group
             If the group has lenght strictly less than 4 the coordinates of number_prefix that are not in group are 0
         */
         int [] numbers_prefix = new int[4];
-
-        /*
-        int n0;
-        int n1;
-        int n2;
-        int n3;
-        */
-        int [] partial_encoding = new int [group.length];
-        int i;
+        // Lunghezza dell'array di bytes che codifica il vettore in input
+        // esso conta anche gli 8 bits del prefisso
+        int byte_array_lenght = 1;
+        //int [] partial_encoding = new int [group.length];
+        int i,j,l;
         int k;
         int resto;
         int quotient;
-        int encoded = 0;
-        // va controllato
-        int shift = 8;
 
         for (i = 0; i<4; i++){
             if(i<group.length){
+                byte_array_lenght+=get_bytes_number(group[i]);
+            }else{
+                byte_array_lenght+=1;
+            }
+        }
+        byte [] partial_encoding = new byte [byte_array_lenght];
+        // va controllato
+        //int shift = 8;
+        // Index inizia da 1 perché l'indice 0 dell'array di bytes è riservato al prefisso
+        int index = 1;
+        for (i = 0; i<4; i++){
+            if(i<group.length){
                 numbers_prefix[i] = get_bytes_number(group[i]);
+                byte [] encoded = new byte[numbers_prefix[i]];
+                byte [] converted_resto;
                 k = group[i];
+                j = 0;
                 while(k>0){
                     resto = k & 0x100; // k % 256
                     quotient = k>>8; // k // 256
-                    encoded = encoded | (resto<<shift);
+                    // forse questo che sto per fare è inutile con gli interi e può essere bypassato usando gli shifts
+                    converted_resto = intToBytes(resto,get_bytes_number(group[i]));
+                    for (l = 0; l<converted_resto.length; l++){
+                        encoded[j] = converted_resto[l];
+                        j++;
+                    }
                     k = quotient;
-
-                    shift =
-
+                }
+                // copio il risultato sull'array finale
+                for(l = 0; j<encoded.length;l++){
+                    partial_encoding[index] = encoded[l];
+                    index+=1;
                 }
             }else{
                 numbers_prefix[i] = 1;
@@ -63,10 +96,9 @@ public class GroupVarInt {
         }
         // Da controllare bene il -1
         byte selector = (byte) (((numbers_prefix[0] - 1) << 6) | ((numbers_prefix[1] - 1) << 4) | ((numbers_prefix[2] - 1) << 2) | (numbers_prefix[3] - 1));
+        partial_encoding[0] = selector;
 
-
-
-        return(1);
+        return(partial_encoding);
     }
 
 }
