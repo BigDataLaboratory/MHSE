@@ -1,9 +1,11 @@
 package it.bigdatalab.compression;
 import java.lang.Math.*;
 public class GroupVarInt {
-
+    private int[] indexes;
+    private byte[] compressedAdjList;
 
     public  GroupVarInt(){
+
      // Da sviluppare
     }
 
@@ -26,17 +28,13 @@ public class GroupVarInt {
     public int convertByteArrayToInt(byte[] data) {
         if (data == null ) return 0x0;
         if(data.length != 4){
-
             byte []completeArray = new byte[4];
             for(int i =0 ; i< 4-data.length;i++){
                 completeArray[i] = 0x0;
-
             }
-
             int k = 0;
             for(int i =4-data.length ; i< 4;i++){
                 completeArray[i] = data[k];
-
                 k++;
             }
             return (int)(
@@ -46,28 +44,26 @@ public class GroupVarInt {
                             (0xff & completeArray[3]) << 0
             );
         }
-        // ----------
-        return (int)( // NOTE: type cast not necessary for int
+        return (int)(
                 (0xff & data[0]) << 24  |
                         (0xff & data[1]) << 16  |
                         (0xff & data[2]) << 8   |
                         (0xff & data[3]) << 0
         );
     }
+
     private static byte[] intToBytes(final int data, int size) {
-        // Trasformo l'int in byte
+        // Trasformo int in byte
         byte [] toBitArray = new byte[] {
                 (byte)((data >> 24) & 0xff),
                 (byte)((data >> 16) & 0xff),
                 (byte)((data >> 8) & 0xff),
                 (byte)((data >> 0) & 0xff),
         };
-        // prendo solo i bytes necessari per codificare l'intero in bytes
+        // prendo solo i bytes necessari per codificare l'intero
         byte [] converted = new byte[size];
 
-        for (int i =0 ; i<toBitArray.length;i++){
-            System.out.println(toBitArray[i]);
-        }
+
 
         int i = 0;
         int j = toBitArray.length-1;
@@ -96,13 +92,11 @@ public class GroupVarInt {
         int resto;
         int quotient;
 
-        for (i = 0; i<4; i++){
-            if(i<group.length){
+        for (i = 0; i<group.length; i++){
                 byte_array_lenght+=get_bytes_number(group[i]);
-            }else{
-                byte_array_lenght+=1;
-            }
+                //System.out.println("NUMERO "+ group[i]);
         }
+        //System.out.println("BAL "+byte_array_lenght);
         byte [] partial_encoding = new byte [byte_array_lenght];
         // va controllato
         //int shift = 8;
@@ -111,15 +105,13 @@ public class GroupVarInt {
         for (i = 0; i<4; i++){
             if(i<group.length){
                 numbers_prefix[i] = get_bytes_number(group[i]);
-
                 byte [] encoded = new byte[numbers_prefix[i]];
-                System.out.println("PREF " + numbers_prefix[i]);
+
                 byte [] converted_resto;
                 k = group[i];
-
                 while(k>0){
                     j = 0;
-                    System.out.println("kappa "+k);
+
                     resto = k & 0xFF; // k % 256
                     quotient = k>>8; // k // 256
                     // forse questo che sto per fare è inutile con gli interi e può essere bypassato usando gli shifts
@@ -137,36 +129,104 @@ public class GroupVarInt {
 //                    System.out.println("Result           : " + convertByteArrayToInt(converted_resto));
 //
 
-                    System.out.println(converted_resto.length);
-                    System.out.println(encoded.length);
                     for (l = 0; l<converted_resto.length; l++){
-                        System.out.println("j "+j);
-                        System.out.println("l "+l);
-                        System.out.println("lol "+converted_resto[l]);
+
                         encoded[j] = converted_resto[l];
 
                         j++;
                     }
                     k = quotient;
                 }
-
                 // copio il risultato sull'array finale
                 for(l = 0; l<encoded.length;l++){
                     partial_encoding[index] = encoded[l];
                     index+=1;
                 }
-                System.out.println(convertByteArrayToInt(encoded));
-
             }else{
                 numbers_prefix[i] = 1;
             }
         }
-        // Da controllare bene il -1
+
         byte selector = (byte) (((numbers_prefix[0] - 1) << 6) | ((numbers_prefix[1] - 1) << 4) | ((numbers_prefix[2] - 1) << 2) | (numbers_prefix[3] - 1));
         partial_encoding[0] = selector;
-        System.out.println("SELECTOR");
-        System.out.println(selector & 0xff);
+
         return(partial_encoding);
+    }
+
+private byte[] byteArrayExtend(byte[] source,byte[] destination){
+        byte[] copied = new byte[destination.length+source.length];
+        int i,j;
+        //System.out.println("Lung S "+source.length+ " Lung D "+destination.length);
+        for(i =0; i<destination.length;i++){
+            copied[i] = destination[i];
+        }
+        j = 0;
+        for (i = destination.length; i<destination.length+source.length; i++){
+            copied[i] = source[j];
+            j++;
+        }
+        return(copied);
+}
+
+public byte[] sequenceEncoding(int []sequence){
+    int k,i,j,l;
+    int lastIteration = 0;
+    int [] groupedSequence = new int [4];
+    byte[] tmpArray = new byte[0];
+    byte[] finalEncoding = new byte[0];
+    int start,end;
+    byte[] partialEncoding;
+
+    if((sequence.length & 3) == 0) {
+        lastIteration = 1;
+    }
+
+    start = 0;
+    end = 0;
+
+    for (i =0; i<sequence.length;i++){
+        System.out.println("i+end "+ i + end);
+        System.out.println("i "+i);
+        System.out.println("end "+end);
+        System.out.println("start "+start);
+        System.out.println("Lunghezza input "+sequence.length);
+        groupedSequence[end] =  sequence[i];
+        end++;
+        if(end == 4){
+
+            System.out.println("lung compresso "+ groupedSequence.length);
+//            for (int p =0 ; p< groupedSequence.length; p++){
+//                System.out.println("nela lista "+groupedSequence[p]);
+//            }
+            partialEncoding = EncodeGroup(groupedSequence);
+
+            tmpArray = byteArrayExtend(partialEncoding,tmpArray);
+
+            start = i;
+            end = 0;
+        }
+    }
+    // Se la lunghezza della lista di elementi non è multipla di 4 dobbiamo eseguire un'ultima passata
+    if(end<4){
+        int[] remainingEncoding = new int[end];
+        for(k = 0; k<end;k++){
+            remainingEncoding[k] = groupedSequence[k];
+        }
+        partialEncoding = EncodeGroup(remainingEncoding);
+        tmpArray = byteArrayExtend(partialEncoding,tmpArray);
+    }
+    return(tmpArray);
+}
+    public void encodeAdjList(int [][] AList){
+
+
+        // Da mettere: Gestione della lista di adj
+        // for each nodo nella lista di adiacenza
+        // va deciso come rappresentare e gestire la lista di adj
+    }
+
+    private void writeEncoding(){
+
     }
 
 }
