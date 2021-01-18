@@ -164,7 +164,7 @@ public class MHSEX extends MinHash {
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
-        graphMeasure.setNumArcs(mGraph.numArcs());
+        //graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setHopTable(hopTable);
         graphMeasure.setLowerBoundDiameter(collisionsVector.length - 1);
         graphMeasure.setThreshold(mThreshold);
