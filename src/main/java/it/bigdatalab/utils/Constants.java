@@ -27,7 +27,7 @@ public class Constants {
      *                                     LOG
      * ****************************************************************************/
 
-    public static long LOG_INTERVAL = TimeUnit.MILLISECONDS.toMillis(6000L);
+    public static long LOG_INTERVAL = TimeUnit.MILLISECONDS.toMillis(2000L);
 
     /*******************************************************************************
      *                                     GENERIC
