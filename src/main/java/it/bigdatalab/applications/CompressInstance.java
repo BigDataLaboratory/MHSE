@@ -15,18 +15,30 @@ public class CompressInstance {
 
             System.out.println(compressi[i] );
         }
-        System.out.println("____________");
-        int[] lista = new int[]{1,2,3,4,5};
+        System.out.print("Lunghezza "+ compressi.length);
+        System.out.println("\n ____________");
+        int[] lista = new int[]{15,34,16777216,16,12,37,56,78,90,98,128,260,520,9999};
+        //int[] lista = new int[]{520};
         byte [] listaCompressa = test.sequenceEncoding(lista);
-        System.out.println("LISTA COMPRESSA");
+        System.out.println("LISTA COMPRESSA Goup varint");
         System.out.println("LUNGHEZZA "+ listaCompressa.length);
         for (int i=0;i<listaCompressa.length; i++){
 
             System.out.println(listaCompressa[i] );
         }
+        System.out.println("DECOMPRESSIONE Group varint");
+        int [] decom = test.decode(listaCompressa);
+        for (int i= 0; i<decom.length;i++){
+            System.out.println(decom[i]);
+        }
+        //int []enc = diff.encodeSortedSequence(lista);
+        int []enc = diff.encodeSequence(lista);
 
-        int []enc = diff.encodeSortedSequence(lista);
         int []dec = diff.decodeSequence(enc);
+        System.out.println("--------------------------");
+
+        System.out.println("DIFFERENTIAL COMPRESSION");
+
         System.out.println("COMPRESSSA");
         for (int i = 0; i< enc.length;i++){
             System.out.println(enc[i]);

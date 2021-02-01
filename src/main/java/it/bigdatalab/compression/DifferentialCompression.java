@@ -51,14 +51,14 @@ public class DifferentialCompression {
         int[] encoded = new int[sequence.length];
         int j;
         // check if the sequence is sorted
-
         if(!(isSorted(sequence))){
             Arrays.sort(sequence);
         }
         j = 0;
         encoded[0] = sequence[0];
         while(j<(sequence.length-1)){
-            encoded[j+1] = sequence[j+1] - sequence[j];
+            //encoded[j+1] = sequence[j+1] - sequence[j];
+            encoded[j+1] = bitwiseSubtraction(sequence[j+1],sequence[j]);
             j++;
         }
         return(encoded);
