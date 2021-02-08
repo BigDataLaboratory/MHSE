@@ -285,6 +285,7 @@ public class GroupVarInt {
 
     public void encodeAdjList(int [][] AList){
 
+        
 
         // Da mettere: Gestione della lista di adj
         // for each nodo nella lista di adiacenza
