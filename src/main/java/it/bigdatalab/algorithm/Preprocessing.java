@@ -34,18 +34,25 @@ public class Preprocessing {
         int[] indegree = new int[numNodes];
         int[] outdegree = new int[numNodes];
         int[] mappedGraph = new int[numNodes];
-
+        long prova = 0;
+        long prova2 = 0;
         // compute nodes indegree
         while (numNodes-- != 0) {
             int vertex = nodeIterator.nextInt();
             d = nodeIterator.outdegree();
             outdegree[vertex] = d;
+            prova+= d;
             int[] neighbours = nodeIterator.successorArray();
 
             s = d;
             while (s-- != 0) {
                 ++indegree[neighbours[s]];
+
             }
+
+        }
+        for (int o=0; o<indegree.length;o++){
+            prova2+= indegree[o];
         }
 
         // for each node, if a node is isolated (indegree and outdegree are 0)
@@ -70,7 +77,8 @@ public class Preprocessing {
         } else {
             logger.info("The graph does not contain isolated vertices");
         }
-
+        System.out.println("OUTDEG "+prova+ " INDEG "+prova2);
+        System.exit(1);
         return g;
     }
 }
