@@ -740,6 +740,7 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("hyperball.inMemory", Constants.FALSE));
         int numTest = Integer.parseInt(PropertiesManager.getProperty("hyperball.numTests", Constants.NUM_RUN_DEFAULT));
         int log2m = Integer.parseInt(PropertiesManager.getProperty("hyperball.log2m", Constants.LOG2M_DEFAULT));
+        String direction = PropertiesManager.getPropertyIfNotEmpty("hyperball.direction");
         it.bigdatalab.model.Parameter param = new it.bigdatalab.model.Parameter.Builder()
                 .setInputFilePathGraph(inputFilePath)
                 .setOutputFolderPath(outputFolderPath)
@@ -747,12 +748,13 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
                 .setAlgorithmName("Hyperball")
                 .setNumThreads(threadNumber)
                 .setInMemory(inMemory)
+                .setDirection(direction)
                 .setIsolatedVertices(isolatedVertices)
                 .setNumTests(numTest).build();
 
         List<Measure> measures = new ArrayList<>();
 
-        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), false, param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
         for (int i = 0; i < param.getNumTests(); i++) {
             long runTime = System.currentTimeMillis();
 
