@@ -176,12 +176,13 @@ class MultithreadBMinHashOptimizedTest {
                 .setTranspose(false)
                 .setSeedsRandom(false)
                 .setThreshold(0.9)
+                .setComputeCentrality(false)
                 .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -205,13 +206,14 @@ class MultithreadBMinHashOptimizedTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -236,12 +238,13 @@ class MultithreadBMinHashOptimizedTest {
                 .setTranspose(true)
                 .setSeedsRandom(false)
                 .setThreshold(0.9)
+                .setComputeCentrality(false)
                 .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -271,7 +274,7 @@ class MultithreadBMinHashOptimizedTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -296,12 +299,13 @@ class MultithreadBMinHashOptimizedTest {
                 .setTranspose(false)
                 .setSeedsRandom(false)
                 .setThreshold(0.9)
+                .setComputeCentrality(false)
                 .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -326,12 +330,13 @@ class MultithreadBMinHashOptimizedTest {
                 .setTranspose(false)
                 .setSeedsRandom(false)
                 .setThreshold(0.9)
+                .setComputeCentrality(false)
                 .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -356,12 +361,13 @@ class MultithreadBMinHashOptimizedTest {
                 .setTranspose(false)
                 .setSeedsRandom(false)
                 .setThreshold(0.9)
+                .setComputeCentrality(false)
                 .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -386,12 +392,13 @@ class MultithreadBMinHashOptimizedTest {
                 .setTranspose(false)
                 .setSeedsRandom(false)
                 .setThreshold(0.9)
+                .setComputeCentrality(false)
                 .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -416,12 +423,13 @@ class MultithreadBMinHashOptimizedTest {
                 .setTranspose(false)
                 .setSeedsRandom(false)
                 .setThreshold(0.9)
+                .setComputeCentrality(false)
                 .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads());
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         GraphMeasureOpt measure = (GraphMeasureOpt) algo.runAlgorithm();
 
@@ -440,7 +448,7 @@ class MultithreadBMinHashOptimizedTest {
         int[][] collisionMatrix = new int[][]{{1, 4, 32, 55, 98, 101, 201}, {1, 4}, {1}, {1, 32}};
         int nrows = 4;
         int lowerBoundDiameter = 6;
-        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(null, 4, 0.9, new int[]{0, 1, 2, 3}, 1);
+        MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(null, 4, 0.9, new int[]{0, 1, 2, 3}, 1, false);
         algo.normalizeCollisionsTable(collisionMatrix, lowerBoundDiameter);
         assertThat(collisionMatrix).as("CollisionsTable # rows # cols").hasDimensions(nrows, lowerBoundDiameter + 1);
     }

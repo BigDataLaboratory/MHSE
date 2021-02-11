@@ -174,12 +174,13 @@ class MHSEXTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         GraphMeasureOpt measure = (GraphMeasureOpt) algo.runAlgorithm();
 
@@ -203,12 +204,13 @@ class MHSEXTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -232,12 +234,13 @@ class MHSEXTest {
                 .setDirection(direction)
                 .setTranspose(true)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -261,12 +264,13 @@ class MHSEXTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -290,12 +294,13 @@ class MHSEXTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -319,12 +324,13 @@ class MHSEXTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -348,12 +354,13 @@ class MHSEXTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -377,12 +384,13 @@ class MHSEXTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -395,7 +403,7 @@ class MHSEXTest {
 
     @Test
     void testLenghtBitsArray() {
-        MHSEX algo = new MHSEX(null, 4, 0.9, new int[]{0, 1, 2, 3});
+        MHSEX algo = new MHSEX(null, 4, 0.9, new int[]{0, 1, 2, 3}, false);
         int expected = 1;
         int actual = algo.lengthBitsArray(20);
         assertThat(actual).isEqualTo(expected);

@@ -17,10 +17,12 @@ public class Constants {
     public static final String WITHISOLATED = "with_iso";
     public static final String WITHOUTISOLATED = "without_iso";
     public static final String SEEDNODE = "seednode";
+    public static final String INOUTDEGREE = "inoutdegree";
     public static final String GT = "gt_";
 
 
     public static final String JSON_EXTENSION = ".json";
+    public static final String CSV_EXTENSION = ".csv";
     public static final String GRAPH_EXTENSION = ".graph";
 
     /*******************************************************************************
@@ -73,6 +75,14 @@ public class Constants {
     public static final String NUM_SEEDS_DEFAULT = "256";
     public static final String NUM_RUN_DEFAULT = "1";
     public static final String LOG2M_DEFAULT = "8";
+
+    /*******************************************************************************
+     *                                  INOUTDEGREE
+     * ****************************************************************************/
+
+    public static final int NODE_ID = 0;
+    public static final int INDEGREE = 1;
+    public static final int OUTDEGREE = 2;
 
 
 }

@@ -175,12 +175,13 @@ class StandaloneBMinHashOptimizedTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -204,12 +205,13 @@ class StandaloneBMinHashOptimizedTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -233,12 +235,13 @@ class StandaloneBMinHashOptimizedTest {
                 .setDirection(direction)
                 .setTranspose(true)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -262,12 +265,13 @@ class StandaloneBMinHashOptimizedTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -291,12 +295,13 @@ class StandaloneBMinHashOptimizedTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -320,12 +325,13 @@ class StandaloneBMinHashOptimizedTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -349,12 +355,13 @@ class StandaloneBMinHashOptimizedTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -378,12 +385,13 @@ class StandaloneBMinHashOptimizedTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -407,12 +415,13 @@ class StandaloneBMinHashOptimizedTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes);
+        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         GraphMeasureOpt measure = (GraphMeasureOpt) algo.runAlgorithm();
 
@@ -431,14 +440,14 @@ class StandaloneBMinHashOptimizedTest {
         int[][] collisionMatrix = new int[][]{{1, 4, 32, 55, 98}, {1, 4, 32}, {1}, {1, 32}};
         int nrows = 4;
         int lowerBoundDiameter = 4;
-        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(null, 4, 0.9, new int[]{0, 1, 2, 3});
+        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(null, 4, 0.9, new int[]{0, 1, 2, 3}, false);
         algo.normalizeCollisionsTable(collisionMatrix, lowerBoundDiameter);
         assertThat(collisionMatrix).as("CollisionsTable # rows # cols").hasDimensions(nrows, lowerBoundDiameter + 1);
     }
 
     @Test
     void testLenghtBitsArray() {
-        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(null, 4, 0.9, new int[]{0, 1, 2, 3});
+        StandaloneBMinHashOptimized algo = new StandaloneBMinHashOptimized(null, 4, 0.9, new int[]{0, 1, 2, 3}, false);
         int expected = 1;
         int actual = algo.lengthBitsArray(20);
         assertThat(actual).isEqualTo(expected);

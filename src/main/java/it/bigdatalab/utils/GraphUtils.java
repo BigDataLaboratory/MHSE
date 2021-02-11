@@ -35,6 +35,7 @@ public class GraphUtils {
         return graph;
     }
 
+
     public static ImmutableGraph loadGraph(String inputFilePath, boolean transpose, boolean inMemory, boolean isolatedVertices, String direction) throws IOException {
         logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
         ImmutableGraph graph = inMemory ?

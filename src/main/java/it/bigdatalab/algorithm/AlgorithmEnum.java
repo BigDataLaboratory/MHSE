@@ -10,5 +10,6 @@ public enum AlgorithmEnum {
     StandaloneBMinHash,
     StandaloneBMinHashOptimized,
     MultithreadBMinHash,
-    MultithreadBMinHashOptimized
+    MultithreadBMinHashOptimized,
+    MultithreadBMinHashOpt2
 }

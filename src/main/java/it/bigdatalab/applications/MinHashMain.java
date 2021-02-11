@@ -159,6 +159,7 @@ public class MinHashMain {
 
         double threshold = Double.parseDouble(PropertiesManager.getPropertyIfNotEmpty("minhash.threshold"));
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.inMemory", Constants.FALSE));
+        boolean computeCentrality = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.computeCentrality", Constants.FALSE));
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
 
         Parameter param = new Parameter.Builder()
@@ -175,6 +176,7 @@ public class MinHashMain {
                 .setRange(range)
                 .setThreshold(threshold)
                 .setDirection(direction)
+                .setComputeCentrality(computeCentrality)
                 .setNumThreads(suggestedNumberOfThreads)
                 .build();
 
@@ -188,6 +190,7 @@ public class MinHashMain {
                         "number of seeds {}, automatic range? {}\n" +
                         "direction is: {}\n" +
                         "threshold for eff. diameter is: {}\n" +
+                        "algorithm must compute centrality: {}\n" +
                         "number of threads: {}\n" +
                         "\n********************************************************\n\n",
                 param.getNumTests(),
@@ -199,6 +202,7 @@ public class MinHashMain {
                 param.getNumSeeds(), param.isAutomaticRange(),
                 param.getDirection(),
                 param.getThreshold(),
+                param.computeCentrality(),
                 param.getNumThreads());
 
         MinHashMain main = new MinHashMain(param);
@@ -279,8 +283,8 @@ public class MinHashMain {
         for (int i = 0; i < numTest; i++) {
 
             MinHash minHash = mParam.isSeedsRandom() ?
-                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), mParam.getNumThreads()) :
-                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), seedsNodes.get(i).getSeeds(), seedsNodes.get(i).getNodes(), mParam.getNumThreads());
+                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), mParam.getNumThreads(), mParam.computeCentrality()) :
+                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), seedsNodes.get(i).getSeeds(), seedsNodes.get(i).getNodes(), mParam.getNumThreads(), mParam.computeCentrality());
 
             measure = minHash.runAlgorithm();
             measure.setAlgorithmName(mParam.getAlgorithmName());

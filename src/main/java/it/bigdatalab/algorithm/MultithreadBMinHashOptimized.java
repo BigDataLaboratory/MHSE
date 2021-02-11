@@ -38,7 +38,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
     /**
      * Creates a new MultithreadBMinHashOptimized instance with default values
      */
-    public MultithreadBMinHashOptimized(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads) {
+    public MultithreadBMinHashOptimized(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         mSeedTime = new double[mNumSeeds];
@@ -47,7 +47,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
     /**
      * Creates a new MultithreadBMinHashOptimized instance with default values
      */
-    public MultithreadBMinHashOptimized(final ImmutableGraph g, int numSeeds, double threshold, int threads) {
+    public MultithreadBMinHashOptimized(final ImmutableGraph g, int numSeeds, double threshold, int threads, boolean centrality) {
         super(g, numSeeds, threshold);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         mSeedTime = new double[mNumSeeds];

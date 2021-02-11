@@ -28,15 +28,15 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
     /**
      * Creates a new BooleanMinHasOptimized instance with default values
      */
-    public StandaloneBMinHashOptimized(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) {
+    public StandaloneBMinHashOptimized(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, boolean centrality) {
         super(g, numSeeds, threshold, nodes);
     }
 
     /**
      * Creates a new BooleanMinHasOptimized instance with default values
      */
-    public StandaloneBMinHashOptimized(final ImmutableGraph g, int numSeeds, double threshold) {
-        this(g, numSeeds, threshold, null);
+    public StandaloneBMinHashOptimized(final ImmutableGraph g, int numSeeds, double threshold, boolean centrality) {
+        this(g, numSeeds, threshold, null, centrality);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
     }
 

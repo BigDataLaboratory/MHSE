@@ -17,6 +17,8 @@ public class Parameter {
     private final boolean mTranspose;
 
     private final boolean mInMemory;
+    private final boolean mComputeCentrality;
+
 
     private final double mThreshold;
 
@@ -41,6 +43,7 @@ public class Parameter {
         this.mTranspose = builder.transpose;
 
         this.mInMemory = builder.inMemory;
+        this.mComputeCentrality = builder.computeCentrality;
         this.mThreshold = builder.threshold;
 
         this.mNumThreads = builder.numThreads;
@@ -98,6 +101,10 @@ public class Parameter {
         return mInMemory;
     }
 
+    public boolean computeCentrality() {
+        return mComputeCentrality;
+    }
+
     public double getThreshold() {
         return mThreshold;
     }
@@ -123,6 +130,7 @@ public class Parameter {
         private boolean transpose;
 
         private boolean inMemory;
+        private boolean computeCentrality;
         private double threshold;
 
         private int numThreads;
@@ -192,6 +200,11 @@ public class Parameter {
 
         public Builder setInMemory(boolean inMemory) {
             this.inMemory = inMemory;
+            return this;
+        }
+
+        public Builder setComputeCentrality(boolean computeCentrality) {
+            this.computeCentrality = computeCentrality;
             return this;
         }
 

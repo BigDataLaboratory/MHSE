@@ -6,6 +6,8 @@ import it.bigdatalab.utils.GraphUtils;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +15,8 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GroundTruthTest {
+
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.GroundTruthTest");
 
     /*******************************************************************************
      *                                 32 PATH
@@ -33,7 +37,6 @@ class GroundTruthTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
-
         GroundTruth gt = new GroundTruth(g, param, mode);
         GraphGtMeasure graphMeasure = gt.computeGroundTruth();
         assertEquals(31, graphMeasure.getDiameter());

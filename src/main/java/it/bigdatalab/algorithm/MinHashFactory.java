@@ -23,7 +23,8 @@ public class MinHashFactory {
                                 double threshold,
                                 IntArrayList seeds,
                                 int[] nodes,
-                                int threads) throws IllegalArgumentException, MinHash.SeedsException {
+                                int threads,
+                                boolean centrality) throws IllegalArgumentException, MinHash.SeedsException {
 
         MinHash minHashAlgorithm = null;
 
@@ -32,7 +33,7 @@ public class MinHashFactory {
                 minHashAlgorithm = new MHSE(g, numSeeds, threshold, seeds);
                 break;
             case MHSEBSide:
-                minHashAlgorithm = new MHSEX(g, numSeeds, threshold, nodes);
+                minHashAlgorithm = new MHSEX(g, numSeeds, threshold, nodes, centrality);
                 break;
             case SEMHSE:
                 minHashAlgorithm = new SEMHSE(g, numSeeds, threshold, seeds);
@@ -41,13 +42,16 @@ public class MinHashFactory {
                 minHashAlgorithm = new StandaloneBMinHash(g, numSeeds, threshold, nodes);
                 break;
             case StandaloneBMinHashOptimized:
-                minHashAlgorithm = new StandaloneBMinHashOptimized(g, numSeeds, threshold, nodes);
+                minHashAlgorithm = new StandaloneBMinHashOptimized(g, numSeeds, threshold, nodes, centrality);
                 break;
             case MultithreadBMinHash:
                 minHashAlgorithm = new MultithreadBMinHash(g, numSeeds, threshold, nodes, threads);
                 break;
             case MultithreadBMinHashOptimized:
-                minHashAlgorithm = new MultithreadBMinHashOptimized(g, numSeeds, threshold, nodes, threads);
+                minHashAlgorithm = new MultithreadBMinHashOptimized(g, numSeeds, threshold, nodes, threads, centrality);
+                break;
+            case MultithreadBMinHashOpt2:
+                minHashAlgorithm = new MultithreadBMinHashOpt2(g, numSeeds, threshold, nodes, threads);
                 break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
@@ -68,7 +72,8 @@ public class MinHashFactory {
                                 AlgorithmEnum type,
                                 int numSeeds,
                                 double threshold,
-                                int threads) throws IllegalArgumentException, MinHash.SeedsException {
+                                int threads,
+                                boolean centrality) throws IllegalArgumentException, MinHash.SeedsException {
 
         MinHash minHashAlgorithm = null;
 
@@ -77,7 +82,7 @@ public class MinHashFactory {
                 minHashAlgorithm = new MHSE(g, numSeeds, threshold);
                 break;
             case MHSEBSide:
-                minHashAlgorithm = new MHSEX(g, numSeeds, threshold);
+                minHashAlgorithm = new MHSEX(g, numSeeds, threshold, centrality);
                 break;
             case SEMHSE:
                 minHashAlgorithm = new SEMHSE(g, numSeeds, threshold);
@@ -86,13 +91,16 @@ public class MinHashFactory {
                 minHashAlgorithm = new StandaloneBMinHash(g, numSeeds, threshold);
                 break;
             case StandaloneBMinHashOptimized:
-                minHashAlgorithm = new StandaloneBMinHashOptimized(g, numSeeds, threshold);
+                minHashAlgorithm = new StandaloneBMinHashOptimized(g, numSeeds, threshold, centrality);
                 break;
             case MultithreadBMinHash:
                 minHashAlgorithm = new MultithreadBMinHash(g, numSeeds, threshold, threads);
                 break;
             case MultithreadBMinHashOptimized:
-                minHashAlgorithm = new MultithreadBMinHashOptimized(g, numSeeds, threshold, threads);
+                minHashAlgorithm = new MultithreadBMinHashOptimized(g, numSeeds, threshold, threads, centrality);
+                break;
+            case MultithreadBMinHashOpt2:
+                minHashAlgorithm = new MultithreadBMinHashOpt2(g, numSeeds, threshold, threads);
                 break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");

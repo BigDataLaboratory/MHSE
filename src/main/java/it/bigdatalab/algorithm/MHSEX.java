@@ -24,14 +24,14 @@ public class MHSEX extends MinHash {
     /**
      * Creates a new MHSE X instance with default values
      */
-    public MHSEX(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) throws SeedsException {
+    public MHSEX(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
     }
 
     /**
      * Creates a new MHSE X instance with default values
      */
-    public MHSEX(final ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
+    public MHSEX(final ImmutableGraph g, int numSeeds, double threshold, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
     }
