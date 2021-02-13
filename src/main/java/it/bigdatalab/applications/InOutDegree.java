@@ -5,6 +5,7 @@ import it.bigdatalab.model.Parameter;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.PropertiesManager;
+import it.unimi.dsi.webgraph.Check;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.NodeIterator;
 import org.slf4j.Logger;
@@ -53,6 +54,8 @@ public class InOutDegree {
                 param.getOutputFolderPath());
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
+        logger.info("Graph is symmetric: {}", Check.symmetry(g));
+
         InOutDegree inOutDegree = new InOutDegree(g, param);
 
         int[][] inOut = inOutDegree.computeInOutDegree();
