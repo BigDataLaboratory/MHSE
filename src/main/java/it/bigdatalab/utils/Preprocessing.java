@@ -47,16 +47,23 @@ public class Preprocessing {
         int j = indexes.length - 1;
         //logger.debug("i {} j {} indexes[i] {} indexes[j] {}", i, j, indexes[i],indexes[j]);
 
-        while (j > i) {
-            //logger.debug("i {} j {} indexes[j] {}, new id = {}", i, j, indexes[j], newId);
-            mappedGraph[indexes[j]] = newId;
-            newId = newId + 1;
-            //logger.debug("i {} j {} indexes[j] {}, new id = {}", i, j, indexes[i], newId);
-            mappedGraph[indexes[i]] = newId;
-            newId = newId + 1;
-            i++;
-            j--;
+        while (j >= i) {
+            if (j == i) {
+                mappedGraph[indexes[j]] = newId;
+            } else {
+                //logger.debug("i {} j {} indexes[j] {}, new id = {}", i, j, indexes[j], newId);
+                mappedGraph[indexes[j]] = newId;
+                newId = newId + 1;
+                //logger.debug("i {} j {} indexes[j] {}, new id = {}", i, j, indexes[i], newId);
+                mappedGraph[indexes[i]] = newId;
+                newId = newId + 1;
+                i++;
+                j--;
+            }
         }
+
+        //4 0-4 1-3 2-2
+
 
         g = Transform.map(g, mappedGraph);
         return g;
