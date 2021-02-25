@@ -50,6 +50,8 @@ public class Preprocessing {
         while (j >= i) {
             if (j == i) {
                 mappedGraph[indexes[j]] = newId;
+                i++;
+                j--;
             } else {
                 //logger.debug("i {} j {} indexes[j] {}, new id = {}", i, j, indexes[j], newId);
                 mappedGraph[indexes[j]] = newId;
