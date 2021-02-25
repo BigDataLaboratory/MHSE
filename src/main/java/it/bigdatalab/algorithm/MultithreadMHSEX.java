@@ -136,12 +136,13 @@ public class MultithreadMHSEX extends MinHash {
         List<IterationThread> todo = new ArrayList<>(mNumberOfThreads);
 
         for (int nt = 0; nt < mNumberOfThreads; nt++) {
-            logger.debug("start {} end {} index {}", start, end, nt);
             mSignatureIsChanged = (mSignatureIsChanged & ~(1 << nt)) | ((1 << nt));
 
             if (nt == mNumberOfThreads - 1) {
+                logger.debug("start {} end {} index {}", start, mGraph.numNodes() - 1, nt);
                 todo.add(new IterationThread(mGraph.copy(), start, mGraph.numNodes() - 1, nt));
             } else {
+                logger.debug("start {} end {} index {}", start, end, nt);
                 todo.add(new IterationThread(mGraph.copy(), start, end, nt));
             }
             start = end + 1;
