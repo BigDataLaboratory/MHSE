@@ -74,4 +74,48 @@ public class GraphUtils {
 
         return graph;
     }
+
+    public static ImmutableGraph loadGraph(String inputFilePath, boolean transpose, boolean inMemory, boolean isolatedVertices, String direction, boolean reordering) throws IOException {
+        logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
+        ImmutableGraph graph = inMemory ?
+                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
+                ImmutableGraph.load(inputFilePath);
+        logger.info("Loading graph completed successfully");
+
+        // check if it must remove isolated nodes
+        if (!isolatedVertices) {
+            graph = Preprocessing.removeIsolatedNodes(graph);
+        }
+
+        // transpose graph based on direction selected
+        // and graph type loaded (original or transposed)
+        if (transpose) {
+            if (direction.equals(Constants.IN_DIRECTION)) {
+                logger.info("Transposing graph cause direction is {}", direction);
+                graph = Transform.transpose(graph);
+                logger.debug("Transposing graph ended");
+            }
+        } else {
+            if (direction.equals(Constants.OUT_DIRECTION)) {
+                logger.info("Transposing graph cause direction is {}", direction);
+                graph = Transform.transpose(graph);
+                logger.debug("Transposing graph ended");
+            }
+        }
+
+        if (reordering) {
+            Preprocessing p = new Preprocessing();
+            graph = p.reorderGraphByOutDegree(graph);
+        }
+
+/*todo
+        logger.info("\n\n********************** Graph Info **********************\n" +
+                        "# nodes:\t{}\n" +
+                        "# edges:\t{}\n" +
+                        "********************************************************\n\n",
+                graph.numNodes(), graph.numArcs());
+*/
+
+        return graph;
+    }
 }

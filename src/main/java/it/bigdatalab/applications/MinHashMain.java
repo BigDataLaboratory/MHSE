@@ -156,6 +156,7 @@ public class MinHashMain {
         boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.isolatedVertices"));
         String direction = PropertiesManager.getPropertyIfNotEmpty("minhash.direction");
         boolean transpose = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.transpose"));
+        boolean reorder = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.reorder"));
 
         double threshold = Double.parseDouble(PropertiesManager.getPropertyIfNotEmpty("minhash.threshold"));
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.inMemory", Constants.FALSE));
@@ -177,6 +178,7 @@ public class MinHashMain {
                 .setThreshold(threshold)
                 .setDirection(direction)
                 .setComputeCentrality(computeCentrality)
+                .setReordering(reorder)
                 .setNumThreads(suggestedNumberOfThreads)
                 .build();
 
@@ -190,6 +192,7 @@ public class MinHashMain {
                         "number of seeds {}, automatic range? {}\n" +
                         "direction is: {}\n" +
                         "threshold for eff. diameter is: {}\n" +
+                        "graph will be reordered by outdegree: {}\n" +
                         "algorithm must compute centrality: {}\n" +
                         "number of threads: {}\n" +
                         "\n********************************************************\n\n",
@@ -202,6 +205,7 @@ public class MinHashMain {
                 param.getNumSeeds(), param.isAutomaticRange(),
                 param.getDirection(),
                 param.getThreshold(),
+                param.getReordering(),
                 param.computeCentrality(),
                 param.getNumThreads());
 
@@ -276,7 +280,8 @@ public class MinHashMain {
                 mParam.isTranspose(),
                 mParam.isInMemory(),
                 mParam.keepIsolatedVertices(),
-                mParam.getDirection());
+                mParam.getDirection(),
+                mParam.getReordering());
 
         MinHashFactory mhf = new MinHashFactory();
 

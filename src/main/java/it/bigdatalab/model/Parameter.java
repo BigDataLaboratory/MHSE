@@ -18,7 +18,7 @@ public class Parameter {
 
     private final boolean mInMemory;
     private final boolean mComputeCentrality;
-
+    private final boolean mReordering;
 
     private final double mThreshold;
 
@@ -45,6 +45,7 @@ public class Parameter {
         this.mInMemory = builder.inMemory;
         this.mComputeCentrality = builder.computeCentrality;
         this.mThreshold = builder.threshold;
+        this.mReordering = builder.reordering;
 
         this.mNumThreads = builder.numThreads;
     }
@@ -105,6 +106,10 @@ public class Parameter {
         return mComputeCentrality;
     }
 
+    public boolean getReordering() {
+        return mReordering;
+    }
+
     public double getThreshold() {
         return mThreshold;
     }
@@ -131,6 +136,7 @@ public class Parameter {
 
         private boolean inMemory;
         private boolean computeCentrality;
+        private boolean reordering;
         private double threshold;
 
         private int numThreads;
@@ -195,6 +201,11 @@ public class Parameter {
 
         public Builder setTranspose(boolean transpose) {
             this.transpose = transpose;
+            return this;
+        }
+
+        public Builder setReordering(boolean reordering) {
+            this.reordering = reordering;
             return this;
         }
 

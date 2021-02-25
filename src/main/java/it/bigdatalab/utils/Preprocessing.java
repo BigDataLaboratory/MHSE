@@ -6,6 +6,9 @@ import it.unimi.dsi.webgraph.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 /**
  * Create a new instance of ImmutableGraph based on an input ImmutableGraph graph
  * without isolated nodes, using indegree and outdegree of each node
@@ -15,6 +18,49 @@ public class Preprocessing {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.utils.Preprocessing");
 
+
+    public ImmutableGraph reorderGraphByOutDegree(final ImmutableGraph graph) {
+        logger.info("Start reordering graph noded by out degree");
+        ImmutableGraph g = graph;
+
+        int numNodes = g.numNodes();
+        int d; // counter for outdegree iterator
+
+        NodeIterator nodeIterator = g.nodeIterator();
+        Integer[] outdegree = new Integer[numNodes];
+        int[] mappedGraph = new int[numNodes];
+
+        // compute nodes indegree
+        while (numNodes-- != 0) {
+            int vertex = nodeIterator.nextInt();
+            d = nodeIterator.outdegree();
+            outdegree[vertex] = d;
+        }
+
+        IndexSorter<Integer> is = new IndexSorter<>(outdegree);
+        is.sort();
+
+        int newId = 0;
+        Integer[] indexes = is.getIndexes();
+
+        int i = 0;
+        int j = indexes.length - 1;
+        //logger.debug("i {} j {} indexes[i] {} indexes[j] {}", i, j, indexes[i],indexes[j]);
+
+        while (j > i) {
+            //logger.debug("i {} j {} indexes[j] {}, new id = {}", i, j, indexes[j], newId);
+            mappedGraph[indexes[j]] = newId;
+            newId = newId + 1;
+            //logger.debug("i {} j {} indexes[j] {}, new id = {}", i, j, indexes[i], newId);
+            mappedGraph[indexes[i]] = newId;
+            newId = newId + 1;
+            i++;
+            j--;
+        }
+
+        g = Transform.map(g, mappedGraph);
+        return g;
+    }
 
     /**
      * Remove isolated nodes, if any, from an input ImmutableGraph graph
@@ -72,5 +118,49 @@ public class Preprocessing {
         }
 
         return g;
+    }
+
+    class IndexSorter<T extends Comparable<T>> implements Comparator<Integer> {
+
+        private final T[] values;
+        private final Integer[] indexes;
+
+        public IndexSorter(T[] d) {
+            this.values = d;
+            indexes = new Integer[this.values.length];
+            for (int i = 0; i < indexes.length; i++) {
+                indexes[i] = i;
+            }
+        }
+
+        /**
+         * Sorts the underlying index array based upon the values provided in the constructor. The underlying value array is not sorted.
+         */
+        public void sort() {
+            Arrays.sort(indexes, this);
+        }
+
+        /**
+         * Retrieves the indexes of the array. The returned array is sorted if this object has been sorted.
+         *
+         * @return The array of indexes.
+         */
+        public Integer[] getIndexes() {
+            return indexes;
+        }
+
+        /**
+         * Compares the two values at index arg0 and arg0
+         *
+         * @param arg0 The first index
+         * @param arg1 The second index
+         * @return The result of calling compareTo on T objects at position arg0 and arg1
+         */
+        @Override
+        public int compare(Integer arg0, Integer arg1) {
+            T d1 = values[arg0];
+            T d2 = values[arg1];
+            return d1.compareTo(d2);
+        }
     }
 }
