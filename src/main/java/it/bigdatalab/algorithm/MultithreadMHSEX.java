@@ -199,7 +199,7 @@ public class MultithreadMHSEX extends MinHash {
 
         @Override
         public void run() {
-            //logger.debug("barrier, mSignatureIsChanged {}", mSignatureIsChanged);
+            logger.debug("barrier, mSignatureIsChanged {}", mSignatureIsChanged);
             if (mSignatureIsChanged != 0) {
                 System.arraycopy(mTrackerMutable, 0, mTrackerImmutable, 0, mTrackerMutable.length);
                 mTrackerMutable = new int[lengthBitsArray(mGraph.numNodes())];
@@ -304,7 +304,7 @@ public class MultithreadMHSEX extends MinHash {
                 }
 
                 int b = signatureIsChanged ? 1 : 0;
-                //logger.debug("thread {} hop {} signatureIsChanged {}", index, h, signatureIsChanged);
+                logger.debug("thread {} hop {} signatureIsChanged {}", index, h, signatureIsChanged);
                 mLock.lock();
                 mSignatureIsChanged = (mSignatureIsChanged & ~(1 << index)) | ((b << index) & (1 << index));
                 mLock.unlock();
