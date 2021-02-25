@@ -1,6 +1,7 @@
 package it.bigdatalab.model;
 
 import com.google.gson.annotations.SerializedName;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +13,8 @@ public class GraphMeasureOpt extends Measure {
     private double[] mHopTable;
     @SerializedName("collision_table")
     private int[][] mCollisionsMatrix;
+    @SerializedName("hop_for_node")
+    private Int2ObjectOpenHashMap<short[]> mHopForNode;
 
     public GraphMeasureOpt() {
 
@@ -47,6 +50,20 @@ public class GraphMeasureOpt extends Measure {
      */
     public int[][] getCollisionsMatrix() {
         return mCollisionsMatrix;
+    }
+
+    /**
+     * @param hopForNode Matrix of the hops when minhash encounters each node
+     */
+    public void setHopForNode(Int2ObjectOpenHashMap<short[]> hopForNode) {
+        this.mHopForNode = hopForNode;
+    }
+
+    /**
+     * @return Matrix of the hops for each node
+     */
+    public Int2ObjectOpenHashMap<short[]> getHopFornode() {
+        return mHopForNode;
     }
 
     /**

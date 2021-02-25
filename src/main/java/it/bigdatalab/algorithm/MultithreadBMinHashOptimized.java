@@ -34,6 +34,9 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
     private final int mNumberOfThreads;
     private final double[] mSeedTime;
     private long startTime;
+    private boolean doCentrality;
+    private short[][] mHopForNodes;
+
 
     /**
      * Creates a new MultithreadBMinHashOptimized instance with default values
@@ -42,6 +45,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         mSeedTime = new double[mNumSeeds];
+        doCentrality = centrality;
     }
 
     /**
@@ -52,6 +56,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         mSeedTime = new double[mNumSeeds];
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
+        doCentrality = centrality;
     }
 
     /**
@@ -89,6 +94,10 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
 
         for (int i = 0; i < this.mNumSeeds; i++) {
             todo.add(new IterationThread(mGraph.copy(), i));
+        }
+
+        if (doCentrality) {
+            mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
         }
 
         try {
@@ -135,6 +144,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setHopTable(hopTableArray);
         graphMeasure.setCollisionsTable(collisionsMatrix);
+        //graphMeasure.setHopForNode(mHopForNodes);
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setLowerBoundDiameter(lowerboundDiameter);
         graphMeasure.setThreshold(mThreshold);
@@ -228,6 +238,9 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
                                 bitNeigh = (((1 << remainderPositionNeigh) & immutable[quotientNeigh]) >>> remainderPositionNeigh) << remainderPositionNode;
                                 value = bitNeigh | nodeMask & immutable[quotientNode];
                                 if ((value >>> remainderPositionNode) == 1) {
+                                    if (doCentrality) {
+                                        mHopForNodes[n][s] = (short) h;
+                                    }
                                     signatureIsChanged = true;
                                     break;
                                 }

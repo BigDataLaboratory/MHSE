@@ -32,7 +32,7 @@ public class MinHashFactory {
             case MHSE:
                 minHashAlgorithm = new MHSE(g, numSeeds, threshold, seeds);
                 break;
-            case MHSEBSide:
+            case MHSEX:
                 minHashAlgorithm = new MHSEX(g, numSeeds, threshold, nodes, centrality);
                 break;
             case SEMHSE:
@@ -52,6 +52,9 @@ public class MinHashFactory {
                 break;
             case MultithreadBMinHashOpt2:
                 minHashAlgorithm = new MultithreadBMinHashOpt2(g, numSeeds, threshold, nodes, threads);
+                break;
+            case MultithreadMHSEX:
+                minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, nodes, threads);
                 break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
@@ -81,7 +84,7 @@ public class MinHashFactory {
             case MHSE:
                 minHashAlgorithm = new MHSE(g, numSeeds, threshold);
                 break;
-            case MHSEBSide:
+            case MHSEX:
                 minHashAlgorithm = new MHSEX(g, numSeeds, threshold, centrality);
                 break;
             case SEMHSE:
@@ -101,6 +104,9 @@ public class MinHashFactory {
                 break;
             case MultithreadBMinHashOpt2:
                 minHashAlgorithm = new MultithreadBMinHashOpt2(g, numSeeds, threshold, threads);
+                break;
+            case MultithreadMHSEX:
+                minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, threads);
                 break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");

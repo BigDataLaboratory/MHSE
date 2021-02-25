@@ -5,6 +5,7 @@ import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * @author Daniele Pasquini
  * @author Paola Vocca
  */
-public class MHSEX extends MinHash {
+public class MHSEXResearch extends MinHash {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSEX");
 
     private boolean doCentrality;
@@ -26,7 +27,7 @@ public class MHSEX extends MinHash {
     /**
      * Creates a new MHSE X instance with default values
      */
-    public MHSEX(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, boolean centrality) throws SeedsException {
+    public MHSEXResearch(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
         doCentrality = centrality;
     }
@@ -34,7 +35,7 @@ public class MHSEX extends MinHash {
     /**
      * Creates a new MHSE X instance with default values
      */
-    public MHSEX(final ImmutableGraph g, int numSeeds, double threshold, boolean centrality) throws SeedsException {
+    public MHSEXResearch(final ImmutableGraph g, int numSeeds, double threshold, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
         doCentrality = centrality;
@@ -61,6 +62,8 @@ public class MHSEX extends MinHash {
 
         int[][] signMutable = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
         int[][] signImmutable = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
+
+        Int2ObjectOpenHashMap<short[]> hopForNodes = new Int2ObjectOpenHashMap<>();
 
         boolean signatureIsChanged = true;
         int h = 0;
@@ -117,6 +120,18 @@ public class MHSEX extends MinHash {
                                         signatureIsChanged = true; // track the signature changes, to run the next hop
                                         trackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
                                         signMutable[n][position[s]] = signMutable[n][position[s]] | value;
+
+                                        if (doCentrality) {
+                                            if (hopForNodes.containsKey(n)) {
+                                                short[] values = hopForNodes.get(n);
+                                                values[s] = (short) h;
+                                                hopForNodes.put(n, values);
+                                            } else {
+                                                short[] values = new short[mNumSeeds];
+                                                values[s] = (short) h;
+                                                hopForNodes.put(n, values);
+                                            }
+                                        }
                                     }
                                 } // else is already 1
                             }
@@ -132,6 +147,7 @@ public class MHSEX extends MinHash {
                         lastLogTime = logTime;
                     }
                 }
+
             }
             if (signatureIsChanged) {
                 System.arraycopy(trackerMutable, 0, trackerImmutable, 0, trackerMutable.length);
@@ -169,6 +185,7 @@ public class MHSEX extends MinHash {
         graphMeasure.setNumNodes(mGraph.numNodes());
         //graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setHopTable(hopTable);
+        graphMeasure.setHopForNode(hopForNodes);
         graphMeasure.setLowerBoundDiameter(collisionsVector.length - 1);
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsList(mSeeds);
