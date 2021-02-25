@@ -108,13 +108,12 @@ public class GraphUtils {
             graph = p.reorderGraphByOutDegree(graph);
         }
 
-/*todo
+
         logger.info("\n\n********************** Graph Info **********************\n" +
                         "# nodes:\t{}\n" +
-                        "# edges:\t{}\n" +
                         "********************************************************\n\n",
-                graph.numNodes(), graph.numArcs());
-*/
+                graph.numNodes());
+
 
         return graph;
     }
