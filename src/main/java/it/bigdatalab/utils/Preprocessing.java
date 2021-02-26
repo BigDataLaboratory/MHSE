@@ -6,8 +6,11 @@ import it.unimi.dsi.webgraph.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Create a new instance of ImmutableGraph based on an input ImmutableGraph graph
@@ -20,7 +23,7 @@ public class Preprocessing {
 
 
     public ImmutableGraph reorderGraphByOutDegree(final ImmutableGraph graph) {
-        logger.info("Start reordering graph noded by out degree");
+        logger.info("Start reordering graph nodes by out degree");
         ImmutableGraph g = graph;
 
         int numNodes = g.numNodes();
@@ -40,35 +43,41 @@ public class Preprocessing {
         IndexSorter<Integer> is = new IndexSorter<>(outdegree);
         is.sort();
 
-        int newId = 0;
         Integer[] indexes = is.getIndexes();
 
         int i = 0;
-        int j = indexes.length - 1;
-        //logger.debug("i {} j {} indexes[i] {} indexes[j] {}", i, j, indexes[i],indexes[j]);
+        int j = indexes.length;
+        List<Integer> l = Arrays.asList(indexes.clone());
+        Integer[] roundrobin = partition(l, 32).stream().flatMap(List::stream).toArray(Integer[]::new);
 
-        while (j >= i) {
-            if (j == i) {
-                mappedGraph[indexes[j]] = newId;
-                i++;
-                j--;
-            } else {
-                //logger.debug("i {} j {} indexes[j] {}, new id = {}", i, j, indexes[j], newId);
-                mappedGraph[indexes[j]] = newId;
-                newId = newId + 1;
-                //logger.debug("i {} j {} indexes[j] {}, new id = {}", i, j, indexes[i], newId);
-                mappedGraph[indexes[i]] = newId;
-                newId = newId + 1;
-                i++;
-                j--;
-            }
+        //logger.debug("i {} j {} indexes[i] {} indexes[j] {}", i, j, indexes[i],indexes[j]);
+        while (i < j) {
+            mappedGraph[roundrobin[i]] = i;
+            //logger.debug("i {} roundrobin[i] {}, indexes[i] = {}, outdegree[ind] {}, outdegree [rr] {}", i, roundrobin[i], indexes[i], outdegree[indexes[i]], outdegree[roundrobin[i]]);
+            //logger.debug("i {} j {} indexes[j] {}, new id = {}", i, j, indexes[i], newId);
+            i++;
         }
 
         //4 0-4 1-3 2-2
 
-
         g = Transform.map(g, mappedGraph);
         return g;
+    }
+
+    public <T> List<List<T>> partition(Iterable<T> iterable, int partitions) {
+        List<List<T>> result = new ArrayList<>(partitions);
+        for (int i = 0; i < partitions; i++)
+            result.add(new ArrayList<>());
+
+        Iterator<T> iterator = iterable.iterator();
+        for (int i = 0; iterator.hasNext(); i++)
+            result.get(i % partitions).add(iterator.next());
+
+        return result;
+    }
+
+    public int groupNodesByThread(int value) {
+        return (int) Math.ceil(value / 32);
     }
 
     /**
