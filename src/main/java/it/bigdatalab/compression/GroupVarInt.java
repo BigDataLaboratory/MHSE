@@ -1,5 +1,8 @@
 package it.bigdatalab.compression;
+import java.awt.*;
 import java.lang.Math.*;
+import java.util.Arrays;
+
 public class GroupVarInt {
     private int[] indexes;
     private byte[] compressedAdjList;
@@ -162,6 +165,41 @@ public class GroupVarInt {
         return(copied);
     }
 
+    public byte[] listEncoding(int [] sequence){
+        int [] groupedSequence = new int [4];
+        byte[] tmpArray = new byte[0];
+        byte[] partialEncoding;
+
+        int i,k,c;
+        k = 0;
+        c = 0;
+        for(i = 0; i<sequence.length; i++){
+            System.out.println(k);
+            groupedSequence[k] = sequence[i];
+            k++;
+            if((k & 3) == 0) {
+
+                partialEncoding = EncodeGroup(groupedSequence);
+                tmpArray = byteArrayExtend(partialEncoding, tmpArray);
+                k = 0;
+                c += 1;
+            }
+
+        }
+        if(c< sequence.length){
+            int[] remainingEncoding = new int[k];
+            for (int y = 0; y<k;y++){
+                remainingEncoding[y] = groupedSequence[y];
+            }
+            partialEncoding = EncodeGroup(remainingEncoding);
+            tmpArray = byteArrayExtend(partialEncoding,tmpArray);
+
+
+        }
+        return(tmpArray);
+    }
+
+
     public byte[] sequenceEncoding(int []sequence){
         int k,i,j,l;
         int [] groupedSequence = new int [4];
@@ -169,7 +207,7 @@ public class GroupVarInt {
         byte[] finalEncoding = new byte[0];
         int end;
         byte[] partialEncoding;
-
+        int check = 0;
         end = 0;
         for (i =0; i<sequence.length;i++){
 
@@ -182,22 +220,28 @@ public class GroupVarInt {
 
                 end = 0;
             }
+            check+=1;
         }
-
+        System.out.println("END "+ end);
+        System.out.println(sequence.length);
         // Se la lunghezza della lista di elementi non è multipla di 4 dobbiamo eseguire un'ultima passata
         if(end > 0 && end<4){
             int[] remainingEncoding = new int[end];
             k = 0;
             while(k< end){
                 remainingEncoding[k] = groupedSequence[k];
+                System.out.println("RIMANENTE "+groupedSequence);
                 k+=1;
+                check+=1;
             }
-
+            System.out.println("CHECK "+ check);
+            //System.exit(1);
             partialEncoding = EncodeGroup(remainingEncoding);
 
             tmpArray = byteArrayExtend(partialEncoding,tmpArray);
 
         }
+
         return(tmpArray);
     }
     private int get_len(byte [] array, int start,int end){
@@ -216,38 +260,164 @@ public class GroupVarInt {
         int sum_of_prefix_numbers = 0;
         int group_encoding_lenght = 0;
         int[] tmpArray = new int[0];
+        int [] odd_tmpArray = new int [0];
         int[] partial_decoding;
+        int decoded_sofar;
+        int remaining = 0;
+        int remaining_prefix;
 
         i=0;
+        decoded_sofar = 0;
+
         while(i < encoded.length) {
 
 
-
             s1 = (encoded[i] >>> 6);
-            s2 =  0x3 & (encoded[i]  >>> 4);
-            s3 = 0x3 & (encoded[i]  >>> 2);
-            s4 = 0x3 & encoded[i] ;
+            s2 = 0x3 & (encoded[i] >>> 4);
+            s3 = 0x3 & (encoded[i] >>> 2);
+            s4 = 0x3 & encoded[i];
 
 
             prefix_lenghts = new int[]{s1 + 1, s2 + 1, s3 + 1, s4 + 1};
             sum_of_prefix_numbers = s1 + s2 + s3 + s4 + 4;
-            l = i +1;
+            l = i + 1;
 
-            if (encoded.length - i -1 <= 4  ) {
-                partial_decoding = new int[sum_of_prefix_numbers-(i+sum_of_prefix_numbers-encoded.length+1)];
+            int obs = decoded_sofar + sum_of_prefix_numbers;
+            System.out.println("OBS "+obs);
+            System.out.println("LUNG ENC "+ encoded.length);
+            k = 0;
+            // VA FINITA QUESTA COSA, DEVI PER FORZA TROVARE UN MODO PER CONTROLLARE L'ULTIMA PARTE DELLA LISTA
+            // MANNAGGIA ADIO
+            System.out.println("Lunghezza lista "+encoded.length+ " index i "+i+" somma dei prefissi "+sum_of_prefix_numbers);
+            if (i + sum_of_prefix_numbers > encoded.length) {
+                if(decoded_sofar == 0){
+                    remaining = encoded.length -1;
+                }else {
+                    int app = (decoded_sofar + sum_of_prefix_numbers - encoded.length) + 1;
+                    if(app == 1){
+                        remaining = 3;
+                    }else if(app == 2){
+                        remaining = 2;
+                    }else if(app == 3){
+                        remaining = 1;
+                    }
+                }
+                //System.out.println("RIMANGONO "+remaining);
+
+                odd_tmpArray = new int[1];
+                remaining_prefix = 0;
+//                for(int e = 0; e< prefix_lenghts.length;e++){
+//                    System.out.println("PREF "+prefix_lenghts[e]);
+//                }
+                int missing_bytes = i + sum_of_prefix_numbers - encoded.length;
+                System.out.println("MISSING BYTES "+missing_bytes);
+                for (int h = 0; h<prefix_lenghts.length; h++){
+                    System.out.println("PREF "+ prefix_lenghts[h]);
+                }
+                partial_decoding = new int[missing_bytes];
+//                System.out.println( "ENC "+encoded.length);
+//                System.out.println("DEC SOFAR "+decoded_sofar);
+                //r = 0;
+
+                for ( r = 0; r<missing_bytes; r++ ){
+                //while(missing_bytes < encoded.length){
+                    //System.out.println("MISSING BYTES "+missing_bytes);
+                    p = 0;
+                    byte[] a = new byte[prefix_lenghts[r]];
+                    remaining_prefix += prefix_lenghts[r];
+                    while (p != prefix_lenghts[r]) {
+                       // System.out.println("L = "+l);
+                        a[p] = encoded[l];
+                        p += 1;
+                        l += 1;
+                    }
+                    //odd_tmpArray[0] = convertByteArrayToInt(a);
+                    partial_decoding[r] = convertByteArrayToInt(a);
+                    //missing_bytes+=prefix_lenghts[r];
+                    //r += 1;
+
+                    //partial_decoding = intArrayExtend(partial_decoding, odd_tmpArray);
+
+                }
+                decoded_sofar += remaining_prefix + 1;
+
+
+
+
+            } else {
+
+                partial_decoding = new int[4];
+                r = 0;
+                for (k = 0; k < 4; k++) {
+                    p = 0;
+                    byte[] a = new byte[prefix_lenghts[r]];
+                    while (p != prefix_lenghts[r]) {
+                        a[p] = encoded[l];
+                        p += 1;
+                        l += 1;
+                    }
+
+                    partial_decoding[r] = convertByteArrayToInt(a);
+                    r += 1;
+                }
+                decoded_sofar += sum_of_prefix_numbers + 1;
+
+            }
+            tmpArray = intArrayExtend(partial_decoding, tmpArray);
+            i += sum_of_prefix_numbers + 1;
+        }
+
+/*
+            // ERRORE: DEVI GESTIRE I CASI IN CUI È 3 2 1 0
+            // SE GESTISCI SOLO <= 4 OTTIENI DEGLI ERRORI
+            //if (encoded.length - i -1 <= 4  ) {7
+            byte [] slice = getSliceOfArray(encoded, i+1, encoded.length + 1);
+            //System.out.println("SLICE SIZE "+ slice.length + " Prefix lenght "+sum_of_prefix_numbers);
+//            for(int u = 0; u<prefix_lenghts.length;u++){
+//                System.out.println("Prefix "+u+" : "+prefix_lenghts[u]);
+//            }
+            if(slice.length  <= sum_of_prefix_numbers){
+                int diff = slice.length - sum_of_prefix_numbers;
+                int lung = 0;
+                if(diff == 0 ){
+                    lung = 4;
+                }else if(diff == 1){
+                    lung = 3;
+                }else if(diff == 2){
+                    lung = 2;
+                }else{
+                    lung = 1;
+                }
+                //partial_decoding = new int[sum_of_prefix_numbers-(i+sum_of_prefix_numbers-encoded.length+1)];
+                partial_decoding = new int[lung+1];
                 r = 0;
                 p = 0;
+                int prova = sum_of_prefix_numbers - slice.length;
+                //System.out.println("DIFFERENZA "+prova);
+                //System.out.println(lung);
+                for (k = 0; k<lung; k++) {
 
-                byte[] a = new byte[prefix_lenghts[r]];
-                while (p < prefix_lenghts[r]) {
-                    a[p] = encoded[l];
-                    p += 1;
-                    l += 1;
+
+                    byte[] a = new byte[prefix_lenghts[r]];
+                    while (p < prefix_lenghts[r]) {
+                        a[p] = encoded[l];
+                        //System.out.println(encoded[l]);
+                        p += 1;
+                        l += 1;
+
+                    }
+                    //System.out.println(" k "+k);
+                    //System.out.println("CIAO BELLO");
+                    partial_decoding[r] = convertByteArrayToInt(a);
+                    //System.out.println(partial_decoding[r]);
+                    r += 1;
                 }
-                partial_decoding[r] = convertByteArrayToInt(a);
-                r += 1;
 
             }else{
+//                for(int w = 0; w<prefix_lenghts.length;w++){
+//                    System.out.println(prefix_lenghts[w]);
+//                }
+
                 partial_decoding = new int [4];
                 r = 0;
                 for (k = 0; k < 4; k++) {
@@ -277,8 +447,8 @@ public class GroupVarInt {
             }
             group_encoding_lenght -= 1;
 
-            i += sum_of_prefix_numbers +1;
-        }
+            i += sum_of_prefix_numbers +1;*/
+        //}
         return(tmpArray);
         }
 
@@ -303,6 +473,28 @@ public class GroupVarInt {
 
     private void loadEncoding(){
 
+    }
+
+
+    public static byte[] getSliceOfArray(byte[] arr,
+                                        int startIndex, int endIndex)
+    {
+
+        // Get the slice of the Array
+        byte[] slice = Arrays
+                .copyOfRange(
+
+                        // Source
+                        arr,
+
+                        // The Start index
+                        startIndex,
+
+                        // The end index
+                        endIndex);
+
+        // return the slice
+        return slice;
     }
 
 }
