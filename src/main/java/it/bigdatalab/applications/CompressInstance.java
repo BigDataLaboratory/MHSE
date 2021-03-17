@@ -33,12 +33,12 @@ public class CompressInstance {
 //        }
         //int[] lista = new int[]{520};
         byte [] listaCompressa = test.listEncoding(lista);
-        System.out.println("LISTA COMPRESSA Goup varint");
-        System.out.println("LUNGHEZZA compressa "+ listaCompressa.length);
-        for (int i=0;i<listaCompressa.length; i++){
-
-            System.out.println(listaCompressa[i] );
-        }
+//        System.out.println("LISTA COMPRESSA Goup varint");
+//        System.out.println("LUNGHEZZA compressa "+ listaCompressa.length);
+//        for (int i=0;i<listaCompressa.length; i++){
+//
+//            System.out.println(listaCompressa[i] );
+//        }
         System.out.println("DECOMPRESSIONE Group varint");
         int [] decom = test.decode(listaCompressa);
         for (int i= 0; i<decom.length;i++){
@@ -75,7 +75,7 @@ public class CompressInstance {
         for (i = 0; i<test_number;i++){
             System.out.println("TEST NUMBER "+1);
             // random size
-            array_size = rand.nextInt(500);
+            array_size = rand.nextInt(500)+1;
             int [] test_list = new int[array_size];
             // populating array with random number
             for (j = 0 ; j<array_size;j++){
@@ -98,13 +98,13 @@ public class CompressInstance {
 
             // Testing the group varint
             System.out.println("VARINTGB");
-            System.out.println("LUNGHEZZA SAMPLE "+ test_list.length);
+            //System.out.println("LUNGHEZZA SAMPLE "+ test_list.length);
             byte [] group_compression = VarintGB.listEncoding(test_list);
-            System.out.println("LISTA ENCODED");
+            //System.out.println("LISTA ENCODED");
             int [] group_decompression = VarintGB.decode(group_compression);
-            System.out.println("LISTA DECODED");
-            System.out.println("TEST SIZE " +test_list.length);
-            System.out.println("ZIZE "+group_decompression.length);
+            //System.out.println("LISTA DECODED");
+            //System.out.println("TEST SIZE " +test_list.length);
+            //System.out.println("ZIZE "+group_decompression.length);
             // checking the integrety of the data
 
             for (j = 0; j<array_size; j++){
@@ -119,6 +119,7 @@ public class CompressInstance {
                     System.exit(1);
                 }
             }
+            System.out.println("VARINT OK");
 
 
 
@@ -131,9 +132,9 @@ public class CompressInstance {
 
 
     public static void main(String[] args) throws IOException {
-        CompressInstance prova = new CompressInstance();
+        //CompressInstance prova = new CompressInstance();
         CompressInstance tests = new CompressInstance();
-        tests.test_compression(300);
+        tests.test_compression(1000);
 
 
     }

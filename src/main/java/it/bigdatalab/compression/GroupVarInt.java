@@ -222,19 +222,19 @@ public class GroupVarInt {
             }
             check+=1;
         }
-        System.out.println("END "+ end);
-        System.out.println(sequence.length);
+        //System.out.println("END "+ end);
+        //System.out.println(sequence.length);
         // Se la lunghezza della lista di elementi non è multipla di 4 dobbiamo eseguire un'ultima passata
         if(end > 0 && end<4){
             int[] remainingEncoding = new int[end];
             k = 0;
             while(k< end){
                 remainingEncoding[k] = groupedSequence[k];
-                System.out.println("RIMANENTE "+groupedSequence);
+                //System.out.println("RIMANENTE "+groupedSequence);
                 k+=1;
                 check+=1;
             }
-            System.out.println("CHECK "+ check);
+            //System.out.println("CHECK "+ check);
             //System.exit(1);
             partialEncoding = EncodeGroup(remainingEncoding);
 
@@ -286,40 +286,39 @@ public class GroupVarInt {
             System.out.println("OBS "+obs);
             System.out.println("LUNG ENC "+ encoded.length);
             k = 0;
-            // VA FINITA QUESTA COSA, DEVI PER FORZA TROVARE UN MODO PER CONTROLLARE L'ULTIMA PARTE DELLA LISTA
-            // MANNAGGIA ADIO
+
             System.out.println("Lunghezza lista "+encoded.length+ " index i "+i+" somma dei prefissi "+sum_of_prefix_numbers);
-            if (i + sum_of_prefix_numbers > encoded.length) {
-                if(decoded_sofar == 0){
-                    remaining = encoded.length -1;
-                }else {
-                    int app = (decoded_sofar + sum_of_prefix_numbers - encoded.length) + 1;
-                    if(app == 1){
-                        remaining = 3;
-                    }else if(app == 2){
-                        remaining = 2;
-                    }else if(app == 3){
-                        remaining = 1;
-                    }
+            if (l + sum_of_prefix_numbers >= encoded.length) {
+                if(l+sum_of_prefix_numbers -encoded.length == 0){
+                    remaining = 4;
+                }else if(l+sum_of_prefix_numbers -encoded.length == 1){
+                    remaining = 3;
+                }else if(l+sum_of_prefix_numbers -encoded.length == 2){
+                    remaining = 2;
+                }else if (l+sum_of_prefix_numbers -encoded.length == 3){
+                    remaining = 1;
                 }
+                decoded_sofar = l;
+
                 //System.out.println("RIMANGONO "+remaining);
 
-                odd_tmpArray = new int[1];
+                //odd_tmpArray = new int[1];
+                partial_decoding = new int[remaining];
                 remaining_prefix = 0;
 //                for(int e = 0; e< prefix_lenghts.length;e++){
 //                    System.out.println("PREF "+prefix_lenghts[e]);
 //                }
-                int missing_bytes = i + sum_of_prefix_numbers - encoded.length;
-                System.out.println("MISSING BYTES "+missing_bytes);
-                for (int h = 0; h<prefix_lenghts.length; h++){
-                    System.out.println("PREF "+ prefix_lenghts[h]);
-                }
-                partial_decoding = new int[missing_bytes];
+                //int missing_bytes = i + sum_of_prefix_numbers - encoded.length;
+                //System.out.println("MISSING BYTES "+missing_bytes);
+                //for (int h = 0; h<prefix_lenghts.length; h++){
+                 //   System.out.println("PREF "+ prefix_lenghts[h]);
+                //}
+                //partial_decoding = new int[missing_bytes];
 //                System.out.println( "ENC "+encoded.length);
 //                System.out.println("DEC SOFAR "+decoded_sofar);
                 //r = 0;
 
-                for ( r = 0; r<missing_bytes; r++ ){
+                for ( r = 0; r<remaining; r++ ){
                 //while(missing_bytes < encoded.length){
                     //System.out.println("MISSING BYTES "+missing_bytes);
                     p = 0;
@@ -339,7 +338,7 @@ public class GroupVarInt {
                     //partial_decoding = intArrayExtend(partial_decoding, odd_tmpArray);
 
                 }
-                decoded_sofar += remaining_prefix + 1;
+                //decoded_sofar += remaining_prefix + 1;
 
 
 
