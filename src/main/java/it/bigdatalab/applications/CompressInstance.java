@@ -64,6 +64,100 @@ public class CompressInstance {
 
     }
 
+    public static void test_compression_matrix_differential(int[][] test_matrix){
+        int nodes,edges;
+        int i,j;
+        int [][] converted;
+        int [][] decoded;
+        int [] row;
+        int [] comp_row;
+        DifferentialCompression differential = new DifferentialCompression();
+        System.out.println("DIFFERENTIAL TEST ON MATRIX");
+
+        nodes = test_matrix.length;
+        converted = new int [nodes][];
+        decoded = new int[nodes][];
+
+        for (i=0;i<nodes;i++){
+            edges = test_matrix[i].length;
+            row = new int[edges];
+            for (j=0;j<edges;j++){
+                row[j] = test_matrix[i][j];
+            }
+            converted[i] = differential.encodeSequence(row);
+        }
+        for (i =0 ;i<nodes;i++){
+            edges = converted[i].length;
+            comp_row = new int[edges];
+            for (j=0;j<edges;j++){
+                comp_row[j] = converted[i][j];
+            }
+            decoded[i] = differential.decodeSequence(comp_row);
+        }
+
+        for (i =0;i<nodes;i++){
+            edges = test_matrix[i].length;
+            for (j = 0;j<edges;j++){
+                System.out.println(test_matrix[i][j]+ "    "+decoded[i][j]);
+                if(test_matrix[i][j] != decoded[i][j]){
+                    System.out.println("ERRORE MISMATCH IN RIGA "+i +" COLONNA "+j+" ORIGINAL = "+test_matrix[i][j] +" DECODED "+decoded[i][j]);
+                    System.exit(1);
+                }
+            }
+        }
+        System.out.println("DIFFERENTIAL TEST ON CORRECTLY COMPLETED");
+
+
+    }
+
+    public static void test_compression_matrix_varintGB(int[][] test_matrix){
+        int nodes,edges;
+        int i,j;
+        byte [][] converted;
+        int [][] decoded;
+        int [] row;
+        byte [] comp_row;
+        GroupVarInt VarintGB = new GroupVarInt();
+        System.out.println("VarintGB TEST ON MATRIX");
+
+
+        nodes = test_matrix.length;
+        converted = new byte[nodes][];
+        decoded = new int[nodes][];
+
+        for (i=0;i<nodes;i++){
+            edges = test_matrix[i].length;
+            row = new int[edges];
+            for (j=0;j<edges;j++){
+                row[j] = test_matrix[i][j];
+            }
+            converted[i] = VarintGB.listEncoding(row);
+        }
+        for (i =0 ;i<nodes;i++){
+            edges = converted[i].length;
+            comp_row = new byte[edges];
+            for (j=0;j<edges;j++){
+                comp_row[j] = converted[i][j];
+            }
+            decoded[i] = VarintGB.decode(comp_row);
+        }
+
+        for (i =0;i<nodes;i++){
+            edges = test_matrix[i].length;
+            for (j = 0;j<edges;j++){
+                System.out.println(test_matrix[i][j]+ "    "+decoded[i][j]);
+                if(test_matrix[i][j] != decoded[i][j]){
+                    System.out.println("ERRORE MISMATCH IN RIGA "+i +" COLONNA "+j+" ORIGINAL = "+test_matrix[i][j] +" DECODED "+decoded[i][j]);
+                    System.exit(1);
+                }
+            }
+        }
+        System.out.println("VarintGB TEST CORRECTLY COMPLETED");
+
+
+    }
+
+
     public void test_compression(int test_number){
         Random rand = new Random();
         GroupVarInt VarintGB = new GroupVarInt();
@@ -73,7 +167,7 @@ public class CompressInstance {
         int array_size;
 
         for (i = 0; i<test_number;i++){
-            System.out.println("TEST NUMBER "+1);
+            System.out.println("TEST NUMBER "+i);
             // random size
             array_size = rand.nextInt(500)+1;
             int [] test_list = new int[array_size];
@@ -134,7 +228,15 @@ public class CompressInstance {
     public static void main(String[] args) throws IOException {
         //CompressInstance prova = new CompressInstance();
         CompressInstance tests = new CompressInstance();
-        tests.test_compression(1000);
+        //tests.test_compression(1000);
+        int [][] provaMat = {
+                {1,2,89,99,256,546},
+                {38,90,129}
+                           };
+        CompressInstance.test_compression_matrix_differential(provaMat);
+
+        CompressInstance.test_compression_matrix_varintGB(provaMat);
+
 
 
     }

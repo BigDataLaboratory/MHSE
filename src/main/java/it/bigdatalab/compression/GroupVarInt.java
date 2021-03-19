@@ -174,7 +174,7 @@ public class GroupVarInt {
         k = 0;
         c = 0;
         for(i = 0; i<sequence.length; i++){
-            System.out.println(k);
+            //System.out.println(k);
             groupedSequence[k] = sequence[i];
             k++;
             if((k & 3) == 0) {
@@ -283,11 +283,11 @@ public class GroupVarInt {
             l = i + 1;
 
             int obs = decoded_sofar + sum_of_prefix_numbers;
-            System.out.println("OBS "+obs);
-            System.out.println("LUNG ENC "+ encoded.length);
-            k = 0;
+            //System.out.println("OBS "+obs);
+            //System.out.println("LUNG ENC "+ encoded.length);
+            //k = 0;
 
-            System.out.println("Lunghezza lista "+encoded.length+ " index i "+i+" somma dei prefissi "+sum_of_prefix_numbers);
+            //System.out.println("Lunghezza lista "+encoded.length+ " index i "+i+" somma dei prefissi "+sum_of_prefix_numbers);
             if (l + sum_of_prefix_numbers >= encoded.length) {
                 if(l+sum_of_prefix_numbers -encoded.length == 0){
                     remaining = 4;
@@ -452,14 +452,9 @@ public class GroupVarInt {
         }
 
 
-    public void encodeAdjList(int [][] AList){
 
         
 
-        // Da mettere: Gestione della lista di adj
-        // for each nodo nella lista di adiacenza
-        // va deciso come rappresentare e gestire la lista di adj
-    }
 
     // Il file va come variabile privata del metodo
  /*   public int[] decodeSequence(byte [] File,int offsetStart, int offsetEnd){
@@ -494,6 +489,50 @@ public class GroupVarInt {
 
         // return the slice
         return slice;
+    }
+
+    public byte[][] encodeAdjList(int [][] matrix) {
+        int nodes,edges;
+        int i,j;
+        byte [][] encoded;
+        int [] row;
+
+        nodes = matrix.length;
+        encoded = new byte[nodes][];
+
+        for (i=0;i<nodes;i++){
+            edges = matrix[i].length;
+            row = new int[edges];
+            for (j=0;j<edges;j++){
+                row[j] = matrix[i][j];
+            }
+            encoded[i] = listEncoding(row);
+        }
+        return encoded;
+    }
+
+    public int [][] decodeAdjList(byte [][] encoded_matrix){
+        int nodes,edges;
+        int i,j;
+        int [][] decoded;
+        byte [] row;
+
+        nodes = encoded_matrix.length;
+        decoded = new int[nodes][];
+
+        for (i =0 ;i<nodes;i++){
+            edges = encoded_matrix[i].length;
+            row = new byte[edges];
+            for (j=0;j<edges;j++){
+                row[j] = encoded_matrix[i][j];
+            }
+            decoded[i] = decode(row);
+        }
+        return(decoded);
+    }
+
+    public static void saveEncoding(byte [][] encoding){
+
     }
 
 }

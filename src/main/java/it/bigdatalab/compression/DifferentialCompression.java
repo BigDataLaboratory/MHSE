@@ -89,6 +89,46 @@ public class DifferentialCompression {
         }
         return (decoded);
     }
+
+    public int[][] encodeAdjList(int [][] matrix){
+        int nodes,edges;
+        int i,j;
+        int [][] encoded;
+        int [] row;
+
+        nodes = matrix.length;
+        encoded = new int [nodes][];
+
+        for (i=0;i<nodes;i++){
+            edges = matrix[i].length;
+            row = new int[edges];
+            for (j=0;j<edges;j++){
+                row[j] = matrix[i][j];
+            }
+            encoded[i] = encodeSequence(row);
+        }
+        return (encoded);
+    }
+
+    public int[][] decodeAdjList(int [][] encoded_matrix){
+        int nodes,edges;
+        int i,j;
+        int [][] decoded;
+        int [] row;
+
+        nodes = encoded_matrix.length;
+        decoded = new int[nodes][];
+
+        for (i =0 ;i<nodes;i++){
+            edges = encoded_matrix[i].length;
+            row = new int[edges];
+            for (j=0;j<edges;j++){
+                row[j] = encoded_matrix[i][j];
+            }
+            decoded[i] = decodeSequence(row);
+        }
+        return(decoded);
+    }
 //    public int[][] encodeADJList(int [][] adj){
 //
 //    }
