@@ -1,11 +1,15 @@
 package it.bigdatalab.compression;
 import java.awt.*;
+import java.io.*;
 import java.lang.Math.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 public class GroupVarInt {
-    private int[] indexes;
-    private byte[] compressedAdjList;
+    private int[][] offset;
+    private byte[][] compressedAdjList;
 
     public  GroupVarInt(){
 
@@ -491,23 +495,41 @@ public class GroupVarInt {
         return slice;
     }
 
+    public int [][] getOffset(){
+        return (offset);
+    }
+
+    public byte[][] getCompressedAdjList(){
+        return (compressedAdjList);
+    }
+
+
+
+
     public byte[][] encodeAdjList(int [][] matrix) {
         int nodes,edges;
         int i,j;
+        int off;
         byte [][] encoded;
         int [] row;
 
         nodes = matrix.length;
         encoded = new byte[nodes][];
-
+        offset = new int [nodes][2];
+        off = 0;
         for (i=0;i<nodes;i++){
             edges = matrix[i].length;
             row = new int[edges];
-            for (j=0;j<edges;j++){
+            for (j=0;j<edges;j++) {
                 row[j] = matrix[i][j];
             }
             encoded[i] = listEncoding(row);
+            off += encoded[i].length;
+            offset[i][0] = matrix[i][0];
+            offset[i][1] =off;
         }
+        compressedAdjList = encoded;
+
         return encoded;
     }
 
@@ -531,8 +553,76 @@ public class GroupVarInt {
         return(decoded);
     }
 
-    public static void saveEncoding(byte [][] encoding){
+    public static void saveEncoding(String outPath,String instance, byte [][] encoded,int [][] offset) {
 
+        byte[] flattered_encoding;
+        int n, m, i, k, q, j;
+        n = encoded.length;
+        m = 0;
+        for (i = 0; i < n; i++) {
+            m += encoded[i].length;
+        }
+
+        flattered_encoding = new byte[m];
+
+        // Flattering Matrix
+        k = 0;
+        for (i = 0; i < n; i++) {
+            q = encoded[i].length;
+            for (j = 0; j < q; j++) {
+                flattered_encoding[k] = encoded[i][j];
+                k += 1;
+            }
+        }
+
+        // Writing flattered encoding
+        try {
+            File f = new File(outPath + instance + ".txt");
+            if (f.createNewFile()) {
+                System.out.println("File created: " + f.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+
+        try {
+            Files.write(Paths.get(outPath+ instance + ".txt"), flattered_encoding);
+            System.out.println("Successfully written data to the file");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // Writing offset file
+
+        try {
+            File off = new File(outPath + instance + "_offset.txt");
+            if (off.createNewFile()) {
+                System.out.println("File created: " + off.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+        n = offset.length;
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(outPath + instance + "_offset.txt"));
+
+            for (i = 0; i < n; i++) {
+                m = offset[i].length;
+                for (j = 0; j < m; j++) {
+                    bw.write(offset[i][j] + ((j == offset[i].length - 1) ? "" : ","));
+                }
+                bw.newLine();
+            }
+            bw.flush();
+        } catch (IOException e) {
+        }
     }
 
-}
+
+    }

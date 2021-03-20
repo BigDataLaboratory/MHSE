@@ -1,6 +1,7 @@
 package it.bigdatalab.applications;
 import it.bigdatalab.compression.GroupVarInt;
 import it.bigdatalab.compression.DifferentialCompression;
+import it.bigdatalab.structure.CompressedGraph;
 
 import javax.sound.midi.SysexMessage;
 import java.io.IOException;
@@ -228,6 +229,9 @@ public class CompressInstance {
     public static void main(String[] args) throws IOException {
         //CompressInstance prova = new CompressInstance();
         CompressInstance tests = new CompressInstance();
+        GroupVarInt VarintGB = new GroupVarInt();
+        CompressedGraph Graph;
+
         //tests.test_compression(1000);
         int [][] provaMat = {
                 {1,2,89,99,256,546},
@@ -236,6 +240,12 @@ public class CompressInstance {
         CompressInstance.test_compression_matrix_differential(provaMat);
 
         CompressInstance.test_compression_matrix_varintGB(provaMat);
+
+        VarintGB.encodeAdjList(provaMat);
+        String outPath = "/home/antoniocruciani/Desktop/TESTVGB/";
+        VarintGB.saveEncoding(outPath,"Test",VarintGB.getCompressedAdjList(),VarintGB.getOffset());
+
+        Graph = new CompressedGraph(outPath + "Test.txt",true);
 
 
 
