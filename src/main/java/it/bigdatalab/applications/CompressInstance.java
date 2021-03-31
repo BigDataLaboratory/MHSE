@@ -230,6 +230,7 @@ public class CompressInstance {
         //CompressInstance prova = new CompressInstance();
         CompressInstance tests = new CompressInstance();
         GroupVarInt VarintGB = new GroupVarInt();
+        DifferentialCompression diff = new DifferentialCompression();
         CompressedGraph Graph;
 
         //tests.test_compression(1000);
@@ -241,12 +242,14 @@ public class CompressInstance {
 
         CompressInstance.test_compression_matrix_varintGB(provaMat);
 
+        //VarintGB.encodeAdjList(diff.encodeAdjList(provaMat));
         VarintGB.encodeAdjList(provaMat);
+
         String outPath = "/home/antoniocruciani/Desktop/TESTVGB/";
         VarintGB.saveEncoding(outPath,"Test",VarintGB.getCompressedAdjList(),VarintGB.getOffset());
 
         Graph = new CompressedGraph(outPath + "Test.txt",true);
-
+        Graph.load_offset(outPath+"Test_offset.txt");
 
 
     }

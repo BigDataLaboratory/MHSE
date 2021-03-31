@@ -611,11 +611,12 @@ public class GroupVarInt {
         n = offset.length;
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(outPath + instance + "_offset.txt"));
-
+            bw.write(offset.length +"\t" + 2 );
+            bw.newLine();
             for (i = 0; i < n; i++) {
                 m = offset[i].length;
                 for (j = 0; j < m; j++) {
-                    bw.write(offset[i][j] + ((j == offset[i].length - 1) ? "" : ","));
+                    bw.write(offset[i][j] + ((j == offset[i].length - 1) ? "" : "\t"));
                 }
                 bw.newLine();
             }

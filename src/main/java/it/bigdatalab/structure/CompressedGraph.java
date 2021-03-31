@@ -3,6 +3,8 @@ package it.bigdatalab.structure;
 import com.google.common.io.Files;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class CompressedGraph {
     private byte[] compressed_graph;
@@ -41,6 +43,30 @@ public class CompressedGraph {
 
 
     }
+    public void load_offset(String path) throws FileNotFoundException {
+        Scanner sc ;
+        String[] line;
+        int [][] off;
+        int n,m,i,j;
+        sc = new Scanner(new BufferedReader(new FileReader(path)));
+        line = sc.nextLine().trim().split("\t");
+        n =  Integer.parseInt(line[0]);
+        m = Integer.parseInt(line[1]);
+        off = new int[n][m];
+        while(sc.hasNextLine()) {
+            for (i=0; i<n; i++) {
+                line = sc.nextLine().trim().split("\t");
+                for (j=0; j<m; j++) {
+                    off[i][j] = Integer.parseInt(line[j]);
+                }
+            }
+        }
+        //System.out.println(Arrays.deepToString(off));
+        offset = off;
+        System.out.println("Offset loaded");
+    }
+
+    }
 
 //    public static int [] get_neighbours(int node){
 //
@@ -51,4 +77,4 @@ public class CompressedGraph {
 //        return(neighbours);
 //    }
 
-}
+
