@@ -1,4 +1,7 @@
 package it.bigdatalab.compression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 
 // Interfaccia per una futura lambda expression
@@ -6,6 +9,9 @@ import java.util.Arrays;
 //    public String subtract(int a, int b);
 //}
 public class DifferentialCompression {
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.compression.DifferentialCompression");
+
+
 
     public DifferentialCompression(){
         // Da definire
@@ -98,7 +104,7 @@ public class DifferentialCompression {
 
         nodes = matrix.length;
         encoded = new int [nodes][];
-
+        logger.info("Starting decoding the Adjacency List " );
         for (i=0;i<nodes;i++){
             edges = matrix[i].length;
             row = new int[edges];
@@ -107,6 +113,8 @@ public class DifferentialCompression {
             }
             encoded[i] = encodeSequence(row);
         }
+        logger.info("Encoding completed " );
+
         return (encoded);
     }
 
@@ -118,6 +126,7 @@ public class DifferentialCompression {
 
         nodes = encoded_matrix.length;
         decoded = new int[nodes][];
+        logger.info("Starting Decoding the Adjacency List " );
 
         for (i =0 ;i<nodes;i++){
             edges = encoded_matrix[i].length;
@@ -127,6 +136,8 @@ public class DifferentialCompression {
             }
             decoded[i] = decodeSequence(row);
         }
+        logger.info("Decoding completed " );
+
         return(decoded);
     }
 //    public int[][] encodeADJList(int [][] adj){

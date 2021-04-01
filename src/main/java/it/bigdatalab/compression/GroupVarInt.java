@@ -1,4 +1,7 @@
 package it.bigdatalab.compression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.*;
 import java.io.*;
 import java.lang.Math.*;
@@ -8,6 +11,8 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 public class GroupVarInt {
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.compression.GroupVarint");
+
     private int[][] offset;
     private byte[][] compressedAdjList;
 
@@ -293,6 +298,7 @@ public class GroupVarInt {
 
             //System.out.println("Lunghezza lista "+encoded.length+ " index i "+i+" somma dei prefissi "+sum_of_prefix_numbers);
             if (l + sum_of_prefix_numbers >= encoded.length) {
+
                 if(l+sum_of_prefix_numbers -encoded.length == 0){
                     remaining = 4;
                 }else if(l+sum_of_prefix_numbers -encoded.length == 1){
@@ -512,6 +518,7 @@ public class GroupVarInt {
         int off;
         byte [][] encoded;
         int [] row;
+        logger.info("Starting encoding the Adjacency List " );
 
         nodes = matrix.length;
         encoded = new byte[nodes][];
@@ -529,6 +536,7 @@ public class GroupVarInt {
             offset[i][1] =off;
         }
         compressedAdjList = encoded;
+        logger.info("Encoding completed " );
 
         return encoded;
     }
@@ -538,6 +546,7 @@ public class GroupVarInt {
         int i,j;
         int [][] decoded;
         byte [] row;
+        logger.info("Starting decoding the Adjacency List " );
 
         nodes = encoded_matrix.length;
         decoded = new int[nodes][];
@@ -550,6 +559,8 @@ public class GroupVarInt {
             }
             decoded[i] = decode(row);
         }
+        logger.info("Decoding completed " );
+
         return(decoded);
     }
 
@@ -559,6 +570,8 @@ public class GroupVarInt {
         int n, m, i, k, q, j;
         n = encoded.length;
         m = 0;
+        logger.info("Writing the encoded Graph and the offset file " );
+
         for (i = 0; i < n; i++) {
             m += encoded[i].length;
         }
@@ -579,19 +592,21 @@ public class GroupVarInt {
         try {
             File f = new File(outPath + instance + ".txt");
             if (f.createNewFile()) {
-                System.out.println("File created: " + f.getName());
+                logger.info("File {} created ", f.getName());
+
             } else {
-                System.out.println("File already exists.");
+                logger.error("File already exists.");
             }
 
         } catch (IOException e) {
-            System.out.println("An error occurred.");
+            logger.error("An error occurred.");
             e.printStackTrace();
         }
 
         try {
             Files.write(Paths.get(outPath+ instance + ".txt"), flattered_encoding);
-            System.out.println("Successfully written data to the file");
+            logger.info("Successfully written data to the file ");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -600,12 +615,13 @@ public class GroupVarInt {
         try {
             File off = new File(outPath + instance + "_offset.txt");
             if (off.createNewFile()) {
-                System.out.println("File created: " + off.getName());
+                logger.info("File {} created ", off.getName());
+
             } else {
-                System.out.println("File already exists.");
+                logger.error("File already exists.");
             }
         } catch (IOException e) {
-            System.out.println("An error occurred.");
+            logger.error("An error occurred.");
             e.printStackTrace();
         }
         n = offset.length;
@@ -623,6 +639,8 @@ public class GroupVarInt {
             bw.flush();
         } catch (IOException e) {
         }
+        logger.info("Encoded Graph and offset files properly written " );
+
     }
 
 

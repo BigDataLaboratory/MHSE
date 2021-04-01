@@ -2,6 +2,7 @@ package it.bigdatalab.applications;
 import it.bigdatalab.compression.GroupVarInt;
 import it.bigdatalab.compression.DifferentialCompression;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.utils.PropertiesManager;
 
 import javax.sound.midi.SysexMessage;
 import java.io.IOException;
@@ -10,58 +11,9 @@ import java.util.Random;
 
 public class CompressInstance {
     public CompressInstance() {
+        String inputFilePath = PropertiesManager.getPropertyIfNotEmpty("compressInstance.inputAdjListPath");
+        String outputFilePath = PropertiesManager.getPropertyIfNotEmpty("compressInstance.outputFolderPath");
 
-        GroupVarInt test = new GroupVarInt();
-        Random rand = new Random();
-
-        DifferentialCompression diff = new DifferentialCompression();
-
-        int[] array = new int[]{15, 34, 16777216, 16};
-        byte [] compressi = test.EncodeGroup(array);
-
-//        for (int i=0;i<compressi.length; i++){
-//
-//            System.out.println(compressi[i] );
-//        }
-//        System.out.print("Lunghezza "+ compressi.length);
-        System.out.println("\n ____________");
-        int[] lista = new int[]{15,34,16777216,16,12,37,56,78,90,98,128,260,520,9999};
-        //int[] lista = new int[]{15,34};
-
-//        int [] lista = new int[1092];
-//        for (int i = 0; i<1092; i++){
-//            lista[i] = rand.nextInt(65535);
-//        }
-        //int[] lista = new int[]{520};
-        byte [] listaCompressa = test.listEncoding(lista);
-//        System.out.println("LISTA COMPRESSA Goup varint");
-//        System.out.println("LUNGHEZZA compressa "+ listaCompressa.length);
-//        for (int i=0;i<listaCompressa.length; i++){
-//
-//            System.out.println(listaCompressa[i] );
-//        }
-        System.out.println("DECOMPRESSIONE Group varint");
-        int [] decom = test.decode(listaCompressa);
-        for (int i= 0; i<decom.length;i++){
-           System.out.println(decom[i]);
-        }
-
-        //int []enc = diff.encodeSortedSequence(lista);
-        int []enc = diff.encodeSequence(lista);
-
-        int []dec = diff.decodeSequence(enc);
-        System.out.println("--------------------------");
-
-        System.out.println("DIFFERENTIAL COMPRESSION");
-
-        System.out.println("COMPRESSSA");
-       // for (int i = 0; i< enc.length;i++){
-        //    System.out.println(enc[i]);
-        //}
-        System.out.println("DECOMPRESSA");
-        //for (int i = 0; i< enc.length;i++){
-        //    System.out.println(dec[i]);
-        //}
 
     }
 
@@ -236,6 +188,7 @@ public class CompressInstance {
         //tests.test_compression(1000);
         int [][] provaMat = {
                 {1,2,89,99,256,546},
+                {70,91,100,400},
                 {38,90,129}
                            };
         CompressInstance.test_compression_matrix_differential(provaMat);
@@ -258,6 +211,21 @@ public class CompressInstance {
         for (int j = 0; j<decomp.length;j++){
             System.out.println(decomp[j]);
         }
+        System.out.println("QUERY ");
+        System.out.println("NODO 1");
+        int [] neig = Graph.get_neighbours(1);
+        for (int h = 0;h<neig.length;h++){
+            System.out.println("Vicino "+neig[h]);
+        }
+        System.out.println("NODO 2");
+
+        Graph.get_neighbours(38);
+        System.out.println("NODO 3");
+
+        Graph.get_neighbours(70);
+        Graph.decode_graph();
+
+
 
     }
 }
