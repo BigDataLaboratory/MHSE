@@ -18,9 +18,14 @@ public class CompressedGraph {
         // Da sviluppare
     }
 
+    public byte[] getCompressed_graph() {
+        return compressed_graph;
+    }
+
     public void load_compressed_graph(String inPath) throws IOException {
         File file = new File(inPath);
         compressed_graph = new byte[(int) file.length()];
+        System.out.println("LUNG FILE "+file.length());
         try {
             InputStream input = null;
             try {
@@ -36,9 +41,16 @@ public class CompressedGraph {
                 }
             } finally {
                 input.close();
+                System.out.println("Compressed Graph loaded");
+
             }
         } catch (FileNotFoundException ex) {
         }
+        for (int o = 0; o<compressed_graph.length;o++){
+            System.out.println("COMPRESSO GRAFO "+compressed_graph[o]);
+
+        }
+
 
 
 

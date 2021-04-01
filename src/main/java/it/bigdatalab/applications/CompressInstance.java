@@ -250,7 +250,14 @@ public class CompressInstance {
 
         Graph = new CompressedGraph(outPath + "Test.txt",true);
         Graph.load_offset(outPath+"Test_offset.txt");
-
+        Graph.load_compressed_graph(outPath+"Test.txt");
+        byte [] grafo = Graph.getCompressed_graph();
+        System.out.println("GRAFO COMPRESSO LEN "+grafo.length);
+        int[] decomp = VarintGB.decode(grafo);
+        System.out.println("LUNGHEZZA DECOMRPESSO "+decomp.length);
+        for (int j = 0; j<decomp.length;j++){
+            System.out.println(decomp[j]);
+        }
 
     }
 }
