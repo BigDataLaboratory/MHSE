@@ -1,19 +1,64 @@
 package it.bigdatalab.applications;
+import com.google.errorprone.annotations.Var;
 import it.bigdatalab.compression.GroupVarInt;
 import it.bigdatalab.compression.DifferentialCompression;
 import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.utils.PropertiesManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sound.midi.SysexMessage;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Scanner;
 
 public class CompressInstance {
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.structure.UncompressedGraph");
+    private String inputFilePath;
+    private String outputFilePath;
+    private  int [][] adjList;
     public CompressInstance() {
-        String inputFilePath = PropertiesManager.getPropertyIfNotEmpty("compressInstance.inputAdjListPath");
-        String outputFilePath = PropertiesManager.getPropertyIfNotEmpty("compressInstance.outputFolderPath");
+        inputFilePath = PropertiesManager.getPropertyIfNotEmpty("compressInstance.inputAdjListPath");
+        outputFilePath= PropertiesManager.getPropertyIfNotEmpty("compressInstance.outputFolderPath");
 
+
+    }
+
+    public void load_adjList() throws FileNotFoundException {
+        // IDEA LISTA DI ADJ HA COME PRIMA RIGA IL NUMERO DI NODI
+        // VA TESTATA
+        Scanner sc ;
+        String[] line;
+        int [] edge_list;
+        int n,m,i,j;
+        logger.info("Loading Adj List ");
+        sc = new Scanner(new BufferedReader(new FileReader(inputFilePath)));
+        line = sc.nextLine().trim().split("\t");
+        n = Integer.parseInt(line[0]);
+        adjList = new int[n][];
+        while(sc.hasNextLine()) {
+            for (i=0; i<n; i++) {
+                line = sc.nextLine().trim().split("\t");
+                m = line.length;
+                edge_list = new int[m];
+                for (j=0; j<m; j++) {
+                    edge_list[j] = Integer.parseInt(line[j]);
+                }
+                adjList[i] = edge_list;
+            }
+        }
+        logger.info("Adj List loaded");
+    }
+
+    public void encode_adjList(){
+        GroupVarInt VarintGB = new GroupVarInt();
+        DifferentialCompression DiffCompr = new DifferentialCompression();
+
+        VarintGB.encodeAdjList(DiffCompr.encodeAdjList(adjList));
 
     }
 
