@@ -162,6 +162,8 @@ public class MinHashMain {
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.inMemory", Constants.FALSE));
         boolean computeCentrality = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.computeCentrality", Constants.FALSE));
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
+        boolean persistCollisionTable = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.persistCollisionTable", Constants.TRUE));
+
 
         Parameter param = new Parameter.Builder()
                 .setAlgorithmName(algorithmName)
@@ -180,6 +182,7 @@ public class MinHashMain {
                 .setComputeCentrality(computeCentrality)
                 .setReordering(reorder)
                 .setNumThreads(suggestedNumberOfThreads)
+                .setPersistCollisionTable(persistCollisionTable)
                 .build();
 
         logger.info("\n\n********************** Parameters **********************\n\n" +
@@ -194,6 +197,7 @@ public class MinHashMain {
                         "threshold for eff. diameter is: {}\n" +
                         "graph will be reordered by outdegree: {}\n" +
                         "algorithm must compute centrality: {}\n" +
+                        "persist collision table: {}\n" +
                         "number of threads: {}\n" +
                         "\n********************************************************\n\n",
                 param.getNumTests(),
@@ -207,6 +211,7 @@ public class MinHashMain {
                 param.getThreshold(),
                 param.getReordering(),
                 param.computeCentrality(),
+                param.persistCollisionTable(),
                 param.getNumThreads());
 
         MinHashMain main = new MinHashMain(param);
@@ -309,7 +314,7 @@ public class MinHashMain {
                     measure.getAvgDistance(),
                     measure.getEffectiveDiameter());
 
-            if (minHash.getNodes().length == g.numNodes()) {
+            if (!mParam.persistCollisionTable()) {
                 if (measure instanceof GraphMeasureOpt) {
                     ((GraphMeasureOpt) measure).setCollisionsMatrix(null);
                 } else if (measure instanceof GraphMeasure) {
