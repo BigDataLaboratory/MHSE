@@ -1,6 +1,7 @@
 package it.bigdatalab.structure;
 
 import com.google.common.io.Files;
+import it.bigdatalab.compression.DifferentialCompression;
 import it.bigdatalab.compression.GroupVarInt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,8 @@ public class CompressedGraph {
     private int[][] offset;
     private boolean in_memory;
     private GroupVarInt compressor ;
+    private DifferentialCompression Dcompressor;
+
     public  CompressedGraph(String inPath,boolean load_entire_graph) throws IOException {
         if(load_entire_graph){
             load_compressed_graph(inPath);
@@ -89,12 +92,13 @@ public class CompressedGraph {
 
 
 
-    public int [] get_neighbours(int node){
+    public int [] get_neighbours(int node, boolean differential){
         int i,j,k;
         int [] neighbours = new int[0];
         int [] neighbours_array;
         byte [] portion = new byte[0];
         compressor = new GroupVarInt();
+        Dcompressor = new DifferentialCompression();
         for (i = 0;i<offset.length;i++){
             if(offset[i][0] == node){
                 if(i<offset.length-1){
@@ -123,7 +127,11 @@ public class CompressedGraph {
                             k+=1;
                         }
                 }
-                neighbours = compressor.decode(portion);
+                if(differential){
+                    neighbours = Dcompressor.decodeSequence(compressor.decode(portion));
+                }else {
+                    neighbours = compressor.decode(portion);
+                }
             }
         }
         neighbours_array = new int[neighbours.length-1];
