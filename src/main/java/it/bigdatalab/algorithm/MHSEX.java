@@ -190,7 +190,7 @@ public class MHSEX extends MinHash {
     public double[] hopTable(long[] collisionsVector) {
         double[] hopTable = new double[collisionsVector.length];
         for (int i = 0; i < hopTable.length; i++) {
-            hopTable[i] = (double) (collisionsVector[i] * mGraph.numNodes()) / this.mNumSeeds;
+            hopTable[i] = ((double) collisionsVector[i] * mGraph.numNodes()) / this.mNumSeeds;
         }
         return hopTable;
     }

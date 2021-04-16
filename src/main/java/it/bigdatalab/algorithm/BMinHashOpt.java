@@ -58,7 +58,7 @@ public abstract class BMinHashOpt extends MinHash {
             for (int seed = 0; seed < collisionsMatrix.length; seed++) {
                 sumCollisions += collisionsMatrix[seed][hop];
             }
-            couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
+            couples = ((double) sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
             hoptable[hop] = couples;
         }
         return hoptable;

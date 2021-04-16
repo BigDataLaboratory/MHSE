@@ -36,7 +36,7 @@ public abstract class BMinHash extends MinHash {
         for (int hop = 0; hop <= lastHop; hop++) {
             int[] collisions = ct.get(hop);
             sumCollisions = Arrays.stream(collisions).sum();
-            double couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
+            double couples = ((double) sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
             hopTable.put(hop, couples);
         }
         return hopTable;
