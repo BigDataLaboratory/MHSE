@@ -22,7 +22,7 @@ public class CompressedGraph {
     private GroupVarInt compressor ;
     private DifferentialCompression Dcompressor;
 
-    public  CompressedGraph(String inPath,boolean load_entire_graph) throws IOException {
+    public CompressedGraph(String inPath,boolean load_entire_graph) throws IOException {
         if(load_entire_graph){
             load_compressed_graph(inPath);
         }

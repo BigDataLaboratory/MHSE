@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class UncompressedGraph {
+    private int n = Integer.MAX_VALUE;
     private int [][] graph;
-
 
     public UncompressedGraph(){
 
