@@ -146,6 +146,8 @@ public class CompressedGraph {
         decoded_graph = new int[offset.length][];
         byte [] portion = new byte[0];
         int i,j,k;
+        compressor = new GroupVarInt();
+        Dcompressor = new DifferentialCompression();
 
         for (i = 0; i<offset.length;i++){
             if(i == 0){
@@ -186,5 +188,15 @@ public class CompressedGraph {
 //        }
     }
 
+    public int[][] getDecoded_graph() {
+        return decoded_graph;
+    }
 
+
+    public int numNodes(){
+        return offset.length;
+    }
+    public int outdegree(int node,boolean differential){
+        return(get_neighbours(node,differential).length);
+    }
 }
