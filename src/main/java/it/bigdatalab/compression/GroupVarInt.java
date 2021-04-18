@@ -15,7 +15,7 @@ public class GroupVarInt {
 
     private int[][] offset;
     private byte[][] compressedAdjList;
-
+    private DifferentialCompression GapCompressor;
     public  GroupVarInt(){
 
      // Da sviluppare
@@ -518,11 +518,15 @@ public class GroupVarInt {
         int off;
         byte [][] encoded;
         int [] row;
+        int [] offset_bytes,offset_nodes,gap_offset_bytes,gap_offset_nodes;;
+        GapCompressor = new DifferentialCompression();
         logger.info("Starting encoding the Adjacency List " );
 
         nodes = matrix.length;
         encoded = new byte[nodes][];
         offset = new int [nodes][2];
+        offset_nodes = new int [nodes];
+        offset_bytes = new int [nodes];
         off = 0;
         for (i=0;i<nodes;i++){
             edges = matrix[i].length;
@@ -532,9 +536,20 @@ public class GroupVarInt {
             }
             encoded[i] = listEncoding(row);
             off += encoded[i].length;
-            offset[i][0] = matrix[i][0];
-            offset[i][1] =off;
+            //offset[i][0] = matrix[i][0];
+            //offset[i][1] =off;
+            offset_nodes[i] = matrix[i][0];
+            offset_bytes[i] = off;
+
         }
+        gap_offset_bytes  = GapCompressor.encodeSequence(offset_bytes);
+        gap_offset_nodes = GapCompressor.encodeSequence(offset_nodes);
+
+        for (i = 0;i<nodes;i++){
+            offset[i][0] = gap_offset_nodes[i];
+            offset[i][1] = gap_offset_bytes[i];
+        }
+        
         compressedAdjList = encoded;
         logger.info("Encoding completed " );
 
@@ -627,8 +642,7 @@ public class GroupVarInt {
         n = offset.length;
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(outPath + instance + "_offset.txt"));
-            bw.write(offset.length +"\t" + 2 );
-            bw.newLine();
+
             for (i = 0; i < n; i++) {
                 m = offset[i].length;
                 for (j = 0; j < m; j++) {

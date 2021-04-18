@@ -70,22 +70,34 @@ public class CompressedGraph {
         Scanner sc ;
         String[] line;
         int [][] off;
+        int [] gap_encoding_nodes,gap_encoding_bytes,gap_decoded_nodes,gap_decoded_bytes;
         int n,m,i,j;
+        DifferentialCompression GapCompressor = new DifferentialCompression();
         logger.info("Loading offset file");
         sc = new Scanner(new BufferedReader(new FileReader(path)));
-        line = sc.nextLine().trim().split("\t");
-        n =  Integer.parseInt(line[0]);
-        m = Integer.parseInt(line[1]);
-        off = new int[n][m];
+        n = 0;
+        while(sc.hasNextLine()) {
+            sc.nextLine();
+            n+=1;
+        }
+        sc = new Scanner(new BufferedReader(new FileReader(path)));
+        off = new int[n][2];
+        gap_encoding_nodes = new int [n];
+        gap_encoding_bytes = new int [n];
         while(sc.hasNextLine()) {
             for (i=0; i<n; i++) {
                 line = sc.nextLine().trim().split("\t");
-                for (j=0; j<m; j++) {
-                    off[i][j] = Integer.parseInt(line[j]);
-                }
+                    gap_encoding_nodes[i] = Integer.parseInt(line[0]);
+                    gap_encoding_bytes[i] =  Integer.parseInt(line[1]);
+
             }
         }
-        //System.out.println(Arrays.deepToString(off));
+        gap_decoded_bytes = GapCompressor.decodeSequence(gap_encoding_bytes);
+        gap_decoded_nodes = GapCompressor.decodeSequence(gap_encoding_nodes);
+        for (i = 0;i<n;i++){
+            off[i][0] = gap_decoded_nodes[i];
+            off[i][1] = gap_decoded_bytes[i];
+        }
         offset = off;
         logger.info("Offset loaded");
     }
