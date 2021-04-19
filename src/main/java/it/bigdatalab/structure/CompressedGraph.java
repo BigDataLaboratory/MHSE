@@ -18,9 +18,12 @@ public class CompressedGraph {
     private byte[] compressed_graph;
     private int[][] decoded_graph;
     private int[][] offset;
+    private byte[] compressed_offset;
+
     private boolean in_memory;
     private GroupVarInt compressor ;
     private DifferentialCompression Dcompressor;
+    private DifferentialCompression GapCompressor;
 
     public CompressedGraph(String inPath,boolean load_entire_graph) throws IOException {
         if(load_entire_graph){
@@ -37,6 +40,7 @@ public class CompressedGraph {
         logger.info("Loading the compressed Graph");
         File file = new File(inPath);
         compressed_graph = new byte[(int) file.length()];
+
         try {
             InputStream input = null;
             try {
@@ -58,15 +62,66 @@ public class CompressedGraph {
         }
 
 
+    }
 
+
+    public void load_offset(String inPath) throws IOException {
+        int n,i;
+        int [] gap_encoding_nodes,gap_encoding_bytes,gap_decoded_nodes,gap_decoded_bytes;
+        int [][] off;
+
+        logger.info("Loading offset");
+        File file = new File(inPath);
+        compressed_offset = new byte[(int) file.length()];
+        compressor = new GroupVarInt();
+        GapCompressor = new DifferentialCompression();
+        int [] decomrpessed_offset;
+        try {
+            InputStream input = null;
+            try {
+                int totalBytesRead = 0;
+                input = new BufferedInputStream(new FileInputStream(file));
+                while (totalBytesRead < compressed_offset.length) {
+                    int bytesRemaining = compressed_offset.length - totalBytesRead;
+                    //input.read() returns -1, 0, or more :
+                    int bytesRead = input.read(compressed_offset, totalBytesRead, bytesRemaining);
+                    if (bytesRead > 0) {
+                        totalBytesRead = totalBytesRead + bytesRead;
+                    }
+                }
+            } finally {
+                input.close();
+                logger.info("Compressed offset loaded");
+            }
+        } catch (FileNotFoundException ex) {
+        }
+
+
+        decomrpessed_offset = compressor.decode(compressed_offset);
+        n = decomrpessed_offset.length/2;
+        gap_encoding_nodes = new int [n];
+        gap_encoding_bytes = new int [n];
+        off = new int[n][2];
+
+        for(i = 0; i<n;i++){
+            gap_encoding_bytes[i] = decomrpessed_offset[i];
+            gap_encoding_nodes[i] = decomrpessed_offset[i+n];
+
+        }
+        gap_decoded_bytes = GapCompressor.decodeSequence(gap_encoding_bytes);
+        gap_decoded_nodes = GapCompressor.decodeSequence(gap_encoding_nodes);
+        for (i = 0;i<n;i++){
+            off[i][0] = gap_decoded_nodes[i];
+            off[i][1] = gap_decoded_bytes[i];
+        }
+        offset = off;
+        logger.info("Offset loaded");
 
 
     }
 
-
-
-
-    public void load_offset(String path) throws FileNotFoundException {
+    // DEPRECATED: Old offset
+    public void load_offset_dep(String path) throws FileNotFoundException {
         Scanner sc ;
         String[] line;
         int [][] off;

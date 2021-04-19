@@ -14,6 +14,8 @@ public class GroupVarInt {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.compression.GroupVarint");
 
     private int[][] offset;
+
+    private byte[] compressedOffset;
     private byte[][] compressedAdjList;
     private DifferentialCompression GapCompressor;
     public  GroupVarInt(){
@@ -504,6 +506,9 @@ public class GroupVarInt {
     public int [][] getOffset(){
         return (offset);
     }
+    public byte[] getCompressedOffset() {
+        return compressedOffset;
+    }
 
     public byte[][] getCompressedAdjList(){
         return (compressedAdjList);
@@ -518,7 +523,7 @@ public class GroupVarInt {
         int off;
         byte [][] encoded;
         int [] row;
-        int [] offset_bytes,offset_nodes,gap_offset_bytes,gap_offset_nodes;;
+        int [] offset_bytes,offset_nodes,gap_offset_bytes,gap_offset_nodes,offset_and_bytes;
         GapCompressor = new DifferentialCompression();
         logger.info("Starting encoding the Adjacency List " );
 
@@ -544,6 +549,15 @@ public class GroupVarInt {
         }
         gap_offset_bytes  = GapCompressor.encodeSequence(offset_bytes);
         gap_offset_nodes = GapCompressor.encodeSequence(offset_nodes);
+        offset_and_bytes = new int[gap_offset_bytes.length+gap_offset_nodes.length];
+        for (i = 0;i<gap_offset_bytes.length;i++){
+
+            offset_and_bytes[i+gap_offset_bytes.length] = gap_offset_nodes[i];
+
+            offset_and_bytes[i] = gap_offset_bytes[i];
+
+        }
+        compressedOffset = sequenceEncoding(offset_and_bytes);
 
         for (i = 0;i<nodes;i++){
             offset[i][0] = gap_offset_nodes[i];
@@ -579,7 +593,7 @@ public class GroupVarInt {
         return(decoded);
     }
 
-    public static void saveEncoding(String outPath,String instance, byte [][] encoded,int [][] offset) {
+    public static void saveEncoding(String outPath,String instance, byte [][] encoded,byte [] COffset) {
 
         byte[] flattered_encoding;
         int n, m, i, k, q, j;
@@ -627,7 +641,7 @@ public class GroupVarInt {
         }
         // Writing offset file
 
-        try {
+       /* try {
             File off = new File(outPath + instance + "_offset.txt");
             if (off.createNewFile()) {
                 logger.info("File {} created ", off.getName());
@@ -638,11 +652,13 @@ public class GroupVarInt {
         } catch (IOException e) {
             logger.error("An error occurred.");
             e.printStackTrace();
-        }
-        n = offset.length;
+        }*/
+        // Compressed offset
+        //n = offset.length;
         try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(outPath + instance + "_offset.txt"));
+            Files.write(Paths.get(outPath+ instance + "_offset.txt"), COffset);
 
+           /* BufferedWriter bw = new BufferedWriter(new FileWriter(outPath + instance + "_offset.txt"));
             for (i = 0; i < n; i++) {
                 m = offset[i].length;
                 for (j = 0; j < m; j++) {
@@ -650,7 +666,7 @@ public class GroupVarInt {
                 }
                 bw.newLine();
             }
-            bw.flush();
+            bw.flush();*/
         } catch (IOException e) {
         }
         logger.info("Encoded Graph and offset files properly written " );

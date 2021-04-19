@@ -258,7 +258,7 @@ public class CompressInstance {
         VarintGB.encodeAdjList(provaMat);
         String[] split = inputFilePath.split("/");
         String name = split[split.length-1];
-        VarintGB.saveEncoding(outPath,name,VarintGB.getCompressedAdjList(),VarintGB.getOffset());
+        VarintGB.saveEncoding(outPath,name,VarintGB.getCompressedAdjList(),VarintGB.getCompressedOffset());
 
         Graph = new CompressedGraph(outPath + name+".txt",true);
         Graph.load_offset(outPath+name+"_offset.txt");
