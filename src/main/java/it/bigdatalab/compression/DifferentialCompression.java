@@ -98,20 +98,40 @@ public class DifferentialCompression {
 
     public int[][] encodeAdjList(int [][] matrix){
         int nodes,edges;
-        int i,j;
+        int i,j,k;
         int [][] encoded;
-        int [] row;
-
+        int [] row, column;
+        int [] row_enc,column_enc,row_enc_b;
+        int [] empty_set;
+        empty_set = new int[1];
         nodes = matrix.length;
         encoded = new int [nodes][];
-        logger.info("Starting decoding the Adjacency List " );
+        column = new int [nodes];
+        logger.info("Starting encoding the Adjacency List " );
         for (i=0;i<nodes;i++){
             edges = matrix[i].length;
-            row = new int[edges];
-            for (j=0;j<edges;j++){
-                row[j] = matrix[i][j];
+            row = new int[edges-1];
+            column[i] = matrix[i][0];
+            if(row.length >1) {
+                for (j = 1; j < edges; j++) {
+                    row[j - 1] = matrix[i][j];
+                }
+                row_enc = encodeSequence(row);
+                row_enc_b = new int[edges];
+                row_enc_b[0] = 0;
+                for (k = 1; k < edges; k++) {
+                    row_enc_b[k] = row_enc[k - 1];
+                }
+
+                encoded[i] = row_enc_b;
             }
-            encoded[i] = encodeSequence(row);
+            else{
+                encoded[i] =empty_set ;
+            }
+        }
+        column_enc = encodeSequence(column);
+        for (i = 0; i< nodes; i++){
+            encoded[i][0] = column_enc[i];
         }
         logger.info("Encoding completed " );
 
@@ -120,21 +140,30 @@ public class DifferentialCompression {
 
     public int[][] decodeAdjList(int [][] encoded_matrix){
         int nodes,edges;
-        int i,j;
+        int i,j,k;
         int [][] decoded;
-        int [] row;
+        int [] row,column,decoded_row,decoded_column,decoded_b;
 
         nodes = encoded_matrix.length;
         decoded = new int[nodes][];
+        column = new int[nodes];
         logger.info("Starting Decoding the Adjacency List " );
 
         for (i =0 ;i<nodes;i++){
             edges = encoded_matrix[i].length;
-            row = new int[edges];
-            for (j=0;j<edges;j++){
-                row[j] = encoded_matrix[i][j];
+            row = new int[edges-1];
+            column[i] = encoded_matrix[i][0];
+            for (j=1;j<edges;j++){
+                row[j-1] = encoded_matrix[i][j];
             }
-            decoded[i] = decodeSequence(row);
+            decoded_row = decodeSequence(row);
+            decoded_column = decodeSequence(column);
+            decoded_b = new int [edges];
+            decoded_b[0] = decoded_column[i];
+            for (k = 1;k<edges;k++){
+                decoded_b[k] = decoded_row[k-1];
+            }
+            decoded[i] = decoded_b ;
         }
         logger.info("Decoding completed " );
 
