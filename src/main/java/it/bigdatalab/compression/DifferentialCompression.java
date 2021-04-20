@@ -122,7 +122,6 @@ public class DifferentialCompression {
                 for (k = 1; k < edges; k++) {
                     row_enc_b[k] = row_enc[k - 1];
                 }
-
                 encoded[i] = row_enc_b;
             }
             else{
@@ -134,7 +133,6 @@ public class DifferentialCompression {
             encoded[i][0] = column_enc[i];
         }
         logger.info("Encoding completed " );
-
         return (encoded);
     }
 
@@ -149,27 +147,35 @@ public class DifferentialCompression {
         column = new int[nodes];
         logger.info("Starting Decoding the Adjacency List " );
 
-        for (i =0 ;i<nodes;i++){
+        for (i =0 ;i<nodes;i++) {
             edges = encoded_matrix[i].length;
-            row = new int[edges-1];
+            row = new int[edges - 1];
             column[i] = encoded_matrix[i][0];
-            for (j=1;j<edges;j++){
-                row[j-1] = encoded_matrix[i][j];
+            if (row.length > 1) {
+                for (j = 1; j < edges; j++) {
+                    row[j - 1] = encoded_matrix[i][j];
+                }
+                decoded_row = decodeSequence(row);
+                decoded_b = new int[edges];
+                decoded_b[0] = 0;
+                for (k = 1; k < edges; k++) {
+                    decoded_b[k] = decoded_row[k - 1];
+                }
+                decoded[i] = decoded_b;
+            } else {
+                decoded_b = new int[1];
+                decoded_b[0] = 0;
+                decoded[i] = decoded_b;
             }
-            decoded_row = decodeSequence(row);
-            decoded_column = decodeSequence(column);
-            decoded_b = new int [edges];
-            decoded_b[0] = decoded_column[i];
-            for (k = 1;k<edges;k++){
-                decoded_b[k] = decoded_row[k-1];
-            }
-            decoded[i] = decoded_b ;
         }
+        decoded_column = decodeSequence(column);
+        for(i = 0;i<nodes;i++){
+            decoded[i][0] = decoded_column[i];
+        }
+
         logger.info("Decoding completed " );
 
         return(decoded);
     }
-//    public int[][] encodeADJList(int [][] adj){
-//
-//    }
+
 }
