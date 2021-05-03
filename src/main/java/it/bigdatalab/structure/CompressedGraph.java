@@ -6,6 +6,7 @@ import it.bigdatalab.compression.GroupVarInt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -24,18 +25,19 @@ public class CompressedGraph {
     private DifferentialCompression Dcompressor;
     private DifferentialCompression GapCompressor;
 
-    public CompressedGraph(String inPath,boolean load_entire_graph) throws IOException {
+    public CompressedGraph(String inPath,String offPath,boolean load_entire_graph) throws IOException {
         if(load_entire_graph){
-            load_compressed_graph(inPath);
+            load_compressed_graph(inPath,offPath);
         }
         // Da sviluppare
+
     }
 
     public byte[] getCompressed_graph() {
         return compressed_graph;
     }
 
-    public void load_compressed_graph(String inPath) throws IOException {
+    public void load_compressed_graph(String inPath, String offPath) throws IOException {
         logger.info("Loading the compressed Graph");
         File file = new File(inPath);
         compressed_graph = new byte[(int) file.length()];
@@ -59,7 +61,7 @@ public class CompressedGraph {
             }
         } catch (FileNotFoundException ex) {
         }
-
+        load_offset(offPath);
 
     }
 
@@ -105,13 +107,15 @@ public class CompressedGraph {
         for(i = 0; i<n;i++){
             gap_encoding_bytes[i] = decomrpessed_offset[i];
             gap_encoding_nodes[i] = decomrpessed_offset[i+n];
-
         }
+
         gap_decoded_bytes = GapCompressor.decodeSequence(gap_encoding_bytes);
         gap_decoded_nodes = GapCompressor.decodeSequence(gap_encoding_nodes);
+
         for (i = 0;i<n;i++){
             off[i][0] = gap_decoded_nodes[i];
             off[i][1] = gap_decoded_bytes[i];
+
         }
         offset = off;
         logger.info("Offset loaded");
@@ -159,7 +163,7 @@ public class CompressedGraph {
 
 
     public int [] get_neighbours(int node, boolean differential){
-        int i,j,k;
+        int i,j,k,y;
         int [] neighbours = new int[0];
         int [] neighbours_array;
         byte [] portion = new byte[0];
@@ -195,7 +199,13 @@ public class CompressedGraph {
                         }
                     }
                     if (differential) {
-                        neighbours = Dcompressor.decodeSequence(compressor.decode(portion));
+                        int [] decoded_negihbours = compressor.decode(portion);
+                        int [] to_decode = new int[decoded_negihbours.length];
+                        to_decode[0] = 0;
+                        for(y = 1; y<decoded_negihbours.length;y++){
+                            to_decode[y] = decoded_negihbours[y];
+                        }
+                        neighbours = Dcompressor.decodeSequence(to_decode);
                     } else {
                         neighbours = compressor.decode(portion);
                     }
@@ -212,6 +222,7 @@ public class CompressedGraph {
     }
 
     public void decode_graph(){
+        // VA MODIFICATO E DEVI TENERE CONTO DELLA DECOMPRESSIONE DGAP
         logger.info("Decoding the whole Graph ");
         decoded_graph = new int[offset.length][];
         byte [] portion = new byte[0];

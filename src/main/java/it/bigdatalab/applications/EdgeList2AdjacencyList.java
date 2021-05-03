@@ -13,11 +13,13 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 
 public class EdgeList2AdjacencyList {
     private String ofp;
     private String inputFilePath;
     private boolean fromJanusGraph;
+    private boolean degreeDistributionLabeling;
     //private Long2ObjectLinkedOpenHashMap<LongArrayList> normalizedEdgeList;
     private Long2ObjectLinkedOpenHashMap<LongArrayList> normalizedAdjList;
     private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.EdgeList2AdjacencyList");
@@ -35,8 +37,10 @@ public class EdgeList2AdjacencyList {
 
         */
         this.inputFilePath = PropertiesManager.getProperty("edgeList2AdiacencyList.inputEdgelistFilePath");
+        System.out.println("AOOO " +this.inputFilePath);
         this.ofp = PropertiesManager.getProperty("edgeList2AdiacencyList.outputFolderPath");
         this.fromJanusGraph = Boolean.parseBoolean(PropertiesManager.getProperty("edgeList2AdiacencyList.fromJanusGraph"));
+        this.degreeDistributionLabeling = Boolean.parseBoolean(PropertiesManager.getProperty("edgeList2AdiacencyList.degreeDistributionLabeling"));
 
         try {
             //create normalized edgelist for webgraph from edgelist file
@@ -127,7 +131,7 @@ public class EdgeList2AdjacencyList {
     private void writeNormalizedAdjList() throws IOException {
         String inputDir = new File(inputFilePath).getParent();
         String graphName = new File(inputFilePath).getName();
-        String normalizedFileName = graphName + "Normalized";
+        String normalizedFileName = graphName.split(".edgelist")[0] + ".adjlist";
         String adjListOutputFilePath = inputDir + File.separator + normalizedFileName;
 
         try (Writer writer = new FileWriter(adjListOutputFilePath)) {
@@ -136,16 +140,63 @@ public class EdgeList2AdjacencyList {
             long[] keys = normalizedAdjList.keySet().toLongArray();
             LongArrays.quickSort(keys);
             logger.info("Source IDs sorted");
-            for(int i=0;i<keys.length;i++){
-                long sourceID = keys[i];
-                LongArrayList adjacencyList = normalizedAdjList.get(sourceID);
-                Collections.sort(adjacencyList);
-                writer.append(Long.toString(sourceID)).append("\t");
-                for(int j = 0; j<adjacencyList.size();j++){
-                    long targetID = adjacencyList.getLong(j);
-                    writer.append(Long.toString(targetID));
+            if (degreeDistributionLabeling) {
+                Long2ObjectLinkedOpenHashMap<Long> degreeDistribution = new  Long2ObjectLinkedOpenHashMap<Long>();
+                for (int i = 0; i < keys.length; i++) {
+                    Long sourceID = keys[i];
+                    int listSize = normalizedAdjList.get(sourceID).size();
+                    degreeDistribution.put(listSize,sourceID);
                 }
-                writer.append(eol);
+                long[] keys_degree_distribution =  degreeDistribution.keySet().toLongArray();
+                LongArrays.quickSort(keys_degree_distribution);
+                logger.info("Sorting nodes by degree distribution");
+                Integer k= 0;
+                Long2ObjectLinkedOpenHashMap<Integer> newLables = new  Long2ObjectLinkedOpenHashMap<Integer>();
+                for(int i = 0; i < keys_degree_distribution.length; i++) {
+                    newLables.put(keys_degree_distribution[i],k);
+                    k++;
+                }
+                long[] relabeled_keys = new long[keys.length];
+                for(int j = 0;j<keys.length;k++){
+                    relabeled_keys[j] = newLables.get(keys[j]);
+                }
+                LongArrays.quickSort(relabeled_keys);
+                for (int i = 0; i < relabeled_keys.length; i++) {
+                    long sourceID = relabeled_keys[i];
+                    LongArrayList adjacencyList = normalizedAdjList.get(sourceID);
+                    LongArrayList relabeledAdjacencyList = new LongArrayList();
+                    for(int j =0 ;j<adjacencyList.size();j++){
+                        relabeledAdjacencyList.add(newLables.get(adjacencyList.get(j)));
+                    }
+                    Collections.sort(relabeledAdjacencyList);
+                    writer.append(Long.toString(sourceID)).append("\t");
+                    for (int j = 0; j < adjacencyList.size(); j++) {
+                        long targetID = adjacencyList.getLong(j);
+                        writer.append(Long.toString(newLables.get(targetID))).append("\t");
+
+                    }
+                    writer.append(eol);
+                }
+                logger.info("Graph relabeled");
+
+
+
+            } else {
+
+
+
+                for (int i = 0; i < keys.length; i++) {
+                    long sourceID = keys[i];
+                    LongArrayList adjacencyList = normalizedAdjList.get(sourceID);
+                    Collections.sort(adjacencyList);
+                    writer.append(Long.toString(sourceID)).append("\t");
+                    for (int j = 0; j < adjacencyList.size(); j++) {
+                        long targetID = adjacencyList.getLong(j);
+                        writer.append(Long.toString(targetID)).append("\t");
+
+                    }
+                    writer.append(eol);
+                }
             }
             logger.info("Normalized adj file saved in {}", adjListOutputFilePath);
 

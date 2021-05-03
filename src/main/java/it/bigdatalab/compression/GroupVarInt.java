@@ -517,7 +517,7 @@ public class GroupVarInt {
 
 
 
-    public byte[][] encodeAdjList(int [][] matrix) {
+    public byte[][] encodeAdjList(int [][] matrix,boolean d_compression) {
         int nodes,edges;
         int i,j;
         int off;
@@ -547,8 +547,14 @@ public class GroupVarInt {
             offset_bytes[i] = off;
 
         }
+        if(d_compression){
+            gap_offset_nodes = offset_nodes;
+        }else{
+
+            gap_offset_nodes = GapCompressor.encodeSequence(offset_nodes);
+
+        }
         gap_offset_bytes  = GapCompressor.encodeSequence(offset_bytes);
-        gap_offset_nodes = GapCompressor.encodeSequence(offset_nodes);
         offset_and_bytes = new int[gap_offset_bytes.length+gap_offset_nodes.length];
         for (i = 0;i<gap_offset_bytes.length;i++){
 
