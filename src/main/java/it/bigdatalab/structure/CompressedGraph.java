@@ -19,7 +19,6 @@ public class CompressedGraph {
     private int[][] decoded_graph;
     private int[][] offset;
     private byte[] compressed_offset;
-
     private boolean in_memory;
     private GroupVarInt compressor ;
     private DifferentialCompression Dcompressor;
@@ -164,42 +163,46 @@ public class CompressedGraph {
         int [] neighbours = new int[0];
         int [] neighbours_array;
         byte [] portion = new byte[0];
-        compressor = new GroupVarInt();
-        Dcompressor = new DifferentialCompression();
-        for (i = 0;i<offset.length;i++){
-            if(offset[i][0] == node){
-                if(i<offset.length-1){
-                    if(i == 0){
-                        portion = new byte[offset[i][1]];
-                        k = 0;
-                        for (j = 0;j<offset[i][1];j++){
-                            portion[k] = compressed_graph[j];
-                            k+=1;
+        if(decoded_graph == null) {
+            compressor = new GroupVarInt();
+            Dcompressor = new DifferentialCompression();
+            for (i = 0; i < offset.length; i++) {
+                if (offset[i][0] == node) {
+                    if (i < offset.length - 1) {
+                        if (i == 0) {
+                            portion = new byte[offset[i][1]];
+                            k = 0;
+                            for (j = 0; j < offset[i][1]; j++) {
+                                portion[k] = compressed_graph[j];
+                                k += 1;
+                            }
+                        } else {
+                            portion = new byte[offset[i][1] - offset[i - 1][1]];
+                            k = 0;
+                            for (j = offset[i - 1][1]; j < offset[i][1]; j++) {
+                                portion[k] = compressed_graph[j];
+                                k += 1;
+                            }
                         }
-                    }else {
-                        portion = new byte[offset[i][1] - offset[i-1][1]];
+                    } else {
+
+                        portion = new byte[offset[i][1] - offset[i - 1][1]];
+
                         k = 0;
-                        for (j = offset[i-1][1]; j < offset[i][1]; j++) {
+                        for (j = offset[i - 1][1]; j < offset[i][1]; j++) {
                             portion[k] = compressed_graph[j];
                             k += 1;
                         }
                     }
-                }else{
-
-                    portion = new byte[offset[i][1] - offset[i-1][1]];
-
-                        k = 0;
-                        for (j = offset[i-1][1];j<offset[i][1];j++){
-                            portion[k] = compressed_graph[j];
-                            k+=1;
-                        }
-                }
-                if(differential){
-                    neighbours = Dcompressor.decodeSequence(compressor.decode(portion));
-                }else {
-                    neighbours = compressor.decode(portion);
+                    if (differential) {
+                        neighbours = Dcompressor.decodeSequence(compressor.decode(portion));
+                    } else {
+                        neighbours = compressor.decode(portion);
+                    }
                 }
             }
+        }else{
+            // Da implementare c'è da decidere che struttura dati utilizzare per il grafo decompresso
         }
         neighbours_array = new int[neighbours.length-1];
         for (j = 1; j<neighbours.length;j++){
