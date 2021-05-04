@@ -21,6 +21,11 @@ public class CompressedGraph {
     private int[][] offset;
     private byte[] compressed_offset;
     private boolean in_memory;
+    private boolean diff = true;
+    private boolean gVarint;
+    private int nNodes;
+    private int nArcs = -1;
+    private boolean isUndirected = false;
     private GroupVarInt compressor ;
     private DifferentialCompression Dcompressor;
     private DifferentialCompression GapCompressor;
@@ -119,8 +124,7 @@ public class CompressedGraph {
         }
         offset = off;
         logger.info("Offset loaded");
-
-
+        nNodes =  offset.length;
     }
 
     // DEPRECATED: Old offset
@@ -332,7 +336,25 @@ public class CompressedGraph {
 
 
     public int numNodes(){
-        return offset.length;
+        return nNodes;
+    }
+
+    public int numArcs(){
+        if(nArcs == -1){
+            int arcs,i;
+            arcs = 0;
+            for(i = 0; i<offset.length;i++){
+                arcs += outdegree(offset[i][0],diff);
+            }
+            if(isUndirected){
+                nArcs =(1/2) * arcs;
+            }else {
+                nArcs = arcs;
+            }
+            return nArcs;
+        }else{
+            return nArcs;
+        }
     }
     public int outdegree(int node,boolean differential){
         return(get_neighbours(node,differential).length);
