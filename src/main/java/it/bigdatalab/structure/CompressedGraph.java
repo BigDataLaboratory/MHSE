@@ -160,9 +160,66 @@ public class CompressedGraph {
         logger.info("Offset loaded");
     }
 
-
-
     public int [] get_neighbours(int node, boolean differential){
+        int i,j,k,y;
+        int [] neighbours = new int[0];
+        int [] neighbours_array;
+        byte [] portion = new byte[0];
+        if(decoded_graph == null) {
+            compressor = new GroupVarInt();
+            Dcompressor = new DifferentialCompression();
+            //for (i = 0; i < offset.length; i++) {
+                //if (offset[i][0] == node) {
+                    if (node < offset.length - 1) {
+                        if (node == 0) {
+                            portion = new byte[offset[node][1]];
+                            k = 0;
+                            for (j = 0; j < offset[node][1]; j++) {
+                                portion[k] = compressed_graph[j];
+                                k += 1;
+                            }
+                        } else {
+                            portion = new byte[offset[node][1] - offset[node - 1][1]];
+                            k = 0;
+                            for (j = offset[node - 1][1]; j < offset[node][1]; j++) {
+                                portion[k] = compressed_graph[j];
+                                k += 1;
+                            }
+                        }
+                    } else {
+
+                        portion = new byte[offset[node][1] - offset[node - 1][1]];
+
+                        k = 0;
+                        for (j = offset[node - 1][1]; j < offset[node][1]; j++) {
+                            portion[k] = compressed_graph[j];
+                            k += 1;
+                        }
+                    }
+                    if (differential) {
+                        int [] decoded_negihbours = compressor.decode(portion);
+                        int [] to_decode = new int[decoded_negihbours.length];
+                        to_decode[0] = 0;
+                        for(y = 1; y<decoded_negihbours.length;y++){
+                            to_decode[y] = decoded_negihbours[y];
+                        }
+                        neighbours = Dcompressor.decodeSequence(to_decode);
+                    } else {
+                        neighbours = compressor.decode(portion);
+                    }
+                //}
+            //}
+        }else{
+            // Da implementare c'è da decidere che struttura dati utilizzare per il grafo decompresso
+        }
+        neighbours_array = new int[neighbours.length-1];
+        for (j = 1; j<neighbours.length;j++){
+            neighbours_array[j-1] = neighbours[j];
+        }
+        return(neighbours_array);
+    }
+
+    public int [] get_neighbours_linear_search(int node, boolean differential){
         int i,j,k,y;
         int [] neighbours = new int[0];
         int [] neighbours_array;

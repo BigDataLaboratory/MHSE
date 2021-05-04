@@ -245,11 +245,24 @@ public class CompressInstance {
         VarintGB.saveEncoding(outputFilePath,name,VarintGB.getCompressedAdjList(),VarintGB.getCompressedOffset());
 
     }
+    public void prova_lista() throws IOException {
+        CompressedGraph Graph ;
+        String name = "/home/antoniocruciani/Desktop/TESTVGB/compressed/uk-2007-05@100000.adjlist.txt";
+        String off = "/home/antoniocruciani/Desktop/TESTVGB/compressed/uk-2007-05@100000.adjlist_offset.txt";
+        Graph = new CompressedGraph(name,off,true);
+        int [] nei = Graph.get_neighbours(15,true);
+        System.out.println("Vicini nodo 15");
+        for(int y = 0;y<nei.length;y++){
+            System.out.println(nei[y]);
+        }
+
+    }
 
     public static void main(String[] args) throws IOException {
-        //CompressInstance prova = new CompressInstance();
         CompressInstance t = new CompressInstance();
         t.compress();
+        //t.prova_lista();
+
     }
 }
 //
@@ -286,7 +299,7 @@ public class CompressInstance {
 //        String name = split[split.length-1];
 //        VarintGB.saveEncoding(outPath,name,VarintGB.getCompressedAdjList(),VarintGB.getCompressedOffset());
 //
-//        Graph = new CompressedGraph(outPath + name+".txt",true);
+          //Graph = new CompressedGraph(outPath + name+".txt",true);
 //        Graph.load_offset(outPath+name+"_offset.txt");
 //        Graph.load_compressed_graph(outPath+name+".txt");
 //        byte [] grafo = Graph.getCompressed_graph();
