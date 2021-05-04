@@ -3,6 +3,8 @@ package it.bigdatalab.structure;
 import com.google.common.io.Files;
 import it.bigdatalab.compression.DifferentialCompression;
 import it.bigdatalab.compression.GroupVarInt;
+import jdk.internal.jimage.decompressor.Decompressor;
+import jdk.internal.org.jline.utils.DiffHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -283,6 +285,30 @@ public class CompressedGraph {
     }
 
     public void decode_graph(){
+        logger.info("Decoding the whole Graph");
+        int i,j;
+        int arcs;
+        decoded_graph = new int[offset.length][];
+        int [] edge_list,neighbors;
+        compressor = new GroupVarInt();
+        Dcompressor =  new DifferentialCompression();
+        arcs = 0;
+        for(i = 0; i<offset.length;i++){
+            neighbors = get_neighbours(offset[i][0],diff);
+            edge_list = new int[neighbors.length + 1];
+            arcs += neighbors.length;
+            edge_list[0] = offset[i][0];
+            for(j = 0; j<neighbors.length;j++){
+                edge_list[j+1] = neighbors[j];
+            }
+            decoded_graph[i] = edge_list;
+        }
+        nArcs = arcs;
+        logger.info("Decoding completed ");
+
+    }
+
+    public void decode_graph_dep(){
         // VA MODIFICATO E DEVI TENERE CONTO DELLA DECOMPRESSIONE DGAP
         logger.info("Decoding the whole Graph ");
         decoded_graph = new int[offset.length][];
