@@ -12,5 +12,6 @@ public enum AlgorithmEnum {
     MultithreadBMinHash,
     MultithreadBMinHashOptimized,
     MultithreadBMinHashOpt2,
-    MultithreadMHSEX
+    MultithreadMHSEX,
+    MHSEXResearch
 }
