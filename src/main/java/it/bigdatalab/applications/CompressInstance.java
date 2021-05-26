@@ -30,11 +30,11 @@ public class CompressInstance {
     }
 
     public void initialize() {
-        inputFilePath = PropertiesManager.getPropertyIfNotEmpty("compressInstance.inputAdjListPath");
-        outputFilePath = PropertiesManager.getPropertyIfNotEmpty("compressInstance.outputFolderPath");
+        inputFilePath = PropertiesManager.getPropertyIfNotEmpty("test.compressInstance.inputAdjListPath");
+        outputFilePath = PropertiesManager.getPropertyIfNotEmpty("test.compressInstance.outputFolderPath");
         //outputFilePath = "/home/antoniocruciani/Desktop/TESTVGB/";
-        VarIntGB = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("compressInstance.VarintGB"));
-        d_gaps = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("compressInstance.differential"));
+        VarIntGB = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("test.compressInstance.VarintGB"));
+        d_gaps = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("test.compressInstance.differential"));
     }
 
     public void load_adjList() throws FileNotFoundException {

@@ -3,12 +3,9 @@ package it.bigdatalab.structure;
 import com.google.common.io.Files;
 import it.bigdatalab.compression.DifferentialCompression;
 import it.bigdatalab.compression.GroupVarInt;
-import jdk.internal.jimage.decompressor.Decompressor;
-import jdk.internal.org.jline.utils.DiffHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Scanner;
