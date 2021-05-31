@@ -1,5 +1,6 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.structure.CompressedGraph;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
@@ -17,7 +18,7 @@ public class MinHashFactory {
      * @throws MinHash.SeedsException
      * @throws IllegalArgumentException
      */
-    public MinHash getAlgorithm(ImmutableGraph g,
+    public MinHash getAlgorithm(CompressedGraph g,
                                 AlgorithmEnum type,
                                 int numSeeds,
                                 double threshold,
@@ -29,6 +30,10 @@ public class MinHashFactory {
         MinHash minHashAlgorithm = null;
 
         switch (type) {
+            case CMHSE:
+                minHashAlgorithm = new MHSE(g, numSeeds, threshold, seeds);
+                break;
+                /*
             case MHSE:
                 minHashAlgorithm = new MHSE(g, numSeeds, threshold, seeds);
                 break;
@@ -59,6 +64,8 @@ public class MinHashFactory {
             case MultithreadMHSEX:
                 minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, nodes, threads);
                 break;
+                */
+
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
         }

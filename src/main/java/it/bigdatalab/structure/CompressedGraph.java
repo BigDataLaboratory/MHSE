@@ -365,6 +365,15 @@ public class CompressedGraph {
         return nNodes;
     }
 
+    public int [] get_nodes(){
+        int [] nodes = new int[nNodes];
+        int i,n;
+
+        for (i = 0; i<nNodes;i++){
+            nodes[i] = offset[i][0];
+        }
+        return(nodes);
+    }
     public int numArcs(){
         if(nArcs == -1){
             int arcs,i;

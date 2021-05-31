@@ -12,6 +12,7 @@ import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.model.Parameter;
 import it.bigdatalab.model.SeedNode;
+import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.GsonHelper;
@@ -279,7 +280,8 @@ public class MinHashMain {
             if (numTest > seedsNodes.size())
                 throw new IllegalStateException("# run > list of seeds/nodes, please review your input");
         }
-
+        // Metti il grafo compresso
+        final CompressedGraph g = CompressedGraph(mParam.get);
         final ImmutableGraph g = GraphUtils.loadGraph(
                 mParam.getInputFilePathGraph(),
                 mParam.isTranspose(),
