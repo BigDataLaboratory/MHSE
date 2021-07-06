@@ -3,6 +3,7 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
+import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -11,12 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Implementation of MultithreadBMinHash (MinHash Signature Estimation multithread boolean optimized version) algorithm
@@ -38,7 +34,7 @@ public class MultithreadBMinHashOpt2 extends BMinHashOpt {
     /**
      * Creates a new MultithreadBMinHashOptimized instance with default values
      */
-    public MultithreadBMinHashOpt2(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads) {
+    public MultithreadBMinHashOpt2(final CompressedGraph g, int numSeeds, double threshold, int[] nodes, int threads) {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         mSeedTime = new double[mNumSeeds];
@@ -47,7 +43,7 @@ public class MultithreadBMinHashOpt2 extends BMinHashOpt {
     /**
      * Creates a new MultithreadBMinHashOptimized instance with default values
      */
-    public MultithreadBMinHashOpt2(final ImmutableGraph g, int numSeeds, double threshold, int threads) {
+    public MultithreadBMinHashOpt2(final CompressedGraph g, int numSeeds, double threshold, int threads) {
         super(g, numSeeds, threshold);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         mSeedTime = new double[mNumSeeds];
@@ -88,7 +84,9 @@ public class MultithreadBMinHashOpt2 extends BMinHashOpt {
         List<IterationThread2> todo = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
-            todo.add(new IterationThread2(mGraph.copy(), i));
+            // Scommenta e implementa
+
+            //todo.add(new IterationThread2(mGraph.copy(), i));
         }
 
         try {

@@ -3,6 +3,7 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
+import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
@@ -37,7 +38,7 @@ public class MHSE extends MinHash {
     /**
      * Creates a new MHSE instance with default values
      */
-    public MHSE(final ImmutableGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
+    public MHSE(final CompressedGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
         super(g, numSeeds, threshold, seeds);
 
         signatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());       //initialize signatures map with the expected number of elements(nodes) in the map
@@ -49,7 +50,7 @@ public class MHSE extends MinHash {
     /**
      * Creates a new MHSE instance with default values
      */
-    public MHSE(final ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
+    public MHSE(final CompressedGraph g, int numSeeds, double threshold) throws SeedsException {
         super(g, numSeeds, threshold);
 
         this.mSeeds = CreateSeeds.genSeeds(mNumSeeds);
@@ -73,7 +74,8 @@ public class MHSE extends MinHash {
         Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
         boolean signatureIsChanged = true;
         int hop = 0;
-        NodeIterator nodeIter;
+        int [] nodes = mGraph.get_nodes();
+        int i ;
 
         while (signatureIsChanged) {
             hopStartTime = System.currentTimeMillis();
@@ -84,28 +86,31 @@ public class MHSE extends MinHash {
                 initializeGraph();
 
                 // jaccard computation
-                nodeIter = mGraph.nodeIterator();
-                while (nodeIter.hasNext()) {
-                    int node = nodeIter.nextInt();
+                i = 0;
+                while (i<mGraph.numNodes()) {
+                    int node = nodes[i];
                     overallJaccard += jaccard(signatures.get(node), graphSignature);
+                    i+=1;
                 }
                 signatureIsChanged = true;
             } else {
                 // copy all the actual signatures in a new structure
                 oldSignatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());
-                nodeIter = mGraph.nodeIterator();
-                while(nodeIter.hasNext()) {
-                    int node = nodeIter.nextInt();
+                i = 0;
+                while(i<mGraph.numNodes()) {
+                    int node = nodes[i];
                     long[] signature = signatures.get(node);
                     long[] oldSignature = new long[signature.length];
 
                     System.arraycopy(signature, 0, oldSignature, 0, signature.length);
                     oldSignatures.put(node, oldSignature);
+                    i+=1;
                 }
                 // updating the signatures
-                nodeIter = mGraph.nodeIterator();
-                while(nodeIter.hasNext()) {
-                    int node = nodeIter.nextInt();
+                i = 0;
+                while(i<mGraph.numNodes()) {
+                    int node = nodes[i];
+
                     if (updateNodeSignature(node)) {
                         signatureIsChanged = true;
                     }
@@ -122,6 +127,7 @@ public class MHSE extends MinHash {
                                 TimeUnit.MILLISECONDS.toSeconds(node / (logTime - hopStartTime)));
                         lastLogTime = logTime;
                     }
+                    i+=1;
                 }
             }
 
@@ -161,9 +167,11 @@ public class MHSE extends MinHash {
 
     private void initializeGraph(){
         // Signatures initialization
-        NodeIterator nodeIter = mGraph.nodeIterator();
-        while(nodeIter.hasNext()) {
-            int node = nodeIter.nextInt();
+        int [] nodes = mGraph.get_nodes();
+        int j;
+        j= 0;
+        while(j<mGraph.numNodes()) {
+            int node = nodes[j];
             long[] signature = new long[mNumSeeds];
             // create a new signature for each node and compute signature for the graph
             for (int i = 0; i < mNumSeeds; i++) {
@@ -175,6 +183,7 @@ public class MHSE extends MinHash {
                 }
             }
             signatures.put(node, signature);
+            j+=1;
         }
     }
 
@@ -186,14 +195,15 @@ public class MHSE extends MinHash {
     public boolean updateNodeSignature(int node) {
         boolean signatureIsChanged = false;
         long[] newSignature = signatures.get(node);         //new signature to be updated
-
-        LazyIntIterator neighIter = mGraph.successors(node);
-        int d = mGraph.outdegree(node);
+        int [] neigh = mGraph.get_neighbours(node,true);
+        int k;
+        int d = neigh.length;
         long[] neighbourSignature;
         int neighbour;
-
+        k = 0;
         while(d-- != 0) {
-            neighbour = neighIter.nextInt();
+            neighbour =neigh[k];
+            k+=1;
             neighbourSignature = oldSignatures.get(neighbour);
             for(int i=0; i<neighbourSignature.length; i++){
                 if(neighbourSignature[i] < newSignature[i]){

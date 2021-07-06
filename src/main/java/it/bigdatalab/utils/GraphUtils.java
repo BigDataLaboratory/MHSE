@@ -1,5 +1,6 @@
 package it.bigdatalab.utils;
 
+import it.bigdatalab.structure.CompressedGraph;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.Transform;
 import org.slf4j.Logger;
@@ -16,53 +17,58 @@ public class GraphUtils {
      *
      * @return an ImmutableGraph instance
      */
-    public static ImmutableGraph loadGraph(String inputFilePath, boolean inMemory, boolean isolatedVertices) throws IOException {
+    public static CompressedGraph loadGraph(String inputFilePath, boolean inMemory, boolean isolatedVertices) throws IOException {
         logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
-        ImmutableGraph graph = inMemory ?
-                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
-                ImmutableGraph.load(inputFilePath);
+        String[] SplitInputFilePath = inputFilePath.split(".");
+
+        CompressedGraph graph = new CompressedGraph( inputFilePath,SplitInputFilePath[0]+"_offset.txt" ,true);
+//        ImmutableGraph graph = inMemory ?
+//                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
+//                ImmutableGraph.load(inputFilePath);
         logger.info("Loading graph completed successfully");
 
         // check if it must remove isolated nodes
-        if (!isolatedVertices)
-            graph = Preprocessing.removeIsolatedNodes(graph);
-
-        logger.info("\n\n********************** Graph Info **********************\n" +
-                        "# nodes:\t{}\n" +
-                        "********************************************************\n\n",
-                graph.numNodes());
+//        if (!isolatedVertices)
+//            graph = Preprocessing.removeIsolatedNodes(graph);
+//
+//        logger.info("\n\n********************** Graph Info **********************\n" +
+//                        "# nodes:\t{}\n" +
+//                        "********************************************************\n\n",
+//                graph.numNodes());
 
         return graph;
     }
 
 
-    public static ImmutableGraph loadGraph(String inputFilePath, boolean transpose, boolean inMemory, boolean isolatedVertices, String direction) throws IOException {
+    public static CompressedGraph loadGraph(String inputFilePath, String offset ,boolean transpose, boolean inMemory, boolean isolatedVertices, String direction) throws IOException {
         logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
-        ImmutableGraph graph = inMemory ?
-                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
-                ImmutableGraph.load(inputFilePath);
+        String[] SplitInputFilePath = inputFilePath.split(".");
+        CompressedGraph graph = new CompressedGraph(inputFilePath,SplitInputFilePath[0]+"_offset.txt",true);
+//        ImmutableGraph graph = inMemory ?
+//                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
+//                ImmutableGraph.load(inputFilePath);
         logger.info("Loading graph completed successfully");
 
         // check if it must remove isolated nodes
-        if (!isolatedVertices) {
-            graph = Preprocessing.removeIsolatedNodes(graph);
-        }
+//        if (!isolatedVertices) {
+//            graph = Preprocessing.removeIsolatedNodes(graph);
+//        }
 
         // transpose graph based on direction selected
         // and graph type loaded (original or transposed)
-        if (transpose) {
-            if (direction.equals(Constants.IN_DIRECTION)) {
-                logger.info("Transposing graph cause direction is {}", direction);
-                graph = Transform.transpose(graph);
-                logger.debug("Transposing graph ended");
-            }
-        } else {
-            if (direction.equals(Constants.OUT_DIRECTION)) {
-                logger.info("Transposing graph cause direction is {}", direction);
-                graph = Transform.transpose(graph);
-                logger.debug("Transposing graph ended");
-            }
-        }
+//        if (transpose) {
+//            if (direction.equals(Constants.IN_DIRECTION)) {
+//                logger.info("Transposing graph cause direction is {}", direction);
+//                graph = Transform.transpose(graph);
+//                logger.debug("Transposing graph ended");
+//            }
+//        } else {
+//            if (direction.equals(Constants.OUT_DIRECTION)) {
+//                logger.info("Transposing graph cause direction is {}", direction);
+//                graph = Transform.transpose(graph);
+//                logger.debug("Transposing graph ended");
+//            }
+//        }
 
 /*todo
         logger.info("\n\n********************** Graph Info **********************\n" +
@@ -75,46 +81,5 @@ public class GraphUtils {
         return graph;
     }
 
-    public static ImmutableGraph loadGraph(String inputFilePath, boolean transpose, boolean inMemory, boolean isolatedVertices, String direction, boolean reordering) throws IOException {
-        logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
-        ImmutableGraph graph = inMemory ?
-                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
-                ImmutableGraph.load(inputFilePath);
-        logger.info("Loading graph completed successfully");
 
-        // check if it must remove isolated nodes
-        if (!isolatedVertices) {
-            graph = Preprocessing.removeIsolatedNodes(graph);
-        }
-
-        // transpose graph based on direction selected
-        // and graph type loaded (original or transposed)
-        if (transpose) {
-            if (direction.equals(Constants.IN_DIRECTION)) {
-                logger.info("Transposing graph cause direction is {}", direction);
-                graph = Transform.transpose(graph);
-                logger.debug("Transposing graph ended");
-            }
-        } else {
-            if (direction.equals(Constants.OUT_DIRECTION)) {
-                logger.info("Transposing graph cause direction is {}", direction);
-                graph = Transform.transpose(graph);
-                logger.debug("Transposing graph ended");
-            }
-        }
-
-        if (reordering) {
-            Preprocessing p = new Preprocessing();
-            graph = p.reorderGraphByOutDegree(graph);
-        }
-
-
-        logger.info("\n\n********************** Graph Info **********************\n" +
-                        "# nodes:\t{}\n" +
-                        "********************************************************\n\n",
-                graph.numNodes());
-
-
-        return graph;
-    }
 }

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.bigdatalab.model.GraphGtMeasure;
 import it.bigdatalab.model.Parameter;
+import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.GsonHelper;
@@ -24,20 +25,20 @@ import java.nio.file.Paths;
 
 
 public class GroundTruth {
-
+    /*
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.GroundTruths");
 
     private final String mMode;
     private final Parameter mParam;
-    private final ImmutableGraph mGraph;
+    private final CompressedGraph mGraph;
 
-    public GroundTruth(ImmutableGraph g, Parameter param) {
+    public GroundTruth(CompressedGraph g, Parameter param) {
         this.mGraph = g;
         this.mParam = param;
         this.mMode = Constants.DEFAULT_MODE;
     }
 
-    public GroundTruth(ImmutableGraph g, Parameter param, String mode) {
+    public GroundTruth(CompressedGraph g, Parameter param, String mode) {
         this.mGraph = g;
         this.mParam = param;
         this.mMode = mode;
@@ -58,7 +59,7 @@ public class GroundTruth {
                 .setInMemory(inMemory)
                 .setIsolatedVertices(isolatedVertices).build();
 
-        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
+        CompressedGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
 
         GroundTruth groundTruth = new GroundTruth(g, param, mode);
         GraphGtMeasure graphMeasure = groundTruth.computeGroundTruth();
@@ -83,13 +84,14 @@ public class GroundTruth {
         else
             throw new IllegalArgumentException("You must choose between WebGraph or BFS mode, no other alternatives");
     }
-
+    */
     /**
      * Execution of the Ground Truth algorithm performing
      * N times a Breadth-first Visit
      *
      * @return Graph Measures
      */
+    /*
     private GraphGtMeasure runBFSMode() {
         long startTime = System.currentTimeMillis();
         ProgressLogger pl = new ProgressLogger();
@@ -148,13 +150,14 @@ public class GroundTruth {
         logger.info("Time elapsed {}", endTime - startTime);
         return gtMeasure;
     }
-
+    */
     /**
      * Execution of the Ground Truth algorithm using the
      * NeighbourhoodFunction by WebGraph
      *
      * @return Graph Measures
      */
+    /*
     private GraphGtMeasure runWebGraphMode() {
         long startTime = System.currentTimeMillis();
 
@@ -223,4 +226,5 @@ public class GroundTruth {
     public String getMode() {
         return mMode;
     }
+    */
 }

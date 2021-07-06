@@ -2,6 +2,7 @@ package it.bigdatalab.applications;
 
 import com.opencsv.CSVWriter;
 import it.bigdatalab.model.Parameter;
+import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.PropertiesManager;
@@ -18,13 +19,13 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 public class InOutDegree {
-
+    /*
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.application.InOutDegree");
 
     private final Parameter mParam;
-    private final ImmutableGraph mGraph;
+    private final CompressedGraph mGraph;
 
-    public InOutDegree(ImmutableGraph g, Parameter param) {
+    public InOutDegree(CompressedGraph g, Parameter param) {
         this.mGraph = g;
         this.mParam = param;
     }
@@ -53,8 +54,9 @@ public class InOutDegree {
                 param.keepIsolatedVertices(),
                 param.getOutputFolderPath());
 
-        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
-        logger.info("Graph is symmetric: {}", Check.symmetry(g));
+        CompressedGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
+
+        //logger.info("Graph is symmetric: {}", Check.symmetry(g));
 
         InOutDegree inOutDegree = new InOutDegree(g, param);
 
@@ -104,4 +106,6 @@ public class InOutDegree {
         }
         return inOut;
     }
+
+     */
 }

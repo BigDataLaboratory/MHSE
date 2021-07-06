@@ -3,6 +3,7 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
+import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -41,7 +42,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
     /**
      * Creates a new MultithreadBMinHashOptimized instance with default values
      */
-    public MultithreadBMinHashOptimized(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) {
+    public MultithreadBMinHashOptimized(final CompressedGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         mSeedTime = new double[mNumSeeds];
@@ -51,7 +52,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
     /**
      * Creates a new MultithreadBMinHashOptimized instance with default values
      */
-    public MultithreadBMinHashOptimized(final ImmutableGraph g, int numSeeds, double threshold, int threads, boolean centrality) {
+    public MultithreadBMinHashOptimized(final CompressedGraph g, int numSeeds, double threshold, int threads, boolean centrality) {
         super(g, numSeeds, threshold);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         mSeedTime = new double[mNumSeeds];
@@ -93,7 +94,8 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
         List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
-            todo.add(new IterationThread(mGraph.copy(), i));
+            // SCOMMENTA E IMPLEMENTA IL COPY
+            //todo.add(new IterationThread(mGraph.copy(), i));
         }
 
         if (doCentrality) {

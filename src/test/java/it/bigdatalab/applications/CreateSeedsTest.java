@@ -2,6 +2,7 @@ package it.bigdatalab.applications;
 
 import it.bigdatalab.model.Parameter;
 import it.bigdatalab.model.SeedNode;
+import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.utils.GraphUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -29,7 +30,7 @@ class CreateSeedsTest {
                 .setInMemory(true)
                 .build();
 
-        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
+        CompressedGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
 
         CreateSeeds c = new CreateSeeds(g, param);
         List<SeedNode> seedNodes = c.generate();

@@ -3,6 +3,7 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
+import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -26,7 +27,7 @@ public class MHSEX extends MinHash {
     /**
      * Creates a new MHSE X instance with default values
      */
-    public MHSEX(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, boolean centrality) throws SeedsException {
+    public MHSEX(final CompressedGraph g, int numSeeds, double threshold, int[] nodes, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
         doCentrality = centrality;
     }
@@ -34,7 +35,7 @@ public class MHSEX extends MinHash {
     /**
      * Creates a new MHSE X instance with default values
      */
-    public MHSEX(final ImmutableGraph g, int numSeeds, double threshold, boolean centrality) throws SeedsException {
+    public MHSEX(final CompressedGraph g, int numSeeds, double threshold, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
         doCentrality = centrality;
@@ -83,8 +84,9 @@ public class MHSEX extends MinHash {
 
                 // update node signature
                 for (int n = 0; n < mGraph.numNodes(); n++) {
-                    final int d = mGraph.outdegree(n);
-                    final int[] successors = mGraph.successorArray(n);
+                    final int node = n;
+                    final int [] successors = mGraph.get_neighbours(node,true);
+                    int d = successors.length;
 
                     nPosition = n >>> Constants.MASK;
                     nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;

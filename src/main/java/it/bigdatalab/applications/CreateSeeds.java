@@ -4,6 +4,7 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import it.bigdatalab.model.Parameter;
 import it.bigdatalab.model.SeedNode;
+import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.GsonHelper;
@@ -32,9 +33,9 @@ public class CreateSeeds {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.application.CreateSeeds");
 
     private final Parameter mParam;
-    private final ImmutableGraph mGraph;
+    private final CompressedGraph mGraph;
 
-    public CreateSeeds(ImmutableGraph g, Parameter param) {
+    public CreateSeeds(CompressedGraph g, Parameter param) {
         this.mGraph = g;
         this.mParam = param;
     }
@@ -111,7 +112,7 @@ public class CreateSeeds {
                 param.getOutputFolderPath(),
                 param.getNumSeeds());
 
-        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
+        CompressedGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
         CreateSeeds createSeeds = new CreateSeeds(g, param);
 
         List<SeedNode> seedNode = createSeeds.generate();
@@ -136,7 +137,7 @@ public class CreateSeeds {
      * @param seeds seeds' list
      * @return associated nodes for a list of seeds
      */
-    private int[] seedToNode(ImmutableGraph g, IntArrayList seeds, int numSeeds) {
+    private int[] seedToNode(CompressedGraph g, IntArrayList seeds, int numSeeds) {
         return minHashNodes(g, seeds, numSeeds);
     }
 
@@ -146,14 +147,20 @@ public class CreateSeeds {
      *
      * @param g an input graph
      */
-    private int[] minHashNodes(ImmutableGraph g, IntArrayList seeds, int numSeeds) {
+    private int[] minHashNodes(CompressedGraph g, IntArrayList seeds, int numSeeds) {
         int[] minHashNodeIDs = new int[numSeeds];
 
         for (int s = 0; s < seeds.size(); s++) {
-            NodeIterator nodeIter = g.nodeIterator();
+            int [] nodeIter = g.get_nodes();
+            //NodeIterator nodeIter = g.nodeIterator();
+            int j = 0;
             long maxHashValue = Long.MAX_VALUE;
-            while (nodeIter.hasNext()) {
-                int node = nodeIter.nextInt();
+            //while (nodeIter.hasNext()) {
+            while (j<nodeIter.length) {
+
+                int node = nodeIter[j];
+                j+=1;
+                //int node = nodeIter.nextInt();
                 long hashValue = hashFunction(node, seeds.getInt(s));
                 if (hashValue < maxHashValue) {
                     maxHashValue = hashValue;

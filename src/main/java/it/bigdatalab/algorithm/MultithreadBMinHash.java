@@ -3,6 +3,7 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
+import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
@@ -41,7 +42,7 @@ public class MultithreadBMinHash extends BMinHash {
     /**
      * Creates a new MultithreadBMinHash instance with default values
      */
-    public MultithreadBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads) {
+    public MultithreadBMinHash(final CompressedGraph g, int numSeeds, double threshold, int[] nodes, int threads) {
         super(g, numSeeds, threshold, nodes);
         mSeedTime = new double[mNumSeeds];
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
@@ -50,7 +51,7 @@ public class MultithreadBMinHash extends BMinHash {
     /**
      * Creates a new MultithreadBMinHash instance with default values
      */
-    public MultithreadBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int threads) {
+    public MultithreadBMinHash(final CompressedGraph g, int numSeeds, double threshold, int threads) {
         super(g, numSeeds, threshold);
         mSeedTime = new double[mNumSeeds];
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
@@ -88,7 +89,8 @@ public class MultithreadBMinHash extends BMinHash {
         List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
-            todo.add(new IterationThread(mGraph.copy(), i));
+            // SCOMMENTA E IMPLEMENTA IL COPY NELLA TUA STRUTTURA
+            //todo.add(new IterationThread(mGraph.copy(), i));
         }
 
         try {

@@ -3,6 +3,7 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
+import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
@@ -38,7 +39,7 @@ public class SEMHSE extends MinHash {
     /**
      * Creates a SE-MHSE instance with default values
      */
-    public SEMHSE(ImmutableGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
+    public SEMHSE(CompressedGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
         super(g, numSeeds, threshold, seeds);
         graphSignature = new long[mNumSeeds];
         //initialize graph signature with Long.MAX_VALUE
@@ -48,7 +49,7 @@ public class SEMHSE extends MinHash {
     /**
      * Creates a SE-MHSE instance with default values
      */
-    public SEMHSE(ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
+    public SEMHSE(CompressedGraph g, int numSeeds, double threshold) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mSeeds = CreateSeeds.genSeeds(mNumSeeds);
         graphSignature = new long[mNumSeeds];
@@ -77,7 +78,9 @@ public class SEMHSE extends MinHash {
             int collisions = 0;
             boolean signatureIsChanged = true;
             hashes = new Int2LongOpenHashMap(mGraph.numNodes());
-
+            int [] nodes = mGraph.get_nodes();
+            int i ;
+            i= 0;
             while (signatureIsChanged) {
                 int[] hopCollisions;
                 if (collisionsTable.containsKey(h)) {
@@ -87,24 +90,28 @@ public class SEMHSE extends MinHash {
                 }
 
                 //first h - initialization
+
                 if (h == 0) {
                     initializeGraph(s);
                     //collisions computation
-                    nodeIter = mGraph.nodeIterator();
-                    while (nodeIter.hasNext()) {
-                        int node = nodeIter.nextInt();
+
+                    i = 0;
+                    while (i<mGraph.numNodes()) {
+                        int node = nodes[i];
                         if (hashes.get(node) == graphSignature[s]) {
                             collisions++;
                         }
+                        i+=1;
                     }
                 } else {   //next hops
                     signatureIsChanged = false;
                     // copy all the actual hashes in a new structure
                     oldHashes = new Int2LongOpenHashMap(mGraph.numNodes());
-                    nodeIter = mGraph.nodeIterator();
-                    while (nodeIter.hasNext()) {
-                        int node = nodeIter.nextInt();
+                    i = 0;
+                    while (i<mGraph.numNodes()) {
+                        int node = nodes[i];
                         oldHashes.put(node, hashes.get(node));
+                        i+=1;
                     }
 
                     //collisions for this hash function, until this h
@@ -112,9 +119,10 @@ public class SEMHSE extends MinHash {
                     collisions = 0;
 
                     //update of the hash values
-                    nodeIter = mGraph.nodeIterator();
-                    while (nodeIter.hasNext()) {
-                        int node = nodeIter.nextInt();
+                    i = 0;
+                    while (i<mGraph.numNodes()) {
+                        int node = nodes[i];
+                        i+=1;
                         if (updateNodeHashValue(node)) {
                             signatureIsChanged = true;
                         }
@@ -185,16 +193,19 @@ public class SEMHSE extends MinHash {
      * @param seedIndex
      */
     private void initializeGraph(int seedIndex){
+        int [] nodes = mGraph.get_nodes();
+        int j;
+        j= 0;
         int seed = mSeeds.getInt(seedIndex);
-        NodeIterator nodeIter = mGraph.nodeIterator();
-        while(nodeIter.hasNext()) {
-            int node = nodeIter.nextInt();
+        while(j<mGraph.numNodes()) {
+            int node = nodes[j];
             long hashValue = CreateSeeds.hashFunction(node, seed);
             hashes.put(node,hashValue);
             if(hashValue < graphSignature[seedIndex]){
                 graphSignature[seedIndex] = hashValue;
                 mMinHashNodeIDs[seedIndex] = node;
             }
+            j+=1;
         }
     }
 
@@ -207,13 +218,16 @@ public class SEMHSE extends MinHash {
         boolean hashValueIsChanged = false;
         long newHashValue = hashes.get(node);         //new signature to be updated
 
-        LazyIntIterator neighIter = mGraph.successors(node);
-        int d = mGraph.outdegree(node);
+        int [] neigh = mGraph.get_neighbours(node,true);
+        int k;
+        int d = neigh.length;
         long neighbourHashValue;
         int neighbour;
+        k = 0;
 
         while(d-- != 0) {
-            neighbour = neighIter.nextInt();
+            neighbour =neigh[k];
+            k+=1;
             neighbourHashValue = oldHashes.get(neighbour);
             if(neighbourHashValue < newHashValue){
                 newHashValue = neighbourHashValue;

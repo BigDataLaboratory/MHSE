@@ -1,5 +1,6 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.structure.CompressedGraph;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,11 +9,11 @@ public abstract class BMinHashOpt extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.BMinHashOpt");
 
-    public BMinHashOpt(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) {
+    public BMinHashOpt(final CompressedGraph g, int numSeeds, double threshold, int[] nodes) {
         super(g, numSeeds, threshold, nodes);
     }
 
-    public BMinHashOpt(final ImmutableGraph g, int numSeeds, double threshold) {
+    public BMinHashOpt(final CompressedGraph g, int numSeeds, double threshold) {
         super(g, numSeeds, threshold);
     }
 

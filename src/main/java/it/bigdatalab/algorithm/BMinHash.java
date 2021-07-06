@@ -1,5 +1,6 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.structure.CompressedGraph;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -12,11 +13,11 @@ public abstract class BMinHash extends MinHash {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.BMinHash");
 
-    public BMinHash(final ImmutableGraph g, int numSeeds, double threshold) {
+    public BMinHash(final CompressedGraph g, int numSeeds, double threshold) {
         super(g, numSeeds, threshold);
     }
 
-    public BMinHash(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) {
+    public BMinHash(final CompressedGraph g, int numSeeds, double threshold, int[] nodes) {
         super(g, numSeeds, threshold, nodes);
     }
 

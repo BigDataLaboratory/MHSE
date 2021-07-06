@@ -84,6 +84,7 @@ public class CMHSE extends CMinHash {
                 while (i<cGraph.numNodes()) {
                     int node = nodes[i];
                     overallJaccard += jaccard(signatures.get(node), graphSignature);
+                    i+=1;
                 }
                 signatureIsChanged = true;
             } else {
@@ -97,6 +98,7 @@ public class CMHSE extends CMinHash {
 
                     System.arraycopy(signature, 0, oldSignature, 0, signature.length);
                     oldSignatures.put(node, oldSignature);
+                    i+=1;
                 }
                 // updating the signatures
                 i = 0;
@@ -174,6 +176,7 @@ public class CMHSE extends CMinHash {
                 }
             }
             signatures.put(node, signature);
+            j+=1;
         }
     }
 
