@@ -23,6 +23,7 @@ public class CompressInstance {
     public String outputFilePath;
     public boolean VarIntGB;
     public boolean d_gaps;
+    public boolean transposed;
     private int[][] adjList;
 
     public CompressInstance() {
@@ -35,6 +36,7 @@ public class CompressInstance {
         //outputFilePath = "/home/antoniocruciani/Desktop/TESTVGB/";
         VarIntGB = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("compressInstance.VarintGB"));
         d_gaps = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("compressInstance.differential"));
+        transposed = Boolean.parseBoolean((PropertiesManager.getPropertyIfNotEmpty("compressInstance.transposed")));
     }
 
     public void load_adjList() throws FileNotFoundException {
@@ -243,6 +245,17 @@ public class CompressInstance {
         String name = split[split.length - 1];
         VarintGB.encodeAdjList(diff.encodeAdjList(provaMat), d_gaps);
         VarintGB.saveEncoding(outputFilePath,name,VarintGB.getCompressedAdjList(),VarintGB.getCompressedOffset());
+        if(transposed){
+            UGraph.transpose_graph();
+            GroupVarInt VarintGBTransposed = new GroupVarInt();
+            DifferentialCompression diffTransposed = new DifferentialCompression();
+            VarintGBTransposed.encodeAdjList(diffTransposed.encodeAdjList(UGraph.getTGraph()), d_gaps);
+            String[] splitTrans = name.split("[.]");
+            String nameTrans = splitTrans[0]+"_transposed."+splitTrans[1];
+            VarintGBTransposed.saveEncoding(outputFilePath,nameTrans,VarintGBTransposed.getCompressedAdjList(),VarintGBTransposed.getCompressedOffset());
+
+        }
+        logger.info("Compressed instances and offsets saved in "+outputFilePath);
 
     }
     public void prova_lista() throws IOException {
@@ -299,13 +312,13 @@ public class CompressInstance {
 //        String name = split[split.length-1];
 //        VarintGB.saveEncoding(outPath,name,VarintGB.getCompressedAdjList(),VarintGB.getCompressedOffset());
 //
-          //Graph = new CompressedGraph(outPath + name+".txt",true);
+//Graph = new CompressedGraph(outPath + name+".txt",true);
 //        Graph.load_offset(outPath+name+"_offset.txt");
 //        Graph.load_compressed_graph(outPath+name+".txt");
 //        byte [] grafo = Graph.getCompressed_graph();
 //        //System.out.println("GRAFO COMPRESSO LEN "+grafo.length);
 //        int[] decomp = VarintGB.decode(grafo);
-        //System.out.println("LUNGHEZZA DECOMRPESSO "+decomp.length);
+//System.out.println("LUNGHEZZA DECOMRPESSO "+decomp.length);
         /*
         for (int j = 0; j<decomp.length;j++){
             System.out.println(decomp[j]);
@@ -325,8 +338,8 @@ public class CompressInstance {
         Graph.decode_graph();
         */
 
-        //Graph.decode_graph();
-        //UGraph.setGraph(Graph.getDecoded_graph());
+//Graph.decode_graph();
+//UGraph.setGraph(Graph.getDecoded_graph());
 
 //        int [] nei = Graph.get_neighbours(15,true);
 //        System.out.println("Vicini nodo 15");
