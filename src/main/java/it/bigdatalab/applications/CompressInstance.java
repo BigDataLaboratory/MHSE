@@ -255,6 +255,7 @@ public class CompressInstance {
             VarintGBTransposed.saveEncoding(outputFilePath,nameTrans,VarintGBTransposed.getCompressedAdjList(),VarintGBTransposed.getCompressedOffset());
 
         }
+        logger.info("Compressed instances and offsets saved in "+outputFilePath);
 
     }
     public void prova_lista() throws IOException {
