@@ -23,6 +23,7 @@ public class CompressInstance {
     public String outputFilePath;
     public boolean VarIntGB;
     public boolean d_gaps;
+    public boolean transposed;
     private int[][] adjList;
 
     public CompressInstance() {
@@ -35,6 +36,7 @@ public class CompressInstance {
         //outputFilePath = "/home/antoniocruciani/Desktop/TESTVGB/";
         VarIntGB = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("compressInstance.VarintGB"));
         d_gaps = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("compressInstance.differential"));
+        transposed = Boolean.parseBoolean((PropertiesManager.getPropertyIfNotEmpty("compressInstance.transposed")));
     }
 
     public void load_adjList() throws FileNotFoundException {
@@ -243,6 +245,16 @@ public class CompressInstance {
         String name = split[split.length - 1];
         VarintGB.encodeAdjList(diff.encodeAdjList(provaMat), d_gaps);
         VarintGB.saveEncoding(outputFilePath,name,VarintGB.getCompressedAdjList(),VarintGB.getCompressedOffset());
+        if(transposed){
+            UGraph.transpose_graph();
+            GroupVarInt VarintGBTransposed = new GroupVarInt();
+            DifferentialCompression diffTransposed = new DifferentialCompression();
+            VarintGBTransposed.encodeAdjList(diffTransposed.encodeAdjList(UGraph.getTGraph()), d_gaps);
+            String[] splitTrans = name.split("[.]");
+            String nameTrans = splitTrans[0]+"_transposed."+splitTrans[1];
+            VarintGBTransposed.saveEncoding(outputFilePath,nameTrans,VarintGBTransposed.getCompressedAdjList(),VarintGBTransposed.getCompressedOffset());
+
+        }
 
     }
     public void prova_lista() throws IOException {
