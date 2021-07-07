@@ -29,6 +29,8 @@ public class CompressedGraph {
     private GroupVarInt compressor ;
     private DifferentialCompression Dcompressor;
     private DifferentialCompression GapCompressor;
+    private int i = 0;
+    private int [] neigh;
 
     public CompressedGraph(String inPath,String offPath,boolean load_entire_graph) throws IOException {
         if(load_entire_graph){
@@ -382,5 +384,19 @@ public class CompressedGraph {
     }
     public int outdegree(int node,boolean differential){
         return(get_neighbours(node,differential).length);
+    }
+
+
+
+
+    public void neighbours_iterator(int node,boolean diff){
+        neigh = get_neighbours(node,diff);
+    }
+    public boolean hasNext() {
+        return neigh.length > i;
+    }
+
+    public Integer next() {
+        return Integer.valueOf(neigh[i++]);
     }
 }
