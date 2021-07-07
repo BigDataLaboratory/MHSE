@@ -3,7 +3,9 @@ package it.bigdatalab.structure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.plaf.synth.SynthEditorPaneUI;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class UncompressedGraph {
@@ -12,7 +14,7 @@ public class UncompressedGraph {
 
     //private int n = Integer.MAX_VALUE;
     private int[][] graph;
-
+    private int [][] TGraph;
     public UncompressedGraph() {
 
     }
@@ -53,6 +55,42 @@ public class UncompressedGraph {
         logger.info("Adiacency List loaded");
 
     }
+    public void  transpose_graph(){
+
+        ArrayList<ArrayList<Integer>> transposed_tmp = new ArrayList<ArrayList<Integer>>() ;
+        int n,i,j,k;
+        int [] edges;
+        n = graph.length;
+        logger.info("Transposing Graph");
+        for (i = 0 ; i<n;i++){
+            transposed_tmp.add(new ArrayList<Integer>());
+        }
+        for (i = 0; i<n;i ++){
+            for(j = 0;j<graph[i].length;j++){
+                transposed_tmp.get(j).add(graph[i][0]);
+            }
+        }
+        k = 0;
+        for (i = 0;i<n;i++){
+            if(transposed_tmp.get(i).size()>0){
+                k+=1;
+            }
+        }
+        TGraph = new int[k][];
+        for(i = 0;i<k;i++){
+            edges = new int[transposed_tmp.get(i).size()];
+            for (j = 0;j <transposed_tmp.get(i).size();j++){
+                edges[j] = transposed_tmp.get(i).get(j);
+            }
+            TGraph[i] = edges;
+        }
+
+        logger.info("Graph Transposed");
+    }
+
+    public int[][] getTGraph(){
+        return TGraph;
+    }
 
     public int[][] getGraph() {
         return graph;
@@ -67,6 +105,9 @@ public class UncompressedGraph {
         return(neigh);
     }
 
+    public void setTGraph(int [][] TGraph){
+        this.TGraph = TGraph;
+    }
     public void setGraph(int[][] graph) {
         this.graph = graph;
     }
