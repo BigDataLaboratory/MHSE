@@ -77,6 +77,7 @@ public class MHSE extends MinHash {
         int [] nodes = mGraph.get_nodes();
         int i ;
 
+
         while (signatureIsChanged) {
             hopStartTime = System.currentTimeMillis();
 
