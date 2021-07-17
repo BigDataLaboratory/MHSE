@@ -41,6 +41,8 @@ public class CompressedGraph {
 
     }
 
+
+
     public byte[] getCompressed_graph() {
         return compressed_graph;
     }
