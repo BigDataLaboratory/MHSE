@@ -1,6 +1,7 @@
 package it.bigdatalab.algorithm;
 
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
@@ -18,7 +19,7 @@ public class MinHashFactory {
      * @throws MinHash.SeedsException
      * @throws IllegalArgumentException
      */
-    public MinHash getAlgorithm(CompressedGraph g,
+    public MinHash getAlgorithm(GraphManager g,
                                 AlgorithmEnum type,
                                 int numSeeds,
                                 double threshold,

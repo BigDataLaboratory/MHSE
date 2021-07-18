@@ -86,6 +86,10 @@ public class GraphManager {
         return nodes;
     }
 
+    public int numNodes(){
+        return nodes.length;
+    }
+
 
 
 

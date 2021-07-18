@@ -2,6 +2,7 @@ package it.bigdatalab.algorithm;
 
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
@@ -17,13 +18,13 @@ public abstract class MinHash {
     protected double mThreshold;
 
     protected IntArrayList mSeeds;
-    protected CompressedGraph mGraph;
+    protected GraphManager mGraph;
     protected int[] mMinHashNodeIDs;
 
     public MinHash() {
     }
 
-    public MinHash(final CompressedGraph g, int numSeeds, double threshold, int[] nodes) {
+    public MinHash(final GraphManager g, int numSeeds, double threshold, int[] nodes) {
         if (numSeeds != (nodes != null ? nodes.length : 0))
             throw new SeedsException("Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and length of seeds list is " + nodes.length);
         this.mNumSeeds = numSeeds;
@@ -32,7 +33,7 @@ public abstract class MinHash {
         this.mMinHashNodeIDs = nodes;
     }
 
-    public MinHash(final CompressedGraph g, int numSeeds, double threshold, IntArrayList seeds) {
+    public MinHash(final GraphManager g, int numSeeds, double threshold, IntArrayList seeds) {
         if (numSeeds != (seeds != null ? seeds.size() : 0))
             throw new SeedsException("Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and length of seeds list is " + seeds.size());
         this.mNumSeeds = numSeeds;
@@ -42,7 +43,7 @@ public abstract class MinHash {
         this.mMinHashNodeIDs = new int[mNumSeeds];
     }
 
-    public MinHash(final CompressedGraph g, int numSeeds, double threshold) {
+    public MinHash(final GraphManager g, int numSeeds, double threshold) {
         this.mNumSeeds = numSeeds;
         this.mThreshold = threshold;
         this.mGraph = g;

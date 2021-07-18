@@ -5,6 +5,7 @@ import com.google.common.hash.Hashing;
 import it.bigdatalab.model.Parameter;
 import it.bigdatalab.model.SeedNode;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.GsonHelper;
@@ -33,9 +34,9 @@ public class CreateSeeds {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.application.CreateSeeds");
 
     private final Parameter mParam;
-    private final CompressedGraph mGraph;
+    private final GraphManager mGraph;
 
-    public CreateSeeds(CompressedGraph g, Parameter param) {
+    public CreateSeeds(GraphManager g, Parameter param) {
         this.mGraph = g;
         this.mParam = param;
     }
@@ -88,6 +89,8 @@ public class CreateSeeds {
         boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getProperty("seed.isolatedVertices"));
         int numTest = Integer.parseInt(PropertiesManager.getProperty("seed.numTest", Constants.NUM_TEST_DEFAULT));
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("seed.inMemory", Constants.FALSE));
+        boolean webGraph = Boolean.parseBoolean(PropertiesManager.getProperty("graph.webGraph",Constants.FALSE));
+        boolean compGraph = Boolean.parseBoolean(PropertiesManager.getProperty("graph.compressedGraph",Constants.TRUE));
 
         Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(inputFilePath)
@@ -95,7 +98,10 @@ public class CreateSeeds {
                 .setNumTests(numTest)
                 .setNumSeeds(numSeeds)
                 .setInMemory(inMemory)
-                .setIsolatedVertices(isolatedVertices).build();
+                .setIsolatedVertices(isolatedVertices)
+                .setWebG(webGraph)
+                .setCompG(compGraph)
+                .build();
 
         logger.info("\n\n********************** Parameters **********************\n\n" +
                         "# list of seeds/nodes to generate: {}\n" +
@@ -111,8 +117,9 @@ public class CreateSeeds {
                 param.keepIsolatedVertices(),
                 param.getOutputFolderPath(),
                 param.getNumSeeds());
-
-        CompressedGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
+        //    public static GraphManager loadGraph(String inputFilePath, boolean inMemory, boolean isolatedVertices,boolean webGraph, boolean compGraph,boolean transpose, String direction) throws IOException {
+        GraphManager g = GraphUtils.loadGraph(param.getInputFilePathGraph(),param.isInMemory(),param.keepIsolatedVertices(),param.getWebGraph(),param.getCompGraph(), param.isTranspose(), param.getDirection());
+        //CompressedGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
         CreateSeeds createSeeds = new CreateSeeds(g, param);
 
         List<SeedNode> seedNode = createSeeds.generate();
@@ -137,7 +144,7 @@ public class CreateSeeds {
      * @param seeds seeds' list
      * @return associated nodes for a list of seeds
      */
-    private int[] seedToNode(CompressedGraph g, IntArrayList seeds, int numSeeds) {
+    private int[] seedToNode(GraphManager g, IntArrayList seeds, int numSeeds) {
         return minHashNodes(g, seeds, numSeeds);
     }
 
@@ -147,7 +154,7 @@ public class CreateSeeds {
      *
      * @param g an input graph
      */
-    private int[] minHashNodes(CompressedGraph g, IntArrayList seeds, int numSeeds) {
+    private int[] minHashNodes(GraphManager g, IntArrayList seeds, int numSeeds) {
         int[] minHashNodeIDs = new int[numSeeds];
 
         for (int s = 0; s < seeds.size(); s++) {

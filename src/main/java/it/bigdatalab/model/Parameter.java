@@ -1,5 +1,7 @@
 package it.bigdatalab.model;
 
+import org.apache.maven.model.Build;
+
 public class Parameter {
     private final String mInputFilePathGraph;
     private final String mOutputFolderPath;
@@ -26,6 +28,9 @@ public class Parameter {
 
     private final boolean mPersistCollisionTable;
 
+    private final boolean webGraph;
+    private final boolean compGraph;
+
     @org.jetbrains.annotations.Contract(pure = true)
     public Parameter(Builder builder) {
         this.mInputFilePathGraph = builder.inputFilePathGraph;
@@ -51,8 +56,12 @@ public class Parameter {
 
         this.mNumThreads = builder.numThreads;
         this.mPersistCollisionTable = builder.persistCollisionTable;
-    }
 
+        this.webGraph = builder.webG;
+        this.compGraph = builder.compG;
+    }
+    public boolean getWebGraph(){ return  webGraph;}
+    public boolean getCompGraph(){ return compGraph;}
     public String getInputFilePathGraph() {
         return mInputFilePathGraph;
     }
@@ -150,6 +159,9 @@ public class Parameter {
 
         private boolean persistCollisionTable;
 
+        private boolean webG;
+        private boolean compG;
+
         public Builder() {
         }
 
@@ -240,6 +252,16 @@ public class Parameter {
 
         public Builder setPersistCollisionTable(boolean persistCollisionTable) {
             this.persistCollisionTable = persistCollisionTable;
+            return this;
+        }
+
+        public Builder setWebG(boolean webGraph){
+            this.webG = webGraph;
+            return this;
+        }
+
+        public Builder setCompG(boolean compG){
+            this.compG = compG;
             return this;
         }
 

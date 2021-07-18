@@ -1,6 +1,7 @@
 package it.bigdatalab.utils;
 
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.Transform;
 import org.slf4j.Logger;
@@ -17,11 +18,12 @@ public class GraphUtils {
      *
      * @return an ImmutableGraph instance
      */
-    public static CompressedGraph loadGraph(String inputFilePath, boolean inMemory, boolean isolatedVertices) throws IOException {
+    public static GraphManager loadGraph(String inputFilePath, boolean inMemory, boolean isolatedVertices,boolean webGraph, boolean compGraph,boolean transpose, String direction) throws IOException {
         logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
-        String[] SplitInputFilePath = inputFilePath.split(".");
+        GraphManager graph = new GraphManager(webGraph,compGraph,inputFilePath,transpose,direction);
+        //String[] SplitInputFilePath = inputFilePath.split(".");
 
-        CompressedGraph graph = new CompressedGraph( inputFilePath,SplitInputFilePath[0]+"_offset.txt" ,true);
+        //CompressedGraph graph = new CompressedGraph( inputFilePath,SplitInputFilePath[0]+"_offset.txt" ,true);
 //        ImmutableGraph graph = inMemory ?
 //                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
 //                ImmutableGraph.load(inputFilePath);
@@ -40,10 +42,12 @@ public class GraphUtils {
     }
 
 
-    public static CompressedGraph loadGraph(String inputFilePath, String offset ,boolean transpose, boolean inMemory, boolean isolatedVertices, String direction) throws IOException {
+    public static GraphManager loadGraph(String inputFilePath,String offset, boolean inMemory, boolean isolatedVertices,boolean webGraph, boolean compGraph,boolean transpose, String direction) throws IOException {
         logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
-        String[] SplitInputFilePath = inputFilePath.split(".");
-        CompressedGraph graph = new CompressedGraph(inputFilePath,SplitInputFilePath[0]+"_offset.txt",true);
+        //String[] SplitInputFilePath = inputFilePath.split(".");
+        //CompressedGraph graph = new CompressedGraph(inputFilePath,SplitInputFilePath[0]+"_offset.txt",true);
+        GraphManager graph = new GraphManager(webGraph,compGraph,inputFilePath,transpose,direction);
+
 //        ImmutableGraph graph = inMemory ?
 //                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
 //                ImmutableGraph.load(inputFilePath);

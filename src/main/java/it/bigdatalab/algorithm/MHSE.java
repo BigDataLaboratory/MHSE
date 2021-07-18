@@ -4,6 +4,7 @@ import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
@@ -38,7 +39,7 @@ public class MHSE extends MinHash {
     /**
      * Creates a new MHSE instance with default values
      */
-    public MHSE(final CompressedGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
+    public MHSE(final GraphManager g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
         super(g, numSeeds, threshold, seeds);
 
         signatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());       //initialize signatures map with the expected number of elements(nodes) in the map
@@ -196,7 +197,7 @@ public class MHSE extends MinHash {
     public boolean updateNodeSignature(int node) {
         boolean signatureIsChanged = false;
         long[] newSignature = signatures.get(node);         //new signature to be updated
-        int [] neigh = mGraph.get_neighbours(node,true);
+        int [] neigh = mGraph.get_neighbours(node);
         int k;
         int d = neigh.length;
         long[] neighbourSignature;
