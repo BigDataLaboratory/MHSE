@@ -4,6 +4,7 @@ import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
@@ -39,7 +40,7 @@ public class SEMHSE extends MinHash {
     /**
      * Creates a SE-MHSE instance with default values
      */
-    public SEMHSE(CompressedGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
+    public SEMHSE(GraphManager g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
         super(g, numSeeds, threshold, seeds);
         graphSignature = new long[mNumSeeds];
         //initialize graph signature with Long.MAX_VALUE
@@ -49,7 +50,7 @@ public class SEMHSE extends MinHash {
     /**
      * Creates a SE-MHSE instance with default values
      */
-    public SEMHSE(CompressedGraph g, int numSeeds, double threshold) throws SeedsException {
+    public SEMHSE(GraphManager g, int numSeeds, double threshold) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mSeeds = CreateSeeds.genSeeds(mNumSeeds);
         graphSignature = new long[mNumSeeds];
@@ -218,7 +219,7 @@ public class SEMHSE extends MinHash {
         boolean hashValueIsChanged = false;
         long newHashValue = hashes.get(node);         //new signature to be updated
 
-        int [] neigh = mGraph.get_neighbours(node,true);
+        int [] neigh = mGraph.get_neighbours(node);
         int k;
         int d = neigh.length;
         long neighbourHashValue;

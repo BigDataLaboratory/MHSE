@@ -13,6 +13,7 @@ import it.bigdatalab.model.Measure;
 import it.bigdatalab.model.Parameter;
 import it.bigdatalab.model.SeedNode;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.GsonHelper;
@@ -164,7 +165,8 @@ public class MinHashMain {
         boolean computeCentrality = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.computeCentrality", Constants.FALSE));
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
         boolean persistCollisionTable = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.persistCollisionTable", Constants.TRUE));
-
+        boolean webGraph = Boolean.parseBoolean(PropertiesManager.getProperty("graph.webGraph",Constants.FALSE));
+        boolean compGraph = Boolean.parseBoolean(PropertiesManager.getProperty("graph.compressedGraph",Constants.TRUE));
 
         Parameter param = new Parameter.Builder()
                 .setAlgorithmName(algorithmName)
@@ -184,6 +186,8 @@ public class MinHashMain {
                 .setReordering(reorder)
                 .setNumThreads(suggestedNumberOfThreads)
                 .setPersistCollisionTable(persistCollisionTable)
+                .setWebG(webGraph)
+                .setCompG(compGraph)
                 .build();
 
         logger.info("\n\n********************** Parameters **********************\n\n" +
@@ -200,6 +204,8 @@ public class MinHashMain {
                         "algorithm must compute centrality: {}\n" +
                         "persist collision table: {}\n" +
                         "number of threads: {}\n" +
+                        "Web graph: {}\n"+
+                        "Compressed graph: {}\n"+
                         "\n********************************************************\n\n",
                 param.getNumTests(),
                 param.getAlgorithmName(),
@@ -213,7 +219,9 @@ public class MinHashMain {
                 param.getReordering(),
                 param.computeCentrality(),
                 param.persistCollisionTable(),
-                param.getNumThreads());
+                param.getNumThreads(),
+                param.getWebGraph(),
+                param.getCompGraph());
 
         MinHashMain main = new MinHashMain(param);
         try {
@@ -283,8 +291,9 @@ public class MinHashMain {
         // Metti il grafo compresso
         String[] SplitInputPath = mParam.getInputFilePathGraph().split("[.]");
         System.out.println(SplitInputPath[0]);
+        final GraphManager g = GraphUtils.loadGraph(mParam.getInputFilePathGraph(),mParam.isInMemory(),mParam.keepIsolatedVertices(),mParam.getWebGraph(),mParam.getCompGraph(), mParam.isTranspose(), mParam.getDirection());
 
-        final CompressedGraph g = new CompressedGraph(mParam.getInputFilePathGraph(),SplitInputPath[0]+".adjlist_offset.txt" ,true);
+        //final CompressedGraph g = new CompressedGraph(mParam.getInputFilePathGraph(),SplitInputPath[0]+".adjlist_offset.txt" ,true);
 //        final ImmutableGraph g = GraphUtils.loadGraph(
 //                mParam.getInputFilePathGraph(),
 //                mParam.isTranspose(),

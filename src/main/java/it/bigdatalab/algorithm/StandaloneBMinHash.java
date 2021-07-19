@@ -4,6 +4,7 @@ import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
@@ -33,14 +34,14 @@ public class StandaloneBMinHash extends BMinHash {
     /**
      * Creates a new BooleanMinHash instance with default values
      */
-    public StandaloneBMinHash(final CompressedGraph g, int numSeeds, double threshold, int[] nodes) {
+    public StandaloneBMinHash(final GraphManager g, int numSeeds, double threshold, int[] nodes) {
         super(g, numSeeds, threshold, nodes);
     }
 
     /**
      * Creates a new BooleanMinHash instance with default values
      */
-    public StandaloneBMinHash(final CompressedGraph g, int numSeeds, double threshold) {
+    public StandaloneBMinHash(final GraphManager g, int numSeeds, double threshold) {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
     }
@@ -114,7 +115,7 @@ public class StandaloneBMinHash extends BMinHash {
                     for (int n = 0; n < mGraph.numNodes(); n++) {
 
                         final int node = n;
-                        final int [] successors = mGraph.get_neighbours(node,true);
+                        final int [] successors = mGraph.get_neighbours(node);
                         int d = successors.length;
 
                         // update the node hash iterating over all its neighbors

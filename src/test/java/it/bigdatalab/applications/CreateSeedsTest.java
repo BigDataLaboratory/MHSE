@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CreateSeedsTest {
 
-    @Test
+    /*@Test
     void testGenerate_correctNumberOfLists() throws IOException {
         String path = new File("src/test/data/g_undirected/32-complete.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
@@ -30,7 +30,7 @@ class CreateSeedsTest {
                 .setInMemory(true)
                 .build();
 
-        CompressedGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
+        CompressedGraph g = new CompressedGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
 
         CreateSeeds c = new CreateSeeds(g, param);
         List<SeedNode> seedNodes = c.generate();
@@ -49,5 +49,5 @@ class CreateSeedsTest {
         int numSeeds = 8;
         IntArrayList seeds = CreateSeeds.genSeeds(numSeeds);
         assertEquals(new HashSet<>(seeds).size(), seeds.size());
-    }
+    }*/
 }

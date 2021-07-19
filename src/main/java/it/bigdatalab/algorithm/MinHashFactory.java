@@ -82,7 +82,7 @@ public class MinHashFactory {
      * @throws MinHash.SeedsException
      * @throws IllegalArgumentException
      */
-    public MinHash getAlgorithm(CompressedGraph g,
+    public MinHash getAlgorithm(GraphManager g,
                                 AlgorithmEnum type,
                                 int numSeeds,
                                 double threshold,

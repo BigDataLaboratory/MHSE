@@ -62,8 +62,9 @@ public class GraphManager {
         if(CG){
             compressedGraph = true;
             // Must manage the transpose loading!
-            String[] SplitInputFilePath = inputFilePath.split(".");
-            cGraph = new CompressedGraph(inputFilePath,SplitInputFilePath[0]+"_offset.txt",true);
+            String[] SplitInputFilePath = inputFilePath.split("[.]");
+
+            cGraph = new CompressedGraph(inputFilePath,SplitInputFilePath[0]+"."+SplitInputFilePath[1]+"_offset.txt",true);
             nodes = cGraph.get_nodes();
         }
 
@@ -89,7 +90,12 @@ public class GraphManager {
     public int numNodes(){
         return nodes.length;
     }
-
+    public int numArcs(){
+        if(webGraph){
+            mGraph.numArcs();
+        }
+        return cGraph.numArcs();
+    }
 
 
 

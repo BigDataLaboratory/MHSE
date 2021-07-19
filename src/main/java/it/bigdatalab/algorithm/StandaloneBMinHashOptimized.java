@@ -4,6 +4,7 @@ import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -29,14 +30,14 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
     /**
      * Creates a new BooleanMinHasOptimized instance with default values
      */
-    public StandaloneBMinHashOptimized(final CompressedGraph g, int numSeeds, double threshold, int[] nodes, boolean centrality) {
+    public StandaloneBMinHashOptimized(final GraphManager g, int numSeeds, double threshold, int[] nodes, boolean centrality) {
         super(g, numSeeds, threshold, nodes);
     }
 
     /**
      * Creates a new BooleanMinHasOptimized instance with default values
      */
-    public StandaloneBMinHashOptimized(final CompressedGraph g, int numSeeds, double threshold, boolean centrality) {
+    public StandaloneBMinHashOptimized(final GraphManager g, int numSeeds, double threshold, boolean centrality) {
         this(g, numSeeds, threshold, null, centrality);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
     }
@@ -103,7 +104,7 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
                     for (int n = 0; n < mGraph.numNodes(); n++) {
 
                         final int node = n;
-                        final int [] successors = mGraph.get_neighbours(node,true);
+                        final int [] successors = mGraph.get_neighbours(node);
                         int d = successors.length;
                         // update the node hash iterating over all its neighbors
                         // and computing the OR between the node signature and

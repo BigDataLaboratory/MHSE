@@ -51,7 +51,7 @@ public class MHSE extends MinHash {
     /**
      * Creates a new MHSE instance with default values
      */
-    public MHSE(final CompressedGraph g, int numSeeds, double threshold) throws SeedsException {
+    public MHSE(final GraphManager g, int numSeeds, double threshold) throws SeedsException {
         super(g, numSeeds, threshold);
 
         this.mSeeds = CreateSeeds.genSeeds(mNumSeeds);

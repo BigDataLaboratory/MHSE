@@ -80,7 +80,6 @@ public class CompressedGraph {
         int n,i;
         int [] gap_encoding_nodes,gap_encoding_bytes,gap_decoded_nodes,gap_decoded_bytes;
         int [][] off;
-
         logger.info("Loading offset");
         File file = new File(inPath);
         compressed_offset = new byte[(int) file.length()];

@@ -4,6 +4,7 @@ import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -49,7 +50,7 @@ public class MultithreadMHSEX extends MinHash {
     /**
      * Creates a new MHSE X instance with default values
      */
-    public MultithreadMHSEX(final CompressedGraph g, int numSeeds, double threshold, int[] nodes, int threads) throws SeedsException {
+    public MultithreadMHSEX(final GraphManager g, int numSeeds, double threshold, int[] nodes, int threads) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
 
@@ -65,7 +66,7 @@ public class MultithreadMHSEX extends MinHash {
     /**
      * Creates a new MHSE X instance with default values
      */
-    public MultithreadMHSEX(final CompressedGraph g, int numSeeds, double threshold, int threads) throws SeedsException {
+    public MultithreadMHSEX(final GraphManager g, int numSeeds, double threshold, int threads) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);

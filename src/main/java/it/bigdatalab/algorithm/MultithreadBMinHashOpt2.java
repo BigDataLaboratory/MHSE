@@ -4,6 +4,7 @@ import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -34,7 +35,7 @@ public class MultithreadBMinHashOpt2 extends BMinHashOpt {
     /**
      * Creates a new MultithreadBMinHashOptimized instance with default values
      */
-    public MultithreadBMinHashOpt2(final CompressedGraph g, int numSeeds, double threshold, int[] nodes, int threads) {
+    public MultithreadBMinHashOpt2(final GraphManager g, int numSeeds, double threshold, int[] nodes, int threads) {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         mSeedTime = new double[mNumSeeds];
@@ -43,7 +44,7 @@ public class MultithreadBMinHashOpt2 extends BMinHashOpt {
     /**
      * Creates a new MultithreadBMinHashOptimized instance with default values
      */
-    public MultithreadBMinHashOpt2(final CompressedGraph g, int numSeeds, double threshold, int threads) {
+    public MultithreadBMinHashOpt2(final GraphManager g, int numSeeds, double threshold, int threads) {
         super(g, numSeeds, threshold);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         mSeedTime = new double[mNumSeeds];

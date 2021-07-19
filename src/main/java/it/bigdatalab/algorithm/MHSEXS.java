@@ -4,6 +4,7 @@ import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -29,7 +30,7 @@ public class MHSEXS extends MinHash {
     /**
      * Creates a new BMHSE instance with default values
      */
-    public MHSEXS(final CompressedGraph g, int numSeeds, double threshold, int[] nodes) throws SeedsException {
+    public MHSEXS(final GraphManager g, int numSeeds, double threshold, int[] nodes) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
 
         signatures = new int[lengthBitsArray(mNumSeeds * mGraph.numNodes())];
@@ -39,7 +40,7 @@ public class MHSEXS extends MinHash {
     /**
      * Creates a new BMHSE instance with default values
      */
-    public MHSEXS(final CompressedGraph g, int numSeeds, double threshold) throws SeedsException {
+    public MHSEXS(final GraphManager g, int numSeeds, double threshold) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
 
@@ -95,7 +96,7 @@ public class MHSEXS extends MinHash {
                         int bitNeigh;
 
                         if (((nodeMask & value) >>> remainder) == 0) {
-                            final int [] successors = mGraph.get_neighbours(n,true);
+                            final int [] successors = mGraph.get_neighbours(n);
                             int d = successors.length;
 
                             for (int l = 0; l < d; l++) {

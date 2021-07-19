@@ -4,6 +4,7 @@ import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
@@ -42,7 +43,7 @@ public class MultithreadBMinHash extends BMinHash {
     /**
      * Creates a new MultithreadBMinHash instance with default values
      */
-    public MultithreadBMinHash(final CompressedGraph g, int numSeeds, double threshold, int[] nodes, int threads) {
+    public MultithreadBMinHash(final GraphManager g, int numSeeds, double threshold, int[] nodes, int threads) {
         super(g, numSeeds, threshold, nodes);
         mSeedTime = new double[mNumSeeds];
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
@@ -51,7 +52,7 @@ public class MultithreadBMinHash extends BMinHash {
     /**
      * Creates a new MultithreadBMinHash instance with default values
      */
-    public MultithreadBMinHash(final CompressedGraph g, int numSeeds, double threshold, int threads) {
+    public MultithreadBMinHash(final GraphManager g, int numSeeds, double threshold, int threads) {
         super(g, numSeeds, threshold);
         mSeedTime = new double[mNumSeeds];
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
