@@ -24,12 +24,12 @@ public class EdgeList2AdjacencyList {
     private Long2ObjectLinkedOpenHashMap<LongArrayList> normalizedAdjList;
     private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.EdgeList2AdjacencyList");
 
-    public EdgeList2AdjacencyList(){
-        initialize();
+    public EdgeList2AdjacencyList(boolean transpose){
+        initialize(transpose);
 
     }
 
-    public void initialize(){
+    public void initialize(boolean transpose){
        /*
         edgeList2AdiacencyList.inputEdgelistFilePath = /path/to/input/edgelist
         edgeList2AdiacencyList.outputFolderPath = /path/to/output/folder/adjList
@@ -37,16 +37,16 @@ public class EdgeList2AdjacencyList {
 
         */
         this.inputFilePath = PropertiesManager.getProperty("edgeList2AdiacencyList.inputEdgelistFilePath");
-        System.out.println("AOOO " +this.inputFilePath);
         this.ofp = PropertiesManager.getProperty("edgeList2AdiacencyList.outputFolderPath");
         this.fromJanusGraph = Boolean.parseBoolean(PropertiesManager.getProperty("edgeList2AdiacencyList.fromJanusGraph"));
         this.degreeDistributionLabeling = Boolean.parseBoolean(PropertiesManager.getProperty("edgeList2AdiacencyList.degreeDistributionLabeling"));
 
         try {
             //create normalized edgelist for webgraph from edgelist file
-            createNormalizedAdjlist();
+            createNormalizedAdjlist(transpose);
             //write normalized edgelist to disk
-            writeNormalizedAdjList();
+            writeNormalizedAdjList(transpose);
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -54,7 +54,8 @@ public class EdgeList2AdjacencyList {
 
     }
 
-    public void createNormalizedAdjlist() throws IOException {
+
+    public void createNormalizedAdjlist(boolean transpose) throws IOException {
         // construct a normalized edgelist with a mapping between previous ID and normalized ID
         normalizedAdjList = new Long2ObjectLinkedOpenHashMap<LongArrayList>();
         BufferedReader br = null;
@@ -76,10 +77,15 @@ public class EdgeList2AdjacencyList {
                     logger.info("First " + currentLine + " rows read");
                 }
                 String[] sSplit = sCurrentLine.split("\\s+");
-
-                long sourceID = Long.parseLong(sSplit[0]);
-                long targetID = Long.parseLong(sSplit[1]);
-
+                long sourceID = -1;
+                long targetID = -1;
+                if(transpose){
+                     sourceID = Long.parseLong(sSplit[1]);
+                     targetID = Long.parseLong(sSplit[0]);
+                }else {
+                     sourceID = Long.parseLong(sSplit[0]);
+                     targetID = Long.parseLong(sSplit[1]);
+                }
                 long normalizedSourceID;
                 long normalizedTargetID;
 
@@ -128,10 +134,16 @@ public class EdgeList2AdjacencyList {
 
 
 
-    private void writeNormalizedAdjList() throws IOException {
+    private void writeNormalizedAdjList(boolean transposed) throws IOException {
         String inputDir = new File(inputFilePath).getParent();
         String graphName = new File(inputFilePath).getName();
-        String normalizedFileName = graphName.split(".edgelist")[0] + ".adjlist";
+        String normalizedFileName = "";
+        if(transposed) {
+             normalizedFileName = graphName.split(".edgelist")[0] + "_transposed.adjlist";
+        }else{
+             normalizedFileName = graphName.split(".edgelist")[0] + ".adjlist";
+
+        }
         String adjListOutputFilePath = inputDir + File.separator + normalizedFileName;
 
         try (Writer writer = new FileWriter(adjListOutputFilePath)) {
@@ -210,6 +222,8 @@ public class EdgeList2AdjacencyList {
 
 
     public static void main(String args[]) {
-        EdgeList2AdjacencyList t = new EdgeList2AdjacencyList();
+        EdgeList2AdjacencyList t = new EdgeList2AdjacencyList(false);
+        EdgeList2AdjacencyList t_trans = new EdgeList2AdjacencyList(true);
+
     }
 }
