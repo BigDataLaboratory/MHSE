@@ -1,6 +1,7 @@
 package it.bigdatalab.structure;
 
 import it.bigdatalab.utils.Constants;
+import it.bigdatalab.utils.Preprocessing;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.NodeIterator;
 import it.unimi.dsi.webgraph.Transform;
@@ -18,20 +19,23 @@ public class GraphManager {
     private boolean compressedGraph = false;
     private boolean differentialCompression = true;
     private boolean inMemory = true;
-
     private int [] nodes;
+    private boolean isolatedVertices;
 
-    public GraphManager(boolean WG, boolean CG,String inputFilePath, boolean transpose,String direction) throws IOException {
+    public GraphManager(boolean WG, boolean CG,String inputFilePath, boolean transpose,boolean inM,boolean isoV,String direction) throws IOException {
         int i;
 
         if(WG){
             webGraph = true;
-
+            inMemory = inM;
+            isolatedVertices = isoV;
             ImmutableGraph graph = inMemory ?
                 Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
                 ImmutableGraph.load(inputFilePath);
 
-
+            if (!isolatedVertices) {
+                    graph = Preprocessing.removeIsolatedNodes(graph);
+           }
             if (transpose) {
                 if (direction.equals(Constants.IN_DIRECTION)) {
                     logger.info("Transposing graph cause direction is {}", direction);
@@ -103,6 +107,15 @@ public class GraphManager {
         return cGraph.numArcs();
     }
 
+    public int[] successorArray(int node){
+        if(!webGraph) {
+            logger.error("Error you must define a Web Graph data structure");
+            System.exit(-1);
+        }
+        return mGraph.successorArray(node);
+
+
+    }
 
 
 

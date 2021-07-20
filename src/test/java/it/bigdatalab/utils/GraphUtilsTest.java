@@ -1,6 +1,8 @@
 package it.bigdatalab.utils;
 
+import com.google.common.graph.Graph;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -11,7 +13,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class GraphUtilsTest {
-/*
+
     @Test
     void testLoadGraph_InDirection() throws IOException {
         String inputFilePath = new File("src/test/data/g_directed/32-path.graph").getAbsolutePath();
@@ -19,11 +21,13 @@ class GraphUtilsTest {
         boolean transpose = false;
         boolean inMemory = true;
         boolean isolatedVertices = true;
+        boolean webGraph = true;
+        boolean compressedGraph = false;
         String direction = "in";
 
         int[] expected = new int[]{3};
-        CompressedGraph g = GraphUtils.loadGraph(inputFilePath, transpose, inMemory, isolatedVertices, direction);
-        //assertArrayEquals(expected, g.successorArray(2));
+        GraphManager g =new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction);
+        assertArrayEquals(expected, g.successorArray(2));
     }
 
     @Test
@@ -33,11 +37,13 @@ class GraphUtilsTest {
         boolean transpose = false;
         boolean inMemory = true;
         boolean isolatedVertices = true;
+        boolean webGraph = true;
+        boolean compressedGraph = false;
         String direction = "out";
 
         int[] expected = new int[]{2};
-        CompressedGraph g = GraphUtils.loadGraph(inputFilePath, transpose, inMemory, isolatedVertices, direction);
-        //assertArrayEquals(expected, g.successorArray(3));
+        GraphManager g =new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction);
+        assertArrayEquals(expected, g.successorArray(3));
     }
 
     @Test
@@ -47,11 +53,13 @@ class GraphUtilsTest {
         boolean transpose = true;
         boolean inMemory = true;
         boolean isolatedVertices = true;
+        boolean webGraph = true;
+        boolean compressedGraph = false;
         String direction = "in";
 
         int[] expected = new int[]{6};
-        CompressedGraph g = GraphUtils.loadGraph(inputFilePath, transpose, inMemory, isolatedVertices, direction);
-        //assertArrayEquals(expected, g.successorArray(5));
+        GraphManager g =new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction);
+        assertArrayEquals(expected, g.successorArray(5));
     }
 
     @Test
@@ -61,11 +69,13 @@ class GraphUtilsTest {
         boolean transpose = true;
         boolean inMemory = true;
         boolean isolatedVertices = true;
+        boolean webGraph = true;
+        boolean compressedGraph = false;
         String direction = "out";
 
         int[] expected = new int[]{4};
-        CompressedGraph g = GraphUtils.loadGraph(inputFilePath, transpose, inMemory, isolatedVertices, direction);
-       // assertArrayEquals(expected, g.successorArray(5));
+        GraphManager g =new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction);
+        assertArrayEquals(expected, g.successorArray(5));
     }
 
     @Test
@@ -74,10 +84,13 @@ class GraphUtilsTest {
         boolean transpose = false;
         boolean inMemory = true;
         boolean isolatedVertices = true;
+        boolean webGraph = true;
+        boolean compressedGraph = false;
         String direction = "out";
 
-        Assertions.assertThrows(IOException.class, () -> GraphUtils.loadGraph(inputFilePath, transpose, inMemory, isolatedVertices, direction));
+        Assertions.assertThrows(IOException.class, () -> new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction));
+
     }
 
- */
+
 }

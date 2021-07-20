@@ -20,7 +20,8 @@ public class GraphUtils {
      */
     public static GraphManager loadGraph(String inputFilePath, boolean inMemory, boolean isolatedVertices,boolean webGraph, boolean compGraph,boolean transpose, String direction) throws IOException {
         logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
-        GraphManager graph = new GraphManager(webGraph,compGraph,inputFilePath,transpose,direction);
+
+            GraphManager graph = new GraphManager(webGraph,compGraph,inputFilePath,transpose,inMemory,isolatedVertices,direction);
         //String[] SplitInputFilePath = inputFilePath.split(".");
 
         //CompressedGraph graph = new CompressedGraph( inputFilePath,SplitInputFilePath[0]+"_offset.txt" ,true);
@@ -46,7 +47,7 @@ public class GraphUtils {
         logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
         //String[] SplitInputFilePath = inputFilePath.split(".");
         //CompressedGraph graph = new CompressedGraph(inputFilePath,SplitInputFilePath[0]+"_offset.txt",true);
-        GraphManager graph = new GraphManager(webGraph,compGraph,inputFilePath,transpose,direction);
+        GraphManager graph = new GraphManager(webGraph,compGraph,inputFilePath,transpose,inMemory,isolatedVertices,direction);
 
 //        ImmutableGraph graph = inMemory ?
 //                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
