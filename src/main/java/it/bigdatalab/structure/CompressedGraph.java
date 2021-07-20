@@ -24,7 +24,7 @@ public class CompressedGraph {
     private boolean in_memory;
     private boolean diff = true;
     private boolean gVarint;
-    private int nNodes;
+    private int nNodes = -1;
     private int nArcs = -1;
     private boolean isUndirected = false;
     private GroupVarInt compressor ;
@@ -98,6 +98,7 @@ public class CompressedGraph {
                     if (bytesRead > 0) {
                         totalBytesRead = totalBytesRead + bytesRead;
                     }
+
                 }
             } finally {
                 input.close();
@@ -112,7 +113,6 @@ public class CompressedGraph {
         gap_encoding_nodes = new int [n];
         gap_encoding_bytes = new int [n];
         off = new int[n][2];
-
         for(i = 0; i<n;i++){
             gap_encoding_bytes[i] = decomrpessed_offset[i];
             gap_encoding_nodes[i] = decomrpessed_offset[i+n];
@@ -128,7 +128,9 @@ public class CompressedGraph {
         }
         offset = off;
         logger.info("Offset loaded");
+        // Getting the number of nodes of the compressed graph
         nNodes =  offset.length;
+
     }
 
     // DEPRECATED: Old offset
@@ -364,6 +366,23 @@ public class CompressedGraph {
 
 
     public int numNodes(){
+        if(nNodes == -1){
+            int i,j,nodes,node;
+            int [] edge_list;
+            nodes = 0;
+            for (i = 0;i<offset.length;i++){
+                node = offset[i][0];
+
+                edge_list = get_neighbours(node,diff);
+                for(j =0 ;j<edge_list.length;j++){
+                    if(edge_list[j] >nodes){
+                        nodes = edge_list[j];
+                    }
+                }
+            }
+            nNodes = nodes;
+        }
+
         return nNodes;
     }
 

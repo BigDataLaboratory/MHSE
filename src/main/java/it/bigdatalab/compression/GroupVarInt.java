@@ -283,7 +283,7 @@ public class GroupVarInt {
         while(i < encoded.length) {
 
 
-            s1 = (encoded[i] >>> 6);
+            s1 = 0x3 & (encoded[i] >>> 6);
             s2 = 0x3 & (encoded[i] >>> 4);
             s3 = 0x3 & (encoded[i] >>> 2);
             s4 = 0x3 & encoded[i];
@@ -297,10 +297,15 @@ public class GroupVarInt {
             //System.out.println("OBS "+obs);
             //System.out.println("LUNG ENC "+ encoded.length);
             //k = 0;
+            /*
+            for (int u = 0;u<prefix_lenghts.length;u++){
+                System.out.println("PREF " +prefix_lenghts[u]);
+            }
+            System.out.println("SUM OF PREF "+sum_of_prefix_numbers);
+            */
 
             //System.out.println("Lunghezza lista "+encoded.length+ " index i "+i+" somma dei prefissi "+sum_of_prefix_numbers);
             if (l + sum_of_prefix_numbers >= encoded.length) {
-
                 if(l+sum_of_prefix_numbers -encoded.length == 0){
                     remaining = 4;
                 }else if(l+sum_of_prefix_numbers -encoded.length == 1){
@@ -374,6 +379,7 @@ public class GroupVarInt {
                 decoded_sofar += sum_of_prefix_numbers + 1;
 
             }
+
             tmpArray = intArrayExtend(partial_decoding, tmpArray);
             i += sum_of_prefix_numbers + 1;
         }

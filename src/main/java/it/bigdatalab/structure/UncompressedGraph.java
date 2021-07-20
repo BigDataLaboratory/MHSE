@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import javax.swing.plaf.synth.SynthEditorPaneUI;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Scanner;
 
 public class UncompressedGraph {
@@ -84,8 +86,11 @@ public class UncompressedGraph {
             }
             TGraph[i] = edges;
         }
+        Arrays.sort(TGraph, (a, b) -> a[0] - b[0]);
 
         logger.info("Graph Transposed");
+
+
     }
 
     public int[][] getTGraph(){

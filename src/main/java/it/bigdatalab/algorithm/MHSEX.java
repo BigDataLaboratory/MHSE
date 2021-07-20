@@ -60,10 +60,8 @@ public class MHSEX extends MinHash {
 
         int[] trackerMutable = new int[lengthBitsArray(mGraph.numNodes())];
         int[] trackerImmutable = new int[lengthBitsArray(mGraph.numNodes())];
-
         int[][] signMutable = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
         int[][] signImmutable = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
-
         boolean signatureIsChanged = true;
         int h = 0;
 
