@@ -117,6 +117,12 @@ public class GraphManager {
 
     }
 
+    public ImmutableGraph get_mGraph(){
+        return mGraph;
+    }
+    public  CompressedGraph get_cGraph(){
+        return cGraph;
+    }
 
 
 

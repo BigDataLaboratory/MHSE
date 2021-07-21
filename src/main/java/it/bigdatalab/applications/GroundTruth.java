@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import it.bigdatalab.model.GraphGtMeasure;
 import it.bigdatalab.model.Parameter;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.GsonHelper;
@@ -25,20 +26,20 @@ import java.nio.file.Paths;
 
 
 public class GroundTruth {
-    /*
+
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.GroundTruths");
 
     private final String mMode;
     private final Parameter mParam;
-    private final CompressedGraph mGraph;
+    private final GraphManager mGraph;
 
-    public GroundTruth(CompressedGraph g, Parameter param) {
+    public GroundTruth(GraphManager g, Parameter param) {
         this.mGraph = g;
         this.mParam = param;
         this.mMode = Constants.DEFAULT_MODE;
     }
 
-    public GroundTruth(CompressedGraph g, Parameter param, String mode) {
+    public GroundTruth(GraphManager g, Parameter param, String mode) {
         this.mGraph = g;
         this.mParam = param;
         this.mMode = mode;
@@ -52,14 +53,15 @@ public class GroundTruth {
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("groundTruth.inMemory"));
         String mode = PropertiesManager.getProperty("groundTruth.mode");
 
+
         Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(inputFilePath)
                 .setOutputFolderPath(outputFolderPath)
                 .setNumThreads(threadNumber)
                 .setInMemory(inMemory)
                 .setIsolatedVertices(isolatedVertices).build();
-
-        CompressedGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
+        //     public GraphManager(boolean WG, boolean CG,String inputFilePath, boolean transpose,boolean inM,boolean isoV,String direction) throws IOException {
+        GraphManager g = new GraphManager(true, false,param.getInputFilePathGraph(),false,param.isInMemory(),param.keepIsolatedVertices(),"out");
 
         GroundTruth groundTruth = new GroundTruth(g, param, mode);
         GraphGtMeasure graphMeasure = groundTruth.computeGroundTruth();
@@ -84,14 +86,14 @@ public class GroundTruth {
         else
             throw new IllegalArgumentException("You must choose between WebGraph or BFS mode, no other alternatives");
     }
-    */
+
     /**
      * Execution of the Ground Truth algorithm performing
      * N times a Breadth-first Visit
      *
      * @return Graph Measures
      */
-    /*
+
     private GraphGtMeasure runBFSMode() {
         long startTime = System.currentTimeMillis();
         ProgressLogger pl = new ProgressLogger();
@@ -99,12 +101,16 @@ public class GroundTruth {
         long visitedNodes = 0;
         double max = 0;
         double avgDistance = 0;
-        ParallelBreadthFirstVisit bfs = new ParallelBreadthFirstVisit(mGraph, mParam.getNumThreads(), false, pl);
+        int [] nodes;
+        int i;
+        ParallelBreadthFirstVisit bfs = new ParallelBreadthFirstVisit(mGraph.get_mGraph(), mParam.getNumThreads(), false, pl);
 
         // n times BFS
-        NodeIterator nodeIterator = mGraph.nodeIterator();
-        while(nodeIterator.hasNext()){
-            int vertex = nodeIterator.nextInt();
+        i = 0;
+        nodes  = mGraph.get_nodes();
+        while(i<nodes.length){
+            int vertex = nodes[i];
+            i+=1;
             bfs.clear();
             int nodeNumber = bfs.visit(vertex);
             visitedNodes += nodeNumber;
@@ -150,14 +156,14 @@ public class GroundTruth {
         logger.info("Time elapsed {}", endTime - startTime);
         return gtMeasure;
     }
-    */
+
     /**
      * Execution of the Ground Truth algorithm using the
      * NeighbourhoodFunction by WebGraph
      *
      * @return Graph Measures
      */
-    /*
+
     private GraphGtMeasure runWebGraphMode() {
         long startTime = System.currentTimeMillis();
 
@@ -171,7 +177,7 @@ public class GroundTruth {
 
         // Defining a new neighbourhood function f(.)
         // This function is obtained by executing N breadth first visits.
-        neighFunction = NeighbourhoodFunction.compute(mGraph, mParam.getNumThreads(), pl);
+        neighFunction = NeighbourhoodFunction.compute(mGraph.get_mGraph(), mParam.getNumThreads(), pl);
         // Get the average distance using the NeighbourhoodFunction
         avgDistance = NeighbourhoodFunction.averageDistance(neighFunction);
         // Get the diameter lowerbound using the function of effective diameter with alpha = 1
@@ -226,5 +232,5 @@ public class GroundTruth {
     public String getMode() {
         return mMode;
     }
-    */
+
 }
