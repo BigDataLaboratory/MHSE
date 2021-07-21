@@ -59,9 +59,14 @@ public class GroundTruth {
                 .setOutputFolderPath(outputFolderPath)
                 .setNumThreads(threadNumber)
                 .setInMemory(inMemory)
-                .setIsolatedVertices(isolatedVertices).build();
+                .setTranspose(false)
+                .setWebG(true)
+                .setCompG(false)
+                .setDirection("out")
+                .setIsolatedVertices(isolatedVertices)
+                .build();
         //     public GraphManager(boolean WG, boolean CG,String inputFilePath, boolean transpose,boolean inM,boolean isoV,String direction) throws IOException {
-        GraphManager g = new GraphManager(true, false,param.getInputFilePathGraph(),false,param.isInMemory(),param.keepIsolatedVertices(),"out");
+        GraphManager g = new GraphManager(param.getWebGraph(), param.getCompGraph(),param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(),param.keepIsolatedVertices(),param.getDirection());
 
         GroundTruth groundTruth = new GroundTruth(g, param, mode);
         GraphGtMeasure graphMeasure = groundTruth.computeGroundTruth();

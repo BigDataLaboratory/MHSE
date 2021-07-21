@@ -3,6 +3,7 @@ package it.bigdatalab.applications;
 import it.bigdatalab.model.Parameter;
 import it.bigdatalab.model.SeedNode;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.GraphUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CreateSeedsTest {
 
-    /*@Test
+    @Test
     void testGenerate_correctNumberOfLists() throws IOException {
         String path = new File("src/test/data/g_undirected/32-complete.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
@@ -28,9 +29,14 @@ class CreateSeedsTest {
                 .setNumTests(2)
                 .setIsolatedVertices(true)
                 .setInMemory(true)
+                .setWebG(true)
+                .setCompG(false)
+                .setTranspose(false)
+                .setDirection("out")
                 .build();
 
-        CompressedGraph g = new CompressedGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
+        GraphManager g = new GraphManager(param.getWebGraph(), param.getCompGraph(),param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(),param.keepIsolatedVertices(),param.getDirection());
+
 
         CreateSeeds c = new CreateSeeds(g, param);
         List<SeedNode> seedNodes = c.generate();
@@ -49,5 +55,5 @@ class CreateSeedsTest {
         int numSeeds = 8;
         IntArrayList seeds = CreateSeeds.genSeeds(numSeeds);
         assertEquals(new HashSet<>(seeds).size(), seeds.size());
-    }*/
+    }
 }
