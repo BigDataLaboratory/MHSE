@@ -89,7 +89,7 @@ public class MHSE extends MinHash {
 
                 // jaccard computation
                 i = 0;
-                while (i<mGraph.numNodes()) {
+                while (i<nodes.length) {
                     int node = nodes[i];
                     overallJaccard += jaccard(signatures.get(node), graphSignature);
                     i+=1;
@@ -99,7 +99,7 @@ public class MHSE extends MinHash {
                 // copy all the actual signatures in a new structure
                 oldSignatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());
                 i = 0;
-                while(i<mGraph.numNodes()) {
+                while(i<nodes.length) {
                     int node = nodes[i];
                     long[] signature = signatures.get(node);
                     long[] oldSignature = new long[signature.length];
@@ -110,7 +110,7 @@ public class MHSE extends MinHash {
                 }
                 // updating the signatures
                 i = 0;
-                while(i<mGraph.numNodes()) {
+                while(i<nodes.length) {
                     int node = nodes[i];
 
                     if (updateNodeSignature(node)) {
@@ -172,7 +172,7 @@ public class MHSE extends MinHash {
         int [] nodes = mGraph.get_nodes();
         int j;
         j= 0;
-        while(j<mGraph.numNodes()) {
+        while(j<nodes.length) {
             int node = nodes[j];
             long[] signature = new long[mNumSeeds];
             // create a new signature for each node and compute signature for the graph

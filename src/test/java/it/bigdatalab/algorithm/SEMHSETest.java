@@ -4,6 +4,7 @@ import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.model.Parameter;
 import it.bigdatalab.structure.CompressedGraph;
+import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.GraphUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -24,7 +25,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SEMHSETest {
-    /*
+
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.SEMHSE");
 
     private Comparator<Integer> mLessThan;
@@ -176,16 +177,43 @@ class SEMHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setWebG(true)
+                .setCompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        CompressedGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
 
         SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+
+        Parameter param2 = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setWebG(false)
+                .setCompG(true)
+                .setThreshold(0.9)
+                .build();
+
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+
+        SEMHSE algo2 = new SEMHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
+
+        Measure measure2 = algo2.runAlgorithm();
+
+        assertThat(measure2)
                 .usingRecursiveComparison()
                 .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
@@ -205,16 +233,43 @@ class SEMHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setWebG(true)
+                .setCompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        CompressedGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
 
         SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+
+        Parameter param2 = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setWebG(false)
+                .setCompG(true)
+                .setThreshold(0.9)
+                .build();
+
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+
+        SEMHSE algo2 = new SEMHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
+
+        Measure measure2 = algo2.runAlgorithm();
+
+        assertThat(measure2)
                 .usingRecursiveComparison()
                 .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
@@ -234,16 +289,43 @@ class SEMHSETest {
                 .setDirection(direction)
                 .setTranspose(true)
                 .setSeedsRandom(false)
+                .setWebG(true)
+                .setCompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        CompressedGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
 
         SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+
+        Parameter param2 = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(true)
+                .setSeedsRandom(false)
+                .setWebG(false)
+                .setCompG(true)
+                .setThreshold(0.9)
+                .build();
+
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+
+        SEMHSE algo2 = new SEMHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
+
+        Measure measure2 = algo2.runAlgorithm();
+
+        assertThat(measure2)
                 .usingRecursiveComparison()
                 .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
@@ -263,16 +345,43 @@ class SEMHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setWebG(true)
+                .setCompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
 
         SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+
+        Parameter param2 = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setWebG(false)
+                .setCompG(true)
+                .setThreshold(0.9)
+                .build();
+
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+
+        SEMHSE algo2 = new SEMHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
+
+        Measure measure2 = algo2.runAlgorithm();
+
+        assertThat(measure2)
                 .usingRecursiveComparison()
                 .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
@@ -292,16 +401,43 @@ class SEMHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setWebG(true)
+                .setCompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        CompressedGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
 
         SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+
+        Parameter param2 = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setWebG(false)
+                .setCompG(true)
+                .setThreshold(0.9)
+                .build();
+
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+
+        SEMHSE algo2 = new SEMHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
+
+        Measure measure2 = algo2.runAlgorithm();
+
+        assertThat(measure2)
                 .usingRecursiveComparison()
                 .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
@@ -321,10 +457,12 @@ class SEMHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setWebG(true)
+                .setCompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
 
         SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
@@ -335,6 +473,32 @@ class SEMHSETest {
                 .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
+
+        Parameter param2 = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setWebG(false)
+                .setCompG(true)
+                .setThreshold(0.9)
+                .build();
+
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+
+        SEMHSE algo2 = new SEMHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
+
+        Measure measure2 = algo2.runAlgorithm();
+
+        assertThat(measure2)
+                .usingRecursiveComparison()
+                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
@@ -350,16 +514,43 @@ class SEMHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setWebG(true)
+                .setCompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
 
         SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+
+        Parameter param2 = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setWebG(false)
+                .setCompG(true)
+                .setThreshold(0.9)
+                .build();
+
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+
+        SEMHSE algo2 = new SEMHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
+
+        Measure measure2 = algo2.runAlgorithm();
+
+        assertThat(measure2)
                 .usingRecursiveComparison()
                 .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
@@ -379,10 +570,12 @@ class SEMHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setWebG(true)
+                .setCompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
 
         SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
@@ -393,6 +586,32 @@ class SEMHSETest {
                 .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
+
+        Parameter param2 = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setWebG(true)
+                .setCompG(false)
+                .setThreshold(0.9)
+                .build();
+
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+
+        SEMHSE algo2 = new SEMHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
+
+        Measure measure2 = algo2.runAlgorithm();
+
+        assertThat(measure2)
+                .usingRecursiveComparison()
+                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
@@ -408,10 +627,12 @@ class SEMHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setWebG(true)
+                .setCompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
 
         SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
@@ -426,7 +647,33 @@ class SEMHSETest {
         assertions.assertThat(measure.getCollisionsTable()).as("CollisionsTable # rows").hasSize(measure.getLowerBoundDiameter() + 1);
         assertions.assertThat(measure.getCollisionsTable().values()).extracting(record -> record.length).as("CollisionsTable # cols").containsOnly(seeds.length);
         assertions.assertAll();
+
+        Parameter param2 = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setWebG(false)
+                .setCompG(true)
+                .setThreshold(0.9)
+                .build();
+
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+
+        SEMHSE algo2 = new SEMHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
+
+        GraphMeasure measure2 = (GraphMeasure) algo2.runAlgorithm();
+
+        SoftAssertions assertions2 = new SoftAssertions();
+        assertions2.assertThat(measure2.getLastHops()).as("Last hops size").hasSize(seeds.length);
+        assertions2.assertThat(measure2.getHopTable()).as("HopTable size").hasSize(measure2.getLowerBoundDiameter() + 1);
+        assertions2.assertThat(measure2.getCollisionsTable()).as("CollisionsTable # rows").hasSize(measure2.getLowerBoundDiameter() + 1);
+        assertions2.assertThat(measure2.getCollisionsTable().values()).extracting(record -> record.length).as("CollisionsTable # cols").containsOnly(seeds.length);
+        assertions2.assertAll();
     }
 
-     */
+
 }

@@ -34,7 +34,7 @@ public class MinHashFactory {
             case CMHSE:
                 minHashAlgorithm = new MHSE(g, numSeeds, threshold, seeds);
                 break;
-                /*
+
             case MHSE:
                 minHashAlgorithm = new MHSE(g, numSeeds, threshold, seeds);
                 break;
@@ -65,7 +65,7 @@ public class MinHashFactory {
             case MultithreadMHSEX:
                 minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, nodes, threads);
                 break;
-                */
+
 
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
@@ -105,22 +105,22 @@ public class MinHashFactory {
                 minHashAlgorithm = new SEMHSE(g, numSeeds, threshold);
                 break;
             case StandaloneBMinHash:
-                //minHashAlgorithm = new StandaloneBMinHash(g, numSeeds, threshold);
+                minHashAlgorithm = new StandaloneBMinHash(g, numSeeds, threshold);
                 break;
             case StandaloneBMinHashOptimized:
                 minHashAlgorithm = new StandaloneBMinHashOptimized(g, numSeeds, threshold, centrality);
                 break;
             case MultithreadBMinHash:
-                //minHashAlgorithm = new MultithreadBMinHash(g, numSeeds, threshold, threads);
+                minHashAlgorithm = new MultithreadBMinHash(g, numSeeds, threshold, threads);
                 break;
             case MultithreadBMinHashOptimized:
-                //minHashAlgorithm = new MultithreadBMinHashOptimized(g, numSeeds, threshold, threads, centrality);
+                minHashAlgorithm = new MultithreadBMinHashOptimized(g, numSeeds, threshold, threads, centrality);
                 break;
             case MultithreadBMinHashOpt2:
-                //minHashAlgorithm = new MultithreadBMinHashOpt2(g, numSeeds, threshold, threads);
+                minHashAlgorithm = new MultithreadBMinHashOpt2(g, numSeeds, threshold, threads);
                 break;
             case MultithreadMHSEX:
-               // minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, threads);
+                minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, threads);
                 break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
