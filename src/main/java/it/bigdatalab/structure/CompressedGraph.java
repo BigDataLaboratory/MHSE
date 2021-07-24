@@ -107,7 +107,7 @@ public class CompressedGraph {
         } catch (FileNotFoundException ex) {
         }
 
-
+        logger.info("Decompressing offset");
         decomrpessed_offset = compressor.decode(compressed_offset);
         n = decomrpessed_offset.length/2;
         gap_encoding_nodes = new int [n];

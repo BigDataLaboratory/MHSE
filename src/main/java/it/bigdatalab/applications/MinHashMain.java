@@ -288,10 +288,9 @@ public class MinHashMain {
             if (numTest > seedsNodes.size())
                 throw new IllegalStateException("# run > list of seeds/nodes, please review your input");
         }
-        // Metti il grafo compresso
-        String[] SplitInputPath = mParam.getInputFilePathGraph().split("[.]");
-        System.out.println(SplitInputPath[0]);
-        final GraphManager g = GraphUtils.loadGraph(mParam.getInputFilePathGraph(),mParam.isInMemory(),mParam.keepIsolatedVertices(),mParam.getWebGraph(),mParam.getCompGraph(), mParam.isTranspose(), mParam.getDirection());
+
+        final GraphManager g = new GraphManager(mParam.getWebGraph(),mParam.getCompGraph(),mParam.getInputFilePathGraph(),mParam.isTranspose(),mParam.isInMemory(),mParam.keepIsolatedVertices(),mParam.getDirection());
+        //final GraphManager g = GraphUtils.loadGraph(mParam.getInputFilePathGraph(),mParam.isInMemory(),mParam.keepIsolatedVertices(),mParam.getWebGraph(),mParam.getCompGraph(), mParam.isTranspose(), mParam.getDirection());
 
         //final CompressedGraph g = new CompressedGraph(mParam.getInputFilePathGraph(),SplitInputPath[0]+".adjlist_offset.txt" ,true);
 //        final ImmutableGraph g = GraphUtils.loadGraph(
