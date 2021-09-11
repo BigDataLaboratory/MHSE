@@ -131,6 +131,13 @@ public class GraphManager {
         return cGraph;
     }
 
+    public void set_compressed_graph(byte []cG){
+        cGraph.set_compressed_graph(cG);
+    }
+
+    public void set_offset(int [][] off){
+        cGraph.set_offset(off);
+    }
 
 
 

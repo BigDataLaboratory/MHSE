@@ -6,6 +6,7 @@ import it.bigdatalab.compression.GroupVarInt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.awt.*;
 import java.io.*;
@@ -83,14 +84,7 @@ public class CompressedGraph {
 
     public void load_offset(String inPath) throws IOException {
         int n,i;
-        int [] gap_encoding_nodes,gap_encoding_bytes,gap_decoded_nodes,gap_decoded_bytes;
-        int [][] off;
         logger.info("Loading offset");
-        File file = new File(inPath);
-        compressed_offset = new byte[(int) file.length()];
-        compressor = new GroupVarInt();
-        GapCompressor = new DifferentialCompression();
-        int [] decomrpessed_offset;
         try {
             System.out.println(inPath);
             Scanner sc = new Scanner(new BufferedReader(new FileReader(inPath)));
@@ -106,7 +100,6 @@ public class CompressedGraph {
         Scanner sc2 = new Scanner(new BufferedReader(new FileReader(inPath)));
 
         offset = new int[n][2];
-        i = 0;
 
         while(sc2.hasNextLine()) {
             for (i =0;i<n;i++) {
@@ -240,22 +233,25 @@ public class CompressedGraph {
         int i,k;
         compressor = new GroupVarInt();
         if(node == offset[0][0]){
-            System.out.println("SONO 0");
+            //System.out.println("SONO 0");
             toDecode = new byte[offset[node][1]];
-            for(i = 0;i<offset[0][0];i++){
-                toDecode[i] = compressed_graph[i];
+            k =0;
+            for(i = 0;i<offset[0][1];i++){
+                toDecode[k] = compressed_graph[i];
+                k+=1;
             }
         }else if(node ==  offset[offset.length-1][0]){
-            System.out.println("SONO ULTIMO");
-
-            toDecode = new byte[offset.length -offset[offset.length-2][1]];
+//            System.out.println("SONO ULTIMO");
+//            System.out.println("COMP G LEN "+compressed_graph.length);
+//            System.out.println("OFF "+offset[offset.length-2][1]);
+            toDecode = new byte[compressed_graph.length -offset[offset.length-2][1]];
             k = 0;
-            for(i = offset[offset.length-2][1];i<offset.length;i++){
+            for(i = offset[offset.length-2][1];i<compressed_graph.length;i++){
                 toDecode[k] = compressed_graph[i];
                 k+=1;
             }
         }else{
-            System.out.println("STO NEL MEZZO ");
+            //System.out.println("STO NEL MEZZO ");
 
             toDecode = new byte[offset[node][1] -offset[node-1][1]];
             k = 0;
@@ -264,11 +260,12 @@ public class CompressedGraph {
                 k+=1;
             }
         }
+
         neighbours = compressor.dec(toDecode);
-        System.out.println("TESTJSDA");
-        for(int p=0;p<neighbours.length;p++) {
-            System.out.println(neighbours[p]);
-        }
+        //System.out.println("TESTJSDA");
+//        for(int p=0;p<neighbours.length;p++) {
+//            System.out.println(neighbours[p]);
+//        }
         neighbours_array = new int[neighbours.length -1];
         for (i = 1; i < neighbours.length; i++) {
             neighbours_array[i - 1] = neighbours[i];
@@ -583,4 +580,14 @@ public class CompressedGraph {
 //    public Integer next() {
 //        return Integer.valueOf(neigh[i++]);
 //    }
+    public int [][] get_offset(){
+        return (offset);
+    }
+   public void set_offset(int [][] off){
+        offset = off;
+    }
+
+    public void set_compressed_graph(byte [] cG){
+        compressed_graph = cG;
+    }
 }

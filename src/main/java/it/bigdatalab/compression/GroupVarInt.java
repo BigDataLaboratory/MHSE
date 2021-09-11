@@ -290,20 +290,20 @@ public class GroupVarInt {
             prefix_sum = s1+s2+s3+s4 +4;
 
             prefixes = new int[]{s1 + 1, s2 + 1, s3 + 1, s4 + 1};
-            System.out.println("PREFISSI SENZA SHIFT");
-            System.out.println(encoded[decodedBytes]);
-            System.out.println("PREFISSI");
-            System.out.println(s1+" "+s2+" "+s3+" "+s4);
-            System.out.println("Lung enc");
-            System.out.println(encoded.length);
-            System.out.println("NON DECOMPRESSO");
-            for(int y=0;y<encoded.length;y++){
-                System.out.println(encoded[y]);
-            }
+//            System.out.println("PREFISSI SENZA SHIFT");
+//            System.out.println(encoded[decodedBytes]);
+//            System.out.println("PREFISSI");
+//            System.out.println(s1+" "+s2+" "+s3+" "+s4);
+//            System.out.println("Lung enc");
+//            System.out.println(encoded.length);
+//            System.out.println("NON DECOMPRESSO");
+//            for(int y=0;y<encoded.length;y++){
+//                System.out.println(encoded[y]);
+//            }
             //System.exit(-1);
 
             if(decodedBytes +prefix_sum < encoded.length){
-                System.out.println("MIAO ");
+                //System.out.println("MIAO ");
 
                 decodedBytes+=1; // excluding prefix
                 decoded = new int[4];
@@ -317,7 +317,7 @@ public class GroupVarInt {
                 }
 
             }else{
-                System.out.println("BAU ");
+                //System.out.println("BAU ");
 
                 // if decodedBytes +prefix_sum >= encoded.length
                 decodedBytes +=1; // excluding prefix
@@ -331,7 +331,7 @@ public class GroupVarInt {
                 }else if(decodedBytes+prefix_sum -encoded.length == 3){
                     index = 1;
                 }
-                System.out.println("INDEX = "+index);
+                //System.out.println("INDEX = "+index);
                 decoded = new int[index];
                 for (k = 0;k<index;k++){
                     partial_decoding = new byte[prefixes[k]];
@@ -342,10 +342,10 @@ public class GroupVarInt {
                     decoded[k] = convertByteArrayToInt(partial_decoding);
                 }
             }
-            decodedBytes+=1; // jump to the next prefix
+            //decodedBytes+=1; // jump to the next prefix
             final_decoding = intArrayExtend(decoded, final_decoding);
         }
-        System.out.println("FINAL DEC LN " +final_decoding.length);
+        //System.out.println("FINAL DEC LN " +final_decoding.length);
     return (final_decoding);
 
     }
@@ -955,7 +955,7 @@ public class GroupVarInt {
         }
 
         try {
-            Files.write(Paths.get(outPath+ instance + ".txt"),compressedAdjListFlat );
+            Files.write(Paths.get(outPath+ instance + ".txt"),compressedAdjListFlat);
             logger.info("Successfully written data to the file ");
 
         } catch (IOException e) {
@@ -998,5 +998,8 @@ public class GroupVarInt {
 
     }
 
+    public byte[] get_compressedAdjListFlat(){
+        return(compressedAdjListFlat);
+    }
 
 }

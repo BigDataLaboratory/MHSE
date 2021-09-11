@@ -205,7 +205,7 @@ public class MHSE extends MinHash {
         int neighbour;
         //if(neigh != null) {
             d = neigh.length;
-            System.out.println("NEIGH LENG "+d);
+            //System.out.println("NEIGH LENG "+d);
             k = 0;
             while (d-- != 0) {
                 neighbour = neigh[k];
