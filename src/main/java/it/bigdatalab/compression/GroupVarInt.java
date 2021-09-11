@@ -19,6 +19,7 @@ public class GroupVarInt {
 
     private byte[] compressedOffset;
     private byte[][] compressedAdjList;
+    private byte[] compressedAdjListFlat;
     private DifferentialCompression GapCompressor;
     public  GroupVarInt(){
 
@@ -295,6 +296,10 @@ public class GroupVarInt {
             System.out.println(s1+" "+s2+" "+s3+" "+s4);
             System.out.println("Lung enc");
             System.out.println(encoded.length);
+            System.out.println("NON DECOMPRESSO");
+            for(int y=0;y<encoded.length;y++){
+                System.out.println(encoded[y]);
+            }
             //System.exit(-1);
 
             if(decodedBytes +prefix_sum < encoded.length){
@@ -663,13 +668,8 @@ public class GroupVarInt {
 
     }*/
 
-    private void writeEncoding(){
 
-    }
 
-    private void loadEncoding(){
-
-    }
 
 
     public static byte[] getSliceOfArray(byte[] arr,
@@ -704,7 +704,47 @@ public class GroupVarInt {
         return (compressedAdjList);
     }
 
-  
+  public byte [] encodeAdjListFlat(int [][] matrix,boolean d_compression){
+        int node,edge,bytes,k;
+        byte [] encodedFlat;
+        byte [][] encoded;
+        byte [] edgeListEnc;
+        int [] edgeListToEnc;
+        int [][] off;
+        logger.info("Encoding the Adjacency list using VarInt GB");
+        encoded = new byte[matrix.length][];
+        off = new int[matrix.length][2];
+        bytes = 0;
+        for(node = 0;node<matrix.length;node++){
+            //edgeListEnc = new byte[matrix[node].length];
+            edgeListToEnc = new int[matrix[node].length];
+            for(edge = 0;edge< matrix[node].length;edge++){
+                edgeListToEnc[edge] = matrix[node][edge];
+            }
+            edgeListEnc = listEncoding(edgeListToEnc);
+            bytes+=edgeListEnc.length;
+            encoded[node] = edgeListEnc;
+            off[node][0] = matrix[node][0];
+            //bytes+=1;
+            off[node][1] = bytes;
+        }
+        encodedFlat = new byte[bytes];
+        k = 0;
+        for(node =0;node<encoded.length;node++){
+            for (edge = 0;edge<encoded[node].length;edge++){
+                encodedFlat[k] = encoded[node][edge];
+                k+=1;
+            }
+        }
+//        for(node = 0;node<encodedFlat.length;node++){
+//            System.out.println(encodedFlat[node]);
+//        }
+//        System.exit(1);
+        offset = off;
+        compressedAdjList = encoded;
+        compressedAdjListFlat = encodedFlat;
+        return (encodedFlat);
+  }
 
     public byte[][] encodeAdjList(int [][] matrix,boolean d_compression) {
         int nodes,edges;
@@ -808,7 +848,7 @@ public class GroupVarInt {
         return(decoded);
     }
 
-    public static void saveEncoding(String outPath,String instance, byte [][] encoded,int [][] COffset) {
+    public static void saveEncoding_dep(String outPath,String instance, byte [][] encoded,int [][] COffset) {
 
         byte[] flattered_encoding;
         int n, m, i, k, q, j;
@@ -891,5 +931,72 @@ public class GroupVarInt {
 
     }
 
+    public void saveEncoding(String outPath,String instance) {
+
+        int n, m, i, k, q, j;
+        m = 0;
+        n = offset.length;
+        logger.info("Writing the encoded Graph and the offset file " );
+
+
+        // Writing flattered encoding
+        try {
+            File f = new File(outPath + instance + ".txt");
+            if (f.createNewFile()) {
+                logger.info("File {} created ", f.getName());
+
+            } else {
+                logger.error("File already exists.");
+            }
+
+        } catch (IOException e) {
+            logger.error("An error occurred.");
+            e.printStackTrace();
+        }
+
+        try {
+            Files.write(Paths.get(outPath+ instance + ".txt"),compressedAdjListFlat );
+            logger.info("Successfully written data to the file ");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // Writing offset file
+
+        try {
+            File off = new File(outPath + instance + "_offset.txt");
+            if (off.createNewFile()) {
+                logger.info("File {} created ", off.getName());
+
+            } else {
+                logger.error("File already exists.");
+            }
+        } catch (IOException e) {
+            logger.error("An error occurred.");
+            e.printStackTrace();
+        }
+        // Compressed offset
+        //n = offset.length;
+        try {
+            //Files.write(Paths.get(outPath+ instance + "_offset.txt"), COffset);
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter(outPath + instance + "_offset.txt"));
+
+            for (i = 0; i < n; i++) {
+                m = offset[i].length;
+                for (j = 0; j < m; j++) {
+                    bw.write(offset[i][j] + ((j == offset[i].length - 1) ? "" : "\t"));
+                }
+                bw.newLine();
+            }
+            bw.flush();
+
+
+        } catch (IOException e) {
+        }
+        logger.info("Encoded Graph and offset files properly written " );
 
     }
+
+
+}

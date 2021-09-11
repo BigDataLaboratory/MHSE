@@ -234,8 +234,49 @@ public class CompressedGraph {
         offset = off;
         logger.info("Offset loaded");
     }
+    public int [] get_neighbours(int node,boolean differential){
+        int [] neighbours,neighbours_array;
+        byte [] toDecode ;
+        int i,k;
+        compressor = new GroupVarInt();
+        if(node == offset[0][0]){
+            System.out.println("SONO 0");
+            toDecode = new byte[offset[node][1]];
+            for(i = 0;i<offset[0][0];i++){
+                toDecode[i] = compressed_graph[i];
+            }
+        }else if(node ==  offset[offset.length-1][0]){
+            System.out.println("SONO ULTIMO");
 
-    public int [] get_neighbours(int node, boolean differential){
+            toDecode = new byte[offset.length -offset[offset.length-2][1]];
+            k = 0;
+            for(i = offset[offset.length-2][1];i<offset.length;i++){
+                toDecode[k] = compressed_graph[i];
+                k+=1;
+            }
+        }else{
+            System.out.println("STO NEL MEZZO ");
+
+            toDecode = new byte[offset[node][1] -offset[node-1][1]];
+            k = 0;
+            for(i = offset[node-1][1] ;i<offset[node][1];i++){
+                toDecode[k] = compressed_graph[i];
+                k+=1;
+            }
+        }
+        neighbours = compressor.dec(toDecode);
+        System.out.println("TESTJSDA");
+        for(int p=0;p<neighbours.length;p++) {
+            System.out.println(neighbours[p]);
+        }
+        neighbours_array = new int[neighbours.length -1];
+        for (i = 1; i < neighbours.length; i++) {
+            neighbours_array[i - 1] = neighbours[i];
+        }
+
+        return (neighbours_array);
+    }
+    public int [] get_neighbours_dep(int node, boolean differential){
         int i,j,k,y;
         int [] neighbours = new int[0];
         int [] neighbours_array;
@@ -262,11 +303,11 @@ public class CompressedGraph {
                             System.out.println("SONO 0");
                             System.out.println("OFFSET 0 = "+offset[node][1]);
                             portion = new byte[offset[node][1]];
-                            k = 0;
+                            //k = 0;
                             for (j = 0; j < offset[node][1]; j++) {
-                                portion[k] = compressed_graph[j];
+                                portion[j] = compressed_graph[j];
                                 //System.out.println("PORT lol "+portion[k]);
-                                k += 1;
+                                //k += 1;
                             }
                         } else {
                             System.out.println("NON SONO  0");

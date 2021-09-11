@@ -39,8 +39,9 @@ public class CompressInstance {
                 byte[] group_compression = compressor.listEncoding(edgeList);
                 //System.out.println("LISTA ENCODED");
                 int[] group_decompression = compressor.dec(group_compression);
-
+                System.out.println("---------------------------------------------------");
                 for(int u=0;u< group_decompression.length;u++){
+                    System.out.println("DECOMPRESSED = "+group_decompression[u] + " ORIGINAL = "+uncG[k][u]);
                     if(group_decompression[u] != uncG[k][u]){
                         logger.error("ERRORE MISMATCH ");
                         System.exit(-1);
@@ -50,10 +51,23 @@ public class CompressInstance {
             logger.info("DECOMPRESSIONE VARINT TESTATA E FUNZIONANTE SULLE LISTE");
             // L'ERRORE PROBABILMENTE STA NELLA SCRITTURA DELLA MATRICE DI ADJ COMPRESSA E DELL'OFFSET
             logger.info("TESTING THE GET NEIGH FUNCTION");
+            System.out.println("MAX OFFSET "+cG.get_cGraph().getOffset()[cG.get_cGraph().getOffset().length-1][1]);
+            System.out.println("Lunghezza codifica "+ cG.get_cGraph().getCompressed_graph().length);
+            // CONTROLLA LA FUNZIONE NEIGH C'E' qualcosa che non funziona
             for(int o = 0;o< uncG.length;o++){
                 edgeList = uncG[o];
 
                 int [] decomPedgeList = cG.get_neighbours(uncG[o][0]);
+                System.out.println("LISTA DECOMPRESSA");
+                for(int y =0;y<decomPedgeList.length;y++){
+                    System.out.println(decomPedgeList[y]);
+                }
+                System.out.println("LISTA ORIGINALE");
+
+                for(int y =0;y<uncG[o].length;y++){
+                    System.out.println(uncG[o][y]);
+                }
+                System.out.println("------------------------");
                 System.out.println("LUNG EL "+edgeList.length + " LUNG decEL "+decomPedgeList.length);
                 for(int p = 0;p<decomPedgeList.length;p++){
                     if(edgeList[p+1]!= decomPedgeList[p]){
