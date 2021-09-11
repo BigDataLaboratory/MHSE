@@ -85,41 +85,44 @@ public class MHSEX extends MinHash {
                 for (int n = 0; n < mGraph.numNodes(); n++) {
                     final int node = n;
                     final int [] successors = mGraph.get_neighbours(node);
-                    int d = successors.length;
+                    int d;
+                    if(successors != null) {
+                        d = successors.length;
 
-                    nPosition = n >>> Constants.MASK;
-                    nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
+                        nPosition = n >>> Constants.MASK;
+                        nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
 
-                    // for each neigh of the node n
-                    for (int l = d; l-- != 0; ) {
-                        // check if the neigh has been modified
-                        // in the previous hop. If true, it can modify
-                        // the node n
-                        neighPosition = successors[l] >>> Constants.MASK;
-                        neighRemainder = (successors[l] << Constants.REMAINDER) >>> Constants.REMAINDER;
-                        neighMask = (Constants.BIT << neighRemainder);
+                        // for each neigh of the node n
+                        for (int l = d; l-- != 0; ) {
+                            // check if the neigh has been modified
+                            // in the previous hop. If true, it can modify
+                            // the node n
+                            neighPosition = successors[l] >>> Constants.MASK;
+                            neighRemainder = (successors[l] << Constants.REMAINDER) >>> Constants.REMAINDER;
+                            neighMask = (Constants.BIT << neighRemainder);
 
-                        if (((neighMask & trackerImmutable[neighPosition]) >>> neighRemainder) == 1) {
-                            // for each element of the signature of the node n
-                            int sMask;
-                            for (int s = 0; s < mNumSeeds; s++) {
-                                sMask = (Constants.BIT << remainder[s]);
+                            if (((neighMask & trackerImmutable[neighPosition]) >>> neighRemainder) == 1) {
+                                // for each element of the signature of the node n
+                                int sMask;
+                                for (int s = 0; s < mNumSeeds; s++) {
+                                    sMask = (Constants.BIT << remainder[s]);
 
-                                // check if the s-th element of the node n signature
-                                // it's 0, else jump to the next s-th element of the signature
-                                if (((sMask & signMutable[n][position[s]]) >>> remainder[s]) == 0) {
-                                    int bitNeigh;
-                                    int value;
-                                    // change the s-th element of the node n signature
-                                    // only if the s-th element of the neigh signature is 1
-                                    if (((sMask & signImmutable[successors[l]][position[s]]) >>> remainder[s]) == 1) {
-                                        bitNeigh = (((1 << remainder[s]) & signImmutable[successors[l]][position[s]]) >>> remainder[s]) << remainder[s];
-                                        value = bitNeigh | sMask & signImmutable[successors[l]][position[s]];
-                                        signatureIsChanged = true; // track the signature changes, to run the next hop
-                                        trackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
-                                        signMutable[n][position[s]] = signMutable[n][position[s]] | value;
-                                    }
-                                } // else is already 1
+                                    // check if the s-th element of the node n signature
+                                    // it's 0, else jump to the next s-th element of the signature
+                                    if (((sMask & signMutable[n][position[s]]) >>> remainder[s]) == 0) {
+                                        int bitNeigh;
+                                        int value;
+                                        // change the s-th element of the node n signature
+                                        // only if the s-th element of the neigh signature is 1
+                                        if (((sMask & signImmutable[successors[l]][position[s]]) >>> remainder[s]) == 1) {
+                                            bitNeigh = (((1 << remainder[s]) & signImmutable[successors[l]][position[s]]) >>> remainder[s]) << remainder[s];
+                                            value = bitNeigh | sMask & signImmutable[successors[l]][position[s]];
+                                            signatureIsChanged = true; // track the signature changes, to run the next hop
+                                            trackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
+                                            signMutable[n][position[s]] = signMutable[n][position[s]] | value;
+                                        }
+                                    } // else is already 1
+                                }
                             }
                         }
                     }

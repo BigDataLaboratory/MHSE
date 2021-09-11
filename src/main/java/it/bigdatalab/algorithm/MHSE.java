@@ -198,22 +198,30 @@ public class MHSE extends MinHash {
         boolean signatureIsChanged = false;
         long[] newSignature = signatures.get(node);         //new signature to be updated
         int [] neigh = mGraph.get_neighbours(node);
+
         int k;
-        int d = neigh.length;
+        int d;
         long[] neighbourSignature;
         int neighbour;
-        k = 0;
-        while(d-- != 0) {
-            neighbour =neigh[k];
-            k+=1;
-            neighbourSignature = oldSignatures.get(neighbour);
-            for(int i=0; i<neighbourSignature.length; i++){
-                if(neighbourSignature[i] < newSignature[i]){
-                    newSignature[i] = neighbourSignature[i];
-                    signatureIsChanged = true;
+        //if(neigh != null) {
+            d = neigh.length;
+            System.out.println("NEIGH LENG "+d);
+            k = 0;
+            while (d-- != 0) {
+                neighbour = neigh[k];
+                k += 1;
+
+
+                neighbourSignature = oldSignatures.get(neighbour);
+                for (int i = 0; i < neighbourSignature.length; i++) {
+                    if (neighbourSignature[i] < newSignature[i]) {
+                        newSignature[i] = neighbourSignature[i];
+                        signatureIsChanged = true;
+                    }
                 }
             }
-        }
+        //}
+
         return signatureIsChanged;
     }
 

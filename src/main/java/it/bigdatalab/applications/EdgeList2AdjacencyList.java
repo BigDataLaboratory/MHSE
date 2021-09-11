@@ -22,6 +22,7 @@ public class EdgeList2AdjacencyList {
     private boolean degreeDistributionLabeling;
     //private Long2ObjectLinkedOpenHashMap<LongArrayList> normalizedEdgeList;
     private Long2ObjectLinkedOpenHashMap<LongArrayList> normalizedAdjList;
+    //private HashMap<String, String> properties = new HashMap<String, String>();
     private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.EdgeList2AdjacencyList");
 
     public EdgeList2AdjacencyList(boolean transpose){
@@ -200,6 +201,9 @@ public class EdgeList2AdjacencyList {
                 for (int i = 0; i < keys.length; i++) {
                     long sourceID = keys[i];
                     LongArrayList adjacencyList = normalizedAdjList.get(sourceID);
+                    //if(adjacencyList.size() != 0){
+
+
                     Collections.sort(adjacencyList);
                     writer.append(Long.toString(sourceID)).append("\t");
                     for (int j = 0; j < adjacencyList.size(); j++) {
@@ -208,6 +212,7 @@ public class EdgeList2AdjacencyList {
 
                     }
                     writer.append(eol);
+                    //}
                 }
             }
             logger.info("Normalized adj file saved in {}", adjListOutputFilePath);

@@ -1,5 +1,4 @@
 package it.bigdatalab.applications;
-import com.google.errorprone.annotations.Var;
 import it.bigdatalab.compression.GroupVarInt;
 import it.bigdatalab.compression.DifferentialCompression;
 import it.bigdatalab.structure.CompressedGraph;
@@ -8,7 +7,6 @@ import it.bigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sound.midi.SysexMessage;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -22,7 +20,7 @@ public class CompressInstance {
     private String inputFilePath;
     public String outputFilePath;
     public boolean VarIntGB;
-    public boolean d_gaps;
+    public boolean d_gaps = false;
     public boolean transposed;
     private int[][] adjList;
 
@@ -120,6 +118,17 @@ public class CompressInstance {
 
     }
 
+    public static void test_adjlist_compression_varintGB(int [][] test_matrix){
+        GroupVarInt VarintGB = new GroupVarInt();
+        int [][] off;
+
+        VarintGB.encodeAdjList(test_matrix, true);
+        off = VarintGB.getOffset();
+        for (int i = 0;i<off.length;i++){
+            System.out.println("NODO "+ off[i][0]+ "  Byte "+off[i][1]);
+        }
+    }
+
     public static void test_compression_matrix_varintGB(int[][] test_matrix) {
         int nodes, edges;
         int i, j;
@@ -162,6 +171,8 @@ public class CompressInstance {
                 }
             }
         }
+
+
         System.out.println("VarintGB TEST CORRECTLY COMPLETED");
 
 
@@ -243,37 +254,228 @@ public class CompressInstance {
         int[][] provaMat = UGraph.getGraph();
         String[] split = inputFilePath.split("/");
         String name = split[split.length - 1];
-        VarintGB.encodeAdjList(diff.encodeAdjList(provaMat), d_gaps);
-        VarintGB.saveEncoding(outputFilePath,name,VarintGB.getCompressedAdjList(),VarintGB.getCompressedOffset());
+
+        //VarintGB.encodeAdjList(diff.encodeAdjList(provaMat), d_gaps);
+        VarintGB.encodeAdjList(provaMat, d_gaps);
+
+        VarintGB.saveEncoding(outputFilePath,name,VarintGB.getCompressedAdjList(),VarintGB.getOffset());
         if(transposed){
             UGraph.transpose_graph();
             GroupVarInt VarintGBTransposed = new GroupVarInt();
             DifferentialCompression diffTransposed = new DifferentialCompression();
-            VarintGBTransposed.encodeAdjList(diffTransposed.encodeAdjList(UGraph.getTGraph()), d_gaps);
+            //VarintGBTransposed.encodeAdjList(diffTransposed.encodeAdjList(UGraph.getTGraph()), d_gaps);
+            VarintGBTransposed.encodeAdjList(UGraph.getTGraph(), d_gaps);
+
             String[] splitTrans = name.split("[.]");
             String nameTrans = splitTrans[0]+"_transposed."+splitTrans[1];
-            VarintGBTransposed.saveEncoding(outputFilePath,nameTrans,VarintGBTransposed.getCompressedAdjList(),VarintGBTransposed.getCompressedOffset());
+            VarintGBTransposed.saveEncoding(outputFilePath,nameTrans,VarintGBTransposed.getCompressedAdjList(),VarintGBTransposed.getOffset());
 
         }
         logger.info("Compressed instances and offsets saved in "+outputFilePath);
 
     }
-    public void prova_lista() throws IOException {
-        CompressedGraph Graph ;
-        String name = "/home/antoniocruciani/Desktop/TESTVGB/compressed/uk-2007-05@100000.adjlist.txt";
-        String off = "/home/antoniocruciani/Desktop/TESTVGB/compressed/uk-2007-05@100000.adjlist_offset.txt";
-        Graph = new CompressedGraph(name,off,true);
-        int [] nei = Graph.get_neighbours(15,true);
-        System.out.println("Vicini nodo 15");
-        for(int y = 0;y<nei.length;y++){
-            System.out.println(nei[y]);
+
+    public void test_32_cycle(){
+        int [][] matrix = {{0, 1},
+                {1 ,2},
+                {2,	3},
+                {3	,4},
+                {4	,5},
+                {5	,6},
+                {6	,7},
+                {7,	8},
+                {8,	9},
+                {9,	10},
+                {10,11},
+                {11,12},
+                { 12,	13},
+                { 13	,14},
+                {14,	15},
+                {15,	16},
+                {16,	17},
+                {17	,18},
+                {18,	19},
+                {19,	20},
+                {20,	21},
+                {21	,22},
+                {22,	23},
+                {23,	24},
+                {24,	25},
+                {25	,26},
+                {26	,27},
+                {27	,28},
+                {28	,29},
+                {29	,30},
+                {30	,31},
+                {31	,0	}};
+
+        GroupVarInt compressor = new GroupVarInt();
+        compressor.encodeAdjList(matrix,false);
+        byte [][] compMatrix = compressor.getCompressedAdjList();
+        for (int i=0;i<compMatrix.length;i++){
+
+            byte [] enc = new byte[compMatrix[i].length];
+
+            for (int j=0;j<compMatrix[i].length;j++){
+                enc[j] = compMatrix[i][j];
+            }
+            int []decoded =  compressor.decode_dep(enc);
+            System.out.println("LEN ORIGINALE = "+matrix[i].length + " LEN DECOMPRESSO = "+decoded.length);
+            if(matrix[i].length  !=decoded.length ){
+                System.out.println("ERRORE LUNGHEZZE DIVERSE");
+            }
+            for(int k = 0;k<decoded.length;k++){
+                System.out.println(" Originale = "+ matrix[i][k] + " Decompresso = "+decoded[k]);
+                if(matrix[i][k] != decoded[k]){
+                    System.out.println("ERRORE MISMATCH");
+                    System.exit(-1);
+                }
+            }
+
+
         }
+        System.out.println("TEST SUPERATO");
+
 
     }
 
+
+    public void test_32_cycle_diff_gb(){
+        int [][] matrix = {{0, 1},
+                {1 ,2},
+                {2,	3},
+                {3	,4},
+                {4	,5},
+                {5	,6},
+                {6	,7},
+                {7,	8},
+                {8,	9},
+                {9,	10},
+                {10,11},
+                {11,12},
+                { 12,	13},
+                { 13	,14},
+                {14,	15},
+                {15,	16},
+                {16,	17},
+                {17	,18},
+                {18,	19},
+                {19,	20},
+                {20,	21},
+                {21	,22},
+                {22,	23},
+                {23,	24},
+                {24,	25},
+                {25	,26},
+                {26	,27},
+                {27	,28},
+                {28	,29},
+                {29	,30},
+                {30	,31},
+                {31	,0	}};
+
+        GroupVarInt compressor = new GroupVarInt();
+        DifferentialCompression Diff = new DifferentialCompression();
+        compressor.encodeAdjList(matrix,true);
+        byte [][] compMatrix = compressor.getCompressedAdjList();
+        for (int i=0;i<compMatrix.length;i++){
+
+            byte [] enc = new byte[compMatrix[i].length];
+
+            for (int j=0;j<compMatrix[i].length;j++){
+                enc[j] = compMatrix[i][j];
+            }
+            int [] decoded_gb =  compressor.decode_dep(enc);
+            for (int u = 0;u<decoded_gb.length;u++){
+                System.out.println("DECODED GB "+decoded_gb[u]);
+            }
+            int [] decoded = Diff.decodeSequence(decoded_gb);
+            System.out.println("LEN ORIGINALE = "+matrix[i].length + " LEN DECOMPRESSO = "+decoded.length);
+            if(matrix[i].length  !=decoded.length ){
+                System.out.println("ERRORE LUNGHEZZE DIVERSE");
+            }
+            for(int k = 0;k<decoded.length;k++){
+                System.out.println(" K = "+k + " decoded[k] = "+decoded[k]);
+                System.out.println(" Originale = "+ matrix[i][k] + " Decompresso = "+decoded[k]);
+                if(matrix[i][k] != decoded[k]){
+                    System.out.println("ERRORE MISMATCH");
+                    System.exit(-1);
+                }
+            }
+
+
+        }
+        System.out.println("TEST SUPERATO");
+
+
+    }
+
+
+    public void prova_lista() throws IOException {
+        CompressedGraph Graph ;
+        String name = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed/32out-star.adjlist.txt";
+        String off = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed/32out-star.adjlist_offset.txt";
+        Graph = new CompressedGraph(name,off,true);
+        int [] nodes = Graph.get_nodes();
+        for(int x = 0;x<nodes.length;x++){
+            int [] nei = Graph.get_neighbours(nodes[x],true);
+            System.out.println("VICINI NODO "+nodes[x]);
+            for(int y = 0;y<nei.length;y++) {
+                System.out.println(nei[y]);
+            }
+            System.out.println("----------------");
+
+        }
+
+
+
+    }
+
+    public static void compress_test_instances() throws FileNotFoundException {
+        String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed/";
+        String [] names = {"32-cycle.adjlist","32-cycle_transposed.adjlist","32-path.adjlist","32-path_transposed.adjlist",
+        "32in-star.adjlist","32in-star_transposed.adjlist","32out-star.adjlist","32out-star_transposed.adjlist","32t-path.adjlist"
+        ,"32t-path_transposed.adjlist"};
+//        String [] names = {"32-complete.adjlist","32-complete_transposed.adjlist","32-cycle.adjlist","32-cycle_transposed.adjlist","32-wheel.adjlist",
+//        "32-wheel_transposed.adjlist"};
+        GroupVarInt VarintGB = new GroupVarInt();
+        DifferentialCompression diff = new DifferentialCompression();
+        CompressedGraph Graph;
+        UncompressedGraph UGraph;
+        UGraph = new UncompressedGraph();
+        for(int i = 0;i< names.length;i++){
+            String inputFile = inPath+names[i];
+            UGraph.load_graph(inputFile, "\t");
+            int[][] provaMat = UGraph.getGraph();
+            String[] split = inputFile.split("/");
+            String name = split[split.length - 1];
+            VarintGB.encodeAdjList(provaMat, false);
+            VarintGB.saveEncoding(inPath,name,VarintGB.getCompressedAdjList(),VarintGB.getOffset());
+        }
+
+
+
+
+        logger.info("Compressed instances and offsets saved in "+inPath);
+
+    }
+
+
     public static void main(String[] args) throws IOException {
         CompressInstance t = new CompressInstance();
-        t.compress();
+        /*
+        int [][] provaMat = {
+                {1,2,89,99,256,546},
+                    {70},
+                    {38,90,129}
+                           };
+        t.test_adjlist_compression_varintGB(provaMat);
+        */
+
+        //t.compress();
+        //t.test_32_cycle_diff_gb();
+       // t.test_32_cycle();
+        t.compress_test_instances();
         //t.prova_lista();
 
     }

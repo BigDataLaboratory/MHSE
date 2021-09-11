@@ -181,20 +181,6 @@ public class MHSETest {
                 .setThreshold(0.9)
                 .build();
 
-        Parameter param2 = new Parameter.Builder()
-                .setInputFilePathGraph(path)
-                .setIsolatedVertices(true)
-                .setInMemory(true)
-                .setNumSeeds(seeds.length)
-                .setDirection(direction)
-                .setTranspose(false)
-                .setSeedsRandom(false)
-                .setIsolatedVertices(false)
-                .setWebG(false)
-                .setCompG(true)
-                .setThreshold(0.9)
-                .build();
-
 
         GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
 
@@ -208,17 +194,7 @@ public class MHSETest {
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
 
-        // Checking the execution on the compressed instance
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
-        MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
 
-        Measure measure2 = algo2.runAlgorithm();
-
-        assertThat(measure2)
-                .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
-                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
-                .isEqualTo(expected);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
@@ -226,6 +202,7 @@ public class MHSETest {
     public void testAlgorithm_DiPath(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32-path.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
+
         Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(path)
                 .setIsolatedVertices(true)
@@ -251,30 +228,7 @@ public class MHSETest {
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
 
-        Parameter param2 = new Parameter.Builder()
-                .setInputFilePathGraph(path)
-                .setIsolatedVertices(true)
-                .setInMemory(true)
-                .setNumSeeds(seeds.length)
-                .setDirection(direction)
-                .setTranspose(false)
-                .setSeedsRandom(false)
-                .setWebG(false)
-                .setCompG(true)
-                .setThreshold(0.9)
-                .build();
 
-        // Checking the execution on the compressed instance
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
-        MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
-
-        Measure measure2 = algo2.runAlgorithm();
-
-        assertThat(measure2)
-                .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
-                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
-                .isEqualTo(expected);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
@@ -282,6 +236,7 @@ public class MHSETest {
     void testAlgorithm_DiTPath(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32t-path.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
+
         Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(path)
                 .setIsolatedVertices(true)
@@ -308,35 +263,14 @@ public class MHSETest {
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
 
-        Parameter param2 = new Parameter.Builder()
-                .setInputFilePathGraph(path)
-                .setIsolatedVertices(true)
-                .setInMemory(true)
-                .setNumSeeds(seeds.length)
-                .setDirection(direction)
-                .setTranspose(true)
-                .setSeedsRandom(false)
-                .setWebG(false)
-                .setCompG(true)
-                .setThreshold(0.9)
-                .build();
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
-        MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
-
-        Measure measure2 = algo2.runAlgorithm();
-
-        assertThat(measure2)
-                .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
-                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
-                .isEqualTo(expected);
-    }
+           }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("inStarProvider")
     void testAlgorithm_DiInStar(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32in-star.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
+
         Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(path)
                 .setIsolatedVertices(true)
@@ -362,28 +296,6 @@ public class MHSETest {
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
 
-        Parameter param2 = new Parameter.Builder()
-                .setInputFilePathGraph(path)
-                .setIsolatedVertices(true)
-                .setInMemory(true)
-                .setNumSeeds(seeds.length)
-                .setDirection(direction)
-                .setTranspose(false)
-                .setSeedsRandom(false)
-                .setWebG(false)
-                .setCompG(true)
-                .setThreshold(0.9)
-                .build();
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
-        MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
-
-        Measure measure2 = algo2.runAlgorithm();
-
-        assertThat(measure2)
-                .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
-                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
-                .isEqualTo(expected);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
@@ -391,6 +303,7 @@ public class MHSETest {
     void testAlgorithm_DiOutStar(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32out-star.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
+
         Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(path)
                 .setIsolatedVertices(true)
@@ -417,29 +330,6 @@ public class MHSETest {
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
 
-        Parameter param2 = new Parameter.Builder()
-                .setInputFilePathGraph(path)
-                .setIsolatedVertices(true)
-                .setInMemory(true)
-                .setNumSeeds(seeds.length)
-                .setDirection(direction)
-                .setTranspose(false)
-                .setSeedsRandom(false)
-                .setWebG(false)
-                .setCompG(true)
-                .setThreshold(0.9)
-                .build();
-
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
-        MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
-
-        Measure measure2 = algo2.runAlgorithm();
-
-        assertThat(measure2)
-                .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
-                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
-                .isEqualTo(expected);
 
 
     }
@@ -449,6 +339,7 @@ public class MHSETest {
     void testAlgorithm_UnCycle(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_undirected/32-cycle.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
+
         Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(path)
                 .setIsolatedVertices(true)
@@ -470,28 +361,6 @@ public class MHSETest {
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
-                .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
-                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
-                .isEqualTo(expected);
-        Parameter param2 = new Parameter.Builder()
-                .setInputFilePathGraph(path)
-                .setIsolatedVertices(true)
-                .setInMemory(true)
-                .setNumSeeds(seeds.length)
-                .setDirection(direction)
-                .setTranspose(false)
-                .setSeedsRandom(false)
-                .setWebG(false)
-                .setCompG(true)
-                .setThreshold(0.9)
-                .build();
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
-        MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
-
-        Measure measure2 = algo2.runAlgorithm();
-
-        assertThat(measure2)
                 .usingRecursiveComparison()
                 .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
@@ -504,6 +373,7 @@ public class MHSETest {
     void testAlgorithm_UnWheel(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_undirected/32-wheel.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
+
         Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(path)
                 .setIsolatedVertices(true)
@@ -530,28 +400,6 @@ public class MHSETest {
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
 
-        Parameter param2 = new Parameter.Builder()
-                .setInputFilePathGraph(path)
-                .setIsolatedVertices(true)
-                .setInMemory(true)
-                .setNumSeeds(seeds.length)
-                .setDirection(direction)
-                .setTranspose(false)
-                .setSeedsRandom(false)
-                .setThreshold(0.9)
-                .setWebG(false)
-                .setCompG(true)
-                .build();
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
-        MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
-
-        Measure measure2 = algo2.runAlgorithm();
-
-        assertThat(measure2)
-                .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
-                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
-                .isEqualTo(expected);
 
     }
 
@@ -560,6 +408,7 @@ public class MHSETest {
     void testAlgorithm_Complete(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_undirected/32-complete.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
+
         Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(path)
                 .setIsolatedVertices(true)
@@ -586,28 +435,7 @@ public class MHSETest {
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
 
-        Parameter param2 = new Parameter.Builder()
-                .setInputFilePathGraph(path)
-                .setIsolatedVertices(true)
-                .setInMemory(true)
-                .setNumSeeds(seeds.length)
-                .setDirection(direction)
-                .setTranspose(false)
-                .setSeedsRandom(false)
-                .setThreshold(0.9)
-                .setWebG(false)
-                .setCompG(true)
-                .build();
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
-        MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
 
-        Measure measure2 = algo2.runAlgorithm();
-
-        assertThat(measure2)
-                .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
-                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
-                .isEqualTo(expected);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
@@ -615,6 +443,7 @@ public class MHSETest {
     void testAlgorithm_DiInStar_checkSizeCollisionHopTable(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32in-star.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
+
         Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(path)
                 .setIsolatedVertices(true)
@@ -639,27 +468,6 @@ public class MHSETest {
         hopAndCollision.assertThat(measure.getHopTable()).as("HopTable size").hasSize(measure.getLowerBoundDiameter() + 1);
         hopAndCollision.assertAll();
 
-        Parameter param2 = new Parameter.Builder()
-                .setInputFilePathGraph(path)
-                .setIsolatedVertices(true)
-                .setInMemory(true)
-                .setNumSeeds(seeds.length)
-                .setDirection(direction)
-                .setTranspose(false)
-                .setSeedsRandom(false)
-                .setThreshold(0.9)
-                .setWebG(false)
-                .setCompG(true)
-                .build();
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
-        MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
 
-        Measure measure2 = algo2.runAlgorithm();
-
-        assertThat(measure2)
-                .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
-                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
-                .isEqualTo(expected);
     }
 }

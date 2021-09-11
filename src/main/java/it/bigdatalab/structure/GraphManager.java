@@ -17,7 +17,7 @@ public class GraphManager {
     private ImmutableGraph mGraph;
     private boolean  webGraph = false;
     private boolean compressedGraph = false;
-    private boolean differentialCompression = true;
+    private boolean differentialCompression = false;
     private boolean inMemory = true;
     private int [] nodes;
     private boolean isolatedVertices;
@@ -65,24 +65,31 @@ public class GraphManager {
         }
         if(CG){
             compressedGraph = true;
-            // Must manage the transpose loading!
             String[] SplitInputFilePath = inputFilePath.split("[.]");
-            if(transpose == true){
+            if(transpose){
                 logger.info("Loading the transposed compressed graph");
-              
+                System.out.println(SplitInputFilePath[0] + "_transposed."+SplitInputFilePath[1]+".txt");
                 cGraph = new CompressedGraph(SplitInputFilePath[0] + "_transposed."+SplitInputFilePath[1]+".txt", SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_offset.txt", true);
                 logger.info("Transposed compressed graph loaded.");
             }else {
+                String off = SplitInputFilePath[0] + "." + SplitInputFilePath[1] + "_offset.txt";
                 cGraph = new CompressedGraph(inputFilePath, SplitInputFilePath[0] + "." + SplitInputFilePath[1] + "_offset.txt", true);
+
+
+
             }
             nodes = cGraph.get_nodes();
         }
 
     }
     public int[] get_neighbours(int node){
+
         if(webGraph){
+
+
             return mGraph.successorArray(node);
         }
+
         return cGraph.get_neighbours(node,differentialCompression);
     }
 

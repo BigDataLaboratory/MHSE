@@ -2,6 +2,7 @@ package it.bigdatalab.compression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sound.midi.SysexMessage;
 import java.awt.*;
 import java.io.*;
 import java.lang.Math.*;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 
 public class GroupVarInt {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.compression.GroupVarint");
+
 
     private int[][] offset;
 
@@ -264,7 +266,159 @@ public class GroupVarInt {
         return(len);
     }
 
+    //Arrays.copyOfRange(array, 1, array.length);
+    public int[] dec(byte encoded []){
+        int decodedBytes;
+        int k,c;
+        int index;
+        int s1,s2,s3,s4;
+        int prefix_sum;
+        int [] prefixes;
+        int [] final_decoding = new int[0];
+        byte [] partial_decoding = new byte[0];
+        int [] decoded = new int[0];
+
+        decodedBytes = 0;
+        while(decodedBytes<encoded.length){
+            // Reading prefixes
+            s1 = (0xC0 & encoded[decodedBytes]) >>> 6;
+            s2 = (0x30 & encoded[decodedBytes]) >>> 4;
+            s3 = (0xC & encoded[decodedBytes]) >>> 2;
+            s4 = 0x3 & encoded[decodedBytes];
+
+            prefix_sum = s1+s2+s3+s4 +4;
+
+            prefixes = new int[]{s1 + 1, s2 + 1, s3 + 1, s4 + 1};
+            System.out.println("PREFISSI SENZA SHIFT");
+            System.out.println(encoded[decodedBytes]);
+            System.out.println("PREFISSI");
+            System.out.println(s1+" "+s2+" "+s3+" "+s4);
+            System.out.println("Lung enc");
+            System.out.println(encoded.length);
+            //System.exit(-1);
+
+            if(decodedBytes +prefix_sum < encoded.length){
+                System.out.println("MIAO ");
+
+                decodedBytes+=1; // excluding prefix
+                decoded = new int[4];
+                for (k = 0;k<decoded.length;k++){
+                    partial_decoding = new byte[prefixes[k]];
+                    for (c = 0;c< partial_decoding.length;c++){
+                        partial_decoding[c] = encoded[decodedBytes];
+                        decodedBytes+=1;
+                    }
+                    decoded[k] = convertByteArrayToInt(partial_decoding);
+                }
+
+            }else{
+                System.out.println("BAU ");
+
+                // if decodedBytes +prefix_sum >= encoded.length
+                decodedBytes +=1; // excluding prefix
+                index = 0;
+                if(decodedBytes+prefix_sum -encoded.length == 0){
+                    index = 4;
+                }else if(decodedBytes+prefix_sum -encoded.length == 1){
+                    index =3;
+                }else if(decodedBytes+prefix_sum -encoded.length == 2){
+                    index = 2;
+                }else if(decodedBytes+prefix_sum -encoded.length == 3){
+                    index = 1;
+                }
+                System.out.println("INDEX = "+index);
+                decoded = new int[index];
+                for (k = 0;k<index;k++){
+                    partial_decoding = new byte[prefixes[k]];
+                    for(c = 0; c< partial_decoding.length;c++){
+                        partial_decoding[c] = encoded[decodedBytes];
+                        decodedBytes+=1;
+                    }
+                    decoded[k] = convertByteArrayToInt(partial_decoding);
+                }
+            }
+            decodedBytes+=1; // jump to the next prefix
+            final_decoding = intArrayExtend(decoded, final_decoding);
+        }
+        System.out.println("FINAL DEC LN " +final_decoding.length);
+    return (final_decoding);
+
+    }
+
     public int[] decode(byte encoded []){
+        int i,j,k,p,r,l,q;
+        int s1,s2,s3,s4;
+        int [] prefix_lenghts;
+        int sum_of_prefix_numbers = 0;
+        int group_encoding_lenght = 0;
+        int[] tmpArray = new int[0];
+        int [] odd_tmpArray = new int [0];
+        int[] partial_decoding;
+        int decoded_sofar;
+        int remaining = 0;
+        int remaining_prefix;
+        byte [] cop;
+        i=0;
+
+        while(i < encoded.length) {
+
+
+            s1 = (0xC0 & encoded[i]) >>> 6;
+            s2 = (0x30 & encoded[i]) >>> 4;
+            s3 = (0xC & encoded[i]) >>> 2;
+            s4 = 0x3 & encoded[i];
+            System.out.println("ENCODED["+i+"] = "+encoded[i]);
+
+            prefix_lenghts = new int[]{s1 + 1, s2 + 1, s3 + 1, s4 + 1};
+            sum_of_prefix_numbers = s1 + s2 + s3 + s4 + 4;
+            for(int g = 0; g<prefix_lenghts.length;g++){
+                System.out.println("PREFISSO["+g+"] = "+prefix_lenghts[g]);
+            }
+            System.out.println("LUNGHEZZA ENCODING "+encoded.length);
+            System.out.println("Index i = "+i);
+            cop = Arrays.copyOfRange(encoded, i+1,i+1+sum_of_prefix_numbers);
+
+            System.out.println("LENGH OF COPIED "+cop.length+ " SOMMA PREFISSI "+sum_of_prefix_numbers);
+            l = cop.length;
+
+            if(sum_of_prefix_numbers - l  == 0){
+                remaining = 4;
+
+            }else if(sum_of_prefix_numbers - l == 1){
+                remaining = 3;
+            }else if(sum_of_prefix_numbers - l == 2){
+                remaining = 2;
+            }else if(sum_of_prefix_numbers - l == 3){
+                remaining = 1;
+            }
+
+            partial_decoding = new int [remaining];
+            remaining_prefix = 0;
+
+            for ( r = 0; r<remaining;r++){
+                p = 0;
+                byte[] a = new byte[prefix_lenghts[r]];
+                remaining_prefix += prefix_lenghts[r];
+                while (p != prefix_lenghts[r]) {
+
+                    a[p] = encoded[l];
+                    p += 1;
+                    l += 1;
+                }
+                partial_decoding[r] = convertByteArrayToInt(a);
+
+
+            }
+            tmpArray = intArrayExtend(partial_decoding, tmpArray);
+            i += sum_of_prefix_numbers + 1;
+
+        }
+
+
+        return(tmpArray);
+    }
+
+    public int[] decode_dep(byte encoded []){
         int i,j,k,p,r,l,q;
         int s1,s2,s3,s4;
         int [] prefix_lenghts;
@@ -295,7 +449,7 @@ public class GroupVarInt {
 
             int obs = decoded_sofar + sum_of_prefix_numbers;
             //System.out.println("OBS "+obs);
-            //System.out.println("LUNG ENC "+ encoded.length);
+            System.out.println("LUNG ENC "+ encoded.length);
             //k = 0;
             /*
             for (int u = 0;u<prefix_lenghts.length;u++){
@@ -305,21 +459,36 @@ public class GroupVarInt {
             */
 
             //System.out.println("Lunghezza lista "+encoded.length+ " index i "+i+" somma dei prefissi "+sum_of_prefix_numbers);
+            int dif = l+  sum_of_prefix_numbers -encoded.length-2;
+            System.out.println("DIFF "+dif);
+            System.out.println();
             if (l + sum_of_prefix_numbers >= encoded.length) {
-                if(l+sum_of_prefix_numbers -encoded.length == 0){
+                byte [] cop = Arrays.copyOfRange(encoded,l,encoded.length);
+                dif = sum_of_prefix_numbers-(cop.length +2);
+                System.out.println("-------------");
+                System.out.println(sum_of_prefix_numbers);
+                System.out.println(cop.length);
+                System.out.println("-------------");
+
+                System.out.println("DIEFFWE "+dif);
+                if( sum_of_prefix_numbers -(cop.length +2 )== 0){
                     remaining = 4;
-                }else if(l+sum_of_prefix_numbers -encoded.length == 1){
+                }else if( sum_of_prefix_numbers -(cop.length +2)== 1){
                     remaining = 3;
-                }else if(l+sum_of_prefix_numbers -encoded.length == 2){
+                }else if(  sum_of_prefix_numbers -(cop.length +2 )== 2){
                     remaining = 2;
-                }else if (l+sum_of_prefix_numbers -encoded.length == 3){
+                }else if ( sum_of_prefix_numbers -(cop.length +2 ) == 3){
                     remaining = 1;
                 }
+
+                int diff = l+  sum_of_prefix_numbers - encoded.length;
+                //System.out.println("DIFF "+diff+ "  ENC LENG "+encoded.length+ " SUM OF PREFIXS "+sum_of_prefix_numbers +" Remaining "+remaining);
                 decoded_sofar = l;
 
                 //System.out.println("RIMANGONO "+remaining);
 
                 //odd_tmpArray = new int[1];
+                System.out.println("REMAINING "+remaining);
                 partial_decoding = new int[remaining];
                 remaining_prefix = 0;
 //                for(int e = 0; e< prefix_lenghts.length;e++){
@@ -334,21 +503,31 @@ public class GroupVarInt {
 //                System.out.println( "ENC "+encoded.length);
 //                System.out.println("DEC SOFAR "+decoded_sofar);
                 //r = 0;
-
+                //for(int h = 0;h<prefix_lenghts.length;h++){
+                 //   System.out.println("PREF LENG "+prefix_lenghts[h]);
+                //}
+                //System.out.println("REMAINING "+remaining);
                 for ( r = 0; r<remaining; r++ ){
                 //while(missing_bytes < encoded.length){
                     //System.out.println("MISSING BYTES "+missing_bytes);
+
                     p = 0;
+                    System.out.println("PL "+prefix_lenghts[r]);
                     byte[] a = new byte[prefix_lenghts[r]];
                     remaining_prefix += prefix_lenghts[r];
+
                     while (p != prefix_lenghts[r]) {
-                       // System.out.println("L = "+l);
+
+                        // System.out.println("L = "+l);
                         a[p] = encoded[l];
                         p += 1;
                         l += 1;
                     }
                     //odd_tmpArray[0] = convertByteArrayToInt(a);
                     partial_decoding[r] = convertByteArrayToInt(a);
+                    //for (int h = 0;h<partial_decoding.length;h++){
+                     //   System.out.println("PART DEC "+partial_decoding[h]);
+                    //}
                     //missing_bytes+=prefix_lenghts[r];
                     //r += 1;
 
@@ -357,15 +536,17 @@ public class GroupVarInt {
                 }
                 //decoded_sofar += remaining_prefix + 1;
 
-
+                //System.out.println("VAIAUD");
 
 
             } else {
+                //System.out.println("uuuu");
 
                 partial_decoding = new int[4];
                 r = 0;
                 for (k = 0; k < 4; k++) {
                     p = 0;
+
                     byte[] a = new byte[prefix_lenghts[r]];
                     while (p != prefix_lenghts[r]) {
                         a[p] = encoded[l];
@@ -382,6 +563,7 @@ public class GroupVarInt {
 
             tmpArray = intArrayExtend(partial_decoding, tmpArray);
             i += sum_of_prefix_numbers + 1;
+
         }
 
 /*
@@ -466,6 +648,8 @@ public class GroupVarInt {
 
             i += sum_of_prefix_numbers +1;*/
         //}
+
+
         return(tmpArray);
         }
 
@@ -520,14 +704,14 @@ public class GroupVarInt {
         return (compressedAdjList);
     }
 
-
-
+  
 
     public byte[][] encodeAdjList(int [][] matrix,boolean d_compression) {
         int nodes,edges;
         int i,j;
         int off;
         byte [][] encoded;
+        int [] diffEncoded;
         int [] row;
         int [] offset_bytes,offset_nodes,gap_offset_bytes,gap_offset_nodes,offset_and_bytes;
         GapCompressor = new DifferentialCompression();
@@ -545,7 +729,18 @@ public class GroupVarInt {
             for (j=0;j<edges;j++) {
                 row[j] = matrix[i][j];
             }
-            encoded[i] = listEncoding(row);
+            if(d_compression) {
+
+                //diffEncoded = GapCompressor.encodeSortedSequence(row);
+                diffEncoded = GapCompressor.encodeSequence(row);
+                for(int o = 0;o<row.length;o++){
+                    System.out.println("VECCHIO = "+row[o]+ " COMPR DIFF = "+diffEncoded[o]);
+                }
+                encoded[i] = listEncoding(diffEncoded);
+            }else{
+                encoded[i] = listEncoding(row);
+            }
+            //
             off += encoded[i].length;
             //offset[i][0] = matrix[i][0];
             //offset[i][1] =off;
@@ -553,28 +748,36 @@ public class GroupVarInt {
             offset_bytes[i] = off;
 
         }
-        if(d_compression){
-            gap_offset_nodes = offset_nodes;
+        if(d_compression == false){
+
+            for (i = 0;i<nodes;i++){
+                offset[i][0] = offset_nodes[i];
+                offset[i][1] = offset_bytes[i];
+                System.out.println("Offset " + offset[i][0] + "  "+offset[i][1]);
+
+            }
+
         }else{
 
             gap_offset_nodes = GapCompressor.encodeSequence(offset_nodes);
+            gap_offset_bytes  = GapCompressor.encodeSequence(offset_bytes);
+            offset_and_bytes = new int[gap_offset_bytes.length+gap_offset_nodes.length];
+            for (i = 0;i<gap_offset_bytes.length;i++){
+
+                offset_and_bytes[i+gap_offset_bytes.length] = gap_offset_nodes[i];
+
+                offset_and_bytes[i] = gap_offset_bytes[i];
+
+            }
+            compressedOffset = sequenceEncoding(offset_and_bytes);
+
+            for (i = 0;i<nodes;i++){
+                offset[i][0] = gap_offset_nodes[i];
+                offset[i][1] = gap_offset_bytes[i];
+            }
 
         }
-        gap_offset_bytes  = GapCompressor.encodeSequence(offset_bytes);
-        offset_and_bytes = new int[gap_offset_bytes.length+gap_offset_nodes.length];
-        for (i = 0;i<gap_offset_bytes.length;i++){
 
-            offset_and_bytes[i+gap_offset_bytes.length] = gap_offset_nodes[i];
-
-            offset_and_bytes[i] = gap_offset_bytes[i];
-
-        }
-        compressedOffset = sequenceEncoding(offset_and_bytes);
-
-        for (i = 0;i<nodes;i++){
-            offset[i][0] = gap_offset_nodes[i];
-            offset[i][1] = gap_offset_bytes[i];
-        }
         
         compressedAdjList = encoded;
         logger.info("Encoding completed " );
@@ -605,7 +808,7 @@ public class GroupVarInt {
         return(decoded);
     }
 
-    public static void saveEncoding(String outPath,String instance, byte [][] encoded,byte [] COffset) {
+    public static void saveEncoding(String outPath,String instance, byte [][] encoded,int [][] COffset) {
 
         byte[] flattered_encoding;
         int n, m, i, k, q, j;
@@ -653,7 +856,7 @@ public class GroupVarInt {
         }
         // Writing offset file
 
-       /* try {
+        try {
             File off = new File(outPath + instance + "_offset.txt");
             if (off.createNewFile()) {
                 logger.info("File {} created ", off.getName());
@@ -664,21 +867,24 @@ public class GroupVarInt {
         } catch (IOException e) {
             logger.error("An error occurred.");
             e.printStackTrace();
-        }*/
+        }
         // Compressed offset
         //n = offset.length;
         try {
-            Files.write(Paths.get(outPath+ instance + "_offset.txt"), COffset);
+            //Files.write(Paths.get(outPath+ instance + "_offset.txt"), COffset);
 
-           /* BufferedWriter bw = new BufferedWriter(new FileWriter(outPath + instance + "_offset.txt"));
+            BufferedWriter bw = new BufferedWriter(new FileWriter(outPath + instance + "_offset.txt"));
+
             for (i = 0; i < n; i++) {
-                m = offset[i].length;
+                m = COffset[i].length;
                 for (j = 0; j < m; j++) {
-                    bw.write(offset[i][j] + ((j == offset[i].length - 1) ? "" : "\t"));
+                    bw.write(COffset[i][j] + ((j == COffset[i].length - 1) ? "" : "\t"));
                 }
                 bw.newLine();
             }
-            bw.flush();*/
+            bw.flush();
+
+
         } catch (IOException e) {
         }
         logger.info("Encoded Graph and offset files properly written " );

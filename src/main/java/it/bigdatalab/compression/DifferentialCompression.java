@@ -2,6 +2,7 @@ package it.bigdatalab.compression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sound.midi.SysexMessage;
 import java.util.Arrays;
 
 // Interfaccia per una futura lambda expression
@@ -23,9 +24,11 @@ public class DifferentialCompression {
         int uncommonBitsFromBoth = i ^ j;
         int commonBitsFromBoth   = i & j;
 
-        if (commonBitsFromBoth == 0)
+        if (commonBitsFromBoth == 0) {
+            System.out.println("AHUAHU");
+            System.out.println("I = "+i+ " J = "+j);
             return uncommonBitsFromBoth;
-
+        }
         return bitwiseAdd (
                 uncommonBitsFromBoth,
                 commonBitsFromBoth << 1
@@ -56,17 +59,41 @@ public class DifferentialCompression {
     public int[] encodeSequence(int [] sequence ){
         int[] encoded = new int[sequence.length];
         int j;
+        int[] targets;
         // check if the sequence is sorted
+        if(sequence.length>1) {
+            targets = Arrays.copyOfRange(sequence, 1, sequence.length);
+            if(!(isSorted(targets))){
+                Arrays.sort(targets);
+            }
+            j = 0;
+            encoded[0] = sequence[0];
+            while(j<(targets.length-1)){
+
+                //encoded[j+1] = sequence[j+1] - sequence[j];
+                encoded[j+1] = bitwiseSubtraction(targets[j+1],targets[j]);
+                // System.out.println("sequence[j+1] = " +sequence[j+1] + "- sequence[j] =  "+sequence[j]+ " encoded[j+1] = "+encoded[j+1]);
+                j++;
+            }
+        }else{
+            encoded = sequence;
+        }
+        /*
         if(!(isSorted(sequence))){
             Arrays.sort(sequence);
         }
+
         j = 0;
         encoded[0] = sequence[0];
         while(j<(sequence.length-1)){
+
             //encoded[j+1] = sequence[j+1] - sequence[j];
             encoded[j+1] = bitwiseSubtraction(sequence[j+1],sequence[j]);
+           // System.out.println("sequence[j+1] = " +sequence[j+1] + "- sequence[j] =  "+sequence[j]+ " encoded[j+1] = "+encoded[j+1]);
             j++;
         }
+
+         */
         return(encoded);
     }
 
@@ -88,10 +115,15 @@ public class DifferentialCompression {
         int j;
         j = 0;
         decoded[0] = encoded[0];
+        System.out.println("DEC SEQ = "+encoded[0]);
         while(j<(encoded.length-1)){
             //decoded[j+1] = encoded[j+1] + decoded[j];
             decoded[j+1] = bitwiseAdd(encoded[j+1],decoded[j]);
+            System.out.println("ADDIZIONE "+encoded[j+1] +" + "+decoded[j] + " = "+decoded[j+1]);
             j++;
+        }
+        for(int i = 0;i<decoded.length;i++){
+            System.out.println("DECODED ["+i+"]= "+ decoded[i]);
         }
         return (decoded);
     }
@@ -107,6 +139,7 @@ public class DifferentialCompression {
         nodes = matrix.length;
         encoded = new int [nodes][];
         column = new int [nodes];
+
         logger.info("Starting encoding the Adjacency List " );
         for (i=0;i<nodes;i++){
             edges = matrix[i].length;
@@ -123,6 +156,12 @@ public class DifferentialCompression {
                     row_enc_b[k] = row_enc[k - 1];
                 }
                 encoded[i] = row_enc_b;
+            }
+            else if(row.length == 1){
+                row_enc = new int[2];
+                row_enc[0] = 0;
+                row_enc[1] = matrix[i][1];
+                encoded[i] = row_enc;
             }
             else{
                 encoded[i] =empty_set ;
