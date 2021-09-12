@@ -11,6 +11,7 @@ import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -55,7 +56,12 @@ public class CompressedGraph {
     public void load_compressed_graph(String inPath, String offPath) throws IOException {
         logger.info("Loading the compressed Graph");
         File file = new File(inPath);
+        Path path = Paths.get(inPath);
+        long size = Files.size(path);
         compressed_graph = new byte[(int) file.length()];
+        System.out.println("ALLOCATED MEMORY "+compressed_graph.length);
+        System.out.println("FILE LENGTH "+file.length());
+        System.out.println("SIZE "+size);
         compressed_graph_size =  file.length();
 
         try {
@@ -232,14 +238,18 @@ public class CompressedGraph {
         byte [] toDecode ;
         int i,k;
         compressor = new GroupVarInt();
+        //System.out.println("NODE "+node+ " !!!");
         if(node == offset[0][0]){
             //System.out.println("SONO 0");
             toDecode = new byte[offset[node][1]];
             k =0;
             for(i = 0;i<offset[0][1];i++){
                 toDecode[k] = compressed_graph[i];
+                //System.out.println(toDecode[k]);
                 k+=1;
+
             }
+
         }else if(node ==  offset[offset.length-1][0]){
 //            System.out.println("SONO ULTIMO");
 //            System.out.println("COMP G LEN "+compressed_graph.length);

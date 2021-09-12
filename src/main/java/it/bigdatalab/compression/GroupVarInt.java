@@ -1,4 +1,6 @@
 package it.bigdatalab.compression;
+import com.google.common.io.Closer;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -953,9 +955,13 @@ public class GroupVarInt {
             logger.error("An error occurred.");
             e.printStackTrace();
         }
-
         try {
-            Files.write(Paths.get(outPath+ instance + ".txt"),compressedAdjListFlat);
+            //(ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(outPath+ instance + ".txt")))
+            FileUtils.writeByteArrayToFile(new File(outPath+ instance + ".txt"), compressedAdjListFlat);
+              /* for(int b=0;b<compressedAdjListFlat.length;b++){
+                   out.write(compressedAdjListFlat[b]);
+               }
+               out.close();*/
             logger.info("Successfully written data to the file ");
 
         } catch (IOException e) {

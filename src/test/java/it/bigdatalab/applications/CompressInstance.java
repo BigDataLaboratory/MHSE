@@ -31,7 +31,7 @@ public class CompressInstance {
             G.load_graph(input+namesDirected[i],"\t");
             System.out.println("TESTING "+namesDirected[i]);
 
-            cG = new GraphManager(false,true,input+namesDirected[i],false,false,false,"in");
+            cG = new GraphManager(false,true,input+namesDirected[i]+".txt",false,false,false,"in");
             int [][] uncG = G.getGraph();
             int [] edgeList;
             for(int k = 0;k<uncG.length;k++){
@@ -48,11 +48,40 @@ public class CompressInstance {
                     }
                 }
             }
+
+
+
             logger.info("DECOMPRESSIONE VARINT TESTATA E FUNZIONANTE SULLE LISTE");
+
+            logger.info("DECOMPRESSIONE DA FILE E NON COMPRESSO TEST");
+            compressor.encodeAdjListFlat(uncG,false);
+            System.out.println("LUNGHEZZA GRAFO COMPRESSO "+compressor.get_compressedAdjListFlat().length );
+            //compressor.saveEncoding("/home/antoniocruciani/Desktop/monnezza/" ,"pippo.txt");
+            //cG.set_compressed_graph(compressor.get_compressedAdjListFlat());
+            //cG.set_offset(compressor.getOffset());
+            //System.exit(-1);
+            int [][] offs = cG.get_cGraph().get_offset();
+            for(int y =0;y<offs.length;y++){
+                int [] dec_neig = cG.get_neighbours(offs[y][0]);
+                int [] neig = G.get_neighbours(offs[y][0]);
+                System.out.println(" LUNG COMP "+dec_neig.length+ "  LUNG UNC "+neig.length);
+                for(int x=0;x<dec_neig.length;x++){
+                    if(dec_neig[x]!= neig[x]){
+                        logger.error("MISMATCH decoded {}  not encoded {}",dec_neig[y],neig[x]);
+                        System.exit(-6);
+                    }
+                }
+
+
+            }
+
+            logger.info("DECOMPRESSIONE DA FILE E NON COMPRESSO PASSATA");
+
             logger.info("TEST FUNZIONE COMPRESSIONE ADJ LIST");
             compressor.encodeAdjListFlat(uncG,false);
             logger.info("TEST OFFSET ");
             int [][] compOFSS = compressor.getOffset();
+
             System.out.println("LEN OFF COMPUTED "+ compOFSS.length+ " LEN LOADED OFFS "+cG.get_cGraph().get_offset().length);
             for(int y =0;y<compOFSS.length;y++){
                 if(compOFSS[y][0] != cG.get_cGraph().get_offset()[y][0]){

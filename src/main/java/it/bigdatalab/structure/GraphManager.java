@@ -67,13 +67,32 @@ public class GraphManager {
             compressedGraph = true;
             String[] SplitInputFilePath = inputFilePath.split("[.]");
             if(transpose){
-                logger.info("Loading the transposed compressed graph");
-                System.out.println(SplitInputFilePath[0] + "_transposed."+SplitInputFilePath[1]+".txt");
-                cGraph = new CompressedGraph(SplitInputFilePath[0] + "_transposed."+SplitInputFilePath[1]+".txt", SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_offset.txt", true);
-                logger.info("Transposed compressed graph loaded.");
+                if (direction.equals(Constants.IN_DIRECTION)) {
+                    logger.info("Loading the transposed compressed graph");
+                    System.out.println(SplitInputFilePath[0] + "_transposed."+SplitInputFilePath[1]+".txt");
+                    cGraph = new CompressedGraph(SplitInputFilePath[0] + "_transposed."+SplitInputFilePath[1]+".txt", SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_offset.txt", true);
+                    logger.info("Transposed compressed graph loaded.");
+
+                }else{
+                    logger.info("Loading the compressed graph");
+                    cGraph = new CompressedGraph(SplitInputFilePath[0] + "."+SplitInputFilePath[1]+".txt", SplitInputFilePath[0] + "." + SplitInputFilePath[1] + "_offset.txt", true);
+                    logger.info("Loading completed");
+
+                }
+
             }else {
-                String off = SplitInputFilePath[0] + "." + SplitInputFilePath[1] + "_offset.txt";
-                cGraph = new CompressedGraph(inputFilePath, SplitInputFilePath[0] + "." + SplitInputFilePath[1] + "_offset.txt", true);
+
+                if (direction.equals(Constants.OUT_DIRECTION)) {
+                    logger.info("Transposing graph cause direction is {}", direction);
+                    cGraph = new CompressedGraph(SplitInputFilePath[0] + "_transposed."+SplitInputFilePath[1]+".txt", SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_offset.txt", true);
+                    logger.debug("Transposing graph ended");
+                }else{
+                    logger.info("Loading the compressed graph");
+                    cGraph = new CompressedGraph(SplitInputFilePath[0] + "."+SplitInputFilePath[1]+".txt", SplitInputFilePath[0] + "." + SplitInputFilePath[1] + "_offset.txt", true);
+                    logger.info("Loading completed");
+
+                }
+
 
 
 

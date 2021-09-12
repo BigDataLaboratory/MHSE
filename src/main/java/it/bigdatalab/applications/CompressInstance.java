@@ -440,8 +440,8 @@ public class CompressInstance {
         String [] names = {"32-cycle.adjlist","32-cycle_transposed.adjlist","32-path.adjlist","32-path_transposed.adjlist",
         "32in-star.adjlist","32in-star_transposed.adjlist","32out-star.adjlist","32out-star_transposed.adjlist","32t-path.adjlist"
         ,"32t-path_transposed.adjlist"};
-        //String [] names = {"32-complete.adjlist","32-complete_transposed.adjlist","32-cycle.adjlist","32-cycle_transposed.adjlist","32-wheel.adjlist",
-        //"32-wheel_transposed.adjlist"};
+//        String [] names = {"32-complete.adjlist","32-complete_transposed.adjlist","32-cycle.adjlist","32-cycle_transposed.adjlist","32-wheel.adjlist",
+//        "32-wheel_transposed.adjlist"};
         GroupVarInt VarintGB = new GroupVarInt();
         DifferentialCompression diff = new DifferentialCompression();
         CompressedGraph Graph;
