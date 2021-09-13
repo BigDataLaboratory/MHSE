@@ -478,10 +478,10 @@ public class CompressInstance {
         t.test_adjlist_compression_varintGB(provaMat);
         */
 
-        //t.compress();
+        t.compress();
         //t.test_32_cycle_diff_gb();
        // t.test_32_cycle();
-        t.compress_test_instances();
+        //t.compress_test_instances();
         //t.prova_lista();
 
     }
