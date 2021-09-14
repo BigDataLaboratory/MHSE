@@ -100,17 +100,34 @@ public class DifferentialCompression {
     public int[] encodeSortedSequence(int [] sequence ){
         int[] encoded = new int[sequence.length];
         int j;
-        j = 0;
-        encoded[0] = sequence[0];
-        while(j<(sequence.length-1)){
-            //encoded[j+1] = sequence[j+1] - sequence[j];
-            encoded[j+1] = bitwiseSubtraction(sequence[j+1],sequence[j]);
-            j++;
+        if(sequence.length<3){
+            return(sequence);
+        }else{
+            encoded[0] = sequence[0];
+            encoded[1] = sequence[1];
+            for(j = 2;j<sequence.length;j++){
+                encoded[j] = bitwiseSubtraction(sequence[j],sequence[j-1]);
+            }
+            return(encoded);
         }
-        return(encoded);
     }
 
-    public int[] decodeSequence(int [] encoded){
+    public int[] decodeSequence(int []encoded){
+        int [] decoded = new int[encoded.length];
+        int j;
+        if(encoded.length<3){
+            return (encoded);
+        }else{
+            decoded[0] = encoded[0];
+            decoded[1] = encoded[1];
+            for(j = 2;j<encoded.length;j++){
+                decoded[j] = bitwiseAdd(encoded[j],decoded[j-1]);
+            }
+            return (decoded);
+        }
+    }
+
+    public int[] decodeSequence_dep(int [] encoded){
         int [] decoded = new int[encoded.length];
         int j;
         j = 0;
@@ -127,8 +144,40 @@ public class DifferentialCompression {
         }
         return (decoded);
     }
+    public int [][] ecnodeAdjList(int [][] matrix){
+        int [][] encoded;
+        int [] edgelist;
+        int i,j;
+        logger.info("Starting encoding the Adjacency List " );
+        encoded = new int[matrix.length][];
+        for (i = 0;i<matrix.length;i++){
+            edgelist = new int[matrix[i].length];
+            for(j=0;j<matrix[i].length;j++){
+                edgelist[j] = matrix[i][j];
 
-    public int[][] encodeAdjList(int [][] matrix){
+            encoded[i] = encodeSortedSequence(edgelist);
+            }
+        }
+        return (encoded);
+    }
+
+    public int [][] decodeAdjList(int [][] matrix){
+        int [][] decoded;
+        int [] edgelist;
+        int i,j;
+        logger.info("Starting encoding the Adjacency List " );
+        decoded = new int[matrix.length][];
+        for (i = 0;i<matrix.length;i++){
+            edgelist = new int[matrix[i].length];
+            for(j=0;j<matrix[i].length;j++){
+                edgelist[j] = matrix[i][j];
+
+                decoded[i] = decodeSequence(edgelist);
+            }
+        }
+        return (decoded);
+    }
+    public int[][] encodeAdjList_dep(int [][] matrix){
         int nodes,edges;
         int i,j,k;
         int [][] encoded;
@@ -175,7 +224,7 @@ public class DifferentialCompression {
         return (encoded);
     }
 
-    public int[][] decodeAdjList(int [][] encoded_matrix){
+    public int[][] decodeAdjList_dep(int [][] encoded_matrix){
         int nodes,edges;
         int i,j,k;
         int [][] decoded;

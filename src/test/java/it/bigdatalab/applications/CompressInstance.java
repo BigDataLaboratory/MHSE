@@ -1,5 +1,6 @@
 package it.bigdatalab.applications;
 
+import it.bigdatalab.compression.DifferentialCompression;
 import it.bigdatalab.compression.GroupVarInt;
 import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.structure.GraphManager;
@@ -25,7 +26,7 @@ public class CompressInstance {
         UncompressedGraph G;
         GraphManager cG;
         GroupVarInt compressor = new GroupVarInt();
-
+        DifferentialCompression differential = new DifferentialCompression();
         for(int i = 0;i< namesDirected.length;i++){
             G = new UncompressedGraph();
             G.load_graph(input+namesDirected[i],"\t");
@@ -139,6 +140,46 @@ public class CompressInstance {
 
             }
             logger.info("GET NEIGH TESTATA E FUNZIONANTE SULLE LISTE");
+
+            logger.info("TESTING DIFFERENTIAL COMPRESSION");
+            for(int k = 0;k<uncG.length;k++){
+                edgeList = uncG[k];
+                int[] group_compression = differential.encodeSortedSequence(edgeList);
+                //System.out.println("LISTA ENCODED");
+                int[] group_decompression = differential.decodeSequence(group_compression);
+                //System.out.println("---------------------------------------------------");
+                for(int u=0;u< group_decompression.length;u++){
+                    // System.out.println("DECOMPRESSED = "+group_decompression[u] + " ORIGINAL = "+uncG[k][u]);
+                    if(group_decompression[u] != uncG[k][u]){
+                        logger.error("ERRORE MISMATCH ");
+                        System.exit(-1);
+                    }
+                }
+            }
+            logger.info("DIFFERENTIAL COMPRESSION TESTATA E FUNZIONANTE SULLE LISTE!");
+
+
+            logger.info("TEST FUNZIONE COMPRESSIONE ADJ LIST");
+
+
+
+            logger.info("TEST FUNZIONE COMPRESSIONE ADJ LIST");
+            int [][] encodedDiff = differential.ecnodeAdjList(uncG);
+            int [][] diffDecompressed = differential.decodeAdjList(encodedDiff);
+            //System.out.println("LEN OFF COMPUTED "+ compOFSS.length+ " LEN LOADED OFFS "+cG.get_cGraph().get_offset().length);
+            for(int y =0;y<uncG.length;y++){
+                for(int e = 0;e<uncG[y].length;e++) {
+                    if (uncG[y][e] != diffDecompressed[y][e]) {
+                        logger.error("ERRORE MISMATCH ");
+                        logger.error("INDEX {} COMPUTED {} LOADED {}", y, uncG[y][e], diffDecompressed[y][e]);
+                        System.exit(-1);
+                    }
+                }
+            }
+            logger.info("OFFSET TEST PASSED");
+            logger.info("TEST COMPRESSED GRAPH");
+
+
 
 //
 //
