@@ -3,7 +3,6 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
-import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
@@ -129,9 +128,8 @@ public class MultithreadMHSEX extends MinHash {
 
         mCollisionsVector[h] = collisions;
         h += 1;
-        // Scommenta e implementa
 
-        //mCyclicBarrier = new CyclicBarrier(mNumberOfThreads, new AggregatorThread(mGraph.copy()));
+        mCyclicBarrier = new CyclicBarrier(mNumberOfThreads, new AggregatorThread(mGraph));
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
 
         int start = 0;
@@ -143,13 +141,10 @@ public class MultithreadMHSEX extends MinHash {
 
             if (nt == mNumberOfThreads - 1) {
                 logger.debug("start {} end {} index {}", start, mGraph.numNodes() - 1, nt);
-                // Scommenta e implementa
-               // todo.add(new IterationThread(mGraph.copy(), start, mGraph.numNodes() - 1, nt));
+                todo.add(new IterationThread(mGraph, start, mGraph.numNodes() - 1, nt));
             } else {
                 logger.debug("start {} end {} index {}", start, end, nt);
-                // Scommenta e implementa
-
-                //todo.add(new IterationThread(mGraph.copy(), start, end, nt));
+                todo.add(new IterationThread(mGraph, start, end, nt));
             }
             start = end + 1;
             end = start + numberOfNodes4Group;
@@ -198,9 +193,9 @@ public class MultithreadMHSEX extends MinHash {
 
     class AggregatorThread implements Runnable {
 
-        private final ImmutableGraph g;
+        private final GraphManager g;
 
-        public AggregatorThread(ImmutableGraph g) {
+        public AggregatorThread(GraphManager g) {
             this.g = g;
         }
 
@@ -233,12 +228,12 @@ public class MultithreadMHSEX extends MinHash {
 
     class IterationThread implements Callable<Integer> {
 
-        private final ImmutableGraph g;
+        private final GraphManager g;
         private final int start;
         private final int end;
         private final int index;
 
-        public IterationThread(ImmutableGraph g, int start, int end, int index) {
+        public IterationThread(GraphManager g, int start, int end, int index) {
             this.g = g;
             this.start = start;
             this.end = end;
@@ -259,8 +254,9 @@ public class MultithreadMHSEX extends MinHash {
 
                 // update node signature
                 for (int n = start; n < end + 1; n++) {
-                    final int d = g.outdegree(n);
-                    final int[] successors = g.successorArray(n);
+                    final int[] successors = g.get_neighbours(n);
+
+                    final int d = successors.length;
 
                     nPosition = n >>> Constants.MASK;
                     nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
