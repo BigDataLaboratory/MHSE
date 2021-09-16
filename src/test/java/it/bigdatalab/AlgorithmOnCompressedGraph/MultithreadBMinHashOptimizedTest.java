@@ -463,7 +463,7 @@ class MultithreadBMinHashOptimizedTest {
     @MethodSource("unCycleProvider")
     void testAlgorithm_UnCycle_checkSizeCollisionHopTable(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
 
-        String path2 = new File("src/test/data/g_undirected_compressed/32-cycle.graph").getAbsolutePath();
+        String path2 = new File("src/test/data/g_undirected_compressed/32-cycle.adjlist").getAbsolutePath();
 
 
         Parameter param2 = new Parameter.Builder()
