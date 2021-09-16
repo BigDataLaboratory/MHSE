@@ -31,6 +31,8 @@ public class Parameter {
     private final boolean webGraph;
     private final boolean compGraph;
 
+    private final boolean differentialCompression;
+
     @org.jetbrains.annotations.Contract(pure = true)
     public Parameter(Builder builder) {
         this.mInputFilePathGraph = builder.inputFilePathGraph;
@@ -59,7 +61,11 @@ public class Parameter {
 
         this.webGraph = builder.webG;
         this.compGraph = builder.compG;
+
+        this.differentialCompression = builder.differentialCompression;
     }
+
+    public boolean getDifferentialCompression(){return  differentialCompression;}
     public boolean getWebGraph(){ return  webGraph;}
     public boolean getCompGraph(){ return compGraph;}
     public String getInputFilePathGraph() {
@@ -161,7 +167,7 @@ public class Parameter {
 
         private boolean webG;
         private boolean compG;
-
+        private boolean differentialCompression;
         public Builder() {
         }
 
@@ -262,6 +268,11 @@ public class Parameter {
 
         public Builder setCompG(boolean compG){
             this.compG = compG;
+            return this;
+        }
+
+        public Builder setDifferentialCompression(boolean diffC){
+            this.differentialCompression = diffC;
             return this;
         }
 

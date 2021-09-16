@@ -25,8 +25,7 @@ public class DifferentialCompression {
         int commonBitsFromBoth   = i & j;
 
         if (commonBitsFromBoth == 0) {
-            System.out.println("AHUAHU");
-            System.out.println("I = "+i+ " J = "+j);
+
             return uncommonBitsFromBoth;
         }
         return bitwiseAdd (

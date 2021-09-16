@@ -19,6 +19,7 @@ public class CompressInstance {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.structure.UncompressedGraph");
     private String inputFilePath;
     public String outputFilePath;
+    public String separator;
     public boolean VarIntGB;
     public boolean d_gaps = false;
     public boolean transposed;
@@ -31,9 +32,10 @@ public class CompressInstance {
     public void initialize() {
         inputFilePath = PropertiesManager.getPropertyIfNotEmpty("compressInstance.inputAdjListPath");
         outputFilePath = PropertiesManager.getPropertyIfNotEmpty("compressInstance.outputFolderPath");
+        separator = PropertiesManager.getPropertyIfNotEmpty("compressInstance.separator");
         //outputFilePath = "/home/antoniocruciani/Desktop/TESTVGB/";
         VarIntGB = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("compressInstance.VarintGB"));
-        d_gaps = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("compressInstance.differential"));
+        d_gaps = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("compressInstance.GapCompression"));
         transposed = Boolean.parseBoolean((PropertiesManager.getPropertyIfNotEmpty("compressInstance.transposed")));
     }
 
@@ -65,10 +67,7 @@ public class CompressInstance {
     }
 
     public void encode_adjList() {
-        GroupVarInt VarintGB = new GroupVarInt();
-        DifferentialCompression DiffCompr = new DifferentialCompression();
 
-        VarintGB.encodeAdjList(DiffCompr.encodeAdjList(adjList), false);
 
     }
 
@@ -250,14 +249,19 @@ public class CompressInstance {
         CompressedGraph Graph;
         UncompressedGraph UGraph;
         UGraph = new UncompressedGraph();
-        UGraph.load_graph(inputFilePath, "\t");
+        UGraph.load_graph(inputFilePath, separator);
         int[][] provaMat = UGraph.getGraph();
+        int [][] differentialMatrix;
         String[] split = inputFilePath.split("/");
         String name = split[split.length - 1];
 
         //VarintGB.encodeAdjList(diff.encodeAdjList(provaMat), d_gaps);
-        VarintGB.encodeAdjListFlat(provaMat, d_gaps);
-
+        if(d_gaps){
+            differentialMatrix = diff.ecnodeAdjList(provaMat);
+            VarintGB.encodeAdjListFlat(differentialMatrix,d_gaps);
+        }else {
+            VarintGB.encodeAdjListFlat(provaMat, d_gaps);
+        }
         //VarintGB.saveEncoding(outputFilePath,name,VarintGB.getCompressedAdjList(),VarintGB.getOffset());
         VarintGB.saveEncoding(outputFilePath,name);
 
@@ -266,11 +270,15 @@ public class CompressInstance {
             GroupVarInt VarintGBTransposed = new GroupVarInt();
             DifferentialCompression diffTransposed = new DifferentialCompression();
             //VarintGBTransposed.encodeAdjList(diffTransposed.encodeAdjList(UGraph.getTGraph()), d_gaps);
-            VarintGBTransposed.encodeAdjListFlat(UGraph.getTGraph(), d_gaps);
+            if(d_gaps){
+                VarintGBTransposed.encodeAdjListFlat(diff.ecnodeAdjList(UGraph.getTGraph()), d_gaps);
 
+            }else {
+                VarintGBTransposed.encodeAdjListFlat(UGraph.getTGraph(), d_gaps);
+            }
             String[] splitTrans = name.split("[.]");
             String nameTrans = splitTrans[0]+"_transposed."+splitTrans[1];
-            VarintGB.saveEncoding(outputFilePath,nameTrans);
+            VarintGBTransposed.saveEncoding(outputFilePath,nameTrans);
 
             //VarintGBTransposed.saveEncoding(outputFilePath,nameTrans,VarintGBTransposed.getCompressedAdjList(),VarintGBTransposed.getOffset());
 
@@ -436,12 +444,14 @@ public class CompressInstance {
     }
 
     public static void compress_test_instances() throws FileNotFoundException {
-        String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed/";
+        String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed_dgaps/";
+        //String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed/";
         String [] names = {"32-cycle.adjlist","32-cycle_transposed.adjlist","32-path.adjlist","32-path_transposed.adjlist",
         "32in-star.adjlist","32in-star_transposed.adjlist","32out-star.adjlist","32out-star_transposed.adjlist","32t-path.adjlist"
         ,"32t-path_transposed.adjlist"};
-//        String [] names = {"32-complete.adjlist","32-complete_transposed.adjlist","32-cycle.adjlist","32-cycle_transposed.adjlist","32-wheel.adjlist",
-//        "32-wheel_transposed.adjlist"};
+      // String [] names = {"32-complete.adjlist","32-complete_transposed.adjlist","32-cycle.adjlist","32-cycle_transposed.adjlist","32-wheel.adjlist",
+       //"32-wheel_transposed.adjlist"};
+       boolean dgap = true;
         GroupVarInt VarintGB = new GroupVarInt();
         DifferentialCompression diff = new DifferentialCompression();
         CompressedGraph Graph;
@@ -453,8 +463,14 @@ public class CompressInstance {
             int[][] provaMat = UGraph.getGraph();
             String[] split = inputFile.split("/");
             String name = split[split.length - 1];
-            VarintGB.encodeAdjListFlat(provaMat, false);
+            if(dgap){
+                VarintGB.encodeAdjListFlat(diff.ecnodeAdjList(provaMat), false);
+            }else{
+                VarintGB.encodeAdjListFlat(provaMat, false);
+
+            }
             VarintGB.saveEncoding(inPath,name);
+
 
             //VarintGB.saveEncoding(inPath,name,VarintGB.getCompressedAdjList(),VarintGB.getOffset());
         }

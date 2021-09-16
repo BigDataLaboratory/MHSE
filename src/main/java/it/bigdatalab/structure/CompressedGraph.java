@@ -238,6 +238,7 @@ public class CompressedGraph {
         byte [] toDecode ;
         int i,k;
         compressor = new GroupVarInt();
+        GapCompressor = new DifferentialCompression();
         //System.out.println("NODE "+node+ " !!!");
         if(node == offset[0][0]){
             //System.out.println("SONO 0");
@@ -272,6 +273,9 @@ public class CompressedGraph {
         }
 
         neighbours = compressor.dec(toDecode);
+        if(differential){
+            neighbours = GapCompressor.decodeSequence(neighbours);
+        }
         //System.out.println("TESTJSDA");
 //        for(int p=0;p<neighbours.length;p++) {
 //            System.out.println(neighbours[p]);

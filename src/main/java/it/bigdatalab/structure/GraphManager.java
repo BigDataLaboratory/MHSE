@@ -2,6 +2,7 @@ package it.bigdatalab.structure;
 
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Preprocessing;
+import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.NodeIterator;
 import it.unimi.dsi.webgraph.Transform;
@@ -17,7 +18,7 @@ public class GraphManager {
     private ImmutableGraph mGraph;
     private boolean  webGraph = false;
     private boolean compressedGraph = false;
-    private boolean differentialCompression = false;
+    private boolean differentialCompression =  Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("graph.differentialCompression"));
     private boolean inMemory = true;
     private int [] nodes;
     private boolean isolatedVertices;
