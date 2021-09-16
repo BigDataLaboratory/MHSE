@@ -95,7 +95,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
         List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
-            todo.add(new IterationThread(mGraph.copy(), i));
+            todo.add(new IterationThread(mGraph, i));
         }
 
         if (doCentrality) {

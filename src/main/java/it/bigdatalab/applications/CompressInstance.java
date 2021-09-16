@@ -444,13 +444,13 @@ public class CompressInstance {
     }
 
     public static void compress_test_instances() throws FileNotFoundException {
-        String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed_dgaps/";
-        //String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed/";
-        String [] names = {"32-cycle.adjlist","32-cycle_transposed.adjlist","32-path.adjlist","32-path_transposed.adjlist",
-        "32in-star.adjlist","32in-star_transposed.adjlist","32out-star.adjlist","32out-star_transposed.adjlist","32t-path.adjlist"
-        ,"32t-path_transposed.adjlist"};
-      // String [] names = {"32-complete.adjlist","32-complete_transposed.adjlist","32-cycle.adjlist","32-cycle_transposed.adjlist","32-wheel.adjlist",
-       //"32-wheel_transposed.adjlist"};
+        //String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed_dgaps/";
+        String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_undirected_compressed/";
+        //String [] names = {"32-cycle.adjlist","32-cycle_transposed.adjlist","32-path.adjlist","32-path_transposed.adjlist",
+        //"32in-star.adjlist","32in-star_transposed.adjlist","32out-star.adjlist","32out-star_transposed.adjlist","32t-path.adjlist"
+        //,"32t-path_transposed.adjlist"};
+        String [] names = {"32-complete.adjlist","32-complete_transposed.adjlist","32-cycle.adjlist","32-cycle_transposed.adjlist","32-wheel.adjlist",
+       "32-wheel_transposed.adjlist"};
        boolean dgap = true;
         GroupVarInt VarintGB = new GroupVarInt();
         DifferentialCompression diff = new DifferentialCompression();
@@ -494,10 +494,10 @@ public class CompressInstance {
         t.test_adjlist_compression_varintGB(provaMat);
         */
 
-        t.compress();
+        //t.compress();
         //t.test_32_cycle_diff_gb();
        // t.test_32_cycle();
-        //t.compress_test_instances();
+        t.compress_test_instances();
         //t.prova_lista();
 
     }
