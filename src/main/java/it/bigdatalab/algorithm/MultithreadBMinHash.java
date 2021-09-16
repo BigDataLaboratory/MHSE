@@ -90,8 +90,7 @@ public class MultithreadBMinHash extends BMinHash {
         List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
-            // SCOMMENTA E IMPLEMENTA IL COPY NELLA TUA STRUTTURA
-            //todo.add(new IterationThread(mGraph.copy(), i));
+            todo.add(new IterationThread(mGraph, i));
         }
 
         try {
@@ -164,10 +163,10 @@ public class MultithreadBMinHash extends BMinHash {
 
     class IterationThread implements Callable<Int2LongLinkedOpenHashMap> {
 
-        private final ImmutableGraph g;
+        private final GraphManager g;
         private final int s;
 
-        public IterationThread(ImmutableGraph g, int s) {
+        public IterationThread(GraphManager g, int s) {
             this.g = g;
             this.s = s;
         }
@@ -218,9 +217,8 @@ public class MultithreadBMinHash extends BMinHash {
                     for (int n = 0; n < g.numNodes(); n++) {
 
                         final int node = n;
-                        final int d = g.outdegree(node);
-                        final int[] successors = g.successorArray(node);
-
+                        final int [] successors = mGraph.get_neighbours(node);
+                        final int d = successors.length;
                         // update the node hash iterating over all its neighbors
                         // and computing the OR between the node signature and
                         // the neighbor signature.
@@ -279,6 +277,7 @@ public class MultithreadBMinHash extends BMinHash {
         }
 
     }
+
 
 }
 

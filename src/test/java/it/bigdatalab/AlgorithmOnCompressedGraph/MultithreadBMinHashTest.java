@@ -343,8 +343,8 @@ class MultithreadBMinHashTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
-                .setWebG(true)
-                .setCompG(false)
+                .setWebG(false)
+                .setCompG(true)
                 .setThreshold(0.9)
                 .setNumThreads(4)
                 .build();
@@ -429,7 +429,7 @@ class MultithreadBMinHashTest {
     @MethodSource("cycleProvider")
     void testAlgorithm_DiCycle_checkSizeCollisionHopTable(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
 
-        String path2 = new File("src/test/data/g_directed_compressed/32-cycle.graph").getAbsolutePath();
+        String path2 = new File("src/test/data/g_directed_compressed/32-cycle.adjlist.txt").getAbsolutePath();
 
 
         Parameter param2 = new Parameter.Builder()
@@ -440,8 +440,8 @@ class MultithreadBMinHashTest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
-                .setWebG(true)
-                .setCompG(false)
+                .setWebG(false)
+                .setCompG(true)
                 .setThreshold(0.9)
                 .setNumThreads(4)
                 .build();
