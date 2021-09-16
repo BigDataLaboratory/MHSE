@@ -104,8 +104,10 @@ public class StandaloneBMinHashOptimized extends BMinHashOpt {
                     for (int n = 0; n < mGraph.numNodes(); n++) {
 
                         final int node = n;
-                        final int [] successors = mGraph.get_neighbours(node);
-                        int d = successors.length;
+                        final int[] successors = mGraph.get_neighbours(node);
+
+                        final int d = successors.length;
+
                         // update the node hash iterating over all its neighbors
                         // and computing the OR between the node signature and
                         // the neighbor signature.
