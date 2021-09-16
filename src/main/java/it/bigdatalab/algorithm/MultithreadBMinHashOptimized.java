@@ -95,8 +95,7 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
         List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
-            // SCOMMENTA E IMPLEMENTA IL COPY
-            //todo.add(new IterationThread(mGraph.copy(), i));
+            todo.add(new IterationThread(mGraph.copy(), i));
         }
 
         if (doCentrality) {
@@ -161,13 +160,12 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
 
         return graphMeasure;
     }
-
     class IterationThread implements Callable<int[]> {
 
-        private final ImmutableGraph g;
+        private final GraphManager g;
         private final int s;
 
-        public IterationThread(ImmutableGraph g, int s) {
+        public IterationThread(GraphManager g, int s) {
             this.g = g;
             this.s = s;
         }
@@ -220,8 +218,9 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
                     for (int n = 0; n < g.numNodes(); n++) {
 
                         final int node = n;
-                        final int d = g.outdegree(node);
-                        final int[] successors = g.successorArray(node);
+                        final int [] successors = mGraph.get_neighbours(node);
+
+                        final int d = successors.length;
 
                         // update the node hash iterating over all its neighbors
                         // and computing the OR between the node signature and
@@ -297,5 +296,6 @@ public class MultithreadBMinHashOptimized extends BMinHashOpt {
     }
 
 }
+
 
 
