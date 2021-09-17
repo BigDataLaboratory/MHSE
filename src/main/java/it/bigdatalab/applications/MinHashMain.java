@@ -120,7 +120,7 @@ public class MinHashMain {
         return gson.fromJson(new FileReader(inputFilePath), listType);
     }
 
-    public static void main(String[] args)  {
+    public static void main(String[] args)  throws CloneNotSupportedException {
 
         logger.info("\n\n\n" +
                 "|\\    /| |    |  |¯¯¯¯  |¯¯¯¯\n" +
@@ -265,7 +265,7 @@ public class MinHashMain {
      * - numTests number of tests to be executed
      * If algorithmName is empty or not available in AlgorithmEnum, exit from the process
      */
-    public List<Measure> run() throws IOException, MinHash.SeedsException {
+    public List<Measure> run() throws IOException, CloneNotSupportedException,MinHash.SeedsException {
 
         Measure measure;
         int numTest = mParam.getNumTests();

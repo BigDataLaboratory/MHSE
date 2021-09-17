@@ -10,8 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
 
-public class GraphManager {
+public class GraphManager implements Cloneable{
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.structure.GraphManager");
 
     private CompressedGraph cGraph;
@@ -22,6 +23,7 @@ public class GraphManager {
     private boolean inMemory = true;
     private int [] nodes;
     private boolean isolatedVertices;
+    private boolean transposed;
 
     public GraphManager(boolean WG, boolean CG,String inputFilePath, boolean transpose,boolean inM,boolean isoV,String direction) throws IOException {
         int i;
@@ -37,6 +39,7 @@ public class GraphManager {
             if (!isolatedVertices) {
                     graph = Preprocessing.removeIsolatedNodes(graph);
            }
+            transposed = transpose;
             if (transpose) {
                 if (direction.equals(Constants.IN_DIRECTION)) {
                     logger.info("Transposing graph cause direction is {}", direction);
@@ -67,6 +70,7 @@ public class GraphManager {
         if(CG){
             compressedGraph = true;
             String[] SplitInputFilePath = inputFilePath.split("[.]");
+            transposed = transpose;
             if(transpose){
                 if (direction.equals(Constants.IN_DIRECTION)) {
                     logger.info("Loading the transposed compressed graph");
@@ -150,7 +154,9 @@ public class GraphManager {
     public  CompressedGraph get_cGraph(){
         return cGraph;
     }
-
+    public boolean get_transposed(){
+        return transposed;
+    }
     public boolean isWebGraph(){
         return webGraph;
     }
@@ -164,7 +170,14 @@ public class GraphManager {
         cGraph.set_offset(off);
     }
 
-
-
+    public void set_mGraph(ImmutableGraph g){
+        mGraph = g;
+    }
+    public void set_webGraph(boolean WG){
+        webGraph = WG;
+    }
+    public void set_nodes(int [] nodeList){
+        nodes = nodeList;
+    }
 
 }

@@ -14,6 +14,7 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -77,7 +78,7 @@ public class MultithreadBMinHash extends BMinHash {
      * @return Computed metrics of the algorithm
      */
 
-    public Measure runAlgorithm()  {
+    public Measure runAlgorithm() throws CloneNotSupportedException, IOException {
         logger.info("Running {} algorithm", MultithreadBMinHash.class.getName());
         startTime = System.currentTimeMillis();
         long totalTime;
@@ -90,9 +91,17 @@ public class MultithreadBMinHash extends BMinHash {
         List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
-
+//            if(mGraph.isWebGraph()){
+//                int [] nodesCopy = new int[mGraph.numNodes()];
+//                GraphManager mGraphCopy = new GraphManager(false,false," ",false,false,false, " ");
+//                mGraphCopy.set_mGraph(mGraph.get_mGraph().copy());
+//                mGraphCopy.set_webGraph(true);
+//                System.arraycopy(mGraph.get_nodes(), 0, nodesCopy, 0,mGraph.numNodes());
+//                mGraphCopy.set_nodes(nodesCopy);
+//                todo.add(new IterationThread(mGraphCopy,i));
+//           }else {
                 todo.add(new IterationThread(mGraph, i));
-
+ //           }
         }
 
         try {
