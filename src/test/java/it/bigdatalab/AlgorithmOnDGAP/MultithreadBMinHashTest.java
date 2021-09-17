@@ -166,7 +166,7 @@ class MultithreadBMinHashTest {
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("cycleProvider")
-    void testAlgorithm_DiCycle(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    void testAlgorithm_DiCycle(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException,CloneNotSupportedException, MinHash.SeedsException {
 
         String path2 = new File("src/test/data/g_directed_compressed_dgaps/32-cycle.adjlist").getAbsolutePath();
 
@@ -200,7 +200,7 @@ class MultithreadBMinHashTest {
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("pathProvider")
-    void testAlgorithm_DiPath(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    void testAlgorithm_DiPath(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, CloneNotSupportedException,MinHash.SeedsException {
 
         String path2 = new File("src/test/data/g_directed_compressed_dgaps/32-path.adjlist.txt").getAbsolutePath();
 
@@ -233,7 +233,7 @@ class MultithreadBMinHashTest {
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("tPathProvider")
-    void testAlgorithm_DiTPath(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    void testAlgorithm_DiTPath(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException,CloneNotSupportedException, MinHash.SeedsException {
 
         String path2 = new File("src/test/data/g_directed_compressed_dgaps/32t-path.adjlist.txt").getAbsolutePath();
 
@@ -268,7 +268,7 @@ class MultithreadBMinHashTest {
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("inStarProvider")
-    void testAlgorithm_DiInStar(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    void testAlgorithm_DiInStar(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, CloneNotSupportedException,MinHash.SeedsException {
 
         String path2 = new File("src/test/data/g_directed_compressed_dgaps/32in-star.adjlist.txt").getAbsolutePath();
 
@@ -301,7 +301,7 @@ class MultithreadBMinHashTest {
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("outStarProvider")
-    void testAlgorithm_DiOutStar(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    void testAlgorithm_DiOutStar(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException,CloneNotSupportedException, MinHash.SeedsException {
 
         String path2 = new File("src/test/data/g_directed_compressed_dgaps/32out-star.adjlist.txt").getAbsolutePath();
 
@@ -335,7 +335,7 @@ class MultithreadBMinHashTest {
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("unCycleProvider")
-    void testAlgorithm_UnCycle(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    void testAlgorithm_UnCycle(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, CloneNotSupportedException,MinHash.SeedsException {
 
         String path2 = new File("src/test/data/g_undirected_compressed_dgaps/32-cycle.adjlist.txt").getAbsolutePath();
         path2 = path2.substring(0, path2.lastIndexOf('.'));
@@ -368,7 +368,7 @@ class MultithreadBMinHashTest {
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("unWheelProvider")
-    void testAlgorithm_UnWheel(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    void testAlgorithm_UnWheel(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, CloneNotSupportedException,MinHash.SeedsException {
 
         String path2 = new File("src/test/data/g_undirected_compressed_dgaps/32-wheel.adjlist.txt").getAbsolutePath();
 
@@ -401,7 +401,7 @@ class MultithreadBMinHashTest {
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("completeProvider")
-    void testAlgorithm_Complete(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    void testAlgorithm_Complete(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, CloneNotSupportedException,MinHash.SeedsException {
 
         String path2 = new File("src/test/data/g_undirected_compressed_dgaps/32-complete.adjlist.txt").getAbsolutePath();
 
@@ -435,7 +435,7 @@ class MultithreadBMinHashTest {
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("cycleProvider")
-    void testAlgorithm_DiCycle_checkSizeCollisionHopTable(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    void testAlgorithm_DiCycle_checkSizeCollisionHopTable(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException,CloneNotSupportedException, MinHash.SeedsException {
 
         String path2 = new File("src/test/data/g_directed_compressed_dgaps/32-cycle.adjlist.txt").getAbsolutePath();
 

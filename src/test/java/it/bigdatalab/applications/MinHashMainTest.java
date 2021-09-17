@@ -59,7 +59,7 @@ class MinHashMainTest {
     void testRunAlgorithm(String algorithmName, String inputFilePath, String outputFolderPath,
                           int numTests, int numSeeds, boolean transpose,
                           boolean inMemory, boolean isSeedsRandom, String inputFilePathSeedNode,
-                          boolean isolatedVertices, int[] range, double threshold, String direction, int suggestedNumberOfThreads) throws IOException {
+                          boolean isolatedVertices, int[] range, double threshold, String direction, int suggestedNumberOfThreads) throws  CloneNotSupportedException,IOException {
         String path = new File(inputFilePath).getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
 

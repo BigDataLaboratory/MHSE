@@ -120,7 +120,7 @@ public class MinHashMain {
         return gson.fromJson(new FileReader(inputFilePath), listType);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args)  {
 
         logger.info("\n\n\n" +
                 "|\\    /| |    |  |¯¯¯¯  |¯¯¯¯\n" +

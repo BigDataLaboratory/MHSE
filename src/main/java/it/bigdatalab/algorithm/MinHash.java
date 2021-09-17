@@ -50,7 +50,7 @@ public abstract class MinHash {
         this.mMinHashNodeIDs = new int[mNumSeeds];
     }
 
-    public abstract Measure runAlgorithm() throws IOException, CloneNotSupportedException;
+    public abstract Measure runAlgorithm() throws IOException;
 
     public int[] getNodes() {
         return mMinHashNodeIDs;

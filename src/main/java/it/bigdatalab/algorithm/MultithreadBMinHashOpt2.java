@@ -3,7 +3,6 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
-import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
@@ -13,7 +12,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of MultithreadBMinHash (MinHash Signature Estimation multithread boolean optimized version) algorithm
@@ -69,7 +73,7 @@ public class MultithreadBMinHashOpt2 extends BMinHashOpt {
      * @return Computed metrics of the algorithm
      */
 
-    public Measure runAlgorithm() {
+    public Measure runAlgorithm()  {
         startTime = System.currentTimeMillis();
         long totalTime;
 
@@ -85,9 +89,9 @@ public class MultithreadBMinHashOpt2 extends BMinHashOpt {
         List<IterationThread2> todo = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
-            // Scommenta e implementa
 
-            //todo.add(new IterationThread2(mGraph.copy(), i));
+                todo.add(new IterationThread2(mGraph, i));
+
         }
 
         try {
@@ -150,10 +154,10 @@ public class MultithreadBMinHashOpt2 extends BMinHashOpt {
 
     class IterationThread2 implements Callable<int[]> {
 
-        private final ImmutableGraph g;
+        private final GraphManager g;
         private final int s;
 
-        public IterationThread2(ImmutableGraph g, int s) {
+        public IterationThread2(GraphManager g, int s) {
             this.g = g;
             this.s = s;
         }
@@ -216,8 +220,9 @@ public class MultithreadBMinHashOpt2 extends BMinHashOpt {
                         value = immutable[quotientNode];
 
                         if (((nodeMask & value) >>> remainderPositionNode) == 0) { // check if node bit is 0
-                            final int d = g.outdegree(n);
-                            final int[] successors = g.successorArray(n);
+                            final int[] successors = g.get_neighbours(n);
+
+                            final int d = successors.length;
                             int bitNeigh;
 
                             for (int l = 0; l < d; l++) {

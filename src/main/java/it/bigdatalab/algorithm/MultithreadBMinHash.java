@@ -77,7 +77,7 @@ public class MultithreadBMinHash extends BMinHash {
      * @return Computed metrics of the algorithm
      */
 
-    public Measure runAlgorithm() throws CloneNotSupportedException {
+    public Measure runAlgorithm()  {
         logger.info("Running {} algorithm", MultithreadBMinHash.class.getName());
         startTime = System.currentTimeMillis();
         long totalTime;
@@ -90,12 +90,9 @@ public class MultithreadBMinHash extends BMinHash {
         List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
-            if(mGraph.isWebGraph()){
-                todo.add(new IterationThread((GraphManager) mGraph.clone(), i));
 
-            }else {
                 todo.add(new IterationThread(mGraph, i));
-            }
+
         }
 
         try {
