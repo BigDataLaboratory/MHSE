@@ -151,6 +151,14 @@ public class GraphManager {
         return cGraph;
     }
 
+    public boolean isWebGraph(){
+        return webGraph;
+    }
+
+    public Object clone() throws CloneNotSupportedException
+    {
+        return super.clone();
+    }
 
     public void set_compressed_graph(byte []cG){
         cGraph.set_compressed_graph(cG);
