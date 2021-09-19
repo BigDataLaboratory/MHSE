@@ -3,7 +3,6 @@ package it.bigdatalab.algorithm;
 import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.Measure;
-import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.structure.GraphManager;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
@@ -89,58 +88,94 @@ public class MultithreadBMinHash extends BMinHash {
         logger.debug("Number of threads to be used {}", mNumberOfThreads);
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
         List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
+        List<IterationThreadWebGraph> todoWG = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
-//            if(mGraph.isWebGraph()){
-//                int [] nodesCopy = new int[mGraph.numNodes()];
-//                GraphManager mGraphCopy = new GraphManager(false,false," ",false,false,false, " ");
-//                mGraphCopy.set_mGraph(mGraph.get_mGraph().copy());
-//                mGraphCopy.set_webGraph(true);
-//                System.arraycopy(mGraph.get_nodes(), 0, nodesCopy, 0,mGraph.numNodes());
-//                mGraphCopy.set_nodes(nodesCopy);
-//                todo.add(new IterationThread(mGraphCopy,i));
-//           }else {
+            if(mGraph.isWebGraph()){
+               
+                todoWG.add(new IterationThreadWebGraph(mGraph.get_mGraph().copy(),i));
+           }else {
                 todo.add(new IterationThread(mGraph, i));
- //           }
-        }
-
-        try {
-            List<Future<Int2LongLinkedOpenHashMap>> futures = executor.invokeAll(todo);
-            for (int s = 0; s < this.mNumSeeds; s++) {
-                Future<Int2LongLinkedOpenHashMap> future = futures.get(s);
-                if (!future.isCancelled()) {
-                    try {
-                        Int2LongLinkedOpenHashMap actualCollisionTable = future.get();
-                        int[] hopCollision;
-
-                        for (int h : actualCollisionTable.keySet()) {
-                            if (!collisionsTable.containsKey(h)) {
-                                hopCollision = new int[mNumSeeds];
-                                hopCollision[s] = (int) actualCollisionTable.get(h);
-                                collisionsTable.put(h, hopCollision);
-                            } else {
-                                hopCollision = collisionsTable.get(h);
-                                hopCollision[s] = (int) actualCollisionTable.get(h);
-                                collisionsTable.put(h, hopCollision);
-                            }
-                        }
-
-                        lastHops[s] = actualCollisionTable.size() - 1;
-
-                    } catch (ExecutionException e) {
-                        logger.error("Failed to get result", e);
-                    } catch (InterruptedException e) {
-                        logger.error("Interrupted", e);
-                        Thread.currentThread().interrupt();
-                    }
-                } else {
-                    //TODO Implement better error management
-                    logger.error("Future is cancelled!");
-                }
             }
+        }
+        if(mGraph.isWebGraph()){
+            try {
+                List<Future<Int2LongLinkedOpenHashMap>> futures = executor.invokeAll(todoWG);
+                for (int s = 0; s < this.mNumSeeds; s++) {
+                    Future<Int2LongLinkedOpenHashMap> future = futures.get(s);
+                    if (!future.isCancelled()) {
+                        try {
+                            Int2LongLinkedOpenHashMap actualCollisionTable = future.get();
+                            int[] hopCollision;
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+                            for (int h : actualCollisionTable.keySet()) {
+                                if (!collisionsTable.containsKey(h)) {
+                                    hopCollision = new int[mNumSeeds];
+                                    hopCollision[s] = (int) actualCollisionTable.get(h);
+                                    collisionsTable.put(h, hopCollision);
+                                } else {
+                                    hopCollision = collisionsTable.get(h);
+                                    hopCollision[s] = (int) actualCollisionTable.get(h);
+                                    collisionsTable.put(h, hopCollision);
+                                }
+                            }
+
+                            lastHops[s] = actualCollisionTable.size() - 1;
+
+                        } catch (ExecutionException e) {
+                            logger.error("Failed to get result", e);
+                        } catch (InterruptedException e) {
+                            logger.error("Interrupted", e);
+                            Thread.currentThread().interrupt();
+                        }
+                    } else {
+                        //TODO Implement better error management
+                        logger.error("Future is cancelled!");
+                    }
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }else {
+            try {
+                List<Future<Int2LongLinkedOpenHashMap>> futures = executor.invokeAll(todo);
+                for (int s = 0; s < this.mNumSeeds; s++) {
+                    Future<Int2LongLinkedOpenHashMap> future = futures.get(s);
+                    if (!future.isCancelled()) {
+                        try {
+                            Int2LongLinkedOpenHashMap actualCollisionTable = future.get();
+                            int[] hopCollision;
+
+                            for (int h : actualCollisionTable.keySet()) {
+                                if (!collisionsTable.containsKey(h)) {
+                                    hopCollision = new int[mNumSeeds];
+                                    hopCollision[s] = (int) actualCollisionTable.get(h);
+                                    collisionsTable.put(h, hopCollision);
+                                } else {
+                                    hopCollision = collisionsTable.get(h);
+                                    hopCollision[s] = (int) actualCollisionTable.get(h);
+                                    collisionsTable.put(h, hopCollision);
+                                }
+                            }
+
+                            lastHops[s] = actualCollisionTable.size() - 1;
+
+                        } catch (ExecutionException e) {
+                            logger.error("Failed to get result", e);
+                        } catch (InterruptedException e) {
+                            logger.error("Interrupted", e);
+                            Thread.currentThread().interrupt();
+                        }
+                    } else {
+                        //TODO Implement better error management
+                        logger.error("Future is cancelled!");
+                    }
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         executor.shutdown();
@@ -288,6 +323,126 @@ public class MultithreadBMinHash extends BMinHash {
         }
 
     }
+
+
+    class IterationThreadWebGraph implements Callable<Int2LongLinkedOpenHashMap> {
+
+        private final ImmutableGraph g;
+        private final int s;
+
+        public IterationThreadWebGraph(ImmutableGraph g, int s) {
+            this.g = g;
+            this.s = s;
+        }
+
+        @Override
+        public Int2LongLinkedOpenHashMap call() {
+            long startSeedTime = System.currentTimeMillis();
+            long lastLogTime = startSeedTime;
+            long logTime;
+
+            // initialization of the collision counter for the hop
+            // we use a dict because we want to iterate over the nodes until
+            // the number of collisions in the actual hop
+            // is different than the previous hop
+            Int2LongLinkedOpenHashMap hopCollision = new Int2LongLinkedOpenHashMap();
+            int collisions;
+
+            // Set false as signature of all graph nodes
+            // used to computing the algorithm
+            int[] mutable = new int[lengthBitsArray(g.numNodes())];
+            int[] immutable = new int[lengthBitsArray(g.numNodes())];
+
+            // Choose a random node is equivalent to compute the minhash
+            //It could be set in mhse.properties file with the "minhash.nodeIDs" property
+            int randomNode = mMinHashNodeIDs[s];
+
+            int h = 0;
+            boolean signatureIsChanged = true;
+
+            while (signatureIsChanged) {
+                //first hop - initialization
+                if (h == 0) {
+                    // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
+                    // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
+                    // This is equal to logical and operation.
+                    int remainderPositionRandomNode = ((randomNode << Constants.REMAINDER) >>> Constants.REMAINDER);
+                    // quotient is randomNode >>> MASK
+                    mutable[randomNode >>> Constants.MASK] |= (Constants.BIT) << remainderPositionRandomNode;
+                    signatureIsChanged = true;
+                } else {
+                    signatureIsChanged = false;
+
+                    // copy all the actual nodes hash in a new structure
+                    System.arraycopy(mutable, 0, immutable, 0, mutable.length);
+
+                    int remainderPositionNode;
+                    int quotientNode;
+                    for (int n = 0; n < g.numNodes(); n++) {
+
+                        final int node = n;
+                        final int d = g.outdegree(n);
+                        final int[] successors = g.successorArray(n);
+
+                        // update the node hash iterating over all its neighbors
+                        // and computing the OR between the node signature and
+                        // the neighbor signature.
+                        // store the new signature as the current one
+                        remainderPositionNode = (node << Constants.REMAINDER) >>> Constants.REMAINDER;
+                        quotientNode = node >>> Constants.MASK;
+
+                        int value = immutable[quotientNode];
+                        int bitNeigh;
+                        int nodeMask = (1 << remainderPositionNode);
+
+                        if (((nodeMask & value) >>> remainderPositionNode) == 0) { // check if node bit is 0
+                            for (int l = 0; l < d; l++) {
+                                final int neighbour = successors[l];
+                                int quotientNeigh = neighbour >>> Constants.MASK;
+                                int remainderPositionNeigh = (neighbour << Constants.REMAINDER) >>> Constants.REMAINDER;
+
+                                bitNeigh = (((1 << remainderPositionNeigh) & immutable[quotientNeigh]) >>> remainderPositionNeigh) << remainderPositionNode;
+                                value = bitNeigh | nodeMask & immutable[quotientNode];
+                                if ((value >>> remainderPositionNode) == 1) {
+                                    signatureIsChanged = true;
+                                    break;
+                                }
+                            }
+                        }
+                        mutable[quotientNode] = mutable[quotientNode] | value;
+
+                        logTime = System.currentTimeMillis();
+                        if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
+                            logger.info("(seed # {}) # nodes analyzed {} / {} for hop {}, estimated time remaining {}",
+                                    s,
+                                    n, mGraph.numNodes(),
+                                    h + 1,
+                                    String.format("%d min, %d sec",
+                                            TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - MultithreadBMinHash.this.startTime)) / (s + 1)) - (logTime - MultithreadBMinHash.this.startTime)),
+                                            TimeUnit.MILLISECONDS.toSeconds(((mNumSeeds * (logTime - MultithreadBMinHash.this.startTime)) / (s + 1)) - (logTime - MultithreadBMinHash.this.startTime)) -
+                                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - MultithreadBMinHash.this.startTime)) / (s + 1)) - (logTime - MultithreadBMinHash.this.startTime)))));
+                            lastLogTime = logTime;
+                        }
+                    }
+                }
+
+                if (signatureIsChanged) {
+                    // count the collision between the node signature and the graph signature
+                    collisions = 0;
+                    for (int aMutable : mutable) {
+                        collisions += Integer.bitCount(aMutable);
+                    }
+                    hopCollision.put(h, collisions);
+                    h += 1;
+                }
+            }
+
+            MultithreadBMinHash.this.mSeedTime[s] = (System.currentTimeMillis() - startSeedTime);
+            return hopCollision;
+        }
+
+    }
+
 
 
 }

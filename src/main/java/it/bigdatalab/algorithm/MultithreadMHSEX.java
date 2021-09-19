@@ -135,24 +135,45 @@ public class MultithreadMHSEX extends MinHash {
         int start = 0;
         int end = start + numberOfNodes4Group;
         List<IterationThread> todo = new ArrayList<>(mNumberOfThreads);
+        List<IterationThreadWebGraph> todoWG = new ArrayList<>(mNumberOfThreads);
+        if(mGraph.isWebGraph()){
+            for (int nt = 0; nt < mNumberOfThreads; nt++) {
+                mSignatureIsChanged = (mSignatureIsChanged & ~(1 << nt)) | ((1 << nt));
 
-        for (int nt = 0; nt < mNumberOfThreads; nt++) {
-            mSignatureIsChanged = (mSignatureIsChanged & ~(1 << nt)) | ((1 << nt));
-
-            if (nt == mNumberOfThreads - 1) {
-                logger.debug("start {} end {} index {}", start, mGraph.numNodes() - 1, nt);
-                todo.add(new IterationThread(mGraph, start, mGraph.numNodes() - 1, nt));
-            } else {
-                logger.debug("start {} end {} index {}", start, end, nt);
-                todo.add(new IterationThread(mGraph, start, end, nt));
+                if (nt == mNumberOfThreads - 1) {
+                    logger.debug("start {} end {} index {}", start, mGraph.numNodes() - 1, nt);
+                    todoWG.add(new IterationThreadWebGraph(mGraph.get_mGraph().copy(), start, mGraph.numNodes() - 1, nt));
+                } else {
+                    logger.debug("start {} end {} index {}", start, end, nt);
+                    todoWG.add(new IterationThreadWebGraph(mGraph.get_mGraph().copy(), start, end, nt));
+                }
+                start = end + 1;
+                end = start + numberOfNodes4Group;
             }
-            start = end + 1;
-            end = start + numberOfNodes4Group;
-        }
-        try {
-            executor.invokeAll(todo);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            try {
+                executor.invokeAll(todoWG);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }else {
+            for (int nt = 0; nt < mNumberOfThreads; nt++) {
+                mSignatureIsChanged = (mSignatureIsChanged & ~(1 << nt)) | ((1 << nt));
+
+                if (nt == mNumberOfThreads - 1) {
+                    logger.debug("start {} end {} index {}", start, mGraph.numNodes() - 1, nt);
+                    todo.add(new IterationThread(mGraph, start, mGraph.numNodes() - 1, nt));
+                } else {
+                    logger.debug("start {} end {} index {}", start, end, nt);
+                    todo.add(new IterationThread(mGraph, start, end, nt));
+                }
+                start = end + 1;
+                end = start + numberOfNodes4Group;
+            }
+            try {
+                executor.invokeAll(todo);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         executor.shutdown();
@@ -225,6 +246,103 @@ public class MultithreadMHSEX extends MinHash {
         }
 
     }
+
+    class IterationThreadWebGraph implements Callable<Integer> {
+
+        private final ImmutableGraph g;
+        private final int start;
+        private final int end;
+        private final int index;
+
+        public IterationThreadWebGraph(ImmutableGraph g, int start, int end, int index) {
+            this.g = g;
+            this.start = start;
+            this.end = end;
+            this.index = index;
+        }
+
+        @Override
+        public Integer call() {
+            long startHopTime = System.currentTimeMillis();
+            long lastLogTime = startHopTime;
+            long logTime;
+
+            boolean signatureIsChanged;
+
+            int nPosition, nRemainder, neighPosition, neighRemainder, neighMask;
+            while (mSignatureIsChanged != 0) {
+                signatureIsChanged = false;
+
+                // update node signature
+                for (int n = start; n < end + 1; n++) {
+                    final int[] successors = g.successorArray(n);
+
+                    final int d = g.outdegree(n);
+
+                    nPosition = n >>> Constants.MASK;
+                    nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
+
+                    // for each neigh of the node n
+                    for (int l = d; l-- != 0; ) {
+                        // check if the neigh has been modified
+                        // in the previous hop. If true, it can modify
+                        // the node n
+                        neighPosition = successors[l] >>> Constants.MASK;
+                        neighRemainder = (successors[l] << Constants.REMAINDER) >>> Constants.REMAINDER;
+                        neighMask = (Constants.BIT << neighRemainder);
+
+                        if (((neighMask & mTrackerImmutable[neighPosition]) >>> neighRemainder) == 1) {
+                            // for each element of the signature of the node n
+                            int sMask;
+                            for (int s = 0; s < mNumSeeds; s++) {
+                                sMask = (Constants.BIT << mRemainder[s]);
+
+                                // check if the s-th element of the node n signature
+                                // it's 0, else jump to the next s-th element of the signature
+                                if (((sMask & mSignMutable[n][mPosition[s]]) >>> mRemainder[s]) == 0) {
+                                    int bitNeigh;
+                                    int value;
+                                    // change the s-th element of the node n signature
+                                    // only if the s-th element of the neigh signature is 1
+                                    if (((sMask & mSignImmutable[successors[l]][mPosition[s]]) >>> mRemainder[s]) == 1) {
+                                        bitNeigh = (((1 << mRemainder[s]) & mSignImmutable[successors[l]][mPosition[s]]) >>> mRemainder[s]) << mRemainder[s];
+                                        value = bitNeigh | sMask & mSignImmutable[successors[l]][mPosition[s]];
+                                        signatureIsChanged = true; // track the signature changes, to run the next hop
+                                        mTrackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
+                                        mSignMutable[n][mPosition[s]] = mSignMutable[n][mPosition[s]] | value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+/*                    logTime = System.currentTimeMillis();
+
+                    if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
+                        logger.info("(hop # {}) # nodes analyzed {} / {}, estimated time remaining {} ms",
+                                h,
+                                (n-start), end-start,
+                                (((end-start)-(n-start)) * (logTime - startHopTime)) / n);
+                        lastLogTime = logTime;
+                    }*/
+                }
+
+                int b = signatureIsChanged ? 1 : 0;
+                logger.debug("thread {} hop {} signatureIsChanged {}", index, h, signatureIsChanged);
+                mLock.lock();
+                mSignatureIsChanged = (mSignatureIsChanged & ~(1 << index)) | ((b << index) & (1 << index));
+                mLock.unlock();
+
+                try {
+                    mCyclicBarrier.await();
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    e.printStackTrace();
+                }
+            }
+            return 0;
+        }
+    }
+
 
     class IterationThread implements Callable<Integer> {
 

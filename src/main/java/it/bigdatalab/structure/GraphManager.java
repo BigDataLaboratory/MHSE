@@ -1,5 +1,6 @@
 package it.bigdatalab.structure;
 
+import com.google.common.graph.Graph;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Preprocessing;
 import it.bigdatalab.utils.PropertiesManager;
@@ -106,6 +107,8 @@ public class GraphManager implements Cloneable{
         }
 
     }
+
+
     public int[] get_neighbours(int node){
 
         if(webGraph){
