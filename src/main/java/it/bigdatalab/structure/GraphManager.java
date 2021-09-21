@@ -13,7 +13,16 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class GraphManager implements Cloneable{
+/**
+ * Implementation of the new data structure
+ *
+ * @author Giambattista Amati
+ * @author Simone Angelini
+ * @author Antonio Cruciani
+ * @author Daniele Pasquini
+ * @author Paola Vocca
+ */
+public class GraphManager {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.structure.GraphManager");
 
     private CompressedGraph cGraph;
@@ -26,6 +35,17 @@ public class GraphManager implements Cloneable{
     private boolean isolatedVertices;
     private boolean transposed;
 
+    /**
+     * Define a new instance of the Graph Manager loading the desired graph type
+     * @param WG Boolean is webgraph?
+     * @param CG Boolean is compressed graph?
+     * @param inputFilePath String input path of the instance
+     * @param transpose Boolean is transposed?
+     * @param inM Boolean in memory ? (Only for webgraph)
+     * @param isoV Boolean isolated nodes? (Preprocessing for webgraph)
+     * @param direction String direction of the message passing
+     * @throws IOException
+     */
     public GraphManager(boolean WG, boolean CG,String inputFilePath, boolean transpose,boolean inM,boolean isoV,String direction) throws IOException {
         int i;
 
@@ -109,6 +129,11 @@ public class GraphManager implements Cloneable{
     }
 
 
+    /**
+     * Returns the neighbours of a node
+     * @param node Int node
+     * @return Int array neighbours
+     */
     public int[] get_neighbours(int node){
 
         if(webGraph){
@@ -120,6 +145,11 @@ public class GraphManager implements Cloneable{
         return cGraph.get_neighbours(node,differentialCompression);
     }
 
+    /**
+     * Returns the number of neighbours of a node
+     * @param node Int ndoe
+     * @return Int number of neighbours
+     */
     public int get_degree(int node){
         if(webGraph){
             return mGraph.outdegree(node);
@@ -127,13 +157,26 @@ public class GraphManager implements Cloneable{
         return cGraph.get_neighbours(node,differentialCompression).length;
     }
 
+    /**
+     * Returns the nodes of the graph
+     * @return Int array of nodes
+     */
     public int []get_nodes(){
         return nodes;
     }
 
+    /**
+     * Returns the number of nodes
+     * @return Int number of nodes
+     */
     public int numNodes(){
         return nodes.length;
     }
+
+    /**
+     * Returns the number of arcs
+     * @return Long number of arcs
+     */
     public long numArcs(){
         if(webGraph){
             return mGraph.numArcs();
@@ -141,6 +184,11 @@ public class GraphManager implements Cloneable{
         return cGraph.numArcs();
     }
 
+    /**
+     * Returns the successor array (same as get neighbours)
+     * @param node Int node
+     * @return Int array neighbours
+     */
     public int[] successorArray(int node){
         if(!webGraph) {
             logger.error("Error you must define a Web Graph data structure");
@@ -151,34 +199,75 @@ public class GraphManager implements Cloneable{
 
     }
 
+    /**
+     * Returns the immutable graph
+     * @return ImmutableGraph mGraph
+     */
     public ImmutableGraph get_mGraph(){
         return mGraph;
     }
+
+    /**
+     * Returns the compressed graph
+     * @return compressed graph
+     */
     public  CompressedGraph get_cGraph(){
         return cGraph;
     }
+
+    /**
+     * Returns transposed graph
+     * @return
+     */
     public boolean get_transposed(){
         return transposed;
     }
+
+    /**
+     * Returns True if the loaded graph is webgraph
+     * @return Boolean
+     */
     public boolean isWebGraph(){
         return webGraph;
     }
 
 
+    /**
+     * Set the compressed graph
+     * @param cG byte array compressed graph
+     */
     public void set_compressed_graph(byte []cG){
         cGraph.set_compressed_graph(cG);
     }
 
+    /**
+     * Set the offset file
+     * @param off 2D array
+     */
     public void set_offset(int [][] off){
         cGraph.set_offset(off);
     }
 
+    /**
+     * Set the web graph
+     * @param g ImmutableGraph
+     */
     public void set_mGraph(ImmutableGraph g){
         mGraph = g;
     }
+
+    /**
+     * Set the boolean value of webgraph
+     * @param WG Boolean
+     */
     public void set_webGraph(boolean WG){
         webGraph = WG;
     }
+
+    /**
+     * Set the boolean value of compressed graph
+     * @param nodeList Boolean
+     */
     public void set_nodes(int [] nodeList){
         nodes = nodeList;
     }
