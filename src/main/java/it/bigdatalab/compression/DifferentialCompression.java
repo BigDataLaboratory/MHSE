@@ -6,16 +6,33 @@ import javax.sound.midi.SysexMessage;
 import java.util.Arrays;
 
 
+/**
+ * Implementation of gap compression algorithm
+ *
+ * @author Giambattista Amati
+ * @author Simone Angelini
+ * @author Antonio Cruciani
+ * @author Daniele Pasquini
+ * @author Paola Vocca
+ */
 public class DifferentialCompression {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.compression.DifferentialCompression");
 
 
-
+    /**
+     * Creates a new Differential Compression instance
+     */
     public DifferentialCompression(){
 
     }
 
 
+    /**
+     * Compute bitwise addition between two numbers
+     * @param i
+     * @param j
+     * @return the sum i+j
+     */
     private int bitwiseAdd(int i, int j)
     {
         int uncommonBitsFromBoth = i ^ j;
@@ -31,6 +48,12 @@ public class DifferentialCompression {
         );
     }
 
+    /**
+     * Compute bitwise difference between two numbers
+     * @param x
+     * @param y
+     * @return the difference x-y
+     */
     private int bitwiseSubtraction(int x,int y){
 
         while (y != 0){
@@ -43,6 +66,11 @@ public class DifferentialCompression {
         return x;
     }
 
+    /**
+     * Compute the difference gap compression of a sequence of integers
+     * @param sequence Array of a sequence of integers (MUST BE SORTED IN INCREASING WAY)
+     * @return encoded sequence
+     */
     public int[] encodeSortedSequence(int [] sequence ){
         int[] encoded = new int[sequence.length];
         int j;
@@ -58,6 +86,11 @@ public class DifferentialCompression {
         }
     }
 
+    /**
+     * Compute original sequence given the encoded sequence as input
+     * @param encoded Array of a encoded integers
+     * @return decoded sequence
+     */
     public int[] decodeSequence(int []encoded){
         int [] decoded = new int[encoded.length];
         int j;
@@ -74,6 +107,11 @@ public class DifferentialCompression {
     }
 
 
+    /**
+     * Compute the encoding of an adjacency list
+     * @param matrix Adjacency list of a graph
+     * @return encoded adjacency list
+     */
     public int [][] ecnodeAdjList(int [][] matrix){
         int [][] encoded;
         int [] edgelist;
@@ -91,6 +129,11 @@ public class DifferentialCompression {
         return (encoded);
     }
 
+    /**
+     * Compute original adjacency list given the encoded adjacency list as input
+     * @param matrix Encoded adjacency list of a graph
+     * @return decoded adjacency list
+     */
     public int [][] decodeAdjList(int [][] matrix){
         int [][] decoded;
         int [] edgelist;

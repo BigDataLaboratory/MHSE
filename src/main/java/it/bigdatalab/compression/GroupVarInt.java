@@ -13,6 +13,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
+/**
+ * Implementation of Group VarInt compression algorithm
+ *
+ * @author Giambattista Amati
+ * @author Simone Angelini
+ * @author Antonio Cruciani
+ * @author Daniele Pasquini
+ * @author Paola Vocca
+ */
 public class GroupVarInt {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.compression.GroupVarint");
 
@@ -23,17 +32,31 @@ public class GroupVarInt {
     private byte[][] compressedAdjList;
     private byte[] compressedAdjListFlat;
     private DifferentialCompression GapCompressor;
+
+    /**
+     * Creates a new Group VarInt Compression instance
+     */
     public  GroupVarInt(){
 
 
     }
 
 
+    /**
+     * Computes the length the log base 2 of an integer
+     * @param x integer
+     * @return log base 2
+     */
     public static float log2(int x)
     {
         return (float) (Math.log(x) / Math.log(2));
     }
 
+    /**
+     * Computes the length (in number of bytes) of the binary representation of an integer
+     * @param number integer
+     * @return length of the binary representation
+     */
     public int get_bytes_number(int number){
         if(number != 0) {
             return (int) (Math.floor(log2(number)) / 8) +1;
@@ -41,6 +64,11 @@ public class GroupVarInt {
         return(1);
     }
 
+    /**
+     * Compute the exact byte representation of a number
+     * @param data byte array
+     * @return exact byte representation of a number
+     */
     public int convertByteArrayToInt(byte[] data) {
         if (data == null ) return 0x0;
         if(data.length == 1){
@@ -59,15 +87,19 @@ public class GroupVarInt {
                 ((data[3] & 0xFF) << 0 );
     }
 
+    /**
+     * Compute the byte representation of a integer
+     * @param data integer
+     * @param size length of the byte representation of the integer
+     * @return byte array representation of the integer
+     */
     private static byte[] intToBytes(final int data, int size) {
-        // Trasformo int in byte
         byte [] toBitArray = new byte[] {
                 (byte)((data >> 24) ),
                 (byte)((data >> 16) ),
                 (byte)((data >> 8) ),
                 (byte)((data ) ),
         };
-        // prendo solo i bytes necessari per codificare l'intero
         byte [] converted = new byte[size];
         int i = 0;
         int j = toBitArray.length-1;
@@ -79,7 +111,12 @@ public class GroupVarInt {
         return(converted);
 
     }
-    // Gets an array of at most 4 elements
+
+    /**
+     * Compute the encoding of a group of 4 integers
+     * @param group array of 4 integers
+     * @return encoded group
+     */
     public byte[] EncodeGroup(int [] group){
         /*
             Array for the number of bytes of each element of the group
@@ -99,7 +136,6 @@ public class GroupVarInt {
                 byte_array_lenght+=get_bytes_number(group[i]);
         }
 
-        //System.out.println("BAL "+byte_array_lenght);
         byte [] partial_encoding = new byte [byte_array_lenght];
 
         //int shift = 8;
@@ -108,7 +144,7 @@ public class GroupVarInt {
         for (i = 0; i<4; i++){
             if(i<group.length){
                 numbers_prefix[i] = get_bytes_number(group[i]);
-                //System.out.println("NUmero "+ group[i] +" Bytes "+get_bytes_number(group[i]));
+
                 byte [] encoded = new byte[numbers_prefix[i]];
 
                 byte [] converted_resto;
@@ -128,7 +164,7 @@ public class GroupVarInt {
 
                     k = quotient;
                 }
-                // copio il risultato sull'array finale
+
                 for(l = 0; l<encoded.length;l++){
                     partial_encoding[index] = encoded[l];
                     index+=1;
@@ -144,6 +180,12 @@ public class GroupVarInt {
         return(partial_encoding);
     }
 
+    /**
+     * Extend a byte array
+     * @param source Byte array
+     * @param destination Byte array
+     * @return extended byte array
+     */
     private byte[] byteArrayExtend(byte[] source,byte[] destination){
             byte[] copied = new byte[destination.length+source.length];
             int i,j;
@@ -159,6 +201,12 @@ public class GroupVarInt {
             return(copied);
     }
 
+    /**
+     * Extend int array
+     * @param source Int array
+     * @param destination Int array
+     * @return extended Int array
+     */
     private int[] intArrayExtend(int[] source,int[] destination){
         int[] copied = new int[destination.length+source.length];
         int i,j;
@@ -174,6 +222,12 @@ public class GroupVarInt {
         return(copied);
     }
 
+
+    /**
+     * Compute the encoding of an array of integers
+     * @param sequence array of integers
+     * @return encoded byte array
+     */
     public byte[] listEncoding(int [] sequence){
         int [] groupedSequence = new int [4];
         byte[] tmpArray = new byte[0];
@@ -183,7 +237,6 @@ public class GroupVarInt {
         k = 0;
         c = 0;
         for(i = 0; i<sequence.length; i++){
-            //System.out.println(k);
             groupedSequence[k] = sequence[i];
             k++;
             if((k & 3) == 0) {
@@ -209,60 +262,11 @@ public class GroupVarInt {
     }
 
 
-    public byte[] sequenceEncoding(int []sequence){
-        int k,i,j,l;
-        int [] groupedSequence = new int [4];
-        byte[] tmpArray = new byte[0];
-        byte[] finalEncoding = new byte[0];
-        int end;
-        byte[] partialEncoding;
-        int check = 0;
-        end = 0;
-        for (i =0; i<sequence.length;i++){
-
-            groupedSequence[end] =  sequence[i];
-            end++;
-            if(end == 4){
-                partialEncoding = EncodeGroup(groupedSequence);
-
-                tmpArray = byteArrayExtend(partialEncoding,tmpArray);
-
-                end = 0;
-            }
-            check+=1;
-        }
-        //System.out.println("END "+ end);
-        //System.out.println(sequence.length);
-        // Se la lunghezza della lista di elementi non è multipla di 4 dobbiamo eseguire un'ultima passata
-        if(end > 0 && end<4){
-            int[] remainingEncoding = new int[end];
-            k = 0;
-            while(k< end){
-                remainingEncoding[k] = groupedSequence[k];
-                //System.out.println("RIMANENTE "+groupedSequence);
-                k+=1;
-                check+=1;
-            }
-            //System.out.println("CHECK "+ check);
-            //System.exit(1);
-            partialEncoding = EncodeGroup(remainingEncoding);
-
-            tmpArray = byteArrayExtend(partialEncoding,tmpArray);
-
-        }
-
-        return(tmpArray);
-    }
-    private int get_len(byte [] array, int start,int end){
-        int len = 0;
-
-        for (int i = start; i<end; i++){
-            len+=1;
-        }
-        return(len);
-    }
-
-    //Arrays.copyOfRange(array, 1, array.length);
+    /**
+      * Compute the decoded int array
+      * @param encoded byte array
+     * @return Int array of the decoded sequence
+     */
     public int[] dec(byte encoded []){
         int decodedBytes;
         int k,c;
@@ -331,39 +335,22 @@ public class GroupVarInt {
     }
 
 
-    public static byte[] getSliceOfArray(byte[] arr,
-                                        int startIndex, int endIndex)
-    {
-
-        // Get the slice of the Array
-        byte[] slice = Arrays
-                .copyOfRange(
-
-                        // Source
-                        arr,
-
-                        // The Start index
-                        startIndex,
-
-                        // The end index
-                        endIndex);
-
-        // return the slice
-        return slice;
-    }
-
+    /**
+     * Return the offset 2D-Array
+     * @return offset
+     */
     public int [][] getOffset(){
         return (offset);
     }
-    public byte[] getCompressedOffset() {
-        return compressedOffset;
-    }
 
-    public byte[][] getCompressedAdjList(){
-        return (compressedAdjList);
-    }
 
-  public byte [] encodeAdjListFlat(int [][] matrix,boolean d_compression){
+    /**
+     * Compute the encoding of an adjacency list
+     * @param matrix adjacency list
+     * @param d_compression not implemented
+     * @return encoded ajacency list
+     */
+    public byte [] encodeAdjListFlat(int [][] matrix,boolean d_compression){
         int node,edge,bytes,k;
         byte [] encodedFlat;
         byte [][] encoded;
@@ -401,9 +388,11 @@ public class GroupVarInt {
   }
 
 
-
-
-
+    /**
+     * Save on the disk the encoded adjacency list and its ofsset
+     * @param outPath String of the output path
+     * @param instance String of the name of the file
+     */
     public void saveEncoding(String outPath,String instance) {
 
         int n, m, i, k, q, j;
@@ -469,6 +458,10 @@ public class GroupVarInt {
 
     }
 
+    /**
+     * Return the compressed adjacency list
+     * @return compressed adjacency list (byte array)
+     */
     public byte[] get_compressedAdjListFlat(){
         return(compressedAdjListFlat);
     }
