@@ -10,6 +10,15 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Scanner;
 
+/**
+ * Implementation of the new data structure
+ *
+ * @author Giambattista Amati
+ * @author Simone Angelini
+ * @author Antonio Cruciani
+ * @author Daniele Pasquini
+ * @author Paola Vocca
+ */
 public class UncompressedGraph {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.structure.UncompressedGraph");
 
@@ -17,10 +26,20 @@ public class UncompressedGraph {
     //private int n = Integer.MAX_VALUE;
     private int[][] graph;
     private int [][] TGraph;
+
+    /**
+     *  Define a new empty instance of the graph
+     */
     public UncompressedGraph() {
 
     }
 
+    /**
+     * Load the adjacency list of the graph
+     * @param inPath String, input path of the adjacency list
+     * @param separator String, file separator
+     * @throws FileNotFoundException
+     */
     public void load_graph(String inPath, String separator) throws FileNotFoundException {
         int[][] tmp_graph;
         int[] edges;
@@ -57,6 +76,11 @@ public class UncompressedGraph {
         logger.info("Adiacency List loaded");
 
     }
+
+    /**
+     * Function that traspose the graph
+     */
+    // CHECK IT
     public void  transpose_graph(){
 
         ArrayList<ArrayList<Integer>> transposed_tmp = new ArrayList<ArrayList<Integer>>() ;
@@ -93,14 +117,27 @@ public class UncompressedGraph {
 
     }
 
+    /**
+     * Returns the transposed graph
+     * @return 2D array, transpoded graph
+     */
     public int[][] getTGraph(){
         return TGraph;
     }
 
+    /**
+     * Returns the graph
+     * @return 2D array, graph
+     */
     public int[][] getGraph() {
         return graph;
     }
 
+    /**
+     * Returns the neighbors of a given node
+     * @param node Int node
+     * @return Int array of nodes
+     */
     public int[] get_neighbours(int node) {
         int [] neigh = new int[graph[node].length-1];
         int i;
@@ -110,9 +147,18 @@ public class UncompressedGraph {
         return(neigh);
     }
 
+    /**
+     * Set the transposed graph
+     * @param TGraph 2D array
+     */
     public void setTGraph(int [][] TGraph){
         this.TGraph = TGraph;
     }
+
+    /**
+     * Set the graph
+     * @param graph 2D array
+     */
     public void setGraph(int[][] graph) {
         this.graph = graph;
     }
