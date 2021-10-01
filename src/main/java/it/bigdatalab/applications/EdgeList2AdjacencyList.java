@@ -4,16 +4,11 @@ import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongArrays;
-import it.unimi.dsi.webgraph.ArcListASCIIGraph;
-import it.unimi.dsi.webgraph.BVGraph;
-import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 
 public class EdgeList2AdjacencyList {
     private String ofp;
@@ -32,15 +27,15 @@ public class EdgeList2AdjacencyList {
 
     public void initialize(boolean transpose){
        /*
-        edgeList2AdiacencyList.inputEdgelistFilePath = /path/to/input/edgelist
-        edgeList2AdiacencyList.outputFolderPath = /path/to/output/folder/adjList
-        edgeList2AdiacencyList.fromJanusGraph = False
+        edgeList2AdjacencyList.inputEdgelistFilePath = /path/to/input/edgelist
+        edgeList2AdjacencyList.outputFolderPath = /path/to/output/folder/adjList
+        edgeList2AdjacencyList.fromJanusGraph = False
 
         */
-        this.inputFilePath = PropertiesManager.getProperty("edgeList2AdiacencyList.inputEdgelistFilePath");
-        this.ofp = PropertiesManager.getProperty("edgeList2AdiacencyList.outputFolderPath");
-        this.fromJanusGraph = Boolean.parseBoolean(PropertiesManager.getProperty("edgeList2AdiacencyList.fromJanusGraph"));
-        this.degreeDistributionLabeling = Boolean.parseBoolean(PropertiesManager.getProperty("edgeList2AdiacencyList.degreeDistributionLabeling"));
+        this.inputFilePath = PropertiesManager.getProperty("edgeList2AdjacencyList.inputEdgelistFilePath");
+        this.ofp = PropertiesManager.getProperty("edgeList2AdjacencyList.outputFolderPath");
+        this.fromJanusGraph = Boolean.parseBoolean(PropertiesManager.getProperty("edgeList2AdjacencyList.fromJanusGraph"));
+        this.degreeDistributionLabeling = Boolean.parseBoolean(PropertiesManager.getProperty("edgeList2AdjacencyList.degreeDistributionLabeling"));
 
         try {
             //create normalized edgelist for webgraph from edgelist file
