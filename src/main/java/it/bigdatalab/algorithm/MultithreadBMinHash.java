@@ -1,13 +1,10 @@
 package it.bigdatalab.algorithm;
 
 import it.bigdatalab.applications.CreateSeeds;
-import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
-import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +19,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implementation of MultithreadBMinHash (MinHash Signature Estimation multithread boolean version) algorithm
+ * Implementation of MultithreadBMinHash (MinHash Signature Estimation multithread boolean optimized version) algorithm
  *
  * @author Giambattista Amati
  * @author Simone Angelini
@@ -30,31 +27,36 @@ import java.util.concurrent.TimeUnit;
  * @author Daniele Pasquini
  * @author Paola Vocca
  */
-public class MultithreadBMinHash extends BMinHash {
+public class MultithreadBMinHash extends BMinHashOpt {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadBMinHash");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadBMinHashOptimized");
 
     private final int mNumberOfThreads;
     private final double[] mSeedTime;
     private long startTime;
+    private boolean doCentrality;
+    private short[][] mHopForNodes;
+
 
     /**
-     * Creates a new MultithreadBMinHash instance with default values
+     * Creates a new MultithreadBMinHashOptimized instance with default values
      */
-    public MultithreadBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads) {
+    public MultithreadBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) {
         super(g, numSeeds, threshold, nodes);
-        mSeedTime = new double[mNumSeeds];
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
+        mSeedTime = new double[mNumSeeds];
+        doCentrality = centrality;
     }
 
     /**
-     * Creates a new MultithreadBMinHash instance with default values
+     * Creates a new MultithreadBMinHashOptimized instance with default values
      */
-    public MultithreadBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int threads) {
+    public MultithreadBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int threads, boolean centrality) {
         super(g, numSeeds, threshold);
-        mSeedTime = new double[mNumSeeds];
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
+        mSeedTime = new double[mNumSeeds];
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
+        doCentrality = centrality;
     }
 
     /**
@@ -76,14 +78,17 @@ public class MultithreadBMinHash extends BMinHash {
      */
 
     public Measure runAlgorithm() {
-        logger.info("Running {} algorithm", MultithreadBMinHash.class.getName());
         startTime = System.currentTimeMillis();
         long totalTime;
 
-        Int2ObjectOpenHashMap<int[]> collisionsTable = new Int2ObjectOpenHashMap<>();
-        int[] lastHops = new int[mNumSeeds];
-
         logger.debug("Number of threads to be used {}", mNumberOfThreads);
+
+        int[][] collisionsMatrix = new int[mNumSeeds][];
+        int[] lastHops = new int[mNumSeeds];
+        double[] hopTableArray;
+
+        int lowerboundDiameter = 0;
+
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
         List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
 
@@ -91,28 +96,23 @@ public class MultithreadBMinHash extends BMinHash {
             todo.add(new IterationThread(mGraph.copy(), i));
         }
 
+        if (doCentrality) {
+            mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
+        }
+
         try {
-            List<Future<Int2LongLinkedOpenHashMap>> futures = executor.invokeAll(todo);
-            for (int s = 0; s < this.mNumSeeds; s++) {
-                Future<Int2LongLinkedOpenHashMap> future = futures.get(s);
+            List<Future<int[]>> futures = executor.invokeAll(todo);
+            for (int i = 0; i < this.mNumSeeds; i++) {
+                Future<int[]> future = futures.get(i);
                 if (!future.isCancelled()) {
                     try {
-                        Int2LongLinkedOpenHashMap actualCollisionTable = future.get();
-                        int[] hopCollision;
-
-                        for (int h : actualCollisionTable.keySet()) {
-                            if (!collisionsTable.containsKey(h)) {
-                                hopCollision = new int[mNumSeeds];
-                                hopCollision[s] = (int) actualCollisionTable.get(h);
-                                collisionsTable.put(h, hopCollision);
-                            } else {
-                                hopCollision = collisionsTable.get(h);
-                                hopCollision[s] = (int) actualCollisionTable.get(h);
-                                collisionsTable.put(h, hopCollision);
-                            }
+                        int[] hopCollisions = future.get();
+                        collisionsMatrix[i] = hopCollisions;
+                        int lastHop = hopCollisions.length - 1;
+                        lastHops[i] = lastHop;
+                        if (lastHop > lowerboundDiameter) {
+                            lowerboundDiameter = lastHop;
                         }
-
-                        lastHops[s] = actualCollisionTable.size() - 1;
 
                     } catch (ExecutionException e) {
                         logger.error("Failed to get result", e);
@@ -135,31 +135,31 @@ public class MultithreadBMinHash extends BMinHash {
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
-        normalizeCollisionsTable(collisionsTable);
+        normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
 
-        Int2DoubleLinkedOpenHashMap hopTable = hopTable(collisionsTable);
-        logger.debug("Hop table derived from collision table: {}", hopTable);
+        hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
 
-        GraphMeasure graphMeasure = new GraphMeasure();
+        GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
-        graphMeasure.setHopTable(hopTable);
-        graphMeasure.setLowerBoundDiameter(hopTable.size() - 1);
-        graphMeasure.setThreshold(mThreshold);
         graphMeasure.setNumSeeds(mNumSeeds);
-        graphMeasure.setCollisionsTable(collisionsTable);
+        graphMeasure.setHopTable(hopTableArray);
+        graphMeasure.setCollisionsTable(collisionsMatrix);
+        //graphMeasure.setHopForNode(mHopForNodes);
         graphMeasure.setLastHops(lastHops);
+        graphMeasure.setLowerBoundDiameter(lowerboundDiameter);
+        graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsTime(mSeedTime);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
-        graphMeasure.setAvgDistance(Stats.averageDistance(hopTable));
-        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTable, mThreshold));
-        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTable));
-        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTable, mThreshold));
+        graphMeasure.setAvgDistance(Stats.averageDistance(hopTableArray));
+        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTableArray, mThreshold));
+        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));
+        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
 
         return graphMeasure;
     }
 
-    class IterationThread implements Callable<Int2LongLinkedOpenHashMap> {
+    class IterationThread implements Callable<int[]> {
 
         private final ImmutableGraph g;
         private final int s;
@@ -170,17 +170,12 @@ public class MultithreadBMinHash extends BMinHash {
         }
 
         @Override
-        public Int2LongLinkedOpenHashMap call() {
+        public int[] call() {
             long startSeedTime = System.currentTimeMillis();
             long lastLogTime = startSeedTime;
             long logTime;
 
-            // initialization of the collision counter for the hop
-            // we use a dict because we want to iterate over the nodes until
-            // the number of collisions in the actual hop
-            // is different than the previous hop
-            Int2LongLinkedOpenHashMap hopCollision = new Int2LongLinkedOpenHashMap();
-            int collisions;
+            int collisions = 0;
 
             // Set false as signature of all graph nodes
             // used to computing the algorithm
@@ -194,22 +189,29 @@ public class MultithreadBMinHash extends BMinHash {
             int h = 0;
             boolean signatureIsChanged = true;
 
+            // initialization of the collision counter for the hop
+            // we use a dict because we want to iterate over the nodes until
+            // the number of collisions in the actual hop
+            // is different than the previous hop
+            int[] hopTable = new int[1];
+
             while (signatureIsChanged) {
                 //first hop - initialization
                 if (h == 0) {
+
                     // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
                     // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
                     // This is equal to logical and operation.
-                    int remainderPositionRandomNode = ((randomNode << Constants.REMAINDER) >>> Constants.REMAINDER);
+                    int remainderPositionRandomNode = (randomNode << Constants.REMAINDER) >>> Constants.REMAINDER;
                     // quotient is randomNode >>> MASK
                     mutable[randomNode >>> Constants.MASK] |= (Constants.BIT) << remainderPositionRandomNode;
                     signatureIsChanged = true;
-                } else {
+
+                } else { // next hops
                     signatureIsChanged = false;
 
                     // copy all the actual nodes hash in a new structure
                     System.arraycopy(mutable, 0, immutable, 0, mutable.length);
-
                     int remainderPositionNode;
                     int quotientNode;
                     for (int n = 0; n < g.numNodes(); n++) {
@@ -224,11 +226,9 @@ public class MultithreadBMinHash extends BMinHash {
                         // store the new signature as the current one
                         remainderPositionNode = (node << Constants.REMAINDER) >>> Constants.REMAINDER;
                         quotientNode = node >>> Constants.MASK;
-
                         int value = immutable[quotientNode];
                         int bitNeigh;
                         int nodeMask = (1 << remainderPositionNode);
-
                         if (((nodeMask & value) >>> remainderPositionNode) == 0) { // check if node bit is 0
                             for (int l = 0; l < d; l++) {
                                 final int neighbour = successors[l];
@@ -238,6 +238,9 @@ public class MultithreadBMinHash extends BMinHash {
                                 bitNeigh = (((1 << remainderPositionNeigh) & immutable[quotientNeigh]) >>> remainderPositionNeigh) << remainderPositionNode;
                                 value = bitNeigh | nodeMask & immutable[quotientNode];
                                 if ((value >>> remainderPositionNode) == 1) {
+                                    if (doCentrality) {
+                                        mHopForNodes[n][s] = (short) h;
+                                    }
                                     signatureIsChanged = true;
                                     break;
                                 }
@@ -260,19 +263,32 @@ public class MultithreadBMinHash extends BMinHash {
                     }
                 }
 
+
+                // count the collision between the node signature and the graph signature
                 if (signatureIsChanged) {
-                    // count the collision between the node signature and the graph signature
                     collisions = 0;
                     for (int aMutable : mutable) {
                         collisions += Integer.bitCount(aMutable);
                     }
-                    hopCollision.put(h, collisions);
+
+                    int[] copy = new int[h + 1];
+                    System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
+                    hopTable = copy;
+
+                    hopTable[h] = collisions;
+
                     h += 1;
                 }
             }
 
-            MultithreadBMinHash.this.mSeedTime[s] = (System.currentTimeMillis() - startSeedTime);
-            return hopCollision;
+            MultithreadBMinHash.this.mSeedTime[s] = System.currentTimeMillis() - startSeedTime;
+
+            return hopTable;
+        }
+
+
+        private int lengthBitsArray(int numberOfNodes) {
+            return (int) Math.ceil(numberOfNodes / (double) Integer.SIZE);
         }
 
     }

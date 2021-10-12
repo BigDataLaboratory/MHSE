@@ -32,31 +32,19 @@ public class MinHashFactory {
             case MHSE:
                 minHashAlgorithm = new MHSE(g, numSeeds, threshold, seeds);
                 break;
-            case MHSEX:
+            case BMHSE:
                 minHashAlgorithm = new MHSEX(g, numSeeds, threshold, nodes, centrality);
-                break;
-            case MHSEXResearch:
-                minHashAlgorithm = new MHSEXResearch(g, numSeeds, threshold, nodes, centrality);
                 break;
             case SEMHSE:
                 minHashAlgorithm = new SEMHSE(g, numSeeds, threshold, seeds);
                 break;
-            case StandaloneBMinHash:
-                minHashAlgorithm = new StandaloneBMinHash(g, numSeeds, threshold, nodes);
+            case SEBMHSE:
+                minHashAlgorithm = new StandaloneBMinHash(g, numSeeds, threshold, nodes, centrality);
                 break;
-            case StandaloneBMinHashOptimized:
-                minHashAlgorithm = new StandaloneBMinHashOptimized(g, numSeeds, threshold, nodes, centrality);
+            case SEBMHSEMulti:
+                minHashAlgorithm = new MultithreadBMinHash(g, numSeeds, threshold, nodes, threads, centrality);
                 break;
-            case MultithreadBMinHash:
-                minHashAlgorithm = new MultithreadBMinHash(g, numSeeds, threshold, nodes, threads);
-                break;
-            case MultithreadBMinHashOptimized:
-                minHashAlgorithm = new MultithreadBMinHashOptimized(g, numSeeds, threshold, nodes, threads, centrality);
-                break;
-            case MultithreadBMinHashOpt2:
-                minHashAlgorithm = new MultithreadBMinHashOpt2(g, numSeeds, threshold, nodes, threads);
-                break;
-            case MultithreadMHSEX:
+            case BMHSEMulti:
                 minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, nodes, threads);
                 break;
             default:
@@ -87,31 +75,19 @@ public class MinHashFactory {
             case MHSE:
                 minHashAlgorithm = new MHSE(g, numSeeds, threshold);
                 break;
-            case MHSEX:
+            case BMHSE:
                 minHashAlgorithm = new MHSEX(g, numSeeds, threshold, centrality);
-                break;
-            case MHSEXResearch:
-                minHashAlgorithm = new MHSEXResearch(g, numSeeds, threshold, centrality);
                 break;
             case SEMHSE:
                 minHashAlgorithm = new SEMHSE(g, numSeeds, threshold);
                 break;
-            case StandaloneBMinHash:
-                minHashAlgorithm = new StandaloneBMinHash(g, numSeeds, threshold);
+            case SEBMHSE:
+                minHashAlgorithm = new StandaloneBMinHash(g, numSeeds, threshold, centrality);
                 break;
-            case StandaloneBMinHashOptimized:
-                minHashAlgorithm = new StandaloneBMinHashOptimized(g, numSeeds, threshold, centrality);
+            case SEBMHSEMulti:
+                minHashAlgorithm = new MultithreadBMinHash(g, numSeeds, threshold, threads, centrality);
                 break;
-            case MultithreadBMinHash:
-                minHashAlgorithm = new MultithreadBMinHash(g, numSeeds, threshold, threads);
-                break;
-            case MultithreadBMinHashOptimized:
-                minHashAlgorithm = new MultithreadBMinHashOptimized(g, numSeeds, threshold, threads, centrality);
-                break;
-            case MultithreadBMinHashOpt2:
-                minHashAlgorithm = new MultithreadBMinHashOpt2(g, numSeeds, threshold, threads);
-                break;
-            case MultithreadMHSEX:
+            case BMHSEMulti:
                 minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, threads);
                 break;
             default:

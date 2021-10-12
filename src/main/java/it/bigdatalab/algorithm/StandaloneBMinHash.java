@@ -1,14 +1,10 @@
 package it.bigdatalab.algorithm;
 
 import it.bigdatalab.applications.CreateSeeds;
-import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
-import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2LongLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2LongSortedMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +13,7 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implementation of StandaloneBMinHash (MinHash Signature Estimation standalone boolean version) algorithm
+ * Implementation of StandaloneBMinHash (MinHash Signature Estimation standalone boolean optimized version) algorithm
  *
  * @author Giambattista Amati
  * @author Simone Angelini
@@ -25,22 +21,22 @@ import java.util.concurrent.TimeUnit;
  * @author Daniele Pasquini
  * @author Paola Vocca
  */
-public class StandaloneBMinHash extends BMinHash {
+public class StandaloneBMinHash extends BMinHashOpt {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHash");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHashOptimized");
 
     /**
-     * Creates a new BooleanMinHash instance with default values
+     * Creates a new BooleanMinHasOptimized instance with default values
      */
-    public StandaloneBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes) {
+    public StandaloneBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, boolean centrality) {
         super(g, numSeeds, threshold, nodes);
     }
 
     /**
-     * Creates a new BooleanMinHash instance with default values
+     * Creates a new BooleanMinHasOptimized instance with default values
      */
-    public StandaloneBMinHash(final ImmutableGraph g, int numSeeds, double threshold) {
-        super(g, numSeeds, threshold);
+    public StandaloneBMinHash(final ImmutableGraph g, int numSeeds, double threshold, boolean centrality) {
+        this(g, numSeeds, threshold, null, centrality);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
     }
 
@@ -50,25 +46,21 @@ public class StandaloneBMinHash extends BMinHash {
      * @return Computed metrics of the algorithm
      */
     public Measure runAlgorithm() {
-        logger.info("Running {} algorithm", StandaloneBMinHash.class.getCanonicalName());
         long startTime = System.currentTimeMillis();
+        long totalTime;
         long lastLogTime = startTime;
         long logTime;
-        long totalTime;
 
-        Int2DoubleLinkedOpenHashMap hopTable;
-        //for each hop a list of collisions for each hash function
-        Int2ObjectOpenHashMap<int[]> collisionsTable = new Int2ObjectOpenHashMap<>();   //key is hop, value is collisions for each hash function at that hop
+        // seed as rows, hop as columns - cell values are collissions for each hash function at hop
+        int[][] collisionsMatrix = new int[mNumSeeds][1];
         //for each hash function, the last hop executed
         int[] lastHops = new int[mNumSeeds];
+        double[] hopTableArray;
+
+        int lowerBound = 0;
 
         for (int s = 0; s < this.mNumSeeds; s++) {
 
-            // initialization of the collision "collisions" for the hop
-            // we use a dict because we want to iterate over the nodes until
-            // the number of collisions in the actual hop
-            // is different than the previous hop
-            Int2LongSortedMap hopCollision = new Int2LongLinkedOpenHashMap();
             int collisions = 0;
 
             // Set false as signature of all graph nodes
@@ -80,25 +72,22 @@ public class StandaloneBMinHash extends BMinHash {
             //It could be set in mhse.properties file with the "minhash.nodeIDs" property
             int randomNode = mMinHashNodeIDs[s];
 
+            // initialization of the collision "collisions" for the hop
+            // we use a dict because we want to iterate over the nodes until
+            // the number of collisions in the actual hop
+            // is different than the previous hop
             int h = 0;
             boolean signatureIsChanged = true;
 
             while (signatureIsChanged) {
-                //logger.debug("(seed {}) Starting computation on hop {}", s, h);
-
-                int[] hopCollisions;
-                if (collisionsTable.containsKey(h)) {
-                    hopCollisions = collisionsTable.get(h);
-                } else {
-                    hopCollisions = new int[mNumSeeds];
-                }
 
                 //first hop - initialization
                 if (h == 0) {
+
                     // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
                     // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
                     // This is equal to logical and operation.
-                    int remainderPositionRandomNode = ((randomNode << Constants.REMAINDER) >>> Constants.REMAINDER);
+                    int remainderPositionRandomNode = (randomNode << Constants.REMAINDER) >>> Constants.REMAINDER;
                     // quotient is randomNode >>> MASK
                     mutable[randomNode >>> Constants.MASK] |= (Constants.BIT) << remainderPositionRandomNode;
                     signatureIsChanged = true;
@@ -143,7 +132,6 @@ public class StandaloneBMinHash extends BMinHash {
                             }
                         }
                         mutable[quotientNode] = mutable[quotientNode] | value;
-
                         logTime = System.currentTimeMillis();
                         if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
                             int maxHop = Arrays.stream(lastHops).summaryStatistics().getMax() + 1;
@@ -167,36 +155,44 @@ public class StandaloneBMinHash extends BMinHash {
                         collisions += Integer.bitCount(aMutable);
                     }
 
-                    hopCollisions[s] = collisions;      //related to seed s at hop h
-                    collisionsTable.put(h, hopCollisions);
+                    int[] copy = new int[h + 1];
+                    System.arraycopy(collisionsMatrix[s], 0, copy, 0, collisionsMatrix[s].length);
+                    collisionsMatrix[s] = copy;
+
+                    collisionsMatrix[s][h] = collisions;
+
                     lastHops[s] = h;
+                    if (h > lowerBound)
+                        lowerBound = h;
                     h += 1;
                 }
             }
+
         }
 
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
         //normalize collisionsTable
-        normalizeCollisionsTable(collisionsTable);
+        normalizeCollisionsTable(collisionsMatrix, lowerBound);
 
-        hopTable = hopTable(collisionsTable);
+        hopTableArray = hopTable(collisionsMatrix, lowerBound);
 
-        GraphMeasure graphMeasure = new GraphMeasure();
+        GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
+        graphMeasure.setNumArcs(mGraph.numArcs());
         graphMeasure.setNumSeeds(mNumSeeds);
-        graphMeasure.setHopTable(hopTable);
-        graphMeasure.setLowerBoundDiameter(hopTable.size() - 1);
-        graphMeasure.setThreshold(mThreshold);
-        graphMeasure.setCollisionsTable(collisionsTable);
+        graphMeasure.setCollisionsMatrix(collisionsMatrix);
+        graphMeasure.setHopTable(hopTableArray);
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
         graphMeasure.setTime(totalTime);
-        graphMeasure.setAvgDistance(Stats.averageDistance(hopTable));
-        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTable, mThreshold));
-        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTable));
-        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTable, mThreshold));
+        graphMeasure.setLowerBoundDiameter(lowerBound);
+        graphMeasure.setThreshold(mThreshold);
+        graphMeasure.setAvgDistance(Stats.averageDistance(hopTableArray));
+        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTableArray, mThreshold));
+        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));
+        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
 
         return graphMeasure;
     }
