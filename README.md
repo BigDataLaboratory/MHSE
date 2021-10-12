@@ -64,22 +64,26 @@ mhse.properties contains properties for all the applications of the project and 
 Here the explanation of sections and properties.
 
 ### MinHash section
-Right now, only MHSE and SE-MHSE algorithms are developed.
+Right now, MHSE, BMHSE (with a multithread version), SEMHSE, SEBMHSE (with a multithread version) algorithms are developed.
 List of the properties for all the MinHash-based applications.
-- **minhash.suggestedNumberOfThreads** handles the parallelization of the algorithm. This property has to be an integer that indicates the number of parallel threads that have to be run. **TO BE ACTIVATED INTO NEXT RELEASE**
+- **minhash.suggestedNumberOfThreads** handles the parallelization of the algorithm. This property has to be an integer that indicates the number of parallel threads that have to be run
+- **minhash.persistCollisionTable** persist the collision table on the output file
 - **minhash.inputFilePath** string path of the input file representing a graph in a *WebGraph* format. If your input graph has an *edgelist* format, see *EdgeList2WebGraph* application to make a conversion.
-- **minhash.outputFolderPath**  string path of the output folder path, that will contain results of the execution of the algorithm``````
-- **minhash.isSeedsRandom** is a boolean value. If it is True, the list of seeds used in the hash functions will be random, else it will be loaded from *minhash.seeds* property 
-
-- **minhash.algorithmName** string name of the MinHash algorithm to be executed. A list of acceptable name values is available in the following class: it.bigdatalab.algorithm.AlgorithmEnum. Right now acceptable values are MHSE and SEMHSE.
+- **minhash.outputFolderPath**  string path of the output folder path, that will contain results of the execution of the algorithm
+- **minhash.reorder**  is a boolean value. if True reorder the input graph by degree. **Deprecated**
+- **minhash.transpose**  is a boolean value. if True, the input graph is the transpose version
+- **minhash.isolatedVertices**  is a boolean value. Keep the isolated nodes if True is set, else it will be removed from input graph
+- **minhash.isSeedsRandom** is a boolean value. If it is True, the list of seeds used in the hash functions will be random, else it will be loaded from *minhash.inputFilePathSeedNode* property
+- **minhash.algorithmName** string name of the MinHash algorithm to be executed. A list of acceptable name values is available in the following class: it.bigdatalab.algorithm.AlgorithmEnum.
 - **minhash.threshold** float value that is the threshold used for the *effective diameter*. Usually it is set to 0.9 (90% of total reachable couples of nodes)
 - **minhash.direction** direction of the MinHash messages. Acceptable values are *in* or *out*. If you set *in*, the MinHash is propagated from the destination node to the source node. If you set *out*, from the source to the destination node. This choice doesn't affect computation of all metrics (effective diameter, average distance and so on) but it could make a difference in convergence time.
-- **minhash.numSeeds** number of seeds used for MinHash algorithm
-- **minhash.seeds** list of seeds (comma separated values) to be used for the hash functions of the MinHash algorithm. Single test
+- **minhash.numSeeds** number of seeds used for MinHash algorithm. If isSeedsRandom is False, you can set numSeeds to 0 to compute GroundTruth (**Important**: you must set nodeIDRange)
+- **minhash.nodeIDRange** graph nodes to compute Ground Truth (pattern to follow: "0,n-1" with n as number of nodes)
+- **minhash.inputFilePathSeedNode** string path of the external json file containing seeds list and nodes list
+- **minhash.inMemory** is a boolean value. If True is set, load the entire graph in memory.
+- **minhash.computeCentrality** This property will be used in a **future development**
 In this section, we list properties to run multiple tests of the same algorithm:
-- **minhash.runTests** is a boolean value. If it is *True*, Test mode will be activated and will be run multiple tests of the same algorithm. 
 - **minhash.numTests** integer value representing the number of tests to be done. We need to run algorithm multiple times to get significance test e.g. mean and variance of all tests. All output results will be written in JSON format (see Results section).
-- **minhash.seeds1** to **minhash.seedsX** are a series of lists of seeds to be used in multiple executions of the algorithm. The *X* number has to be the same of the number specified in *minhash.numTests* property.    
 
 ### EdgeList2WebGraph section
 In this section, we list properties used to translate a graph encoded in *edgelist* format into a *WebGraph* encoded file.
@@ -91,6 +95,43 @@ In this section, we list properties used to translate a graph encoded in *edgeli
 In this section, we list properties used to translate a graph encoded in *WebGraph* format into an *edgelist* encoded file.
 - **webGraph2EdgeList.inputFilePath** string path of the input file, representing a graph in an *WebGraph* format
 - **webGraph2EdgeList.outputFolderPath** string path of the output folder where the application will persist the graph encoded in an *edgelist* format
+
+### Hyperball section
+In this section, we list properties to run Hyperball algorithm.
+- **hyperball.suggestedNumberOfThreads** handles the parallelization of the algorithm. This property has to be an integer that indicates the number of parallel threads that have to be run
+- **hyperball.inputFilePath** string path of the input file representing a graph in a *WebGraph* format. If your input graph has an *edgelist* format, see *EdgeList2WebGraph* application to make a conversion.
+- **hyperball.outputFolderPath**  string path of the output folder path, that will contain results of the execution of the algorithm
+- **hyperball.log2m** number of seeds used for Hyperball algorithm
+- **hyperball.isolatedVertices**  is a boolean value. Keep the isolated nodes if True is set, else it will be removed from input graph
+- **hyperball.threshold** float value that is the threshold used for the *effective diameter*. Usually it is set to 0.9 (90% of total reachable couples of nodes)
+- **hyperball.numTests** integer value representing the number of tests to be done. We need to run algorithm multiple times to get significance test e.g. mean and variance of all tests. All output results will be written in JSON format (see Results section).
+- **hyperball.direction** direction of the messages. Acceptable values are *in* or *out*. If you set *in*, the message is propagated from the destination node to the source node. If you set *out*, from the source to the destination node. This choice doesn't affect computation of all metrics (effective diameter, average distance and so on) but it could make a difference in convergence time.
+- **hyperball.inMemory** is a boolean value. If True is set, load the entire graph in memory.
+
+### GroundTruth section
+In this section, we list properties to run GroundTruth implementation developed by WebGraph.
+- **groundTruth.threadNumber** handles the parallelization of the algorithm. This property has to be an integer that indicates the number of parallel threads that have to be run
+- **groundTruth.inputFilePath** string path of the input file representing a graph in a *WebGraph* format. If your input graph has an *edgelist* format, see *EdgeList2WebGraph* application to make a conversion.
+- **groundTruth.outputFolderPath**  string path of the output folder path, that will contain results of the execution of the algorithm
+- **groundTruth.isolatedVertices**  is a boolean value. Keep the isolated nodes if True is set, else it will be removed from input graph
+- **groundTruth.inMemory** is a boolean value. If True is set, load the entire graph in memory
+
+### Seed generation section
+In this section, we list properties to generate the seeds lists for a graph
+- **seed.inputFilePath** string path of the input file representing a graph in a *WebGraph* format. If your input graph has an *edgelist* format, see *EdgeList2WebGraph* application to make a conversion.
+- **seed.outputFolderPath**  string path of the output folder path, that will contain results of the execution of the algorithm (results in json format)
+- **seed.numSeeds** an integer value representing the number of seeds to generate
+- **seed.isolatedVertices**  is a boolean value. Keep the isolated nodes if True is set, else it will be removed from input graph
+- **seed.numTest** integer value representing the number of seeds lists to generate
+- **seed.inMemory** is a boolean value. If True is set, load the entire graph in memory.
+
+### InOut degree section
+In this section, we list properties to compute in and out degree of each node of an input graph
+- **inoutdegree.inputFilePath** string path of the input file representing a graph in a *WebGraph* format. If your input graph has an *edgelist* format, see *EdgeList2WebGraph* application to make a conversion.
+- **inoutdegree.outputFolderPath**  string path of the output folder path, that will contain results of the execution of the algorithm (results in json format)
+- **inoutdegree.isolatedVertices**  is a boolean value. Keep the isolated nodes if True is set, else it will be removed from input graph
+- **inoutdegree.inMemory** is a boolean value. If True is set, load the entire graph in memory.
+
 
 ## Results
 You can find the results of MHSE (JSON format) in the results folder. For each graph, we have run the algorithm twenty times with different seed lists (you can find the seed lists in the properties file in etc folder)
