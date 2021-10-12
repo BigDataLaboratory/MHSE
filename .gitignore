@@ -62,3 +62,4 @@ nb-configuration.xml
 /results/*
 /LOG_DIR_IS_UNDEFINED/LOG_FILE_IS_UNDEFINED.log
 /dataset/
+/etc/mhse.properties
