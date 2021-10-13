@@ -14,17 +14,40 @@ These two approaches could be easily extended and optimized in two different way
 - first, we used a different representation of data (we sign only the minhash node, without storing informations on
   hashes of the other nodes), reducing the amount of memory needed to store essential informations for the algorithm.
   This optimization lead us to the versions BMHSE (Boolean MHSE) and SEBMHSE (Boolean SE-MHSE);
-- second, we implemented a multi-thread version of the algorithms. This was possible due to the nature of the algorithm, that is completely parallelizable.
-  This second optimization lead us to the versions BMHSEMulti (Boolean MHSE Multithread) and SEBMHSEMulti (Boolean SE-MHSE Multithread).
+- second, we implemented a multi-thread version of the algorithms. This was possible due to the nature of the algorithm, 
+ that is completely parallelizable. This second optimization lead us to the versions BMHSEMulti (Boolean MHSE Multithread) 
+ and SEBMHSEMulti (Boolean SE-MHSE Multithread).
 
-## How to run the algorithm
+# Table of contents
+
+
+* [MHSE](#mhse)
+* [Table of contents](#table-of-contents)
+* [How to run the algorithm](#how-to-run-the-algorithm)
+  + [Working example: run test on enron graph](#working-example-run-test-on-enron-graph)
+  + [Working example: run test on worldSeriesRetweets graph](#working-example-run-test-on-worldseriesretweets-graph).
+  + [The /etc/mhse.properties file](#the-etcmhseproperties-file)
+    - [MinHash section](#minhash-section)
+    - [EdgeList2WebGraph section](#edgelist2webgraph-section)
+    - [WebGraph2EdgeList section](#webgraph2edgelist-section)
+    - [Hyperball section](#hyperball-section)
+    - [GroundTruth section](#groundtruth-section)
+    - [Seed generation section](#seed-generation-section)
+    - [InOut degree section](#inout-degree-section)
+* [Results](#results)
+  + [Verify results of MHSE/SE-MHSE tests](#verify-results-of-mhsese-mhse-tests)
+* [Link utili](#link-utili)
+* [Licenza](#licenza)
+
+
+# How to run the algorithm
 To run one of the MinHash-based algorithms, clone this repository and run the application class MinHashMain.
-This is the main class for the execution of the algorithm. It will output some statistics (number of nodes, number of edges, effective diameter, average distance, lower bound diameter and so on) on a given input graph.
+This is the main class for the execution of one of the MinHash-based algorithms. It will output some statistics (number of nodes, number of edges, effective diameter, average distance, lower bound diameter and so on) on a given input graph.
 Before executing the code, you will have to set some properties on the */etc/mhse.properties* file (see next sections).
 The application will use as input file a graph in WebGraph format (see [this link](http://law.di.unimi.it/datasets.php) for more info about this graph encoding and datasets).
 If you have a graph encoded in *edgelist* format, before running MHSE (or similar algorithms) you have to execute *EdgeList2WebGraph* application to have a WebGraph version of your edgelist-encoded graph.  
 There is also the possibility to translate a graph from *WebGraph* format to an *edgelist* format. In this case you have to execute *WebGraph2EdgeList* application.
-To have more info about application configuration, see relative sections in the *mhse.properties* file.
+More informations about applications configuration can be seen in the [*mhse.properties* file section](#the-etcmhseproperties-file).
 
 ## Working example: run test on enron graph
 To run tests on a graph encoded as *WebGraph* file you can follow the steps below (in this example we are going to run test on [enron graph](http://law.di.unimi.it/webdata/enron/)).
