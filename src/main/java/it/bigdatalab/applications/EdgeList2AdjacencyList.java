@@ -72,7 +72,7 @@ public class EdgeList2AdjacencyList {
                 if(currentLine % 10000 == 0){
                     logger.info("First " + currentLine + " rows read");
                 }
-                String[] sSplit = sCurrentLine.split("\\s+");
+                String[] sSplit = sCurrentLine.split("\t");
                 long sourceID = -1;
                 long targetID = -1;
                 if(transpose){
@@ -114,6 +114,11 @@ public class EdgeList2AdjacencyList {
                 if(!normalizedAdjList.containsKey(normalizedTargetID)){
                     LongArrayList adjacencyList = new LongArrayList();
                     normalizedAdjList.put(normalizedTargetID, adjacencyList);
+
+                    //System.out.println("SOURCE = "+normalizedSourceID +" TARGET = "+normalizedTargetID);
+                    //System.out.println(normalizedAdjList.size());
+                    //System.out.println("AUHAHUAHUAHU");
+                    //System.exit(1);
                 }
                 currentLine++;
             }
@@ -201,6 +206,7 @@ public class EdgeList2AdjacencyList {
 
                     Collections.sort(adjacencyList);
                     writer.append(Long.toString(sourceID)).append("\t");
+
                     for (int j = 0; j < adjacencyList.size(); j++) {
                         long targetID = adjacencyList.getLong(j);
                         writer.append(Long.toString(targetID)).append("\t");
@@ -223,7 +229,7 @@ public class EdgeList2AdjacencyList {
 
     public static void main(String args[]) {
         EdgeList2AdjacencyList t = new EdgeList2AdjacencyList(false);
-        EdgeList2AdjacencyList t_trans = new EdgeList2AdjacencyList(true);
+        //EdgeList2AdjacencyList t_trans = new EdgeList2AdjacencyList(true);
 
     }
 }
