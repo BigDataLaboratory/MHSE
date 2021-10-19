@@ -169,7 +169,7 @@ If you want to test MHSE and verify our results, download the Java code from the
 For example, if you are interested in the replication of tests stored in */results/amazon-2008* modify */etc/mhse.properties* according to the corresponding json object in */results/amazon-2008* and then execute the *MinHashMain* application. 
 For test replication purposes, you have to know that there are 2 types of graph. The replication of tests differs according to the type of the input graph:
 - *WebGraph* graphs: *amazon-2008*, *cnr-2000*, *com-dblp*, *dblp-2010*, *email-EuAll*, *enron*, *uk-2007-05@100000*, *web-NotreDame*. For these graphs you can download data from [this link](http://law.di.unimi.it/datasets.php), modify *MinHash* section of the */etc/mhse.properties* file and execute *MinHashMain* application directly. 
-- *Custom* graphs in *edgelist* format: *blackFridayRetweets*, *samplingItalianoRetweets*, *worldSeriesRetweets*. 
-For these custom graphs you can download data from [this repository](https://github.com/BigDataLaboratory/Twitter), modify *EdgeList2WebGraph* section of the */etc/mhse.properties* file and execute *EdgeList2WebGraph* application to make a conversion into *WebGraph* format. 
+- *Custom* graphs in *edgelist* format: *blackFridayRetweets*, *worldSeriesRetweets* (from [this repository](https://github.com/BigDataLaboratory/Twitter)), and *com-youtube*, *soc-Slashdot*, *web-BerkStan*, *web-Google* (from [this link](http://snap.stanford.edu/data/index.html)),
+modify *EdgeList2WebGraph* section of the */etc/mhse.properties* file and execute *EdgeList2WebGraph* application to make a conversion into *WebGraph* format. 
 After that you have to modify *MinHash* section of the */etc/mhse.properties* file and execute *MinHashMain* application. 
 For further information about these graphs see the corresponding [*README*](https://github.com/BigDataLaboratory/Twitter/blob/master/Dataset/README.txt)
