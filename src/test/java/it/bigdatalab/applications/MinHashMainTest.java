@@ -27,22 +27,16 @@ class MinHashMainTest {
                 // execute SEHSE with out direction, five run, 8 random seeds, input graph (with isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
                 Arguments.of("SEMHSE", "src/test/data/g_directed/32in-star.graph", "test/output/folder/path", 5, 8, false, true, true, "", true, null, 0.9, "out", 1),
                 // execute StandaloneBMinHash with in direction, one run, # seed is 0 because a range is specified (so seeds are not random), input graph (without isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
-                Arguments.of("StandaloneBMinHash", "src/test/data/g_directed/32-cycle.graph", "test/output/folder/path", 1, 32, false, true, false, null, true, new int[]{0, 31}, 0.9, "in", 1),
-                // execute StandaloneBMinHashOptimized with in direction, two run, # seed is 2 and seeds are not random (file path of seed file specified), input graph (without isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
-                Arguments.of("StandaloneBMinHashOptimized", "src/test/data/g_undirected/32-complete.graph", "test/output/folder/path", 2, 2, false, true, false, "src/test/data/g_undirected/seednode_32-complete_with_iso.json", false, null, 0.9, "in", 1),
+                Arguments.of("SEBMHSE", "src/test/data/g_directed/32-cycle.graph", "test/output/folder/path", 1, 32, false, true, false, null, true, new int[]{0, 31}, 0.9, "in", 1),
                 // execute MultithreadBMinhash with out direction, seven run, # (random) seed is 16, input graph (without isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 2 thread (parallel computation)
-                Arguments.of("MultithreadBMinHash", "src/test/data/g_undirected/32-wheel.graph", "test/output/folder/path", 7, 16, false, true, true, "", false, null, 0.9, "out", 2),
-                // execute MultithreadBMinhash with out direction, two run, # (random) seed is 14, input graph (with isolated nodes, if there) is transposed and loaded in memory, threshold is 0.9, -1 (parallel computation, number of threads choose by available processors)
-                Arguments.of("MultithreadBMinHashOptimized", "src/test/data/g_directed/32t-path.graph", "test/output/folder/path", 2, 14, true, true, true, "", true, null, 0.9, "in", -1)
+                Arguments.of("SEBMHSEMulti", "src/test/data/g_undirected/32-wheel.graph", "test/output/folder/path", 7, 16, false, true, true, "", false, null, 0.9, "out", 2)
         );
     }
 
     private static Stream<Arguments> runProviderForException() {
         return Stream.of(
                 // execute StandaloneBMinHash with in direction, four run, # seed is 0 because a range is specified (so seeds are not random), input graph (without isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
-                Arguments.of("StandaloneBMinHash", "src/test/data/g_directed/32-cycle.graph", "test/output/folder/path", 4, 32, false, true, false, null, true, new int[]{0, 31}, 0.9, "in", 1),
-                // execute StandaloneBMinHashOptimized with in direction, tree run, # seed is 2 and seeds are not random (file path of seed file specified), input graph (without isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
-                Arguments.of("StandaloneBMinHashOptimized", "src/test/data/g_undirected/32-complete.graph", "test/output/folder/path", 3, 2, false, true, false, "src/test/data/g_undirected/seednode_32-complete_with_iso.json", false, null, 0.9, "in", 1)
+                Arguments.of("SEBMHSE", "src/test/data/g_directed/32-cycle.graph", "test/output/folder/path", 4, 32, false, true, false, null, true, new int[]{0, 31}, 0.9, "in", 1)
         );
     }
 
