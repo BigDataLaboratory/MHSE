@@ -5,5 +5,9 @@ package it.bigdatalab.algorithm;
  */
 public enum AlgorithmEnum {
     MHSE,
+    BMHSE,
     SEMHSE,
+    SEBMHSE,
+    SEBMHSEMulti,
+    BMHSEMulti
 }

@@ -1,10 +1,10 @@
 package it.bigdatalab.applications;
 
+import it.bigdatalab.utils.PropertiesManager;
 import it.unimi.dsi.fastutil.longs.*;
 import it.unimi.dsi.webgraph.ArcListASCIIGraph;
 import it.unimi.dsi.webgraph.BVGraph;
 import it.unimi.dsi.webgraph.ImmutableGraph;
-import it.bigdatalab.utils.PropertiesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ public class EdgeList2WebGraph {
     private boolean fromJanusGraph;
     private Long2ObjectLinkedOpenHashMap<LongArrayList> normalizedEdgeList;
 
-    private static final Logger logger = LoggerFactory.getLogger("it.misebigdatalab.applications.EdgeList2WebGraph");
+    private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.EdgeList2WebGraph");
 
     public EdgeList2WebGraph() {
         //Transform an edgelist file to webgraph formatted file, saving it to disk
@@ -64,7 +64,7 @@ public class EdgeList2WebGraph {
                 if(currentLine % 10000 == 0){
                     logger.info("First " + currentLine + " rows read");
                 }
-                String[] sSplit = sCurrentLine.split("\t");
+                String[] sSplit = sCurrentLine.split("\\s+");
 
                 long sourceID = Long.parseLong(sSplit[0]);
                 long targetID = Long.parseLong(sSplit[1]);
@@ -73,8 +73,8 @@ public class EdgeList2WebGraph {
                 long normalizedTargetID;
 
                 if(fromJanusGraph) {
-                    logger.warn("It is specified that the edgelist file comes from JanusGraph");
-                    logger.warn("The edgelist will be normalized (i.e. normalizedID = ID/4 -1) and ordered");
+                    logger.debug("It is specified that the edgelist file comes from JanusGraph");
+                    logger.debug("The edgelist will be normalized (i.e. normalizedID = ID/4 -1) and ordered");
                     //JanusGraph IDs are always multiple of 4 and starts the numeration with ID 4,
                     //so we have to divide JanusGraph ID by 4 and subtract 1
                     //to have a numeration starting from ID 0

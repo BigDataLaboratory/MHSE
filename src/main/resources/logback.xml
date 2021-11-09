@@ -13,19 +13,19 @@
         </encoder>
     </appender>
 
-    <logger name="it.misebigdatalab.algorithm" level="${LEVEL}" additivity="false" >
-        <appender-ref ref="FILE" />
-        <appender-ref ref="STDOUT" />
+    <logger name="it.misebigdatalab.algorithm" level="debug" additivity="false">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
 
     </logger>
 
-    <logger name="it.misebigdatalab" level="${LEVEL}" additivity="false">
-        <appender-ref ref="FILE" />
-        <appender-ref ref="STDOUT" />
+    <logger name="it.misebigdatalab" level="debug" additivity="false">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
 
     </logger>
 
-    <root level="DEBUG">
-        <appender-ref ref="STDOUT" />
+    <root level="debug">
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

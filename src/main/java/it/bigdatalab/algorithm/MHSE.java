@@ -1,104 +1,160 @@
 package it.bigdatalab.algorithm;
 
-import it.unimi.dsi.fastutil.ints.*;
+import it.bigdatalab.applications.CreateSeeds;
+import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.Measure;
+import it.bigdatalab.utils.Constants;
+import it.bigdatalab.utils.Stats;
+import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
-import it.bigdatalab.model.GraphMeasure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of MHSE (MinHash Signature Estimation) algorithm
- */
+ *
+ * @author Giambattista Amati
+ * @author Simone Angelini
+ * @author Antonio Cruciani
+ * @author Daniele Pasquini
+ * @author Paola Vocca
+ **/
 public class MHSE extends MinHash {
 
-    //TODO check if Int2ObjectSortedMap<long[]> is better
-    private Int2ObjectOpenHashMap<long[]> signatures;
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSE");
+
+    private final Int2ObjectOpenHashMap<long[]> signatures;
     private Int2ObjectOpenHashMap<long[]> oldSignatures;
-    private long[] graphSignature;
+    private final long[] graphSignature;
 
     /**
      * Creates a new MHSE instance with default values
      */
-    public MHSE() throws IOException, DirectionNotSetException, SeedsException {
-        super();
-        signatures = new Int2ObjectOpenHashMap<long[]>(mGraph.numNodes());       //initialize signatures map with the expected number of elements(nodes) in the map
-        oldSignatures = new Int2ObjectOpenHashMap<long[]>(mGraph.numNodes());
-        graphSignature = new long[numSeeds];
+    public MHSE(final ImmutableGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
+        super(g, numSeeds, threshold, seeds);
+
+        signatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());       //initialize signatures map with the expected number of elements(nodes) in the map
+        oldSignatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());
+        graphSignature = new long[mNumSeeds];
         Arrays.fill(graphSignature, Long.MAX_VALUE);                            //initialize graph signature with Long.MAX_VALUE
-        logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
+    }
+
+    /**
+     * Creates a new MHSE instance with default values
+     */
+    public MHSE(final ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
+        super(g, numSeeds, threshold);
+
+        this.mSeeds = CreateSeeds.genSeeds(mNumSeeds);
+        signatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());       //initialize signatures map with the expected number of elements(nodes) in the map
+        oldSignatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());
+        graphSignature = new long[mNumSeeds];
+        Arrays.fill(graphSignature, Long.MAX_VALUE);                            //initialize graph signature with Long.MAX_VALUE
     }
 
     /**
      * Execution of the MHSE algorithm
      * @return Metrics of the algorithm
      */
-    public GraphMeasure runAlgorithm() {
+    public Measure runAlgorithm() {
+        long startTime = System.currentTimeMillis();
+        long totalTime;
+        long lastLogTime = startTime;
+        long logTime;
+        long hopStartTime;
 
+        Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
         boolean signatureIsChanged = true;
         int hop = 0;
         NodeIterator nodeIter;
 
-        while(signatureIsChanged){
-            logger.info("Analyzing hop " + hop);
+        while (signatureIsChanged) {
+            hopStartTime = System.currentTimeMillis();
+
             signatureIsChanged = false;
             double overallJaccard = 0d;
-            if(hop == 0){
+            if (hop == 0) {
                 initializeGraph();
-                String graphSignatureStr = "";
-                for(int i=0; i<graphSignature.length;i++){
-                    graphSignatureStr += (graphSignature[i] + ",");
-                }
-                logger.info("Graph signature is: " + graphSignatureStr);
 
                 // jaccard computation
                 nodeIter = mGraph.nodeIterator();
-                while(nodeIter.hasNext()) {
+                while (nodeIter.hasNext()) {
                     int node = nodeIter.nextInt();
                     overallJaccard += jaccard(signatures.get(node), graphSignature);
                 }
                 signatureIsChanged = true;
             } else {
                 // copy all the actual signatures in a new structure
-                oldSignatures = new Int2ObjectOpenHashMap<long[]>(mGraph.numNodes());
+                oldSignatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());
                 nodeIter = mGraph.nodeIterator();
                 while(nodeIter.hasNext()) {
                     int node = nodeIter.nextInt();
                     long[] signature = signatures.get(node);
                     long[] oldSignature = new long[signature.length];
-                    //TODO Metodo più efficiente per deep copy?
-                    System.arraycopy( signature, 0, oldSignature, 0, signature.length );
+
+                    System.arraycopy(signature, 0, oldSignature, 0, signature.length);
                     oldSignatures.put(node, oldSignature);
                 }
                 // updating the signatures
                 nodeIter = mGraph.nodeIterator();
-                int count = 0;
                 while(nodeIter.hasNext()) {
                     int node = nodeIter.nextInt();
-                    if (updateNodeSignature(node)){
-                        count++;
+                    if (updateNodeSignature(node)) {
                         signatureIsChanged = true;
                     }
                     //TODO can we optimized code inserting jaccard computation in updateNodeSignature?
                     //TODO we can set jaccard as member variable without redirect it for every hop, updating it only when signatureIsChanged is true
                     overallJaccard += jaccard(signatures.get(node), graphSignature);
-                }
-                logger.info("Node Signatures modified: " + count);
-            }
-            logger.info("Overall jaccard: " + overallJaccard);
 
-            if(signatureIsChanged) {
+                    logTime = System.currentTimeMillis();
+                    if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
+                        logger.info("# nodes analyzed {} / {} for hop {} [elapsed {}, node/s {}]",
+                                node, mGraph.numNodes(),
+                                hop,
+                                TimeUnit.MILLISECONDS.toSeconds(logTime - hopStartTime),
+                                TimeUnit.MILLISECONDS.toSeconds(node / (logTime - hopStartTime)));
+                        lastLogTime = logTime;
+                    }
+                }
+            }
+
+            if (signatureIsChanged) {
                 double estimatedCouples = overallJaccard * mGraph.numNodes();
                 hopTable.put(hop, estimatedCouples);
                 hop++;
             }
-            logger.info("Hop " + hop + " completed");
+
+            logTime = System.currentTimeMillis();
+            logger.info("hop # {} completed. Time elapsed to complete computation {} s.",
+                    hop,
+                    (logTime - hopStartTime) / (double) 1000);
         }
 
-        GraphMeasure graphMeasure = new GraphMeasure(hopTable);
+        totalTime = System.currentTimeMillis() - startTime;
+        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
+
+        GraphMeasure graphMeasure = new GraphMeasure();
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
+        graphMeasure.setHopTable(hopTable);
+        graphMeasure.setLowerBoundDiameter(hopTable.size() - 1);
+        graphMeasure.setThreshold(mThreshold);
+        graphMeasure.setSeedsList(mSeeds);
+        graphMeasure.setNumSeeds(mNumSeeds);
+        graphMeasure.setTime(totalTime);
+        graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
+        graphMeasure.setAvgDistance(Stats.averageDistance(hopTable));
+        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTable, mThreshold));
+        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTable));
+        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTable, mThreshold));
+
         return graphMeasure;
     }
 
@@ -108,13 +164,14 @@ public class MHSE extends MinHash {
         NodeIterator nodeIter = mGraph.nodeIterator();
         while(nodeIter.hasNext()) {
             int node = nodeIter.nextInt();
-            long[] signature = new long[numSeeds];
+            long[] signature = new long[mNumSeeds];
             // create a new signature for each node and compute signature for the graph
-            for(int i=0; i<numSeeds;i++){
-                signature[i] = hashFunction(node, mSeeds.getInt(i));
+            for (int i = 0; i < mNumSeeds; i++) {
+                signature[i] = CreateSeeds.hashFunction(node, mSeeds.getInt(i));
                 // check if this part of the signature is the minimum for the graph
                 if(signature[i] < graphSignature[i]){
                     graphSignature[i] = signature[i];
+                    mMinHashNodeIDs[i] = node;
                 }
             }
             signatures.put(node, signature);
@@ -129,7 +186,6 @@ public class MHSE extends MinHash {
     public boolean updateNodeSignature(int node) {
         boolean signatureIsChanged = false;
         long[] newSignature = signatures.get(node);         //new signature to be updated
-        long[] nodeSignature = oldSignatures.get(node);     //old signature to NOT be modified
 
         LazyIntIterator neighIter = mGraph.successors(node);
         int d = mGraph.outdegree(node);
@@ -150,22 +206,22 @@ public class MHSE extends MinHash {
     }
 
 
-
     /**
      * Compute jaccard measure between two signatures
+     *
      * @param sig1 signature
      * @param sig2 signature
-     * @return
+     * @return jaccard value
      */
-    private double jaccard(long[] sig1, long[] sig2){
+    private double jaccard(long[] sig1, long[] sig2) {
         double intersection = 0d;
-        double union = (double)sig1.length;
-        for(int i=0; i<sig1.length; i++){
-            if(sig1[i] == sig2[i]){
+        double union = sig1.length;
+        for (int i = 0; i < sig1.length; i++) {
+            if (sig1[i] == sig2[i]) {
                 intersection = intersection + 1;
             }
         }
-        return intersection/union;
+        return intersection / union;
     }
 
 }

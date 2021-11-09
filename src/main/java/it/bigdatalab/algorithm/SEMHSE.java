@@ -1,63 +1,99 @@
 package it.bigdatalab.algorithm;
 
-import it.unimi.dsi.fastutil.ints.*;
+import it.bigdatalab.applications.CreateSeeds;
+import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.Measure;
+import it.bigdatalab.utils.Constants;
+import it.bigdatalab.utils.Stats;
+import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
-import it.bigdatalab.model.GraphMeasure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of SE-MHSE (Space Efficient - MinHash Signature Estimation) algorithm
+ *
+ * @author Giambattista Amati
+ * @author Simone Angelini
+ * @author Antonio Cruciani
+ * @author Daniele Pasquini
+ * @author Paola Vocca
  */
 public class SEMHSE extends MinHash {
 
-    private Int2LongSortedMap mTotalCollisions;
-    private int[] totalCollisionsPerHashFunction;
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.SEMHSE");
+
     private Int2LongOpenHashMap hashes;
     private Int2LongOpenHashMap oldHashes;
-    private long[] graphSignature;
+    private final long[] graphSignature;
 
     /**
      * Creates a SE-MHSE instance with default values
      */
-    public SEMHSE() throws DirectionNotSetException, SeedsException, IOException {
-        super();
-        mTotalCollisions = new Int2LongLinkedOpenHashMap();
-        totalCollisionsPerHashFunction = new int[numSeeds];     //for each hash function get the number of total collisions
-        graphSignature = new long[numSeeds];
-        Arrays.fill(graphSignature, Long.MAX_VALUE);                            //initialize graph signature with Long.MAX_VALUE
-        logger.info("# nodes {}, # edges {}", mGraph.numNodes(), mGraph.numArcs());
+    public SEMHSE(ImmutableGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
+        super(g, numSeeds, threshold, seeds);
+        graphSignature = new long[mNumSeeds];
+        //initialize graph signature with Long.MAX_VALUE
+        Arrays.fill(graphSignature, Long.MAX_VALUE);
+    }
+
+    /**
+     * Creates a SE-MHSE instance with default values
+     */
+    public SEMHSE(ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
+        super(g, numSeeds, threshold);
+        this.mSeeds = CreateSeeds.genSeeds(mNumSeeds);
+        graphSignature = new long[mNumSeeds];
+        //initialize graph signature with Long.MAX_VALUE
+        Arrays.fill(graphSignature, Long.MAX_VALUE);
     }
 
     /**
      * Execution of the SE-MHSE algorithm
      * @return Computed metrics of the algorithm
      */
-    public GraphMeasure runAlgorithm() {
+    public Measure runAlgorithm() {
+        long startTime = System.currentTimeMillis();
+        long totalTime;
+        long lastLogTime = startTime;
+        long logTime;
+
+        Int2ObjectOpenHashMap<int[]> collisionsTable = new Int2ObjectOpenHashMap<>();       //for each hop a list of collisions for each hash function
+        Int2DoubleLinkedOpenHashMap hopTable;
+        int[] lastHops = new int[mNumSeeds];                           //for each hash function, the last hop executed
 
         NodeIterator nodeIter;
-        int lowerBoundDiameter = 0;
-        int previousLowerBoundDiameter;
-        long [] timePerSeed = new long[numSeeds];
-        for (int i = 0; i < numSeeds; i++) {
-            long start = System.currentTimeMillis();
-            int hop = 0;
+
+        for (int s = 0; s < mNumSeeds; s++) {
+            int h = 0;
             int collisions = 0;
             boolean signatureIsChanged = true;
-            logger.info("Starting computation for hash function n.{}", i);
             hashes = new Int2LongOpenHashMap(mGraph.numNodes());
 
             while (signatureIsChanged) {
-                //first hop - initialization
-                if (hop == 0) {
-                    initializeGraph(i);
+                int[] hopCollisions;
+                if (collisionsTable.containsKey(h)) {
+                    hopCollisions = collisionsTable.get(h);
+                } else {
+                    hopCollisions = new int[mNumSeeds];
+                }
+
+                //first h - initialization
+                if (h == 0) {
+                    initializeGraph(s);
                     //collisions computation
                     nodeIter = mGraph.nodeIterator();
                     while (nodeIter.hasNext()) {
                         int node = nodeIter.nextInt();
-                        if (hashes.get(node) == graphSignature[i]) {
+                        if (hashes.get(node) == graphSignature[s]) {
                             collisions++;
                         }
                     }
@@ -71,73 +107,76 @@ public class SEMHSE extends MinHash {
                         oldHashes.put(node, hashes.get(node));
                     }
 
-                    //collisions for this hash function, until this hop
+                    //collisions for this hash function, until this h
+                    //s.e. number of nodes updated
                     collisions = 0;
-                    //number of nodes updated
-                    int count = 0;
 
                     //update of the hash values
                     nodeIter = mGraph.nodeIterator();
                     while (nodeIter.hasNext()) {
                         int node = nodeIter.nextInt();
                         if (updateNodeHashValue(node)) {
-                            count++;
                             signatureIsChanged = true;
                         }
                         //check if there is a collision between graph minhash and actual node hashValue
-                        if (hashes.get(node) == graphSignature[i]) {
+                        if (hashes.get(node) == graphSignature[s]) {
                             collisions++;
+                        }
+
+                        logTime = System.currentTimeMillis();
+                        if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
+                            int maxHop = Arrays.stream(lastHops).summaryStatistics().getMax() + 1;
+                            logger.info("(seed # {}) # nodes analyzed {} / {} for h {} / {} (upper bound), estimated time remaining {}",
+                                    s + 1,
+                                    node, mGraph.numNodes(),
+                                    h + 1, maxHop,
+                                    String.format("%d min, %d sec",
+                                            TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - startTime)) / (s + 1)) - (logTime - startTime)),
+                                            TimeUnit.MILLISECONDS.toSeconds(((mNumSeeds * (logTime - startTime)) / (s + 1)) - (logTime - startTime)) -
+                                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - startTime)) / (s + 1)) - (logTime - startTime)))));
+                            lastLogTime = logTime;
                         }
                     }
                 }
-                logger.debug("Number of collisions: {}", collisions);
 
                 if (signatureIsChanged) {
-                    long previousValue = mTotalCollisions.get(hop);
-                    mTotalCollisions.put(hop, previousValue + collisions);
-                    logger.debug("Hop {} for seed n.{} completed", hop, i);
-                    hop++;
+                    hopCollisions[s] = collisions;
+                    collisionsTable.put(h, hopCollisions);
+                    lastHops[s] = h;
+                    h++;
                 }
             }
-
-            logger.info("Total number of collisions for seed n.{} : {}", i, collisions);
-            totalCollisionsPerHashFunction[i] = collisions;
-            // collisions computation completed for this hash function
-            // updating the lower bound diameter
-            if ((hop - 1) > lowerBoundDiameter) {
-                previousLowerBoundDiameter = lowerBoundDiameter;
-                lowerBoundDiameter = (hop - 1);
-                // Normalize collisions of all the previous hash functions,
-                // for all the missing hops between previousLowerBoundDiameter and lowerBoundDiameter
-                // because new lowerBoundDiameter reaced
-                for (int j = 0; j < i; j++) { //previous hash functions
-                    for (int k = lowerBoundDiameter; k > previousLowerBoundDiameter; k--) { //all hops between previousLowerBoundDiameter and lowerBoundDiameter
-                        long previousValue = mTotalCollisions.get(k);
-                        mTotalCollisions.put(k, previousValue + totalCollisionsPerHashFunction[j]);
-                    }
-                }
-            } else if ((hop - 1) < lowerBoundDiameter) {
-                // add collisions of this hash function to all the remaining hops
-                // between hop (excluded) and lowerBoundDiameter (included)
-                for (int k = lowerBoundDiameter; k > (hop - 1); k--) {
-                    long previousValue = mTotalCollisions.get(k);
-                    mTotalCollisions.put(k, previousValue + collisions);
-                }
-            }
-            logger.info("Computation for hash function n.{} completed", i);
-            timePerSeed[i] = System.nanoTime()-start;
         }
 
-        logger.info("Starting computation of the hop table from collision table");
-        hopTable = hopTable(mTotalCollisions);
-        logger.info("Computation of the hop table completed");
+        totalTime = System.currentTimeMillis() - startTime;
+        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
-        GraphMeasure graphMeasure = new GraphMeasure(hopTable);
+        //normalize collisionsTable
+        normalizeCollisionsTable(collisionsTable);
+
+        hopTable = hopTable(collisionsTable);
+
+        GraphMeasure graphMeasure = new GraphMeasure();
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumArcs(mGraph.numArcs());
-        graphMeasure.setTime(timePerSeed);
+        graphMeasure.setCollisionsTable(collisionsTable);
+        graphMeasure.setLastHops(lastHops);
+        graphMeasure.setSeedsList(mSeeds);
+        graphMeasure.setHopTable(hopTable);
+        graphMeasure.setLowerBoundDiameter(hopTable.size() - 1);
+        graphMeasure.setThreshold(mThreshold);
+        graphMeasure.setNumSeeds(mNumSeeds);
+        graphMeasure.setTime(totalTime);
+        graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
+        graphMeasure.setAvgDistance(Stats.averageDistance(hopTable));
+        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTable, mThreshold));
+        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTable));
+        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTable, mThreshold));
+
         return graphMeasure;
     }
+
+
 
     /**
      * Initialization of the graph structures
@@ -150,13 +189,13 @@ public class SEMHSE extends MinHash {
         NodeIterator nodeIter = mGraph.nodeIterator();
         while(nodeIter.hasNext()) {
             int node = nodeIter.nextInt();
-            long hashValue = hashFunction(node, seed);
+            long hashValue = CreateSeeds.hashFunction(node, seed);
             hashes.put(node,hashValue);
             if(hashValue < graphSignature[seedIndex]){
                 graphSignature[seedIndex] = hashValue;
+                mMinHashNodeIDs[seedIndex] = node;
             }
         }
-        logger.info("MinHash for seed {} is {}", seedIndex, graphSignature[seedIndex]);
     }
 
     /**
@@ -187,19 +226,50 @@ public class SEMHSE extends MinHash {
 
     /***
      * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
-     * @param totalCollisions
      * @return hop table
      */
-    public Int2DoubleSortedMap hopTable(Int2LongSortedMap totalCollisions) {
-        Int2DoubleSortedMap hopTable = new Int2DoubleLinkedOpenHashMap();
-        totalCollisions.forEach((key, value) -> {
-                Double r = ((double) (value * mGraph.numNodes()) / this.numSeeds);
-                hopTable.put(key, r);
-        });
 
+    private Int2DoubleLinkedOpenHashMap hopTable(Int2ObjectOpenHashMap<int[]> collisionsTable) {
+        Int2DoubleLinkedOpenHashMap hopTable = new Int2DoubleLinkedOpenHashMap();
+        int lastHop = collisionsTable.size() - 1;
+        long sumCollisions = 0;
+
+        for(int hop = 0; hop <= lastHop; hop++){
+            int[] collisions = collisionsTable.get(hop);
+            sumCollisions = Arrays.stream(collisions).sum();
+            double couples = (double) (sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
+            hopTable.put(hop, couples);
+        }
         return hopTable;
     }
 
+
+    /***
+     * TODO Optimizable?
+     * Normalization of the collisionsTable.
+     * For each hop check if one of the hash functions reached the end of computation.
+     * If so, we have to substitute the 0 value in the table with
+     * the maximum value of the other hash functions of the same hop
+     */
+    private void normalizeCollisionsTable(Int2ObjectOpenHashMap<int[]> collisionsTable) {
+        int lowerBoundDiameter = collisionsTable.size() - 1;
+
+        //Start with hop 1
+        //There is no check for hop 0 because at hop 0 there is always (at least) 1 collision, never 0.
+        for (int i = 1; i <= lowerBoundDiameter; i++) {
+            int[] previousHopCollisions = collisionsTable.get(i - 1);
+            int[] hopCollisions = collisionsTable.get(i);
+            //TODO first if is better for performance?
+            if (Arrays.stream(hopCollisions).anyMatch(coll -> coll == 0)) {
+                for (int j = 0; j < hopCollisions.length; j++) {
+                    if(hopCollisions[j] == 0){
+                        hopCollisions[j] = previousHopCollisions[j];
+                    }
+                }
+            }
+            collisionsTable.put(i, hopCollisions);
+        }
+    }
 
 }
 
