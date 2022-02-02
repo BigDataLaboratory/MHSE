@@ -1,4 +1,5 @@
 package it.bigdatalab.applications;
+import it.bigdatalab.compression.EliasGamma;
 import it.bigdatalab.compression.GroupVarInt;
 import it.bigdatalab.compression.DifferentialCompression;
 import it.bigdatalab.structure.CompressedGraph;
@@ -125,12 +126,26 @@ public class CompressInstance {
 
     }
 
+    public void test_elias_gamma(){
+        EliasGamma Ecomp = new EliasGamma();
+
+        int [] sequence = {10,20,350};
+        byte [] A = Ecomp.compress(sequence,0,sequence.length);
+        int [] k = Ecomp.decompress(A,0,A.length);
+        System.out.println("COMPRESSED "+A);
+        System.out.println("PROVA "+Ecomp.Size(10));
+        byte [] encoded = Ecomp.encodeSequence(sequence);
+        for (int i = 0; i<encoded.length;i++){
+            System.out.println(" Byte "+ encoded[i]);
+        }
+    }
+
 
     public static void main(String[] args) throws IOException {
         CompressInstance t = new CompressInstance();
 
-        t.compress();
-
+        //t.compress();
+        t.test_elias_gamma();
        // t.compress_test_instances();
 
     }
