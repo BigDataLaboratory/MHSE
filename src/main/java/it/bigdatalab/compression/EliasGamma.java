@@ -71,7 +71,6 @@ public class EliasGamma {
 
         int prev = 0;
         for (int i = 0; i < length; i++) {
-
             int low = Bits.VAL_TO_WRITE[l] & in[i + inOffset];
             Bits.writeBinary(out, lowBitsOffset, low, l);
             lowBitsOffset += l;
@@ -357,7 +356,8 @@ public class EliasGamma {
         bytes = 0;
         for(node = 0;node<matrix.length;node++){
             edgeListToEnc = new int[matrix[node].length];
-            for(edge = 0;edge< matrix[node].length;edge++){
+
+            for(edge = 1;edge< matrix[node].length;edge++){
                 edgeListToEnc[edge] = matrix[node][edge];
             }
             edgeListEnc = compress(edgeListToEnc,0,edgeListToEnc.length);
@@ -412,7 +412,7 @@ public class EliasGamma {
             e.printStackTrace();
         }
         try {
-            FileUtils.writeByteArrayToFile(new File(outPath+ instance + "elias_.txt"), compressedAdjListFlat);
+            FileUtils.writeByteArrayToFile(new File(outPath+ instance + "_elias_.txt"), compressedAdjListFlat);
 
             logger.info("Successfully written data to the file ");
 

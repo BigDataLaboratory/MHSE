@@ -22,6 +22,7 @@ public class CompressInstance {
     public String outputFilePath;
     public String separator;
     public boolean VarIntGB;
+    public static boolean EliasFano;
     public static boolean d_gaps;
     public boolean transposed;
     private int[][] adjList;
@@ -35,6 +36,7 @@ public class CompressInstance {
         outputFilePath = PropertiesManager.getPropertyIfNotEmpty("compressInstance.outputFolderPath");
         separator = PropertiesManager.getPropertyIfNotEmpty("compressInstance.separator");
         VarIntGB = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("compressInstance.VarintGB"));
+        EliasFano = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("compressInstance.EliasFano"));
         d_gaps = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("compressInstance.GapCompression"));
         transposed = Boolean.parseBoolean((PropertiesManager.getPropertyIfNotEmpty("compressInstance.transposed")));
     }
@@ -48,37 +50,63 @@ public class CompressInstance {
 
     public void compress() throws FileNotFoundException {
         GroupVarInt VarintGB = new GroupVarInt();
+        EliasGamma EliasF = new EliasGamma();
         DifferentialCompression diff = new DifferentialCompression();
         UncompressedGraph UGraph;
         UGraph = new UncompressedGraph();
         UGraph.load_graph(inputFilePath, separator);
         int[][] provaMat = UGraph.getGraph();
-        int [][] differentialMatrix;
+        int[][] differentialMatrix;
         String[] split = inputFilePath.split("/");
         String name = split[split.length - 1];
+        if (VarIntGB){
+                if (d_gaps) {
+                    differentialMatrix = diff.ecnodeAdjList(provaMat);
+                    VarintGB.encodeAdjListFlat(differentialMatrix, d_gaps);
+                } else {
+                    VarintGB.encodeAdjListFlat(provaMat, d_gaps);
+                }
+            VarintGB.saveEncoding(outputFilePath, name);
 
-        if(d_gaps){
-            differentialMatrix = diff.ecnodeAdjList(provaMat);
-            VarintGB.encodeAdjListFlat(differentialMatrix,d_gaps);
-        }else {
-            VarintGB.encodeAdjListFlat(provaMat, d_gaps);
-        }
-        VarintGB.saveEncoding(outputFilePath,name);
+            if (transposed) {
+                UGraph.transpose_graph();
+                GroupVarInt VarintGBTransposed = new GroupVarInt();
+                if (d_gaps) {
+                    VarintGBTransposed.encodeAdjListFlat(diff.ecnodeAdjList(UGraph.getTGraph()), d_gaps);
 
-        if(transposed){
-            UGraph.transpose_graph();
-            GroupVarInt VarintGBTransposed = new GroupVarInt();
-            if(d_gaps){
-                VarintGBTransposed.encodeAdjListFlat(diff.ecnodeAdjList(UGraph.getTGraph()), d_gaps);
+                } else {
+                    VarintGBTransposed.encodeAdjListFlat(UGraph.getTGraph(), d_gaps);
+                }
+                String[] splitTrans = name.split("[.]");
+                String nameTrans = splitTrans[0] + "_transposed." + splitTrans[1];
+                VarintGBTransposed.saveEncoding(outputFilePath, nameTrans);
 
-            }else {
-                VarintGBTransposed.encodeAdjListFlat(UGraph.getTGraph(), d_gaps);
+
             }
-            String[] splitTrans = name.split("[.]");
-            String nameTrans = splitTrans[0]+"_transposed."+splitTrans[1];
-            VarintGBTransposed.saveEncoding(outputFilePath,nameTrans);
+        }else if(EliasFano){
+            if (d_gaps) {
+                differentialMatrix = diff.ecnodeAdjList(provaMat);
+                EliasF.encodeAdjListFlat(differentialMatrix, d_gaps);
+            } else {
+                EliasF.encodeAdjListFlat(provaMat, d_gaps);
+            }
+            EliasF.saveEncoding(outputFilePath, name);
+
+            if (transposed) {
+                UGraph.transpose_graph();
+                EliasGamma EliasFGBTransposed = new EliasGamma();
+                if (d_gaps) {
+                    EliasFGBTransposed.encodeAdjListFlat(diff.ecnodeAdjList(UGraph.getTGraph()), d_gaps);
+
+                } else {
+                    EliasFGBTransposed.encodeAdjListFlat(UGraph.getTGraph(), d_gaps);
+                }
+                String[] splitTrans = name.split("[.]");
+                String nameTrans = splitTrans[0] + "_transposed." + splitTrans[1];
+                EliasFGBTransposed.saveEncoding(outputFilePath, nameTrans);
 
 
+            }
         }
         logger.info("Compressed instances and offsets saved in "+outputFilePath);
 
@@ -90,31 +118,44 @@ public class CompressInstance {
 
 
     public static void compress_test_instances() throws FileNotFoundException {
-        String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_undirected_compressed_dgaps/";
-        //String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed/";
+       String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_undirected_ef/";
+        //String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed_ef/";
         //String [] names = {"32-cycle.adjlist","32-cycle_transposed.adjlist","32-path.adjlist","32-path_transposed.adjlist",
-        //"32in-star.adjlist","32in-star_transposed.adjlist","32out-star.adjlist","32out-star_transposed.adjlist","32t-path.adjlist"
+         //"32in-star.adjlist","32in-star_transposed.adjlist","32out-star.adjlist","32out-star_transposed.adjlist","32t-path.adjlist"
         //,"32t-path_transposed.adjlist"};
         String [] names = {"32-complete.adjlist","32-complete_transposed.adjlist","32-cycle.adjlist","32-cycle_transposed.adjlist","32-wheel.adjlist",
        "32-wheel_transposed.adjlist"};
+        EliasGamma EFano = new EliasGamma();
         GroupVarInt VarintGB = new GroupVarInt();
         DifferentialCompression diff = new DifferentialCompression();
         CompressedGraph Graph;
         UncompressedGraph UGraph;
         UGraph = new UncompressedGraph();
         for(int i = 0;i< names.length;i++){
+            System.out.println(names[i]);
             String inputFile = inPath+names[i];
             UGraph.load_graph(inputFile, "\t");
             int[][] provaMat = UGraph.getGraph();
             String[] split = inputFile.split("/");
             String name = split[split.length - 1];
-            if(d_gaps){
-                VarintGB.encodeAdjListFlat(diff.ecnodeAdjList(provaMat), false);
-            }else{
-                VarintGB.encodeAdjListFlat(provaMat, false);
+            if(EliasFano == false) {
+                if (d_gaps) {
+                    VarintGB.encodeAdjListFlat(diff.ecnodeAdjList(provaMat), false);
+                } else {
+                    VarintGB.encodeAdjListFlat(provaMat, false);
 
+                }
+                VarintGB.saveEncoding(inPath, name);
+            }else{
+                if (d_gaps) {
+                    EFano.encodeAdjListFlat(diff.ecnodeAdjList(provaMat), false);
+                } else {
+                    EFano.encodeAdjListFlat(provaMat, false);
+
+                }
+                EFano.saveEncoding(inPath, name);
             }
-            VarintGB.saveEncoding(inPath,name);
+
 
 
         }
@@ -165,9 +206,9 @@ public class CompressInstance {
     public static void main(String[] args) throws IOException {
         CompressInstance t = new CompressInstance();
 
-        //t.compress();
-        t.test_elias_gamma();
-       // t.compress_test_instances();
+        t.compress();
+        //t.test_elias_gamma();
+        //t.compress_test_instances();
 
     }
 }

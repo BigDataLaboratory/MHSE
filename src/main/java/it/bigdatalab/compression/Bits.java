@@ -85,7 +85,6 @@ public final class Bits {
 
             final int numZeros = (int) Math.min(val, availableSpace);
             final int zeros = ZEROS[numZeros];
-
             in[longOffset] &= (zeros >>> bitPosition) | (zeros << (Byte.SIZE - bitPosition));
             bitOffset += numZeros;
             val -= numZeros;
