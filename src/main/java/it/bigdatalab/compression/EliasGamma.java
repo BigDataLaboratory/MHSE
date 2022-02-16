@@ -1,9 +1,24 @@
 package it.bigdatalab.compression;
 
 import it.unimi.dsi.bits.BitVector;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 // MUST BE COMPLETED!!!
 public class EliasGamma {
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.compression.EliasFano");
+
+
+    private int[][] offset;
+    private byte[] compressedOffset;
+    private byte[][] compressedAdjList;
+    private byte[] compressedAdjListFlat;
 
     public EliasGamma(){
 
@@ -326,6 +341,144 @@ public class EliasGamma {
         return (count);
 
     }
+
+
+    public byte [] encodeAdjListFlat(int [][] matrix,boolean d_compression){
+        int node,edge,bytes,k;
+        byte [] encodedFlat;
+        byte [][] encoded;
+        byte [] edgeListEnc;
+        int [] edgeListToEnc;
+        int [][] off;
+        logger.info("Encoding the Adjacency list using Elias Fano");
+        encoded = new byte[matrix.length][];
+        // node, offset, length list, lowerbits
+        off = new int[matrix.length][4];
+        bytes = 0;
+        for(node = 0;node<matrix.length;node++){
+            edgeListToEnc = new int[matrix[node].length];
+            for(edge = 0;edge< matrix[node].length;edge++){
+                edgeListToEnc[edge] = matrix[node][edge];
+            }
+            edgeListEnc = compress(edgeListToEnc,0,edgeListToEnc.length);
+            bytes+=edgeListEnc.length;
+            encoded[node] = edgeListEnc;
+            off[node][0] = matrix[node][0];
+            off[node][1] = bytes;
+            off[node][2] = edgeListToEnc.length;
+            off[node][3] = getL(edgeListToEnc[edgeListToEnc.length-1],edgeListToEnc.length);
+        }
+        encodedFlat = new byte[bytes];
+        k = 0;
+        for(node =0;node<encoded.length;node++){
+            for (edge = 0;edge<encoded[node].length;edge++){
+                encodedFlat[k] = encoded[node][edge];
+                k+=1;
+            }
+        }
+
+        offset = off;
+        compressedAdjList = encoded;
+        compressedAdjListFlat = encodedFlat;
+        return (encodedFlat);
+    }
+
+
+    /**
+     * Save on the disk the encoded adjacency list and its ofsset
+     * @param outPath String of the output path
+     * @param instance String of the name of the file
+     */
+    public void saveEncoding(String outPath,String instance) {
+
+        int n, m, i, k, q, j;
+        m = 0;
+        n = offset.length;
+        logger.info("Writing the encoded Graph and the offset file " );
+
+
+        // Writing flattered encoding
+        try {
+            File f = new File(outPath + instance + ".txt");
+            if (f.createNewFile()) {
+                logger.info("File {} created ", f.getName());
+
+            } else {
+                logger.error("File already exists.");
+            }
+
+        } catch (IOException e) {
+            logger.error("An error occurred.");
+            e.printStackTrace();
+        }
+        try {
+            FileUtils.writeByteArrayToFile(new File(outPath+ instance + "elias_.txt"), compressedAdjListFlat);
+
+            logger.info("Successfully written data to the file ");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // Writing offset file
+
+        try {
+            File off = new File(outPath + instance + "_offset_elias.txt");
+            if (off.createNewFile()) {
+                logger.info("File {} created ", off.getName());
+
+            } else {
+                logger.error("File already exists.");
+            }
+        } catch (IOException e) {
+            logger.error("An error occurred.");
+            e.printStackTrace();
+        }
+
+        try {
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter(outPath + instance + "_offset_elias.txt"));
+
+            for (i = 0; i < n; i++) {
+                m = offset[i].length;
+                for (j = 0; j < m; j++) {
+                    bw.write(offset[i][j] + ((j == offset[i].length - 1) ? "" : "\t"));
+                }
+                bw.newLine();
+            }
+            bw.flush();
+
+
+        } catch (IOException e) {
+        }
+        logger.info("Encoded Graph and offset files properly written " );
+
+    }
+
+    /**
+     * Return the offset 2D-Array
+     * @return offset
+     */
+    public int [][] getOffset(){
+        return (offset);
+    }
+
+    /**
+     * Compute the decoded int array
+     * @param encoded byte array
+     * @return Int array of the decoded sequence
+     */
+    public int[] dec(byte encoded [],int len,int lowerBit){
+       int [] final_decoding = new int[len];
+
+        decompress(encoded,0,len,lowerBit,final_decoding,0);
+        return (final_decoding);
+
+    }
+
+    public byte[] getCompressedAdjListFlat() {
+        return compressedAdjListFlat;
+    }
+
     /**
      * Compute the byte representation of a integer
      * @param data integer

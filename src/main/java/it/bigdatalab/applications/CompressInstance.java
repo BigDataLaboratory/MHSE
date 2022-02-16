@@ -126,18 +126,39 @@ public class CompressInstance {
 
     }
 
-    public void test_elias_gamma(){
+    public void test_elias_gamma() {
         EliasGamma Ecomp = new EliasGamma();
 
-        int [] sequence = {10,20,350};
-        byte [] A = Ecomp.compress(sequence,0,sequence.length);
-        int [] k = Ecomp.decompress(A,0,A.length);
-        System.out.println("COMPRESSED "+A);
-        System.out.println("PROVA "+Ecomp.Size(10));
-        byte [] encoded = Ecomp.encodeSequence(sequence);
-        for (int i = 0; i<encoded.length;i++){
-            System.out.println(" Byte "+ encoded[i]);
+        int[][] adjtest = {{100, 2000, 4353859}, {4, 5, 6}};
+        Ecomp.encodeAdjListFlat(adjtest, false);
+        byte [] enc = Ecomp.getCompressedAdjListFlat();
+        int[][] off = Ecomp.getOffset();
+        for (int i = 0; i < off.length; i++) {
+            for (int j = 0; j < off[i].length; j++) {
+                System.out.println("OFF["+i+"]["+j+"] = "+off[i][j]);
+            }
         }
+        byte [] toDecode = new byte[off[0][1]];
+        int k = 0;
+        for(int i = 0;i<off[0][1];i++){
+            toDecode[k] = enc[i];
+            k+=1;
+
+        }
+        int[] decomp = Ecomp.dec(toDecode,off[0][2],off[0][3]);
+        for (int i = 0;i<decomp.length;i++){
+            System.out.println("LINEA "+decomp[i]);
+        }
+        for (int i = 0; i < off.length; i++) {
+            for (int j = 0; j < off[i].length; j++) {
+                System.out.println("OFF["+i+"]["+j+"] = "+off[i][j]);
+            }
+        }
+
+
+
+
+
     }
 
 
