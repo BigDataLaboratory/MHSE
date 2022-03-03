@@ -167,7 +167,7 @@ public class MinHashMain {
         boolean persistCollisionTable = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.persistCollisionTable", Constants.TRUE));
         boolean webGraph = Boolean.parseBoolean(PropertiesManager.getProperty("graph.webGraph",Constants.FALSE));
         boolean compGraph = Boolean.parseBoolean(PropertiesManager.getProperty("graph.compressedGraph",Constants.TRUE));
-
+        boolean eliasFano = Boolean.parseBoolean(PropertiesManager.getProperty("graph.EliasFano",Constants.FALSE));
         Parameter param = new Parameter.Builder()
                 .setAlgorithmName(algorithmName)
                 .setInputFilePathGraph(inputFilePath)
@@ -188,6 +188,7 @@ public class MinHashMain {
                 .setPersistCollisionTable(persistCollisionTable)
                 .setWebG(webGraph)
                 .setCompG(compGraph)
+                .setECompG(eliasFano)
                 .build();
 
         logger.info("\n\n********************** Parameters **********************\n\n" +
@@ -222,6 +223,7 @@ public class MinHashMain {
                 param.getNumThreads(),
                 param.getWebGraph(),
                 param.getCompGraph());
+                param.getCompEGraph();
 
         MinHashMain main = new MinHashMain(param);
         try {

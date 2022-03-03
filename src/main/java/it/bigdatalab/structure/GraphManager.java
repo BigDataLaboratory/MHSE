@@ -107,8 +107,9 @@ public class GraphManager {
 
                         cGraph = new CompressedGraph(SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + ".txt", SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_offset.txt", true);
                     }else{
-                        eGraph = new CompressedEliasFanoGraph(SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_elias_.txt", SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_offset_elias.txt", true);
                         logger.info("Elias Fano ");
+
+                        eGraph = new CompressedEliasFanoGraph(SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_elias_.txt", SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_offset_elias.txt", true);
                         System.out.println("TRANSPOSED ");
 
                     }

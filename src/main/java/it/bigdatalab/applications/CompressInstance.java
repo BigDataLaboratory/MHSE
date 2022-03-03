@@ -85,13 +85,14 @@ public class CompressInstance {
 
             }
         }else if(EliasFano){
+            logger.info("Compressing using Monotone Elias Fano ");
             if (d_gaps) {
                 differentialMatrix = diff.ecnodeAdjList(provaMat);
                 EliasF.encodeAdjListFlat(differentialMatrix, d_gaps);
             } else {
                 EliasF.encodeAdjListFlat(provaMat, d_gaps);
             }
-            //EliasF.saveEncoding(outputFilePath, name);
+            EliasF.saveEncoding(outputFilePath, name);
 
             if (transposed) {
                 UGraph.transpose_graph();
@@ -104,7 +105,7 @@ public class CompressInstance {
                 }
                 String[] splitTrans = name.split("[.]");
                 String nameTrans = splitTrans[0] + "_transposed." + splitTrans[1];
-                //EliasFGBTransposed.saveEncoding(outputFilePath, nameTrans);
+                EliasFGBTransposed.saveEncoding(outputFilePath, nameTrans);
 
 
             }
@@ -227,9 +228,9 @@ public class CompressInstance {
     public static void main(String[] args) throws IOException {
         CompressInstance t = new CompressInstance();
 
-        //t.compress();
+        t.compress();
         //t.test_elias_gamma();
-        t.compress_test_instances();
+        //t.compress_test_instances();
 
     }
 }
