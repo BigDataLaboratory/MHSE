@@ -179,13 +179,14 @@ public class MHSETest {
                 .setIsolatedVertices(false)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
 
 
         // Checking the execution on the compressed instance
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
         MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
 
         Measure measure2 = algo2.runAlgorithm();
@@ -214,11 +215,12 @@ public class MHSETest {
                 .setSeedsRandom(false)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
         // Checking the execution on the compressed instance
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
         MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
 
         Measure measure2 = algo2.runAlgorithm();
@@ -246,9 +248,10 @@ public class MHSETest {
                 .setSeedsRandom(false)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
         MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
 
         Measure measure2 = algo2.runAlgorithm();
@@ -277,9 +280,10 @@ public class MHSETest {
                 .setSeedsRandom(false)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
         MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
 
         Measure measure2 = algo2.runAlgorithm();
@@ -309,10 +313,11 @@ public class MHSETest {
                 .setSeedsRandom(false)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
         MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
 
         Measure measure2 = algo2.runAlgorithm();
@@ -342,9 +347,10 @@ public class MHSETest {
                 .setSeedsRandom(false)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
         MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
 
         Measure measure2 = algo2.runAlgorithm();
@@ -375,8 +381,9 @@ public class MHSETest {
                 .setThreshold(0.9)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .build();
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
         MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
 
         Measure measure2 = algo2.runAlgorithm();
@@ -407,8 +414,9 @@ public class MHSETest {
                 .setThreshold(0.9)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .build();
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
         MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
 
         Measure measure2 = algo2.runAlgorithm();
@@ -439,8 +447,9 @@ public class MHSETest {
                 .setThreshold(0.9)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .build();
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
         MHSE algo2 = new MHSE(g2, param2.getNumSeeds(), param2.getThreshold(), new IntArrayList(seeds));
 
         Measure measure2 = algo2.runAlgorithm();

@@ -37,12 +37,13 @@ class GroundTruthTest {
                 .setNumThreads(1)
                 .setCompG(false)
                 .setWebG(true)
+                .setECompG(false)
                 .setTranspose(false)
                 .setDirection("in")
                 .build();
 
 
-        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         GroundTruth gt = new GroundTruth(g, param, mode);
         GraphGtMeasure graphMeasure = gt.computeGroundTruth();
@@ -63,11 +64,12 @@ class GroundTruthTest {
                 .setNumThreads(1)
                 .setCompG(false)
                 .setWebG(true)
+                .setECompG(false)
                 .setTranspose(false)
                 .setDirection("in")
                 .build();
 
-        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
 
         GroundTruth gt = new GroundTruth(g, param, mode);
@@ -94,11 +96,13 @@ class GroundTruthTest {
                 .setNumThreads(1)
                 .setCompG(false)
                 .setWebG(true)
+                .setECompG(false)
+
                 .setTranspose(false)
                 .setDirection("in")
                 .build();
 
-        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
 
         GroundTruth gt = new GroundTruth(g, param, mode);
@@ -120,11 +124,13 @@ class GroundTruthTest {
                 .setNumThreads(1)
                 .setCompG(false)
                 .setWebG(true)
+                .setECompG(false)
+
                 .setTranspose(false)
                 .setDirection("in")
                 .build();
 
-        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
 
         GroundTruth gt = new GroundTruth(g, param, mode);
@@ -150,11 +156,13 @@ class GroundTruthTest {
                 .setNumThreads(1)
                 .setCompG(false)
                 .setWebG(true)
+                .setECompG(false)
+
                 .setTranspose(false)
                 .setDirection("in")
                 .build();
 
-        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         GroundTruth gt = new GroundTruth(g, param, mode);
         GraphGtMeasure graphMeasure = gt.computeGroundTruth();
@@ -175,11 +183,13 @@ class GroundTruthTest {
                 .setNumThreads(1)
                 .setCompG(false)
                 .setWebG(true)
+                .setECompG(false)
+
                 .setTranspose(false)
                 .setDirection("in")
                 .build();
 
-        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         GroundTruth gt = new GroundTruth(g, param, mode);
         GraphGtMeasure graphMeasure = gt.computeGroundTruth();
@@ -204,11 +214,13 @@ class GroundTruthTest {
                 .setNumThreads(1)
                 .setCompG(false)
                 .setWebG(true)
+                .setECompG(false)
+
                 .setTranspose(false)
                 .setDirection("in")
                 .build();
 
-        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         GroundTruth gt = new GroundTruth(g, param, mode);
         GraphGtMeasure graphMeasure = gt.computeGroundTruth();
@@ -229,11 +241,13 @@ class GroundTruthTest {
                 .setNumThreads(1)
                 .setCompG(false)
                 .setWebG(true)
+                .setECompG(false)
+
                 .setTranspose(false)
                 .setDirection("in")
                 .build();
 
-        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         GroundTruth gt = new GroundTruth(g, param, mode);
         GraphGtMeasure graphMeasure = gt.computeGroundTruth();
@@ -258,11 +272,13 @@ class GroundTruthTest {
                 .setNumThreads(1)
                 .setCompG(false)
                 .setWebG(true)
+                .setECompG(false)
+
                 .setTranspose(false)
                 .setDirection("in")
                 .build();
 
-        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         GroundTruth gt = new GroundTruth(g, param, mode);
         GraphGtMeasure graphMeasure = gt.computeGroundTruth();
@@ -283,11 +299,13 @@ class GroundTruthTest {
                 .setNumThreads(1)
                 .setCompG(false)
                 .setWebG(true)
+                .setECompG(false)
+
                 .setTranspose(false)
                 .setDirection("in")
                 .build();
 
-        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         GroundTruth gt = new GroundTruth(g, param, mode);
         GraphGtMeasure graphMeasure = gt.computeGroundTruth();
@@ -313,11 +331,13 @@ class GroundTruthTest {
                 .setNumThreads(1)
                 .setCompG(false)
                 .setWebG(true)
+                .setECompG(false)
+
                 .setTranspose(false)
                 .setDirection("in")
                 .build();
 
-        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g =new GraphManager(param.getWebGraph(), param.getCompGraph(), param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         GroundTruth gt = new GroundTruth(g, param, mode);
         Assertions.assertThrows(IllegalArgumentException.class, gt::computeGroundTruth);

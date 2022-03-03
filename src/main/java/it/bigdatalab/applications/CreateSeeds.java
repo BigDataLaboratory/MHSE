@@ -118,7 +118,7 @@ public class CreateSeeds {
                 param.getOutputFolderPath(),
                 param.getNumSeeds());
         //    public static GraphManager loadGraph(String inputFilePath, boolean inMemory, boolean isolatedVertices,boolean webGraph, boolean compGraph,boolean transpose, String direction) throws IOException {
-        GraphManager g = GraphUtils.loadGraph(param.getInputFilePathGraph(),param.isInMemory(),param.keepIsolatedVertices(),param.getWebGraph(),param.getCompGraph(), param.isTranspose(), param.getDirection());
+        GraphManager g = GraphUtils.loadGraph(param.getInputFilePathGraph(),param.isInMemory(),param.keepIsolatedVertices(),param.getWebGraph(),param.getCompGraph(), param.isTranspose(), param.getDirection(),param.getCompEGraph());
         //CompressedGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isInMemory(), param.keepIsolatedVertices());
         CreateSeeds createSeeds = new CreateSeeds(g, param);
 

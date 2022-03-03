@@ -1,6 +1,7 @@
 package it.bigdatalab.applications;
 
 import it.bigdatalab.compression.DifferentialCompression;
+import it.bigdatalab.compression.EliasGamma;
 import it.bigdatalab.compression.GroupVarInt;
 import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.structure.GraphManager;
@@ -18,7 +19,7 @@ public class CompressInstance {
     @Test
     void test_compressed_instance() throws IOException {
         String input="/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed/";
-
+        //String inputEF ="/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed_ef/"
         String [] namesDirected = {"32-cycle.adjlist","32-cycle_transposed.adjlist","32-path.adjlist","32-path_transposed.adjlist",
                 "32in-star.adjlist","32in-star_transposed.adjlist","32out-star.adjlist","32out-star_transposed.adjlist","32t-path.adjlist"
                 ,"32t-path_transposed.adjlist",};
@@ -26,13 +27,14 @@ public class CompressInstance {
         UncompressedGraph G;
         GraphManager cG;
         GroupVarInt compressor = new GroupVarInt();
+        EliasGamma EFcompressor = new EliasGamma();
         DifferentialCompression differential = new DifferentialCompression();
         for(int i = 0;i< namesDirected.length;i++){
             G = new UncompressedGraph();
             G.load_graph(input+namesDirected[i],"\t");
             System.out.println("TESTING "+namesDirected[i]);
 
-            cG = new GraphManager(false,true,input+namesDirected[i]+".txt",false,false,false,"in");
+            cG = new GraphManager(false,true,input+namesDirected[i]+".txt",false,false,false,"in",true);
             int [][] uncG = G.getGraph();
             int [] edgeList;
             for(int k = 0;k<uncG.length;k++){
@@ -49,8 +51,6 @@ public class CompressInstance {
                     }
                 }
             }
-
-
 
             logger.info("DECOMPRESSIONE VARINT TESTATA E FUNZIONANTE SULLE LISTE");
 
@@ -75,6 +75,7 @@ public class CompressInstance {
 
 
             }
+
 
             logger.info("DECOMPRESSIONE DA FILE E NON COMPRESSO PASSATA");
 

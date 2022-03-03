@@ -110,6 +110,8 @@ public class MHSE extends MinHash {
                 }
                 // updating the signatures
                 i = 0;
+                //System.out.println("NDOES "+nodes.length);
+
                 while(i<nodes.length) {
                     int node = nodes[i];
 
@@ -198,7 +200,10 @@ public class MHSE extends MinHash {
         boolean signatureIsChanged = false;
         long[] newSignature = signatures.get(node);         //new signature to be updated
         int [] neigh = mGraph.get_neighbours(node);
-
+        System.out.println("NODE "+node+" LEN "+neigh.length);
+        for (int i =0 ;i<neigh.length;i++){
+            System.out.println(neigh[i]);
+        }
         int k;
         int d;
         long[] neighbourSignature;
@@ -209,6 +214,8 @@ public class MHSE extends MinHash {
             k = 0;
             while (d-- != 0) {
                 neighbour = neigh[k];
+                System.out.println("NODE "+node +" NEIG "+neighbour+ " D "+d);
+
                 k += 1;
 
 
@@ -220,6 +227,7 @@ public class MHSE extends MinHash {
                     }
                 }
             }
+
         //}
 
         return signatureIsChanged;

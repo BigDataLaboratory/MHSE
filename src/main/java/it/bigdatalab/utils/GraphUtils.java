@@ -18,10 +18,10 @@ public class GraphUtils {
      *
      * @return an ImmutableGraph instance
      */
-    public static GraphManager loadGraph(String inputFilePath, boolean inMemory, boolean isolatedVertices,boolean webGraph, boolean compGraph,boolean transpose, String direction) throws IOException {
+    public static GraphManager loadGraph(String inputFilePath, boolean inMemory, boolean isolatedVertices,boolean webGraph, boolean compGraph,boolean transpose, String direction,boolean GroupVarint) throws IOException {
         logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
 
-            GraphManager graph = new GraphManager(webGraph,compGraph,inputFilePath,transpose,inMemory,isolatedVertices,direction);
+            GraphManager graph = new GraphManager(webGraph,compGraph,inputFilePath,transpose,inMemory,isolatedVertices,direction,GroupVarint);
         //String[] SplitInputFilePath = inputFilePath.split(".");
 
         //CompressedGraph graph = new CompressedGraph( inputFilePath,SplitInputFilePath[0]+"_offset.txt" ,true);
@@ -43,11 +43,11 @@ public class GraphUtils {
     }
 
 
-    public static GraphManager loadGraph(String inputFilePath,String offset, boolean inMemory, boolean isolatedVertices,boolean webGraph, boolean compGraph,boolean transpose, String direction) throws IOException {
+    public static GraphManager loadGraph(String inputFilePath,String offset, boolean inMemory, boolean isolatedVertices,boolean webGraph, boolean compGraph,boolean transpose, String direction,boolean GroupVarint) throws IOException {
         logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
         //String[] SplitInputFilePath = inputFilePath.split(".");
         //CompressedGraph graph = new CompressedGraph(inputFilePath,SplitInputFilePath[0]+"_offset.txt",true);
-        GraphManager graph = new GraphManager(webGraph,compGraph,inputFilePath,transpose,inMemory,isolatedVertices,direction);
+        GraphManager graph = new GraphManager(webGraph,compGraph,inputFilePath,transpose,inMemory,isolatedVertices,direction,GroupVarint);
 
 //        ImmutableGraph graph = inMemory ?
 //                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :

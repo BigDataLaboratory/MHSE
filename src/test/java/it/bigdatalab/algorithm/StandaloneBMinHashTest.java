@@ -69,10 +69,11 @@ class StandaloneBMinHashTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
@@ -103,10 +104,11 @@ class StandaloneBMinHashTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
@@ -137,10 +139,11 @@ class StandaloneBMinHashTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
@@ -171,10 +174,11 @@ class StandaloneBMinHashTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
@@ -204,10 +208,11 @@ class StandaloneBMinHashTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
@@ -237,10 +242,11 @@ class StandaloneBMinHashTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
@@ -270,10 +276,11 @@ class StandaloneBMinHashTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
@@ -304,10 +311,11 @@ class StandaloneBMinHashTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 
@@ -338,10 +346,11 @@ class StandaloneBMinHashTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         StandaloneBMinHash algo = new StandaloneBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes);
 

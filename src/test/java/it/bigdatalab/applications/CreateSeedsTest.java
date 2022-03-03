@@ -31,11 +31,13 @@ class CreateSeedsTest {
                 .setInMemory(true)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
+
                 .setTranspose(false)
                 .setDirection("out")
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(), param.getCompGraph(),param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(),param.keepIsolatedVertices(),param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(), param.getCompGraph(),param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(),param.keepIsolatedVertices(),param.getDirection(),param.getCompEGraph());
 
 
         CreateSeeds c = new CreateSeeds(g, param);

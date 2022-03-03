@@ -181,10 +181,11 @@ class MultithreadBMinHashOptimizedTest {
                 .setComputeCentrality(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setNumThreads(4)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
 
         MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
@@ -218,11 +219,12 @@ class MultithreadBMinHashOptimizedTest {
                 .setComputeCentrality(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .setNumThreads(4)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
@@ -258,10 +260,11 @@ class MultithreadBMinHashOptimizedTest {
                 .setComputeCentrality(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setNumThreads(4)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
@@ -293,11 +296,12 @@ class MultithreadBMinHashOptimizedTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .setNumThreads(4)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(), param.getCompEGraph());
 
         MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
@@ -328,12 +332,13 @@ class MultithreadBMinHashOptimizedTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .setComputeCentrality(false)
                 .setNumThreads(4)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
@@ -363,12 +368,13 @@ class MultithreadBMinHashOptimizedTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .setComputeCentrality(false)
                 .setNumThreads(4)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
@@ -398,12 +404,13 @@ class MultithreadBMinHashOptimizedTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .setComputeCentrality(false)
                 .setNumThreads(4)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
@@ -434,12 +441,13 @@ class MultithreadBMinHashOptimizedTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .setComputeCentrality(false)
                 .setNumThreads(4)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
@@ -470,12 +478,13 @@ class MultithreadBMinHashOptimizedTest {
                 .setSeedsRandom(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .setComputeCentrality(false)
                 .setNumThreads(4)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MultithreadBMinHashOptimized algo = new MultithreadBMinHashOptimized(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 

@@ -66,7 +66,7 @@ public class GroundTruth {
                 .setIsolatedVertices(isolatedVertices)
                 .build();
         //     public GraphManager(boolean WG, boolean CG,String inputFilePath, boolean transpose,boolean inM,boolean isoV,String direction) throws IOException {
-        GraphManager g = new GraphManager(param.getWebGraph(), param.getCompGraph(),param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(),param.keepIsolatedVertices(),param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(), param.getCompGraph(),param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(),param.keepIsolatedVertices(),param.getDirection(),param.getCompEGraph());
 
         GroundTruth groundTruth = new GroundTruth(g, param, mode);
         GraphGtMeasure graphMeasure = groundTruth.computeGroundTruth();

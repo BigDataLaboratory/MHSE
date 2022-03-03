@@ -1,6 +1,7 @@
 package it.bigdatalab.structure;
 
 import it.bigdatalab.compression.DifferentialCompression;
+import it.bigdatalab.compression.EliasGamma;
 import it.bigdatalab.compression.GroupVarInt;
 
 import org.slf4j.Logger;
@@ -36,7 +37,6 @@ public class CompressedGraph {
     private byte[] compressed_offset;
     private boolean in_memory;
     private boolean diff = true;
-    private boolean gVarint;
     private int nNodes = -1;
     private int nArcs = -1;
     private boolean isUndirected = false;

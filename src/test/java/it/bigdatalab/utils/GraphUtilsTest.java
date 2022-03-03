@@ -23,10 +23,11 @@ class GraphUtilsTest {
         boolean isolatedVertices = true;
         boolean webGraph = true;
         boolean compressedGraph = false;
+        boolean compressedEGraph = false;
         String direction = "in";
 
         int[] expected = new int[]{3};
-        GraphManager g =new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction);
+        GraphManager g =new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction,compressedEGraph);
         assertArrayEquals(expected, g.successorArray(2));
     }
 
@@ -39,10 +40,11 @@ class GraphUtilsTest {
         boolean isolatedVertices = true;
         boolean webGraph = true;
         boolean compressedGraph = false;
+
         String direction = "out";
 
         int[] expected = new int[]{2};
-        GraphManager g =new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction);
+        GraphManager g =new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction,compressedGraph);
         assertArrayEquals(expected, g.successorArray(3));
     }
 
@@ -58,7 +60,7 @@ class GraphUtilsTest {
         String direction = "in";
 
         int[] expected = new int[]{6};
-        GraphManager g =new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction);
+        GraphManager g =new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction,compressedGraph);
         assertArrayEquals(expected, g.successorArray(5));
     }
 
@@ -74,7 +76,7 @@ class GraphUtilsTest {
         String direction = "out";
 
         int[] expected = new int[]{4};
-        GraphManager g =new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction);
+        GraphManager g =new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction,compressedGraph);
         assertArrayEquals(expected, g.successorArray(5));
     }
 
@@ -88,7 +90,7 @@ class GraphUtilsTest {
         boolean compressedGraph = false;
         String direction = "out";
 
-        Assertions.assertThrows(IOException.class, () -> new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction));
+        Assertions.assertThrows(IOException.class, () -> new GraphManager(webGraph,compressedGraph,inputFilePath, transpose, inMemory, isolatedVertices, direction,compressedGraph));
 
     }
 

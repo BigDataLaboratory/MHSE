@@ -2,6 +2,7 @@ package it.bigdatalab.applications;
 import it.bigdatalab.compression.EliasGamma;
 import it.bigdatalab.compression.GroupVarInt;
 import it.bigdatalab.compression.DifferentialCompression;
+import it.bigdatalab.structure.CompressedEliasFanoGraph;
 import it.bigdatalab.structure.CompressedGraph;
 import it.bigdatalab.structure.UncompressedGraph;
 import it.bigdatalab.utils.PropertiesManager;
@@ -90,7 +91,7 @@ public class CompressInstance {
             } else {
                 EliasF.encodeAdjListFlat(provaMat, d_gaps);
             }
-            EliasF.saveEncoding(outputFilePath, name);
+            //EliasF.saveEncoding(outputFilePath, name);
 
             if (transposed) {
                 UGraph.transpose_graph();
@@ -103,7 +104,7 @@ public class CompressInstance {
                 }
                 String[] splitTrans = name.split("[.]");
                 String nameTrans = splitTrans[0] + "_transposed." + splitTrans[1];
-                EliasFGBTransposed.saveEncoding(outputFilePath, nameTrans);
+                //EliasFGBTransposed.saveEncoding(outputFilePath, nameTrans);
 
 
             }
@@ -118,7 +119,7 @@ public class CompressInstance {
 
 
     public static void compress_test_instances() throws FileNotFoundException {
-       String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_undirected_ef/";
+       String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_undirected_compressed_ef/";
         //String inPath = "/home/antoniocruciani/IdeaProjects/MHSE/src/test/data/g_directed_compressed_ef/";
         //String [] names = {"32-cycle.adjlist","32-cycle_transposed.adjlist","32-path.adjlist","32-path_transposed.adjlist",
          //"32in-star.adjlist","32in-star_transposed.adjlist","32out-star.adjlist","32out-star_transposed.adjlist","32t-path.adjlist"
@@ -130,9 +131,10 @@ public class CompressInstance {
         DifferentialCompression diff = new DifferentialCompression();
         CompressedGraph Graph;
         UncompressedGraph UGraph;
+        EliasFano = true;
         UGraph = new UncompressedGraph();
         for(int i = 0;i< names.length;i++){
-            System.out.println(names[i]);
+            System.out.println("ENCODING "+names[i]);
             String inputFile = inPath+names[i];
             UGraph.load_graph(inputFile, "\t");
             int[][] provaMat = UGraph.getGraph();
@@ -147,30 +149,29 @@ public class CompressInstance {
                 }
                 VarintGB.saveEncoding(inPath, name);
             }else{
-                if (d_gaps) {
-                    EFano.encodeAdjListFlat(diff.ecnodeAdjList(provaMat), false);
-                } else {
+
                     EFano.encodeAdjListFlat(provaMat, false);
 
                 }
                 EFano.saveEncoding(inPath, name);
-            }
-
-
+                logger.info("Compressed instances and offsets saved in "+inPath);
 
         }
 
 
 
 
-        logger.info("Compressed instances and offsets saved in "+inPath);
+
+
+
+
 
     }
 
-    public void test_elias_gamma() {
+    public void test_elias_gamma() throws IOException {
         EliasGamma Ecomp = new EliasGamma();
-
-        int[][] adjtest = {{100, 2000, 4353859}, {4, 5, 6}};
+        CompressedEliasFanoGraph G;
+        int[][] adjtest = {{100, 2000, 4353859}, {4, 5, 6},{9,10}};
         Ecomp.encodeAdjListFlat(adjtest, false);
         byte [] enc = Ecomp.getCompressedAdjListFlat();
         int[][] off = Ecomp.getOffset();
@@ -179,13 +180,14 @@ public class CompressInstance {
                 System.out.println("OFF["+i+"]["+j+"] = "+off[i][j]);
             }
         }
-        byte [] toDecode = new byte[off[0][1]];
+        long [] toDecode = new long[off[0][1]];
         int k = 0;
         for(int i = 0;i<off[0][1];i++){
-            toDecode[k] = enc[i];
+            //toDecode[k] = enc[i];
             k+=1;
 
         }
+        /*
         int[] decomp = Ecomp.dec(toDecode,off[0][2],off[0][3]);
         for (int i = 0;i<decomp.length;i++){
             System.out.println("LINEA "+decomp[i]);
@@ -196,8 +198,27 @@ public class CompressInstance {
             }
         }
 
+         */
+        String IN = "/home/antoniocruciani/Desktop/Research/MHSE/TESTVGB/32in-star.adjlist_elias_.txt";
+        String OFFIN = "/home/antoniocruciani/Desktop/Research/MHSE/TESTVGB/32in-star.adjlist_offset_elias.txt";
+        String OT = "/home/antoniocruciani/Desktop/Research/MHSE/TESTVGB/";
+        UncompressedGraph UGraph;
+        EliasGamma EFano = new EliasGamma();
+        UGraph = new UncompressedGraph();
 
+        int[][] provaMat = UGraph.getGraph();
+        System.out.println(IN);
+        System.out.println("OFFSET "+OFFIN);
+        CompressedEliasFanoGraph eGraph = new CompressedEliasFanoGraph(IN,OFFIN,true);
+        for (int o = 0;o<eGraph.numNodes();o++){
+            int [] neig = eGraph.get_neighbours(eGraph.get_nodes()[o]);
+            System.out.println("LEN NEIGH "+neig.length);
+            System.out.println("LEN NODES "+eGraph.get_nodes().length);
+            for (int u = 0 ; u<neig.length;u++){
+                System.out.println("NODE "+eGraph.get_nodes()[o]+ " NEIG "+neig[u]);
 
+            }
+        }
 
 
     }
@@ -206,9 +227,9 @@ public class CompressInstance {
     public static void main(String[] args) throws IOException {
         CompressInstance t = new CompressInstance();
 
-        t.compress();
+        //t.compress();
         //t.test_elias_gamma();
-        //t.compress_test_instances();
+        t.compress_test_instances();
 
     }
 }

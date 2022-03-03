@@ -1,6 +1,6 @@
 package it.bigdatalab.compression;
 
-import it.unimi.dsi.bits.BitVector;
+
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +9,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+
+import static com.zavtech.morpheus.util.Asserts.assertEquals;
 
 // MUST BE COMPLETED!!!
 public class EliasGamma {
@@ -341,39 +344,86 @@ public class EliasGamma {
 
     }
 
+    public byte[] longToBytes(long x) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.putLong(x);
+        return buffer.array();
+    }
+
+    public long bytesToLong(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.put(bytes);
+        buffer.flip();//need flip
+        return buffer.getLong();
+    }
 
     public byte [] encodeAdjListFlat(int [][] matrix,boolean d_compression){
-        int node,edge,bytes,k;
+        int node,edge,bytes,k,i,j;
         byte [] encodedFlat;
         byte [][] encoded;
         byte [] edgeListEnc;
         int [] edgeListToEnc;
         int [][] off;
-        logger.info("Encoding the Adjacency list using Elias Fano");
+
+
+        // UTILIZZA QUESTA
+        //https://github.com/vigna/Sux4J/blob/master/test/it/unimi/dsi/sux4j/mph/codec/CodecTest.java
+
+
         encoded = new byte[matrix.length][];
         // node, offset, length list, lowerbits
         off = new int[matrix.length][4];
         bytes = 0;
-        for(node = 0;node<matrix.length;node++){
-            edgeListToEnc = new int[matrix[node].length];
 
-            for(edge = 1;edge< matrix[node].length;edge++){
-                edgeListToEnc[edge] = matrix[node][edge];
+        System.out.println("-------------------------------------");
+
+        for(node = 0;node<matrix.length;node++){
+            int h = matrix[node].length-1;
+            System.out.println("LEN matrix[node].length-1 = "+h+ " matrix[node].length = "+matrix[node].length);
+
+            if (matrix[node].length-1 >=1){
+                edgeListToEnc = new int[matrix[node].length];
+                for(edge = 1;edge< matrix[node].length;edge++){
+                    edgeListToEnc[edge] = matrix[node][edge];
+                    //System.out.println(edgeListToEnc[edge]);
+                }
+                //System.out.println(edgeListToEnc.length);
+
+                //System.out.println("-------------------------------------");
+               // EliasFanoLongBigList prova = new EliasFanoLongBigList(edgeListToEnc);
+
+
+
+
+                edgeListEnc = compress(edgeListToEnc, 0, edgeListToEnc.length);
+
+                bytes += edgeListEnc.length;
+                encoded[node] = edgeListEnc;
+                off[node][0] = matrix[node][0];
+                off[node][1] = bytes;
+                off[node][2] = edgeListToEnc.length;
+                off[node][3] = getL(edgeListToEnc[edgeListToEnc.length - 1], edgeListToEnc.length);
+
+            }else{
+                edgeListToEnc = new int[]{-1};
+                edgeListEnc = compress(edgeListToEnc, 0, edgeListToEnc.length);
+                bytes += edgeListEnc.length;
+                encoded[node] = edgeListEnc;
+                off[node][0] = matrix[node][0];
+                off[node][1] = bytes;
+                off[node][2] = edgeListToEnc.length;
+                off[node][3] = getL(edgeListToEnc[edgeListToEnc.length - 1], edgeListToEnc.length);
             }
-            edgeListEnc = compress(edgeListToEnc,0,edgeListToEnc.length);
-            bytes+=edgeListEnc.length;
-            encoded[node] = edgeListEnc;
-            off[node][0] = matrix[node][0];
-            off[node][1] = bytes;
-            off[node][2] = edgeListToEnc.length;
-            off[node][3] = getL(edgeListToEnc[edgeListToEnc.length-1],edgeListToEnc.length);
+
         }
         encodedFlat = new byte[bytes];
         k = 0;
         for(node =0;node<encoded.length;node++){
-            for (edge = 0;edge<encoded[node].length;edge++){
-                encodedFlat[k] = encoded[node][edge];
-                k+=1;
+            if (encoded[node]!= null) {
+                for (edge = 0; edge < encoded[node].length; edge++) {
+                    encodedFlat[k] = encoded[node][edge];
+                    k += 1;
+                }
             }
         }
 
@@ -381,7 +431,10 @@ public class EliasGamma {
         compressedAdjList = encoded;
         compressedAdjListFlat = encodedFlat;
         return (encodedFlat);
+
+
     }
+
 
 
     /**
@@ -389,6 +442,7 @@ public class EliasGamma {
      * @param outPath String of the output path
      * @param instance String of the name of the file
      */
+
     public void saveEncoding(String outPath,String instance) {
 
         int n, m, i, k, q, j;
@@ -464,11 +518,12 @@ public class EliasGamma {
 
     /**
      * Compute the decoded int array
-     * @param encoded byte array
      * @return Int array of the decoded sequence
      */
+
     public int[] dec(byte encoded [],int len,int lowerBit){
-       int [] final_decoding = new int[len];
+
+        int [] final_decoding = new int[len];
 
         decompress(encoded,0,len,lowerBit,final_decoding,0);
         return (final_decoding);

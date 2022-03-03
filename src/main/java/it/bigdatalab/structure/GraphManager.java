@@ -1,6 +1,7 @@
 package it.bigdatalab.structure;
 
 import com.google.common.graph.Graph;
+import it.bigdatalab.compression.GroupVarInt;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Preprocessing;
 import it.bigdatalab.utils.PropertiesManager;
@@ -26,9 +27,11 @@ public class GraphManager {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.structure.GraphManager");
 
     private CompressedGraph cGraph;
+    private CompressedEliasFanoGraph eGraph;
     private ImmutableGraph mGraph;
     private boolean  webGraph = false;
     private boolean compressedGraph = false;
+    private boolean EG = false;
     private boolean differentialCompression =  Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("graph.differentialCompression"));
     private boolean inMemory = true;
     private int [] nodes;
@@ -46,7 +49,7 @@ public class GraphManager {
      * @param direction String direction of the message passing
      * @throws IOException
      */
-    public GraphManager(boolean WG, boolean CG,String inputFilePath, boolean transpose,boolean inM,boolean isoV,String direction) throws IOException {
+    public GraphManager(boolean WG, boolean CG,String inputFilePath, boolean transpose,boolean inM,boolean isoV,String direction,boolean EliasGamma) throws IOException {
         int i;
 
         if(WG){
@@ -68,6 +71,7 @@ public class GraphManager {
                     logger.debug("Transposing graph ended");
                 }
             } else {
+
                     if (direction.equals(Constants.OUT_DIRECTION)) {
                         logger.info("Transposing graph cause direction is {}", direction);
                         graph = Transform.transpose(graph);
@@ -89,6 +93,8 @@ public class GraphManager {
 
         }
         if(CG){
+            EG = EliasGamma;
+
             compressedGraph = true;
             String[] SplitInputFilePath = inputFilePath.split("[.]");
             transposed = transpose;
@@ -96,13 +102,32 @@ public class GraphManager {
                 if (direction.equals(Constants.IN_DIRECTION)) {
                     logger.info("Loading the transposed compressed graph");
                     System.out.println(SplitInputFilePath[0] + "_transposed."+SplitInputFilePath[1]+".txt");
-                    cGraph = new CompressedGraph(SplitInputFilePath[0] + "_transposed."+SplitInputFilePath[1]+".txt", SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_offset.txt", true);
+                    if(!EG) {
+                        logger.info("Group Varint");
+
+                        cGraph = new CompressedGraph(SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + ".txt", SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_offset.txt", true);
+                    }else{
+                        eGraph = new CompressedEliasFanoGraph(SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_elias_.txt", SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_offset_elias.txt", true);
+                        logger.info("Elias Fano ");
+                        System.out.println("TRANSPOSED ");
+
+                    }
                     logger.info("Transposed compressed graph loaded.");
 
                 }else{
                     logger.info("Loading the compressed graph");
-                    cGraph = new CompressedGraph(SplitInputFilePath[0] + "."+SplitInputFilePath[1]+".txt", SplitInputFilePath[0] + "." + SplitInputFilePath[1] + "_offset.txt", true);
-                    logger.info("Loading completed");
+                    if(!EG) {
+                        logger.info("Group Varint");
+
+                        cGraph = new CompressedGraph(SplitInputFilePath[0] + "." + SplitInputFilePath[1] + ".txt", SplitInputFilePath[0] + "." + SplitInputFilePath[1] + "_offset.txt", true);
+                    }else {
+                        logger.info("Elias Fano ");
+
+                        eGraph = new CompressedEliasFanoGraph(SplitInputFilePath[0] + "."+SplitInputFilePath[1]+"_elias_.txt", SplitInputFilePath[0] + "." + SplitInputFilePath[1] + "_offset_elias.txt", true);
+
+                    }
+                        logger.info("Loading completed");
+
 
                 }
 
@@ -110,11 +135,30 @@ public class GraphManager {
 
                 if (direction.equals(Constants.OUT_DIRECTION)) {
                     logger.info("Transposing graph cause direction is {}", direction);
-                    cGraph = new CompressedGraph(SplitInputFilePath[0] + "_transposed."+SplitInputFilePath[1]+".txt", SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_offset.txt", true);
+                    if(!EG) {
+                        logger.info("Group Varint");
+
+                        cGraph = new CompressedGraph(SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + ".txt", SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_offset.txt", true);
+                    }else{
+                        logger.info("Elias Fano");
+
+                        eGraph = new CompressedEliasFanoGraph(SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_elias_.txt", SplitInputFilePath[0] + "_transposed." + SplitInputFilePath[1] + "_offset_elias.txt", true);
+                        System.out.println("TRANSPOSED ");
+
+                    }
                     logger.debug("Transposing graph ended");
                 }else{
                     logger.info("Loading the compressed graph");
-                    cGraph = new CompressedGraph(SplitInputFilePath[0] + "."+SplitInputFilePath[1]+".txt", SplitInputFilePath[0] + "." + SplitInputFilePath[1] + "_offset.txt", true);
+                    if(!EG) {
+                        logger.info("Group Varint");
+
+                        cGraph = new CompressedGraph(SplitInputFilePath[0] + "." + SplitInputFilePath[1] + ".txt", SplitInputFilePath[0] + "." + SplitInputFilePath[1] + "_offset.txt", true);
+                    }
+                    else{
+                        logger.info("Elias Fano ");
+
+                        eGraph = new CompressedEliasFanoGraph(SplitInputFilePath[0] + "." + SplitInputFilePath[1] + "_elias_.txt", SplitInputFilePath[0] + "." + SplitInputFilePath[1] + "_offset_elias.txt", true);
+                    }
                     logger.info("Loading completed");
 
                 }
@@ -123,7 +167,12 @@ public class GraphManager {
 
 
             }
-            nodes = cGraph.get_nodes();
+            if(!EliasGamma) {
+                nodes = cGraph.get_nodes();
+            }else {
+                nodes = eGraph.get_nodes();
+
+            }
         }
 
     }
@@ -141,8 +190,12 @@ public class GraphManager {
 
             return mGraph.successorArray(node);
         }
+        if(!EG){
+            return cGraph.get_neighbours(node,differentialCompression);
 
-        return cGraph.get_neighbours(node,differentialCompression);
+        }
+        return eGraph.get_neighbours(node);
+
     }
 
     /**
@@ -154,7 +207,11 @@ public class GraphManager {
         if(webGraph){
             return mGraph.outdegree(node);
         }
-        return cGraph.get_neighbours(node,differentialCompression).length;
+        if(!EG) {
+            return cGraph.get_neighbours(node, differentialCompression).length;
+        }
+        return eGraph.get_neighbours(node).length;
+
     }
 
     /**
@@ -181,7 +238,11 @@ public class GraphManager {
         if(webGraph){
             return mGraph.numArcs();
         }
-        return cGraph.numArcs();
+        if(!EG) {
+            return cGraph.numArcs();
+        }
+        return eGraph.numArcs();
+
     }
 
     /**
@@ -211,8 +272,14 @@ public class GraphManager {
      * Returns the compressed graph
      * @return compressed graph
      */
+
     public  CompressedGraph get_cGraph(){
         return cGraph;
+
+    }
+    public  CompressedEliasFanoGraph get_eGraph() {
+
+        return eGraph;
     }
 
     /**

@@ -183,7 +183,7 @@ class StandaloneBMinHashOptimizedTest {
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
 
         StandaloneBMinHashOptimized algo2 = new StandaloneBMinHashOptimized(g2, param2.getNumSeeds(), param2.getThreshold(), nodes, param2.computeCentrality());
 
@@ -216,7 +216,7 @@ class StandaloneBMinHashOptimizedTest {
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
 
         StandaloneBMinHashOptimized algo2 = new StandaloneBMinHashOptimized(g2, param2.getNumSeeds(), param2.getThreshold(), nodes, param2.computeCentrality());
 
@@ -249,7 +249,7 @@ class StandaloneBMinHashOptimizedTest {
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
 
         StandaloneBMinHashOptimized algo2 = new StandaloneBMinHashOptimized(g2, param2.getNumSeeds(), param2.getThreshold(), nodes, param2.computeCentrality());
 
@@ -284,7 +284,7 @@ class StandaloneBMinHashOptimizedTest {
                 .build();
 
 
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
 
         StandaloneBMinHashOptimized algo2 = new StandaloneBMinHashOptimized(g2, param2.getNumSeeds(), param2.getThreshold(), nodes, param2.computeCentrality());
 
@@ -314,9 +314,10 @@ class StandaloneBMinHashOptimizedTest {
                 .setComputeCentrality(false)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
 
         StandaloneBMinHashOptimized algo2 = new StandaloneBMinHashOptimized(g2, param2.getNumSeeds(), param2.getThreshold(), nodes, param2.computeCentrality());
 
@@ -348,10 +349,11 @@ class StandaloneBMinHashOptimizedTest {
                 .setComputeCentrality(false)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
 
         StandaloneBMinHashOptimized algo2 = new StandaloneBMinHashOptimized(g2, param2.getNumSeeds(), param2.getThreshold(), nodes, param2.computeCentrality());
 
@@ -382,10 +384,11 @@ class StandaloneBMinHashOptimizedTest {
                 .setComputeCentrality(false)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
 
         StandaloneBMinHashOptimized algo2 = new StandaloneBMinHashOptimized(g2, param2.getNumSeeds(), param2.getThreshold(), nodes, param2.computeCentrality());
 
@@ -414,11 +417,12 @@ class StandaloneBMinHashOptimizedTest {
                 .setComputeCentrality(false)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
 
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
 
         StandaloneBMinHashOptimized algo2 = new StandaloneBMinHashOptimized(g2, param2.getNumSeeds(), param2.getThreshold(), nodes, param2.computeCentrality());
 
@@ -449,12 +453,13 @@ class StandaloneBMinHashOptimizedTest {
                 .setComputeCentrality(false)
                 .setWebG(false)
                 .setCompG(true)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
 
 
-        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection());
+        GraphManager g2 = new GraphManager(param2.getWebGraph(),param2.getCompGraph(),param2.getInputFilePathGraph(),param2.isTranspose(),param2.isInMemory(),param2.keepIsolatedVertices(), param2.getDirection(),param2.getCompEGraph());
         StandaloneBMinHashOptimized algo2 = new StandaloneBMinHashOptimized(g2, param2.getNumSeeds(), param2.getThreshold(), nodes, param2.computeCentrality());
 
         GraphMeasureOpt measure2 = (GraphMeasureOpt) algo2.runAlgorithm();

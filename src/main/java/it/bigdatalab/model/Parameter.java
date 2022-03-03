@@ -30,6 +30,8 @@ public class Parameter {
 
     private final boolean webGraph;
     private final boolean compGraph;
+    private final boolean compEGraph;
+
 
     private final boolean differentialCompression;
 
@@ -63,11 +65,15 @@ public class Parameter {
         this.compGraph = builder.compG;
 
         this.differentialCompression = builder.differentialCompression;
+
+        this.compEGraph = builder.compEGraph;
     }
 
     public boolean getDifferentialCompression(){return  differentialCompression;}
     public boolean getWebGraph(){ return  webGraph;}
     public boolean getCompGraph(){ return compGraph;}
+    public boolean getCompEGraph(){ return compEGraph;}
+
     public String getInputFilePathGraph() {
         return mInputFilePathGraph;
     }
@@ -141,6 +147,7 @@ public class Parameter {
     }
 
     public static class Builder {
+        public boolean compEGraph;
         private String inputFilePathGraph;
         private String outputFolderPath;
         private String algorithmName;
@@ -167,6 +174,8 @@ public class Parameter {
 
         private boolean webG;
         private boolean compG;
+        private boolean compEG;
+
         private boolean differentialCompression;
         public Builder() {
         }
@@ -268,6 +277,11 @@ public class Parameter {
 
         public Builder setCompG(boolean compG){
             this.compG = compG;
+            return this;
+        }
+
+        public Builder setECompG(boolean compEG){
+            this.compEGraph = compEG;
             return this;
         }
 

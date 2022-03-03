@@ -179,10 +179,11 @@ class MHSEXTest {
                 .setComputeCentrality(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
@@ -215,10 +216,11 @@ class MHSEXTest {
                 .setComputeCentrality(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
@@ -251,10 +253,11 @@ class MHSEXTest {
                 .setComputeCentrality(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
@@ -287,10 +290,11 @@ class MHSEXTest {
                 .setComputeCentrality(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
@@ -322,10 +326,11 @@ class MHSEXTest {
                 .setComputeCentrality(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
@@ -356,10 +361,11 @@ class MHSEXTest {
                 .setComputeCentrality(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
@@ -392,10 +398,11 @@ class MHSEXTest {
                 .setComputeCentrality(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
@@ -428,10 +435,11 @@ class MHSEXTest {
                 .setComputeCentrality(false)
                 .setWebG(true)
                 .setCompG(false)
+                .setECompG(false)
                 .setThreshold(0.9)
                 .build();
 
-        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection());
+        GraphManager g = new GraphManager(param.getWebGraph(),param.getCompGraph(),param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(), param.getDirection(),param.getCompEGraph());
 
         MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
