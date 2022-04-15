@@ -1,0 +1,24 @@
+{
+	"direction":"Message direction",
+	"seeds": "Seeds number",
+
+	"groundTruthAvgDistance": "Exact avg distance",
+	"sampleMeanAvgDistance": "Avg distance",
+	"residualAvgDistance":"Residual avg distance (p-val)",
+	"ciAvgDistance": "Confidence interval avg distance",
+
+	"groundTruthEffectiveDiameter": "Exact eff diameter",
+	"sampleMeanEffectiveDiameter": "Eff diameter",
+	"residualEffectiveDiameter":"Residual eff diameter (p-val)",
+	"ciEffectiveDiameter": "Confidence interval eff diameter",
+
+	"groundTruthLowerBoundDiameter": "Exact diameter",
+	"sampleMeanLowerBoundDiameter": "Diameter",
+	"residualLowerBoundDiameter":"Residual diameter (p-val)",
+	"ciLowerBoundDiameter": "Confidence interval diameter",
+
+	"groundTruthTotalCouples": "Exact Nr. conn pairs",
+	"sampleMeanTotalCouples": "Nr. conn pairs",
+	"residualTotalCouples":"Residual Nr. conn pairs (p-val)",
+	"CITotalCouples": "Confidence interval Nr. conn pairs"
+}

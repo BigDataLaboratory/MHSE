@@ -1,0 +1,16 @@
+{
+	"0": "node_ids",
+	"1":"num_seed" ,
+	"2":"nodes" ,
+	"3": "edges",
+	"4": "seeds_time",
+	"5": "time",
+	"6": "algorithm",
+	"7":"memory_used",
+	"8":"direction",
+	"9":"hop_table"
+}
+
+
+
+
