@@ -90,3 +90,30 @@ The .ini file is divided in two sections:
 #### Examples
 
 In the examples folder there are two examples on how to compute the algorithm scores from the collsion table and how to estimate the errors of the algorithms
+
+
+
+### Ground Truth Files
+
+To add a new Ground Truth file, you need to create a new json with the following structure:
+
+```
+{
+	"avg_distance": 
+	"effective_diameter": 
+	"lower_bound":
+	"total_couples": 
+}
+```
+
+For example:
+
+```
+{
+	"avg_distance": 3.855,
+	"effective_diameter":4.394 , 
+	"lower_bound":12 ,
+	"total_couples": 1.143030619175E12
+}
+```
+
