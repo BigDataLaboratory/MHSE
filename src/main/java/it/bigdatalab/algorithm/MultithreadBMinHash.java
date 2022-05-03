@@ -249,6 +249,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
                         mutable[quotientNode] = mutable[quotientNode] | value;
 
                         logTime = System.currentTimeMillis();
+
                         if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
                             logger.info("(seed # {}) # nodes analyzed {} / {} for hop {}, estimated time remaining {}",
                                     s,
