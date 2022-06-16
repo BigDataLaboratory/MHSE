@@ -129,7 +129,7 @@ public class EdgeList2WebGraph {
 
         String eol = System.getProperty("line.separator");
 
-        try (Writer writer = new FileWriter("/media/dati1/dataset/hashtag/multi_twitter_wg/map_oldid_newid.csv")) {
+        try (Writer writer = new FileWriter("/media/dati1/dataset/hashtag/map_oldid_newid.csv")) {
             for (Map.Entry<Long, Long> entry : newMapping.long2LongEntrySet()) {
                 writer.append(Long.toString(entry.getKey()))
                         .append(',')
