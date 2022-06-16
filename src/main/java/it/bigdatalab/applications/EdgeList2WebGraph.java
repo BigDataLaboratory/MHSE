@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.Map;
 
 public class EdgeList2WebGraph {
 
@@ -124,6 +125,19 @@ public class EdgeList2WebGraph {
             //TODO To be optimized to give another long
             long newID = i;
             newMapping.put(previousID, newID);
+        }
+
+        String eol = System.getProperty("line.separator");
+
+        try (Writer writer = new FileWriter("/media/dati1/dataset/hashtag/multi_twitter_wg/map_oldid_newid.csv")) {
+            for (Map.Entry<Long, Long> entry : newMapping.long2LongEntrySet()) {
+                writer.append(Long.toString(entry.getKey()))
+                        .append(',')
+                        .append(Long.toString(entry.getValue()))
+                        .append(eol);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
         }
 
         //update normalizedEdgeList with the new IDs
