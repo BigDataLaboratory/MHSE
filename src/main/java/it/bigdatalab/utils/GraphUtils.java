@@ -18,9 +18,17 @@ public class GraphUtils {
      */
     public static ImmutableGraph loadGraph(String inputFilePath, boolean inMemory, boolean isolatedVertices) throws IOException {
         logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
-        ImmutableGraph graph = inMemory ?
-                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
-                ImmutableGraph.load(inputFilePath);
+        ImmutableGraph graph;
+        if (inMemory){
+            graph = inMemory ?Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
+            ImmutableGraph.load(inputFilePath);
+
+        }else {
+            graph =
+                    //= inMemory ? Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
+                    ImmutableGraph.load(inputFilePath);
+        }
+
         logger.info("Loading graph completed successfully");
 
         // check if it must remove isolated nodes
@@ -38,9 +46,17 @@ public class GraphUtils {
 
     public static ImmutableGraph loadGraph(String inputFilePath, boolean transpose, boolean inMemory, boolean isolatedVertices, String direction) throws IOException {
         logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
-        ImmutableGraph graph = inMemory ?
-                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
-                ImmutableGraph.load(inputFilePath);
+        ImmutableGraph graph;
+        if (inMemory){
+            graph = inMemory ?Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
+            ImmutableGraph.load(inputFilePath);
+
+        }else {
+            graph =
+                    //= inMemory ? Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
+                    ImmutableGraph.load(inputFilePath);
+        }
+
         logger.info("Loading graph completed successfully");
 
         // check if it must remove isolated nodes
@@ -77,9 +93,16 @@ public class GraphUtils {
 
     public static ImmutableGraph loadGraph(String inputFilePath, boolean transpose, boolean inMemory, boolean isolatedVertices, String direction, boolean reordering) throws IOException {
         logger.info("Loading graph at filepath {} (in memory: {})", inputFilePath, inMemory);
-        ImmutableGraph graph = inMemory ?
-                Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
-                ImmutableGraph.load(inputFilePath);
+        ImmutableGraph graph;
+        if (inMemory){
+            graph =  inMemory ?  Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
+            ImmutableGraph.load(inputFilePath);
+
+        }else {
+            graph =
+                    //= inMemory ? Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
+                    ImmutableGraph.load(inputFilePath);
+        }
         logger.info("Loading graph completed successfully");
 
         // check if it must remove isolated nodes
