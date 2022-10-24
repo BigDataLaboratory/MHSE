@@ -39,6 +39,7 @@ public class EdgeList2AdjacencyList {
 
         try {
             //create normalized edgelist for webgraph from edgelist file
+
             createNormalizedAdjlist(transpose);
             //write normalized edgelist to disk
             writeNormalizedAdjList(transpose);
