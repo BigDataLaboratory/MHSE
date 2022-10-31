@@ -6,6 +6,7 @@ import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
+import it.unimi.dsi.webgraph.NodeIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,14 +81,17 @@ public class MHSEX extends MinHash {
                 signatureIsChanged = true;
             } else {
                 signatureIsChanged = false;
+                final NodeIterator nodeIterator = mGraph.nodeIterator();
 
                 // update node signature
                 for (int n = 0; n < mGraph.numNodes(); n++) {
-                    final int d = mGraph.outdegree(n);
-                    final int[] successors = mGraph.successorArray(n);
+                    final int node = nodeIterator.nextInt();
 
-                    nPosition = n >>> Constants.MASK;
-                    nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
+                    final int d = nodeIterator.outdegree();
+                    final int[] successors = nodeIterator.successorArray();
+
+                    nPosition = node >>> Constants.MASK;
+                    nRemainder = (node << Constants.REMAINDER) >>> Constants.REMAINDER;
 
                     // for each neigh of the node n
                     for (int l = d; l-- != 0; ) {
@@ -106,7 +110,7 @@ public class MHSEX extends MinHash {
 
                                 // check if the s-th element of the node n signature
                                 // it's 0, else jump to the next s-th element of the signature
-                                if (((sMask & signMutable[n][position[s]]) >>> remainder[s]) == 0) {
+                                if (((sMask & signMutable[node][position[s]]) >>> remainder[s]) == 0) {
                                     int bitNeigh;
                                     int value;
                                     // change the s-th element of the node n signature
@@ -116,7 +120,7 @@ public class MHSEX extends MinHash {
                                         value = bitNeigh | sMask & signImmutable[successors[l]][position[s]];
                                         signatureIsChanged = true; // track the signature changes, to run the next hop
                                         trackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
-                                        signMutable[n][position[s]] = signMutable[n][position[s]] | value;
+                                        signMutable[node][position[s]] = signMutable[node][position[s]] | value;
                                     }
                                 } // else is already 1
                             }
@@ -125,10 +129,10 @@ public class MHSEX extends MinHash {
                     logTime = System.currentTimeMillis();
                     if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
                         logger.info("# nodes analyzed {} / {} for hop {} [elapsed {}, node/s {}]",
-                                n, mGraph.numNodes(),
-                                h,
+                                node, mGraph.numNodes(),
+                                node,
                                 (logTime - hopStartTime) / (double) 1000,
-                                ((n + 1) / ((logTime - hopStartTime) / (double) 1000)));
+                                ((node + 1) / ((logTime - hopStartTime) / (double) 1000)));
                         lastLogTime = logTime;
                     }
                 }

@@ -6,6 +6,7 @@ import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
+import it.unimi.dsi.webgraph.NodeIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,11 +215,14 @@ public class MultithreadBMinHash extends BMinHashOpt {
                     System.arraycopy(mutable, 0, immutable, 0, mutable.length);
                     int remainderPositionNode;
                     int quotientNode;
+                    final NodeIterator nodeIterator = g.nodeIterator();
                     for (int n = 0; n < g.numNodes(); n++) {
+                        final int node = nodeIterator.nextInt();
+                        //final int d = g.outdegree(node);
+                        final int d = nodeIterator.outdegree();
+                        //final int[] successors = g.successorArray(node);
 
-                        final int node = n;
-                        final int d = g.outdegree(node);
-                        final int[] successors = g.successorArray(node);
+                        final int[] successors = nodeIterator.successorArray();
 
                         // update the node hash iterating over all its neighbors
                         // and computing the OR between the node signature and
@@ -253,7 +257,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
                         if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
                             logger.info("(seed # {}) # nodes analyzed {} / {} for hop {}, estimated time remaining {}",
                                     s,
-                                    n, mGraph.numNodes(),
+                                    node, mGraph.numNodes(),
                                     h + 1,
                                     String.format("%d min, %d sec",
                                             TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - MultithreadBMinHash.this.startTime)) / (s + 1)) - (logTime - MultithreadBMinHash.this.startTime)),

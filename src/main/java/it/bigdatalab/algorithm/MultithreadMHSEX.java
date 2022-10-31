@@ -6,6 +6,7 @@ import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
+import it.unimi.dsi.webgraph.NodeIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -252,12 +253,16 @@ public class MultithreadMHSEX extends MinHash {
                 signatureIsChanged = false;
 
                 // update node signature
-                for (int n = start; n < end + 1; n++) {
-                    final int d = g.outdegree(n);
-                    final int[] successors = g.successorArray(n);
+                final NodeIterator nodeIterator = mGraph.nodeIterator();
 
-                    nPosition = n >>> Constants.MASK;
-                    nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
+                for (int n = start; n < end + 1; n++) {
+                    //final int node = n;
+                    final int node = nodeIterator.nextInt();
+                    final int d = nodeIterator.outdegree();
+                    final int[] successors = nodeIterator.successorArray();
+
+                    nPosition = node >>> Constants.MASK;
+                    nRemainder = (node << Constants.REMAINDER) >>> Constants.REMAINDER;
 
                     // for each neigh of the node n
                     for (int l = d; l-- != 0; ) {
@@ -276,7 +281,7 @@ public class MultithreadMHSEX extends MinHash {
 
                                 // check if the s-th element of the node n signature
                                 // it's 0, else jump to the next s-th element of the signature
-                                if (((sMask & mSignMutable[n][mPosition[s]]) >>> mRemainder[s]) == 0) {
+                                if (((sMask & mSignMutable[node][mPosition[s]]) >>> mRemainder[s]) == 0) {
                                     int bitNeigh;
                                     int value;
                                     // change the s-th element of the node n signature
@@ -286,7 +291,7 @@ public class MultithreadMHSEX extends MinHash {
                                         value = bitNeigh | sMask & mSignImmutable[successors[l]][mPosition[s]];
                                         signatureIsChanged = true; // track the signature changes, to run the next hop
                                         mTrackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
-                                        mSignMutable[n][mPosition[s]] = mSignMutable[n][mPosition[s]] | value;
+                                        mSignMutable[node][mPosition[s]] = mSignMutable[node][mPosition[s]] | value;
                                     }
                                 }
                             }

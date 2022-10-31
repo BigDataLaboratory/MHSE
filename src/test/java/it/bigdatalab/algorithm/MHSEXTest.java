@@ -163,6 +163,247 @@ class MHSEXTest {
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("cycleProvider")
+    void testAlgorithm_DiCycle_Offline(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32-cycle.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(false)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setComputeCentrality(false)
+                .setThreshold(0.9)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+
+        GraphMeasureOpt measure = (GraphMeasureOpt) algo.runAlgorithm();
+
+        assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("pathProvider")
+    void testAlgorithm_DiPath_Offline(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32-path.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(false)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setComputeCentrality(false)
+                .setThreshold(0.9)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("tPathProvider")
+    void testAlgorithm_DiTPath_Offline(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32t-path.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(false)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(true)
+                .setSeedsRandom(false)
+                .setComputeCentrality(false)
+                .setThreshold(0.9)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("inStarProvider")
+    void testAlgorithm_DiInStar_Offline(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32in-star.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(false)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setComputeCentrality(false)
+                .setThreshold(0.9)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("outStarProvider")
+    void testAlgorithm_DiOutStar_Offline(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32out-star.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(false)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setComputeCentrality(false)
+                .setThreshold(0.9)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("unCycleProvider")
+    void testAlgorithm_UnCycle_Offline(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_undirected/32-cycle.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(false)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setComputeCentrality(false)
+                .setThreshold(0.9)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("unWheelProvider")
+    void testAlgorithm_UnWheel_Offline(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_undirected/32-wheel.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(false)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setComputeCentrality(false)
+                .setThreshold(0.9)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("completeProvider")
+    void testAlgorithm_Complete_Offline(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_undirected/32-complete.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(false)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setComputeCentrality(false)
+                .setThreshold(0.9)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        assertThat(measure)
+                .usingRecursiveComparison()
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
+                .isEqualTo(expected);
+    }
+//-------------------- OFFLINE READING
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("cycleProvider")
     void testAlgorithm_DiCycle(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32-cycle.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));

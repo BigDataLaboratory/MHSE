@@ -6,6 +6,7 @@ import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
+import it.unimi.dsi.webgraph.NodeIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,12 +100,14 @@ public class StandaloneBMinHash extends BMinHashOpt {
 
                     int remainderPositionNode;
                     int quotientNode;
+                    final NodeIterator nodeIterator = mGraph.nodeIterator();
+
                     for (int n = 0; n < mGraph.numNodes(); n++) {
 
-                        final int node = n;
+                        final int node = nodeIterator.nextInt();
 
-                        final int d = mGraph.outdegree(node);
-                        final int[] successors = mGraph.successorArray(node);
+                        final int d = nodeIterator.outdegree();
+                        final int[] successors = nodeIterator.successorArray();
 
                         // update the node hash iterating over all its neighbors
                         // and computing the OR between the node signature and
