@@ -1,11 +1,16 @@
 package it.bigdatalab.utils;
 
+import it.unimi.dsi.webgraph.BVGraph;
 import it.unimi.dsi.webgraph.ImmutableGraph;
+import it.unimi.dsi.webgraph.ImmutableSequentialGraph;
 import it.unimi.dsi.webgraph.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class GraphUtils {
 
@@ -101,7 +106,7 @@ public class GraphUtils {
         }else {
             graph =
                     //= inMemory ? Transform.transpose(Transform.transpose(ImmutableGraph.load(inputFilePath))) :
-                    ImmutableGraph.load(inputFilePath);
+                   ImmutableGraph.loadOffline(inputFilePath);
         }
         logger.info("Loading graph completed successfully");
 
@@ -120,20 +125,25 @@ public class GraphUtils {
                     logger.debug("Transposing graph ended");
                 }else{
                     logger.info("Transposing graph cause direction is {} in memory {}", direction,false);
-                    graph = Transform.transposeOffline(graph,40000000 );
+                    graph = Transform.transposeOffline(graph,40000 );
                     logger.debug("Transposing graph ended");
                 }
             }
-        } else {
+        }else {
             if (direction.equals(Constants.OUT_DIRECTION)) {
                 if (inMemory) {
                     logger.info("Transposing graph cause direction is {} in memory {}", direction, true);
                     graph = Transform.transpose(graph);
                     logger.debug("Transposing graph ended");
                 }else{
+                    File f = new File("./offline_transpose/");
                     logger.info("Transposing graph cause direction is {} in memory {}", direction, false);
-                    graph = Transform.transposeOffline(graph,40000000 );
+
+                    graph = Transform.transposeOffline(graph,4000000,f);
                     logger.debug("Transposing graph ended");
+                    //logger.debug("Saving the transposed graph");
+                    //BVGraph.store(graph,"/home/antonio/Desktop/trasposto");
+                    //logger.debug("Saving graph ended");
                 }
 
             }
