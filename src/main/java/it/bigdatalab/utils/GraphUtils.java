@@ -124,8 +124,9 @@ public class GraphUtils {
                     graph = Transform.transpose(graph);
                     logger.debug("Transposing graph ended");
                 }else{
+                    File f = new File("./offline_transpose/");
                     logger.info("Transposing graph cause direction is {} in memory {}", direction,false);
-                    graph = Transform.transposeOffline(graph,40000 );
+                    graph = Transform.transposeOffline(graph,4000000 ,f);
                     logger.debug("Transposing graph ended");
                 }
             }
