@@ -122,7 +122,7 @@ public class GroundTruth {
                 for (int q = bfs.cutPoints.getInt(a); q < bfs.cutPoints.getInt(b); q++) {
                     avgDistance += d;
                 }
-                d+=1;
+                d +=1;
                 a += 1;
                 b += 1;
             }
