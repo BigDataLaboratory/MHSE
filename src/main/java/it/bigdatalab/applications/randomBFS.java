@@ -1,33 +1,24 @@
 package it.bigdatalab.applications;
 
-import it.bigdatalab.algorithm.MultithreadBMinHash;
-import it.bigdatalab.model.GraphGtMeasure;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
-import it.bigdatalab.model.Parameter;
-import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.Stats;
-import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.webgraph.ImmutableGraph;
-import it.unimi.dsi.webgraph.NodeIterator;
-import it.unimi.dsi.webgraph.algo.ParallelBreadthFirstVisit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class randomBFS {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.RandomBFS");
     //private final Parameter mParam;
     private final ImmutableGraph mGraph;
     private final int nSeed;
+    protected IntArrayList mSeeds;
 
     public randomBFS(ImmutableGraph g, int seedNumber) {
         this.mGraph = g;
@@ -46,6 +37,7 @@ public class randomBFS {
         return (int) ((Math.random() * (max - min)) + min);
     }
     private Measure run(){
+        mSeeds = new IntArrayList();
         int n = mGraph.numNodes();
         long startTime = System.currentTimeMillis();
         long totalTime;
@@ -58,6 +50,7 @@ public class randomBFS {
         int seed = 0;
         for (int i = 0; i< nSeed; i++){
             seed = getRandomNumber(0,n);
+            mSeeds.add(seed);
             Arrays.fill(dist, -1);
             Queue<Integer> ball = new LinkedList<>();
             ball.add(seed);
@@ -99,8 +92,12 @@ public class randomBFS {
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
+        graphMeasure.setHopTable(R);
         graphMeasure.setLowerBoundDiameter((int) lower_bound);
         graphMeasure.setThreshold(0.9);
+        graphMeasure.setSeedsList(mSeeds);
+        graphMeasure.setNumSeeds(nSeed);
+
         graphMeasure.setAvgDistance(Stats.averageDistance(R));
         graphMeasure.setTime(totalTime);
         graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(R, 0.9));
