@@ -1,5 +1,6 @@
 package it.bigdatalab.applications;
 
+import it.bigdatalab.algorithm.MultithreadBMinHash;
 import it.bigdatalab.model.GraphGtMeasure;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
@@ -17,9 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class randomBFS {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.RandomBFS");
@@ -35,7 +37,7 @@ public class randomBFS {
 
     public static void main(String[] args) throws IOException {
 
-        ImmutableGraph g = GraphUtils.loadGraph("/media/antonio/Crucial1TB/PhD/DATASETS/FUB/done/blackFriday/blackFriday", false, true, true, "out");
+        ImmutableGraph g = GraphUtils.loadGraph("/media/antonio/Crucial1TB/PhD/DATASETS/FUB/done/hollywood-2009/hollywood-2009", false, true, true, "out");
         randomBFS rbf = new randomBFS(g,256);
         rbf.run();
     }
@@ -84,7 +86,7 @@ public class randomBFS {
         for (h = 0; h< lower_bound;h++){
             accum += dd[h];
             if (h == 0) {
-                R[h] = dd[h];
+                R[h] = n*dd[h]/nSeed;
             }else{
                 R[h] = n*accum / nSeed;
             }
@@ -106,6 +108,7 @@ public class randomBFS {
         System.out.println("AVG DIST "+graphMeasure.getAvgDistance()+"  DIAM "+graphMeasure.getLowerBoundDiameter() + "   EFF DIA "+graphMeasure.getEffectiveDiameter()+"  R PAIRS "+graphMeasure.getTotalCouples());
     return graphMeasure;
     }
+
 
 
 
