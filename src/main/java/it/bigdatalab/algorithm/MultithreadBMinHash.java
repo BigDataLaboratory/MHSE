@@ -76,7 +76,6 @@ public class MultithreadBMinHash extends BMinHashOpt {
      *
      * @return Computed metrics of the algorithm
      */
-
     public Measure runAlgorithm() {
         startTime = System.currentTimeMillis();
         long totalTime;

@@ -90,7 +90,6 @@ public class StandaloneBMinHash extends BMinHashOpt {
                     int remainderPositionRandomNode = (randomNode << Constants.REMAINDER) >>> Constants.REMAINDER;
                     // quotient is randomNode >>> MASK
                     mutable[randomNode >>> Constants.MASK] |= (Constants.BIT) << remainderPositionRandomNode;
-                    signatureIsChanged = true;
                 } else {   //next hops
                     signatureIsChanged = false;
 

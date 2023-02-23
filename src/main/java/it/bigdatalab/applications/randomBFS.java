@@ -6,7 +6,6 @@ import it.bigdatalab.algorithm.MinHash;
 import it.bigdatalab.model.*;
 import it.bigdatalab.utils.*;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +101,7 @@ public class randomBFS {
     private int getRandomNumber(int max) {
         return (int) ((Math.random() * (max)));
     }
+
     public List<Measure> run() throws IOException {
         Measure measure;
         int numTest = mParam.getNumTests();
@@ -139,6 +139,7 @@ public class randomBFS {
         logger.info("Application successfully completed. Time elapsed (in milliseconds) {}", totalTime);
         return measures;
     }
+
     private Measure run_bfs(){
         mSeeds = new IntArrayList();
         int n = mGraph.numNodes();
@@ -147,8 +148,8 @@ public class randomBFS {
         long lastLogTime = startTime;
         //ProgressLogger pl = new ProgressLogger();
         //double avgDistance = 0.0;
-        double dd[] = new double[n];
-        double dist[] = new double[n];
+        double[] dd = new double[n];
+        double[] dist = new double[n];
         double lower_bound = 0;
         Arrays.fill(dd, 0);
         int seed;
@@ -189,7 +190,7 @@ public class randomBFS {
                 h+=1;
             }
         }
-        double R[] = new double[(int) lower_bound];
+        double[] R = new double[(int) lower_bound];
         Arrays.fill(R, 0);
         double accum = 0;
 
