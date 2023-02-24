@@ -7,6 +7,7 @@ import it.bigdatalab.model.*;
 import it.bigdatalab.utils.*;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,7 @@ public class randomBFS {
     protected IntArrayList mSeeds;
 
 
-    public randomBFS(Parameter param) throws IOException {
+    public randomBFS(@NotNull Parameter param) throws IOException {
         this.mParam = param;
         this.mGraph = GraphUtils.loadGraph(param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(),"out");
 

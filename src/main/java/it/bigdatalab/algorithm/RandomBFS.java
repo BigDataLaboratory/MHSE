@@ -44,8 +44,10 @@ public class RandomBFS {
      */
     public RandomBFS(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) {
 
-        if (numSeeds != (nodes != null ? nodes.length : 0))
-            throw new MinHash.SeedsException("Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and length of seeds list is " + nodes.length);
+        if (numSeeds != (nodes != null ? nodes.length : 0)) {
+            assert nodes != null;
+            throw new MinHash.SeedsException("Specified different number of seeds in properties. \"randomBFS.numSeeds\" is " + mNumSeeds + " and length of seeds list is " + nodes.length);
+        }
         this.mNumSeeds = numSeeds;
         this.mThreshold = threshold;
         this.mGraph = g;

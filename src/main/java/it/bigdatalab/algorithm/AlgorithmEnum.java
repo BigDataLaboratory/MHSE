@@ -9,5 +9,6 @@ public enum AlgorithmEnum {
     SEMHSE,
     SEBMHSE,
     SEBMHSEMulti,
-    BMHSEMulti
+    BMHSEMulti,
+    RandomBFS
 }

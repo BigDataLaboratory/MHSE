@@ -14,8 +14,6 @@ public class MinHashFactory {
      *
      * @param type algorithm type
      * @return algorithm to be executed
-     * @throws MinHash.SeedsException
-     * @throws IllegalArgumentException
      */
     public MinHash getAlgorithm(ImmutableGraph g,
                                 AlgorithmEnum type,
@@ -59,8 +57,6 @@ public class MinHashFactory {
      *
      * @param type algorithm type
      * @return algorithm to be executed
-     * @throws MinHash.SeedsException
-     * @throws IllegalArgumentException
      */
     public MinHash getAlgorithm(ImmutableGraph g,
                                 AlgorithmEnum type,

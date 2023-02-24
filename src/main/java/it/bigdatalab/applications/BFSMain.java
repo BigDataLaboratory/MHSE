@@ -1,48 +1,34 @@
 package it.bigdatalab.applications;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
-import it.bigdatalab.algorithm.AlgorithmEnum;
 import it.bigdatalab.algorithm.MinHash;
-import it.bigdatalab.algorithm.MinHashFactory;
-import it.bigdatalab.model.GraphMeasure;
-import it.bigdatalab.model.GraphMeasureOpt;
-import it.bigdatalab.model.Measure;
-import it.bigdatalab.model.Parameter;
-import it.bigdatalab.model.SeedNode;
+import it.bigdatalab.algorithm.RandomBFS;
+import it.bigdatalab.model.*;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.GsonHelper;
 import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
-public class MinHashMain extends Main{
+public class BFSMain extends Main {
 
-    private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.MinHashMain");
+    private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.BFSMain");
+
 
     /**
-     * Run Minhash algorithm, exit from the process if direction of message transmission or seeds list are not
+     * Run BFS algorithm, exit from the process if seeds list is not
      * correctly set, or if input file is not correctly read from local file system.
      */
-    public MinHashMain(Parameter param) {
+    public BFSMain(Parameter param) {
         super(param);
     }
 
@@ -53,44 +39,33 @@ public class MinHashMain extends Main{
                 "| \\  / | |----|  |____  |--- \n" +
                 "|  \\/  | |    |  _____| |____\n\n\n");
 
-        String inputFilePath = PropertiesManager.getPropertyIfNotEmpty("minhash.inputFilePath");
-        String outputFolderPath = PropertiesManager.getPropertyIfNotEmpty("minhash.outputFolderPath");
-        String algorithmName = PropertiesManager.getPropertyIfNotEmpty("minhash.algorithmName");
+        String inputFilePath = PropertiesManager.getPropertyIfNotEmpty("randomBFS.inputFilePath");
+        String outputFolderPath = PropertiesManager.getPropertyIfNotEmpty("randomBFS.outputFolderPath");
+        String algorithmName = PropertiesManager.getPropertyIfNotEmpty("randomBFS.algorithmName");
 
-        int numTests = Integer.parseInt(PropertiesManager.getProperty("minhash.numTests", Constants.NUM_RUN_DEFAULT));
+        int numTests = Integer.parseInt(PropertiesManager.getProperty("randomBFS.numTests", Constants.NUM_RUN_DEFAULT));
 
-        int numSeeds = Integer.parseInt(PropertiesManager.getProperty("minhash.numSeeds"));
-        boolean isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.isSeedsRandom"));
+        int numSeeds = Integer.parseInt(PropertiesManager.getProperty("randomBFS.numSeeds"));
+        boolean isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("randomBFS.isSeedsRandom"));
 
         // read external json file for seeds' lists (mandatory) and nodes' lists (optional)
         String inputFilePathSeedNode = null;
         int[] range = null;
         if (!isSeedsRandom) {
-            if (numSeeds == 0) {
-                //used to compute ground truth
-                String nodeIDRange = PropertiesManager.getPropertyIfNotEmpty("minhash.nodeIDRange");
-                range = rangeNodes(nodeIDRange);
-                numSeeds = range[1] - range[0] + 1;
-                logger.info("Set range for node ids = {}, numSeeds automatically reset to {}", range, numSeeds);
-            } else {
-                //Load minHash node IDs from properties file
-                inputFilePathSeedNode = PropertiesManager.getPropertyIfNotEmpty("minhash.inputFilePathSeedNode");
-            }
+            //Load random bfs node IDs from properties file
+            inputFilePathSeedNode = PropertiesManager.getPropertyIfNotEmpty("randomBFS.inputFilePathSeedNode");
         } else {
             if (numSeeds == 0)
                 throw new IllegalArgumentException("# seeds must be set at value > 0 if seeds are random, please review your data");
         }
 
-        boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.isolatedVertices"));
-        String direction = PropertiesManager.getPropertyIfNotEmpty("minhash.direction");
-        boolean transpose = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.transpose"));
-        boolean reorder = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.reorder"));
+        boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("randomBFS.isolatedVertices"));
+        boolean transpose = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("randomBFS.transpose"));
 
-        double threshold = Double.parseDouble(PropertiesManager.getPropertyIfNotEmpty("minhash.threshold"));
-        boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.inMemory", Constants.FALSE));
-        boolean computeCentrality = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.computeCentrality", Constants.FALSE));
-        int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
-        boolean persistCollisionTable = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.persistCollisionTable", Constants.TRUE));
+        boolean computeCentrality = Boolean.parseBoolean(PropertiesManager.getProperty("randomBFS.computeCentrality", Constants.FALSE));
+        double threshold = Double.parseDouble(PropertiesManager.getPropertyIfNotEmpty("randomBFS.threshold"));
+        boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("randomBFS.inMemory", Constants.FALSE));
+        int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("randomBFS.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
 
 
         Parameter param = new Parameter.Builder()
@@ -102,15 +77,12 @@ public class MinHashMain extends Main{
                 .setTranspose(transpose)
                 .setInMemory(inMemory)
                 .setSeedsRandom(isSeedsRandom)
+                .setComputeCentrality(computeCentrality)
                 .setInputFilePathSeedNode(inputFilePathSeedNode)
                 .setIsolatedVertices(isolatedVertices)
                 .setRange(range)
                 .setThreshold(threshold)
-                .setDirection(direction)
-                .setComputeCentrality(computeCentrality)
-                .setReordering(reorder)
                 .setNumThreads(suggestedNumberOfThreads)
-                .setPersistCollisionTable(persistCollisionTable)
                 .build();
 
         logger.info("\n\n********************** Parameters **********************\n\n" +
@@ -121,11 +93,8 @@ public class MinHashMain extends Main{
                         "keep isolated nodes? {}\n" +
                         "results will written in: {}\n" +
                         "number of seeds {}, automatic range? {}\n" +
-                        "direction is: {}\n" +
                         "threshold for eff. diameter is: {}\n" +
-                        "graph will be reordered by outdegree: {}\n" +
                         "algorithm must compute centrality: {}\n" +
-                        "persist collision table: {}\n" +
                         "number of threads: {}\n" +
                         "\n********************************************************\n\n",
                 param.getNumTests(),
@@ -135,14 +104,11 @@ public class MinHashMain extends Main{
                 param.keepIsolatedVertices(),
                 param.getOutputFolderPath(),
                 param.getNumSeeds(), param.isAutomaticRange(),
-                param.getDirection(),
                 param.getThreshold(),
-                param.getReordering(),
                 param.computeCentrality(),
-                param.persistCollisionTable(),
                 param.getNumThreads());
 
-        MinHashMain main = new MinHashMain(param);
+        BFSMain main = new BFSMain(param);
         try {
             List<Measure> measures = main.run();
             String inputGraphName = new File(param.getInputFilePathGraph()).getName();
@@ -171,17 +137,15 @@ public class MinHashMain extends Main{
     }
 
     /**
-     * Run Minhash algorithm (specified in the algorithmName parameter) using properties read from properties file such as:
+     * Run RandomBFS algorithm using properties read from properties file such as:
      * - inputFilePath  the path to the input file representing a graph in a WebGraph format. If the input graph has an edgelist format
      * - outputFolderPath the path to the output folder path that will contain results of the execution of the algorithm
-     * - algorithmName represent the name of the MinHash algorithm to be executed (see AlghorithmEnum for available algorithms)
      * - mIsSeedsRandom if it is False, seeds' list and nodes' list must be read from external json file for testing purpose
      * whose paths are set in mInputFilePathSeed and mInputFilePathNodes
      * - numTests number of tests to be executed
      * If algorithmName is empty or not available in AlgorithmEnum, exit from the process
      */
     public List<Measure> run() throws IOException, MinHash.SeedsException {
-
         Measure measure;
         int numTest = mParam.getNumTests();
 
@@ -212,18 +176,14 @@ public class MinHashMain extends Main{
                 mParam.getDirection(),
                 mParam.getReordering());
 
-        MinHashFactory mhf = new MinHashFactory();
-
         for (int i = 0; i < numTest; i++) {
+            RandomBFS randomBFS = mParam.isSeedsRandom() ?
+                    new RandomBFS(g, mParam.getNumSeeds(), mParam.getThreshold(), mParam.getNumThreads(), mParam.computeCentrality()) :
+                    new RandomBFS(g, mParam.getNumSeeds(), mParam.getThreshold(), seedsNodes.get(i).getNodes(), mParam.getNumThreads(), mParam.computeCentrality());
 
-            MinHash minHash = mParam.isSeedsRandom() ?
-                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), mParam.getNumThreads(), mParam.computeCentrality()) :
-                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), seedsNodes.get(i).getSeeds(), seedsNodes.get(i).getNodes(), mParam.getNumThreads(), mParam.computeCentrality());
-
-            measure = minHash.runAlgorithm();
+            measure = randomBFS.runAlgorithm();
             measure.setAlgorithmName(mParam.getAlgorithmName());
             measure.setRun(i + 1);
-            measure.setDirection(mParam.getDirection());
 
             logger.info("\n\n********************* Stats ****************************\n\n" +
                             "Lower Bound Diameter\t{}\n" +
@@ -238,17 +198,7 @@ public class MinHashMain extends Main{
                     measure.getAvgDistance(),
                     measure.getEffectiveDiameter());
 
-            if (!mParam.persistCollisionTable()) {
-                if (measure instanceof GraphMeasureOpt) {
-                    ((GraphMeasureOpt) measure).setCollisionsMatrix(null);
-                } else if (measure instanceof GraphMeasure) {
-                    ((GraphMeasure) measure).setCollisionsTable(null);
-                }
-                measure.setMinHashNodeIDs(null);
-            }
-
             measures.add(measure);
-            //writeOnFile(measure, outputFilePath);
 
             logger.info("\n\n********************************************************\n\n" +
                             "Test n.{} executed correctly\n\n" +
@@ -259,4 +209,5 @@ public class MinHashMain extends Main{
         logger.info("Application successfully completed. Time elapsed (in milliseconds) {}", totalTime);
         return measures;
     }
+
 }
