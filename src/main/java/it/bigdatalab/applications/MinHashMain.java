@@ -248,7 +248,6 @@ public class MinHashMain extends Main{
             }
 
             measures.add(measure);
-            //writeOnFile(measure, outputFilePath);
 
             logger.info("\n\n********************************************************\n\n" +
                             "Test n.{} executed correctly\n\n" +
