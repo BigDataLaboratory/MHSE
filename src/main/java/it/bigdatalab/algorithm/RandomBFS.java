@@ -183,8 +183,8 @@ public class RandomBFS {
         // lower bound is the max size of inner array
         for (int hop = 0; hop < lowerBound + 1; hop++) {
             sumCollisions = 0;
-            for (int seed = 0; seed < collisionsMatrix.length; seed++) {
-                sumCollisions += collisionsMatrix[seed][hop];
+            for (int[] matrix : collisionsMatrix) {
+                sumCollisions += matrix[hop];
             }
             couples = ((double) sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
             hoptable[hop] = couples;
@@ -213,7 +213,7 @@ public class RandomBFS {
             // the number of collisions in the actual hop
             // is different than the previous hop
             int[] hopTable = new int[1];
-            hopTable[0] = 1;
+            hopTable[0] = 0;
 
             // Set false as signature of all graph nodes
             // used to computing the algorithm
@@ -223,6 +223,8 @@ public class RandomBFS {
 
             int[] ball = new int[1];
             ball[0] = randomNode;
+
+            logger.debug("First node is {}", ball[0]);
 
             // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
             // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
@@ -245,28 +247,34 @@ public class RandomBFS {
                 int[] cBall = new int[ball.length - 1];
                 System.arraycopy(ball, 1, cBall, 0, ball.length-1);
                 ball = cBall;
+                logger.debug("Ball is {}", ball);
 
                 final int d = g.outdegree(node);
                 final int[] successors = g.successorArray(node);
 
                 int bitNeigh;
-                for (int l = 0; l<d; l++) { // for each neighbour of the node
+                for (int l = 0; l < d; l++) { // for each neighbour of the node
                     final int neighbour = successors[l];
+                    logger.debug("Neigh is {}", neighbour);
 
                     int quotientNeigh = neighbour >>> Constants.MASK;
                     int remainderPositionNeigh = (neighbour << Constants.REMAINDER) >>> Constants.REMAINDER;
 
                     bitNeigh = (((1 << remainderPositionNeigh) & mutable[quotientNeigh]) >>> remainderPositionNeigh);
+                    logger.debug("bit neigh is {}", bitNeigh);
 
                     if(bitNeigh == 0) { // neighbour is not yet been visited
                         nodesAtDistanceHNext += 1;
 
                         // add the neighbour node to the ball
+                        logger.debug("ball lenght is {}", ball.length);
                         int[] copy = new int[ball.length + 1];
+                        logger.debug("copy lenght is {}", copy.length);
                         System.arraycopy(ball, 0, copy, 0, ball.length);
+                        logger.debug("copy is now {}", ball);
                         ball = copy;
-                        ball[ball.length - 1] = successors[l];
-
+                        ball[ball.length - 1] = neighbour;
+                        logger.debug("ball is now {}", ball);
                         mutable[quotientNeigh] |= (Constants.BIT) << remainderPositionNeigh;
                     }
                 }
@@ -279,6 +287,8 @@ public class RandomBFS {
                     System.arraycopy(hopTable, 0, cHopTable, 0, hopTable.length);
                     hopTable = cHopTable;
                     hopTable[h] = nodesAtDistanceHNext;
+                    logger.debug("hop table is {}", hopTable);
+
                 }
             }
             return hopTable;

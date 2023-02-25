@@ -27,7 +27,16 @@ public class BFSTest {
 
     private static @NotNull Stream<Arguments> cycleProvider() {
         return Stream.of(
-                Arguments.of("in", new int[]{-372222666}, new int[]{1}, new Measure(1, 31, 15.5, 27.8, 1024.0, 921.6))
+                Arguments.of("in", new int[]{-372222666}, new int[]{1}, new Measure(1, 31, 15.5, 27.8, 1024.0, 921.6)),
+                Arguments.of("in", new int[]{955522904, 1741204198}, new int[]{24, 28}, new Measure(2, 31, 15.5, 27.8, 1024.0, 921.6)),
+                Arguments.of("in", new int[]{453057370, -456587907, 607574255, -2104320307}, new int[]{23, 4, 30, 28}, new Measure(4, 31, 15.5, 27.8, 1024.0, 921.6)),
+                Arguments.of("in", new int[]{1970239154, 1757455415, 100373564, 363336826, 1406431479, 689901333, 1516449588, 1505011033}, new int[]{3, 15, 20, 29, 15, 19, 8, 24}, new Measure(8, 31, 15.5, 27.8, 1024.0, 921.6)),
+                Arguments.of("in", new int[]{-664801267, 1258820520, -947422122, 1283387230, -1456301379, 899107882, 1353530495, 900655226, 535242463, 2115096797, 748669758, 725549636, -1886462093, -1116647959, -1743103279, 1134030635}, new int[]{31, 3, 2, 16, 31, 28, 12, 21, 6, 11, 0, 24, 18, 5, 22, 20}, new Measure(16, 31, 15.5, 27.8, 1024.0, 921.6)),
+                Arguments.of("out", new int[]{-372222666}, new int[]{1}, new Measure(1, 31, 15.5, 27.8, 1024.0, 921.6)),
+                Arguments.of("out", new int[]{955522904, 1741204198}, new int[]{24, 28}, new Measure(2, 31, 15.5, 27.8, 1024.0, 921.6)),
+                Arguments.of("out", new int[]{453057370, -456587907, 607574255, -2104320307}, new int[]{23, 4, 30, 28}, new Measure(4, 31, 15.5, 27.8, 1024.0, 921.6)),
+                Arguments.of("out", new int[]{1970239154, 1757455415, 100373564, 363336826, 1406431479, 689901333, 1516449588, 1505011033}, new int[]{3, 15, 20, 29, 15, 19, 8, 24}, new Measure(8, 31, 15.5, 27.8, 1024.0, 921.6)),
+                Arguments.of("out", new int[]{-664801267, 1258820520, -947422122, 1283387230, -1456301379, 899107882, 1353530495, 900655226, 535242463, 2115096797, 748669758, 725549636, -1886462093, -1116647959, -1743103279, 1134030635}, new int[]{31, 3, 2, 16, 31, 28, 12, 21, 6, 11, 0, 24, 18, 5, 22, 20}, new Measure(16, 31, 15.5, 27.8, 1024.0, 921.6))
         );
     }
 
@@ -125,7 +134,18 @@ public class BFSTest {
 
     private static @NotNull Stream<Arguments> outStarProvider() {
         return Stream.of(
-                Arguments.of("in", new int[]{-148195958}, new int[]{20}, new Measure(1, 1, 0.5, 0.7999999999999999, 66.0, 59.4))
+                Arguments.of("in", new int[]{-148195958}, new int[]{20}, new Measure(1, 1, 0.5, 0.7999999999999999, 66.0, 59.4)),
+                Arguments.of("in", new int[]{-231125982}, new int[]{0}, new Measure(1, 0, 0.0, 0.0, 33.0, 29.7)),
+                Arguments.of("in", new int[]{1351495042, 600767559}, new int[]{31, 16}, new Measure(2, 1, 0.5, 0.7999999999999999, 66.0, 59.4)),
+                Arguments.of("in", new int[]{1121441672, -355110414, -1081200504, 1212731417}, new int[]{20, 26, 7, 31}, new Measure(4, 1, 0.5, 0.7999999999999999, 66.0, 59.4)),
+                Arguments.of("in", new int[]{571898839, -1432145860, -1133378059, 621916878, -1138635951, -1041970128, -1061396053, 332705999}, new int[]{14, 32, 27, 16, 8, 4, 15, 13}, new Measure(8, 1, 0.5, 0.7999999999999999, 66.0, 59.4)),
+                Arguments.of("in", new int[]{-1661843915, -328937796, 571898839, -1999389973, 11310977, -1781139022, -1001108646, -2046205192, -444995994, -304731378, -724798370, 1784683099, 813722321, -1061396053, 621916878, -1041970128}, new int[]{12, 32, 14, 29, 13, 21, 25, 0, 1, 22, 18, 31, 27, 15, 16, 4}, new Measure(16, 1, 0.4838709677419355, 0.7933333333333334, 63.9375, 57.54375)),
+                Arguments.of("out", new int[]{1828442608}, new int[]{20}, new Measure(1, 1, 0.0, 0.0, 33.0, 29.7)),
+                Arguments.of("out", new int[]{-231125982}, new int[]{0}, new Measure(1, 1, 0.9696969696969697, 0.896875, 1089.0, 980.1)),
+                Arguments.of("out", new int[]{1351495042, 600767559}, new int[]{31, 16}, new Measure(2, 1, 0.0, 0.0, 33.0, 29.7)),
+                Arguments.of("out", new int[]{1121441672, -355110414, -1081200504, 1212731417}, new int[]{20, 26, 7, 31}, new Measure(4, 1, 0.0, 0.0, 33.0, 29.7)),
+                Arguments.of("out", new int[]{571898839, -1432145860, -1133378059, 621916878, -1138635951, -1041970128, -1061396053, 332705999}, new int[]{14, 32, 27, 16, 8, 4, 15, 13}, new Measure(8, 1, 0.0, 0.0, 33.0, 29.7)),
+                Arguments.of("out", new int[]{-1661843915, -328937796, 571898839, -1999389973, 11310977, -1781139022, -1001108646, -2046205192, -444995994, -304731378, -724798370, 1784683099, 813722321, -1061396053, 621916878, -1041970128}, new int[]{12, 32, 14, 29, 13, 21, 25, 0, 1, 22, 18, 31, 27, 15, 16, 4}, new Measure(16, 1, 0.6666666666666666, 0.8500000000000001, 99.0, 89.10000000000001))
         );
     }
 
@@ -141,7 +161,7 @@ public class BFSTest {
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("cycleProvider")
-    void testAlgorithm_DiCycle(int @NotNull [] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    void testAlgorithm_DiCycle(String direction, int @NotNull [] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32-cycle.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -149,6 +169,7 @@ public class BFSTest {
                 .setIsolatedVertices(true)
                 .setInMemory(true)
                 .setNumSeeds(seeds.length)
+                .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
                 .setThreshold(0.9)
