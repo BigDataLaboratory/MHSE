@@ -5,6 +5,7 @@ import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ public class RandomBFS {
 
     protected ImmutableGraph mGraph;
     protected int[] mMinHashNodeIDs;
-    private boolean doCentrality;
+    private boolean mDoCentrality;
 
     /**
      * Number of max threads to use for the computation
@@ -54,7 +55,7 @@ public class RandomBFS {
         this.mMinHashNodeIDs = nodes;
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         this.mSeedTime = new double[mNumSeeds];
-        this.doCentrality = centrality;
+        this.mDoCentrality = centrality;
     }
 
     /**
@@ -67,7 +68,7 @@ public class RandomBFS {
         this.mGraph = g;
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         mSeedTime = new double[mNumSeeds];
-        doCentrality = centrality;
+        mDoCentrality = centrality;
     }
 
     /**
@@ -153,7 +154,7 @@ public class RandomBFS {
      * the maximum value of the other hash functions of the same hop
      */
     // todo remove it from here and move it in a superclass
-    public void normalizeCollisionsTable(int[][] collisionsMatrix, int lowerBound) {
+    public void normalizeCollisionsTable(int[] @NotNull [] collisionsMatrix, int lowerBound) {
 
         for (int i = 0; i < collisionsMatrix.length; i++) { // check last hop of each seed
             // if last hop is not the lower bound
