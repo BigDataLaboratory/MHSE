@@ -137,6 +137,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
 
         hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
+
         logger.debug("Hop table array is {}", hopTableArray);
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
@@ -205,8 +206,6 @@ public class MultithreadBMinHash extends BMinHashOpt {
                     int remainderPositionRandomNode = (randomNode << Constants.REMAINDER) >>> Constants.REMAINDER;
                     // quotient is randomNode >>> MASK
                     mutable[randomNode >>> Constants.MASK] |= (Constants.BIT) << remainderPositionRandomNode;
-                    signatureIsChanged = true;
-
                 } else { // next hops
                     signatureIsChanged = false;
 

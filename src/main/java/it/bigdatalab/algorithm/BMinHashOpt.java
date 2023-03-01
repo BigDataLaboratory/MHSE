@@ -55,8 +55,8 @@ public abstract class BMinHashOpt extends MinHash {
         // lower bound is the max size of inner array
         for (int hop = 0; hop < lowerBound + 1; hop++) {
             sumCollisions = 0;
-            for (int seed = 0; seed < collisionsMatrix.length; seed++) {
-                sumCollisions += collisionsMatrix[seed][hop];
+            for (int[] matrix : collisionsMatrix) {
+                sumCollisions += matrix[hop];
             }
             couples = ((double) sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
             hoptable[hop] = couples;
