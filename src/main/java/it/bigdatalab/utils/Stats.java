@@ -45,7 +45,6 @@ public class Stats {
     public static double averageDistance(double[] h) {
         if (h.length == 0) return 0;
         double[] distance = distanceFunction(h);
-        logger.debug("distance {}", distance);
         double m = 0.0D;
         int lowerBoundDiameter = distance.length - 1;
 
