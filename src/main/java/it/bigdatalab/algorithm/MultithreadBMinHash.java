@@ -44,7 +44,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
     public MultithreadBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
-        mSeedTime = new double[mNumSeeds];
+        this.mSeedTime = new double[mNumSeeds];
         doCentrality = centrality;
     }
 
@@ -54,7 +54,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
     public MultithreadBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int threads, boolean centrality) {
         super(g, numSeeds, threshold);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
-        mSeedTime = new double[mNumSeeds];
+        this.mSeedTime = new double[mNumSeeds];
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
         doCentrality = centrality;
     }

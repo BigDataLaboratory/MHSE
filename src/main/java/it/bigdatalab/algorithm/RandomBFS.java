@@ -1,5 +1,6 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
@@ -60,13 +61,13 @@ public class RandomBFS {
      * Creates a new RandomBFS instance with default values
      */
     public RandomBFS(final ImmutableGraph g, int numSeeds, double threshold, int threads, boolean centrality) {
-
         this.mNumSeeds = numSeeds;
         this.mThreshold = threshold;
         this.mGraph = g;
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
-        mSeedTime = new double[mNumSeeds];
-        mDoCentrality = centrality;
+        this.mSeedTime = new double[mNumSeeds];
+        this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
+        this.mDoCentrality = centrality;
     }
 
     /**

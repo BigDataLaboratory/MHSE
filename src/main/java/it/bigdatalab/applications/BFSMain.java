@@ -47,6 +47,7 @@ public class BFSMain extends Main {
 
         int numSeeds = Integer.parseInt(PropertiesManager.getProperty("randomBFS.numSeeds"));
         boolean isSeedsRandom = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("randomBFS.isSeedsRandom"));
+        String direction = Constants.OUT_DIRECTION;
 
         // read external json file for seeds' lists (mandatory) and nodes' lists (optional)
         String inputFilePathSeedNode = null;
@@ -67,9 +68,9 @@ public class BFSMain extends Main {
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("randomBFS.inMemory", Constants.FALSE));
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("randomBFS.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
 
-
         Parameter param = new Parameter.Builder()
                 .setAlgorithmName(algorithmName)
+                .setDirection(direction)
                 .setInputFilePathGraph(inputFilePath)
                 .setOutputFolderPath(outputFolderPath)
                 .setNumTests(numTests)

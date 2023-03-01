@@ -54,13 +54,13 @@ public class GraphUtils {
             if (direction.equals(Constants.IN_DIRECTION)) {
                 logger.info("Transposing graph cause direction is {}", direction);
                 graph = Transform.transpose(graph);
-                logger.debug("Transposing graph ended");
+                logger.info("Transposing graph ended");
             }
         } else {
             if (direction.equals(Constants.OUT_DIRECTION)) {
                 logger.info("Transposing graph cause direction is {}", direction);
                 graph = Transform.transpose(graph);
-                logger.debug("Transposing graph ended");
+                logger.info("Transposing graph ended");
             }
         }
 
@@ -93,13 +93,13 @@ public class GraphUtils {
             if (direction.equals(Constants.IN_DIRECTION)) {
                 logger.info("Transposing graph cause direction is {}", direction);
                 graph = Transform.transpose(graph);
-                logger.debug("Transposing graph ended");
+                logger.info("Transposing graph ended");
             }
         } else {
             if (direction.equals(Constants.OUT_DIRECTION)) {
                 logger.info("Transposing graph cause direction is {}", direction);
                 graph = Transform.transpose(graph);
-                logger.debug("Transposing graph ended");
+                logger.info("Transposing graph ended");
             }
         }
 
