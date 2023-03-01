@@ -192,11 +192,11 @@ public class randomBFS {
                 h+=1;
             }
         }
-        double[] R = new double[(int) lower_bound];
+        double[] R = new double[(int) lower_bound+1];
         Arrays.fill(R, 0);
         double accum = 0;
 
-        for (h = 0; h< lower_bound;h++){
+        for (h = 0; h<=lower_bound;h++){
             accum += dd[h];
             if (h == 0) {
                 R[h] = n*dd[h]/nSeed;
