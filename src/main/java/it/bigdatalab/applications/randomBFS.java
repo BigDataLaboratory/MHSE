@@ -163,6 +163,7 @@ public class randomBFS {
             Queue<Integer> ball = new LinkedList<>();
             ball.add(seed);
             dist[seed] = 0;
+            dd[0]+=1;
             h = 0;
             while(ball.size() != 0){
                 hopStartTime =  System.currentTimeMillis();
