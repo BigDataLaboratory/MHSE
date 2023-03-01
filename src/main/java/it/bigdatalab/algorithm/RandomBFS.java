@@ -5,7 +5,6 @@ import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,6 @@ public class RandomBFS {
 
     private final int mNumberOfThreads;
     private final double[] mSeedTime;
-    private long startTime;
 
     protected int mNumSeeds;
     protected double mThreshold;
@@ -77,7 +75,7 @@ public class RandomBFS {
      * @return Computed metrics of the algorithm
      */
     public Measure runAlgorithm() {
-        startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         long totalTime;
 
         int[][] collisionsMatrix = new int[mNumSeeds][];
@@ -104,11 +102,9 @@ public class RandomBFS {
                         collisionsMatrix[i] = hopCollisions;
                         int lastHop = hopCollisions.length - 1;
                         lastHops[i] = lastHop;
-                        logger.debug("Last hops is {}", lastHops);
                         if (lastHop > lowerboundDiameter) {
                             lowerboundDiameter = lastHop;
                         }
-                        logger.debug("Lower bound is {}", lowerboundDiameter);
                     }catch (ExecutionException e) {
                         logger.error("Failed to get result", e);
                     } catch (InterruptedException e) {
@@ -128,10 +124,8 @@ public class RandomBFS {
 
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
-        logger.debug("collision is {}", collisionsMatrix);
 
         hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
-        logger.debug("Hop table array is {}", hopTableArray);
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
@@ -141,6 +135,7 @@ public class RandomBFS {
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsTime(mSeedTime);
         graphMeasure.setTime(totalTime);
+        graphMeasure.setLastHops(lastHops);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
         graphMeasure.setAvgDistance(Stats.averageDistance(hopTableArray));
         graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTableArray, mThreshold));
@@ -165,11 +160,9 @@ public class RandomBFS {
                 if (matrix.length > hop)
                     accumulator += matrix[hop];
             }
-            logger.debug("Hop table at hop {} is {}", hop, accumulator);
             couples = ((double) accumulator * mGraph.numNodes()) / this.mNumSeeds;
             hoptable[hop] = couples;
         }
-        logger.debug("Hoptable final is {}", hoptable);
         return hoptable;
     }
 
@@ -186,8 +179,6 @@ public class RandomBFS {
         @Override
         public int[] call() throws Exception {
             long startSeedTime = System.currentTimeMillis();
-            long lastLogTime = startSeedTime;
-            long logTime;
 
             // initialization of the collision counter for the hop
             // we use a dict because we want to iterate over the nodes until
@@ -204,8 +195,6 @@ public class RandomBFS {
 
             int[] ball = new int[1];
             ball[0] = randomNode;
-
-            logger.debug("First node is {}", ball[0]);
 
             // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
             // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
@@ -228,7 +217,6 @@ public class RandomBFS {
                 int[] cBall = new int[ball.length - 1];
                 System.arraycopy(ball, 1, cBall, 0, ball.length-1);
                 ball = cBall;
-                logger.debug("Ball is {}", ball);
 
                 final int d = g.outdegree(node);
                 final int[] successors = g.successorArray(node);
@@ -236,26 +224,20 @@ public class RandomBFS {
                 int bitNeigh;
                 for (int l = 0; l < d; l++) { // for each neighbour of the node
                     final int neighbour = successors[l];
-                    logger.debug("Neigh is {}", neighbour);
 
                     int quotientNeigh = neighbour >>> Constants.MASK;
                     int remainderPositionNeigh = (neighbour << Constants.REMAINDER) >>> Constants.REMAINDER;
 
                     bitNeigh = (((1 << remainderPositionNeigh) & mutable[quotientNeigh]) >>> remainderPositionNeigh);
-                    logger.debug("bit neigh is {}", bitNeigh);
 
                     if(bitNeigh == 0) { // neighbour is not yet been visited
                         nodesAtDistanceHNext += 1;
 
                         // add the neighbour node to the ball
-                        logger.debug("ball lenght is {}", ball.length);
                         int[] copy = new int[ball.length + 1];
-                        logger.debug("copy lenght is {}", copy.length);
                         System.arraycopy(ball, 0, copy, 0, ball.length);
-                        logger.debug("copy is now {}", ball);
                         ball = copy;
                         ball[ball.length - 1] = neighbour;
-                        logger.debug("ball is now {}", ball);
                         mutable[quotientNeigh] |= (Constants.BIT) << remainderPositionNeigh;
                     }
                 }
@@ -269,9 +251,11 @@ public class RandomBFS {
                     hopTable = cHopTable;
                     hopTable[h] = nodesAtDistanceHNext;
                     nodesAtDistanceHNext = 0;
-                    logger.debug("hop table is {}", hopTable);
                 }
             }
+
+            RandomBFS.this.mSeedTime[s] = System.currentTimeMillis() - startSeedTime;
+
             return hopTable;
         }
 
