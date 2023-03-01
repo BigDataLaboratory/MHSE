@@ -137,6 +137,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
 
         hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
+        logger.debug("Hop table array is {}", hopTableArray);
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());

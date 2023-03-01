@@ -104,9 +104,11 @@ public class RandomBFS {
                         collisionsMatrix[i] = hopCollisions;
                         int lastHop = hopCollisions.length - 1;
                         lastHops[i] = lastHop;
+                        logger.debug("Last hops is {}", lastHops);
                         if (lastHop > lowerboundDiameter) {
                             lowerboundDiameter = lastHop;
                         }
+                        logger.debug("Lower bound is {}", lowerboundDiameter);
                     }catch (ExecutionException e) {
                         logger.error("Failed to get result", e);
                     } catch (InterruptedException e) {
@@ -126,9 +128,10 @@ public class RandomBFS {
 
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
+        logger.debug("collision is {}", collisionsMatrix);
 
-        normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
         hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
+        logger.debug("Hop table array is {}", hopTableArray);
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
@@ -144,52 +147,29 @@ public class RandomBFS {
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
 
-        return new GraphMeasureOpt();
+        return graphMeasure;
     }
 
     /***
-     * Normalization of the collisionsTable.
-     * For each hop check if one of the hash functions reached the end of computation.
-     * If so, we have to substitute the 0 value in the table with
-     * the maximum value of the other hash functions of the same hop
-     */
-    // todo remove it from here and move it in a superclass
-    public void normalizeCollisionsTable(int[] @NotNull [] collisionsMatrix, int lowerBound) {
-
-        for (int i = 0; i < collisionsMatrix.length; i++) { // check last hop of each seed
-            // if last hop is not the lower bound
-            // replace the 0 values from last hop + 1 until lower bound
-            // with the value of the previous hop for the same seed
-            if (collisionsMatrix[i].length - 1 < lowerBound) {
-                int oldLen = collisionsMatrix[i].length;
-                int[] copy = new int[lowerBound + 1];
-                System.arraycopy(collisionsMatrix[i], 0, copy, 0, collisionsMatrix[i].length);
-                collisionsMatrix[i] = copy;
-                for (int j = oldLen; j <= lowerBound; j++) {
-                    collisionsMatrix[i][j] = collisionsMatrix[i][j - 1];
-                }
-            }
-        }
-    }
-
-    /***
-     * Compute the hop table for reachable pairs within h hops [(CountAllCum[h]*n) / s]
+     * Compute the hop table for reachable pairs within h hops
      * @return hop table
      */
     // todo remove it from here and move it in a superclass
     public double[] hopTable(int[][] collisionsMatrix, int lowerBound) {
-        long sumCollisions;
+        long accumulator = 0;
         double couples;
+
         double[] hoptable = new double[lowerBound + 1];
-        // lower bound is the max size of inner array
-        for (int hop = 0; hop < lowerBound + 1; hop++) {
-            sumCollisions = 0;
+        for(int hop = 0; hop < lowerBound + 1; hop ++) {
             for (int[] matrix : collisionsMatrix) {
-                sumCollisions += matrix[hop];
+                if (matrix.length > hop)
+                    accumulator += matrix[hop];
             }
-            couples = ((double) sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
+            logger.debug("Hop table at hop {} is {}", hop, accumulator);
+            couples = ((double) accumulator * mGraph.numNodes()) / this.mNumSeeds;
             hoptable[hop] = couples;
         }
+        logger.debug("Hoptable final is {}", hoptable);
         return hoptable;
     }
 
@@ -214,7 +194,7 @@ public class RandomBFS {
             // the number of collisions in the actual hop
             // is different than the previous hop
             int[] hopTable = new int[1];
-            hopTable[0] = 0;
+            hopTable[0] = 1;
 
             // Set false as signature of all graph nodes
             // used to computing the algorithm
@@ -281,15 +261,15 @@ public class RandomBFS {
                 }
 
                 level -= 1;
-                if(level == 0) {
+                if(level == 0 && ball.length != 0) {
                     h += 1;
                     level = ball.length;
                     int[] cHopTable = new int[h+1];
                     System.arraycopy(hopTable, 0, cHopTable, 0, hopTable.length);
                     hopTable = cHopTable;
                     hopTable[h] = nodesAtDistanceHNext;
+                    nodesAtDistanceHNext = 0;
                     logger.debug("hop table is {}", hopTable);
-
                 }
             }
             return hopTable;

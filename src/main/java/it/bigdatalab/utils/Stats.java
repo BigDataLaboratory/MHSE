@@ -3,8 +3,12 @@ package it.bigdatalab.utils;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Stats {
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.utils.Stats");
+
 
     /**
      * Compute the average distance using the hop table
@@ -41,6 +45,7 @@ public class Stats {
     public static double averageDistance(double[] h) {
         if (h.length == 0) return 0;
         double[] distance = distanceFunction(h);
+        logger.debug("distance {}", distance);
         double m = 0.0D;
         int lowerBoundDiameter = distance.length - 1;
 
@@ -55,8 +60,7 @@ public class Stats {
      * percentile distance between nodes, hat is the minimum distance
      * that allows to connect the threshold-th percent of all reachable pairs
      */
-    @NotNull
-    public static double effectiveDiameter(double[] h, double threshold) {
+    public static double effectiveDiameter(double @NotNull [] h, double threshold) {
         if (h.length == 0) return 0;
 
         double totalCouplesReachable = totalCouplesReachable(h);
@@ -122,8 +126,7 @@ public class Stats {
         return (y - y0) / (y1 - y0);
     }
 
-    @NotNull
-    public static double[] distanceFunction(double[] h) {
+    public static double @NotNull [] distanceFunction(double[] h) {
         double[] hopTable = h.clone();
         for (int i = hopTable.length; i-- != 1; hopTable[i] -= hopTable[i - 1]) {
         }

@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 public class randomBFS {
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.RandomBFS");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.randomBFS");
     private final Parameter mParam;
     private final ImmutableGraph mGraph;
     private final int nSeed;
@@ -164,6 +164,7 @@ public class randomBFS {
             ball.add(seed);
             dist[seed] = 0;
             h = 0;
+            dd[0] += 1;
             while(ball.size() != 0){
                 hopStartTime =  System.currentTimeMillis();
                 int w = ball.remove();
@@ -179,6 +180,8 @@ public class randomBFS {
                         ball.add(successors[l]);
                     }
                 }
+                logger.debug("hoptable is {}", dd);
+
                 logTime = System.currentTimeMillis();
                 if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
                     logger.info("# nodes analyzed {} / {} for hop {} [elapsed {}, node/s {}]",
@@ -191,11 +194,11 @@ public class randomBFS {
                 h+=1;
             }
         }
-        double[] R = new double[(int) lower_bound];
+        double[] R = new double[(int) lower_bound+1];
         Arrays.fill(R, 0);
         double accum = 0;
 
-        for (h = 0; h< lower_bound;h++){
+        for (h = 0; h< lower_bound+1;h++){
             accum += dd[h];
             if (h == 0) {
                 R[h] = n*dd[h]/nSeed;
@@ -203,6 +206,7 @@ public class randomBFS {
                 R[h] = n*accum / nSeed;
             }
         }
+        logger.debug("R is {}", R);
 
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
