@@ -9,8 +9,7 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class RandomBFS {
@@ -190,63 +189,39 @@ public class RandomBFS {
 
             // Set false as signature of all graph nodes
             // used to computing the algorithm
-            int[] mutable = new int[lengthBitsArray(g.numNodes())];
+            int[] distances = new int[g.numNodes()];
+            Arrays.fill(distances, -1);
 
             int randomNode = mMinHashNodeIDs[s];
-
-            int[] ball = new int[1];
-            ball[0] = randomNode;
-
-            // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
-            // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
-            // This is equal to logical and operation.
-            // remaremainderPositionRandomNode contains the bit index of the node
-            int remainderPositionRandomNode = (randomNode << Constants.REMAINDER) >>> Constants.REMAINDER;
-            // quotient is randomNode >>> MASK and give us the position of the node in the array
-            // i.e if the actual node is 16 and we use an array of int (32 bit lenght for each cell) then
-            // the node is at index 0 of the array of the first int from 0 to 31
-            mutable[randomNode >>> Constants.MASK] |= (Constants.BIT) << remainderPositionRandomNode;
+            distances[randomNode] = 0;
+            Queue<Integer> ball = new LinkedList<>();
+            ball.add(randomNode);
 
             int h = 0;
             int level = 1;
 
             int nodesAtDistanceHNext = 0;
-            while(ball.length != 0) {
+            while(ball.size() != 0) {
 
                 // remove the first element from the head
-                int node = ball[0];
-                int[] cBall = new int[ball.length - 1];
-                System.arraycopy(ball, 1, cBall, 0, ball.length-1);
-                ball = cBall;
+                int node = ball.remove();
 
                 final int d = g.outdegree(node);
                 final int[] successors = g.successorArray(node);
 
-                int bitNeigh;
                 for (int l = 0; l < d; l++) { // for each neighbour of the node
                     final int neighbour = successors[l];
-
-                    int quotientNeigh = neighbour >>> Constants.MASK;
-                    int remainderPositionNeigh = (neighbour << Constants.REMAINDER) >>> Constants.REMAINDER;
-
-                    bitNeigh = (((1 << remainderPositionNeigh) & mutable[quotientNeigh]) >>> remainderPositionNeigh);
-
-                    if(bitNeigh == 0) { // neighbour is not yet been visited
+                    if(distances[neighbour] == -1) {
+                        distances[neighbour] = distances[node] + 1;
+                        ball.add(neighbour);
                         nodesAtDistanceHNext += 1;
-
-                        // add the neighbour node to the ball
-                        int[] copy = new int[ball.length + 1];
-                        System.arraycopy(ball, 0, copy, 0, ball.length);
-                        ball = copy;
-                        ball[ball.length - 1] = neighbour;
-                        mutable[quotientNeigh] |= (Constants.BIT) << remainderPositionNeigh;
                     }
                 }
 
                 level -= 1;
-                if(level == 0 && ball.length != 0) {
+                if(level == 0 && ball.size() != 0) {
                     h += 1;
-                    level = ball.length;
+                    level = ball.size();
                     int[] cHopTable = new int[h+1];
                     System.arraycopy(hopTable, 0, cHopTable, 0, hopTable.length);
                     hopTable = cHopTable;
@@ -256,7 +231,6 @@ public class RandomBFS {
             }
 
             RandomBFS.this.mSeedTime[s] = System.currentTimeMillis() - startSeedTime;
-
             return hopTable;
         }
 

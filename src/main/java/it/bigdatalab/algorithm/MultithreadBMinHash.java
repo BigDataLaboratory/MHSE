@@ -203,8 +203,11 @@ public class MultithreadBMinHash extends BMinHashOpt {
                     // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
                     // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
                     // This is equal to logical and operation.
+                    // remaremainderPositionRandomNode contains the bit index of the node
                     int remainderPositionRandomNode = (randomNode << Constants.REMAINDER) >>> Constants.REMAINDER;
-                    // quotient is randomNode >>> MASK
+                    // quotient is randomNode >>> MASK and give us the position of the node in the array
+                    // i.e if the actual node is 16 and we use an array of int (32 bit lenght for each cell) then
+                    // the node is at index 0 of the array of the first int from 0 to 31
                     mutable[randomNode >>> Constants.MASK] |= (Constants.BIT) << remainderPositionRandomNode;
                 } else { // next hops
                     signatureIsChanged = false;
