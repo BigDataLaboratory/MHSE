@@ -180,7 +180,6 @@ public class randomBFS {
                         ball.add(successors[l]);
                     }
                 }
-                logger.debug("hoptable is {}", dd);
 
                 logTime = System.currentTimeMillis();
                 if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
@@ -206,7 +205,6 @@ public class randomBFS {
                 R[h] = n*accum / nSeed;
             }
         }
-        logger.debug("R is {}", R);
 
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
