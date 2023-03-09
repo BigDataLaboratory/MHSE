@@ -21,12 +21,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Implementation of MHSE X (MinHash Signature Estimation X version) algorithm
- *
- * @author Giambattista Amati
- * @author Simone Angelini
- * @author Antonio Cruciani
- * @author Daniele Pasquini
- * @author Paola Vocca
  */
 public class MultithreadMHSEX extends MinHash {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadMHSEX");
