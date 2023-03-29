@@ -1,14 +1,14 @@
 package it.bigdatalab.algorithm;
 
-import it.bigdatalab.model.GraphMeasure;
+import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.model.Parameter;
 import it.bigdatalab.utils.GraphUtils;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -22,8 +22,9 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MHSETest {
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSE");
+class StandalonePropagateSTest {
+
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHashOptimizedTest");
 
     private Comparator<Integer> mLessThan;
 
@@ -152,18 +153,18 @@ public class MHSETest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         this.mLessThan = (x, y) -> x <= y ? 0 : 1;
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         this.mLessThan = null;
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("cycleProvider")
-    public void testAlgorithm_DiCycle(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    void testAlgorithm_DiCycle(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32-cycle.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -174,25 +175,26 @@ public class MHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        StandalonePropagateS algo = new StandalonePropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("pathProvider")
-    public void testAlgorithm_DiPath(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    void testAlgorithm_DiPath(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32-path.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -203,18 +205,19 @@ public class MHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        StandalonePropagateS algo = new StandalonePropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -232,18 +235,19 @@ public class MHSETest {
                 .setDirection(direction)
                 .setTranspose(true)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        StandalonePropagateS algo = new StandalonePropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -261,18 +265,19 @@ public class MHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        StandalonePropagateS algo = new StandalonePropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -290,18 +295,19 @@ public class MHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        StandalonePropagateS algo = new StandalonePropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -319,19 +325,19 @@ public class MHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
-
+        StandalonePropagateS algo = new StandalonePropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -349,18 +355,19 @@ public class MHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        StandalonePropagateS algo = new StandalonePropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -378,26 +385,27 @@ public class MHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        StandalonePropagateS algo = new StandalonePropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mCollisionsTable", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("inStarProvider")
-    void testAlgorithm_DiInStar_checkSizeCollisionHopTable(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
-        String path = new File("src/test/data/g_directed/32in-star.graph").getAbsolutePath();
+    @MethodSource("unWheelProvider")
+    void testAlgorithm_UnWheel_checkSizeCollisionHopTable(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_undirected/32-wheel.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(path)
@@ -407,18 +415,41 @@ public class MHSETest {
                 .setDirection(direction)
                 .setTranspose(false)
                 .setSeedsRandom(false)
+                .setComputeCentrality(false)
                 .setThreshold(0.9)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        StandalonePropagateS algo = new StandalonePropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
 
-        GraphMeasure measure = (GraphMeasure) algo.runAlgorithm();
+        GraphMeasureOpt measure = (GraphMeasureOpt) algo.runAlgorithm();
 
         // check hop table size (equals to lower bound + 1)
-        SoftAssertions hopAndCollision = new SoftAssertions();
-        hopAndCollision.assertThat(measure.getHopTable()).as("HopTable size").hasSize(measure.getLowerBoundDiameter() + 1);
-        hopAndCollision.assertAll();
+        // check collisions table # rows (equals to lower bound + 1)
+        // check collisions table # cols (equals to # seed)
+        SoftAssertions assertions = new SoftAssertions();
+        assertions.assertThat(measure.getLastHops()).as("Last hops size").hasSize(seeds.length);
+        assertions.assertThat(measure.getHopTable()).as("HopTable size").hasSize(measure.getLowerBoundDiameter() + 1);
+        assertions.assertThat(measure.getCollisionsMatrix()).as("CollisionsTable # rows # cols").hasDimensions(seeds.length, measure.getLowerBoundDiameter() + 1);
+        assertions.assertAll();
+    }
+
+    @Test
+    void testNormalizeCollisionsTable() {
+        int[][] collisionMatrix = new int[][]{{1, 4, 32, 55, 98}, {1, 4, 32}, {1}, {1, 32}};
+        int nrows = 4;
+        int lowerBoundDiameter = 4;
+        StandalonePropagateS algo = new StandalonePropagateS(null, 4, 0.9, new int[]{0, 1, 2, 3}, false);
+        algo.normalizeCollisionsTable(collisionMatrix, lowerBoundDiameter);
+        assertThat(collisionMatrix).as("CollisionsTable # rows # cols").hasDimensions(nrows, lowerBoundDiameter + 1);
+    }
+
+    @Test
+    void testLenghtBitsArray() {
+        StandalonePropagateS algo = new StandalonePropagateS(null, 4, 0.9, new int[]{0, 1, 2, 3}, false);
+        int expected = 1;
+        int actual = algo.lengthBitsArray(20);
+        assertThat(actual).isEqualTo(expected);
     }
 }

@@ -16,17 +16,17 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class MinHashMainTest {
+class PropagateMainTest {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHashMainTest");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.PropagateMainTest");
 
     private static Stream<Arguments> runProvider() {
         return Stream.of(
-                // execute MHSE with in direction, one run, 4 random seeds, input graph (with isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
-                Arguments.of("MHSE", "src/test/data/g_directed/32-path.graph", "test/output/folder/path", 1, 4, false, true, true, "", true, null, 0.9, "in", 1),
+                // execute Propagate with in direction, one run, 4 random seeds, input graph (with isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
+                Arguments.of("Propagate", "src/test/data/g_directed/32-path.graph", "test/output/folder/path", 1, 4, false, true, true, "", true, null, 0.9, "in", 1),
                 // execute SEHSE with out direction, five run, 8 random seeds, input graph (with isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
-                Arguments.of("SEMHSE", "src/test/data/g_directed/32in-star.graph", "test/output/folder/path", 5, 8, false, true, true, "", true, null, 0.9, "out", 1),
-                // execute StandaloneBMinHash with in direction, one run, # seed is 0 because a range is specified (so seeds are not random), input graph (without isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
+                Arguments.of("PropagateSE", "src/test/data/g_directed/32in-star.graph", "test/output/folder/path", 5, 8, false, true, true, "", true, null, 0.9, "out", 1),
+                // execute StandalonePropagateS with in direction, one run, # seed is 0 because a range is specified (so seeds are not random), input graph (without isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
                 Arguments.of("SEBMHSE", "src/test/data/g_directed/32-cycle.graph", "test/output/folder/path", 1, 32, false, true, false, null, true, new int[]{0, 31}, 0.9, "in", 1),
                 // execute MultithreadBMinhash with out direction, seven run, # (random) seed is 16, input graph (without isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 2 thread (parallel computation)
                 Arguments.of("SEBMHSEMulti", "src/test/data/g_undirected/32-wheel.graph", "test/output/folder/path", 7, 16, false, true, true, "", false, null, 0.9, "out", 2)
@@ -35,7 +35,7 @@ class MinHashMainTest {
 
     private static Stream<Arguments> runProviderForException() {
         return Stream.of(
-                // execute StandaloneBMinHash with in direction, four run, # seed is 0 because a range is specified (so seeds are not random), input graph (without isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
+                // execute StandalonePropagateS with in direction, four run, # seed is 0 because a range is specified (so seeds are not random), input graph (without isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
                 Arguments.of("SEBMHSE", "src/test/data/g_directed/32-cycle.graph", "test/output/folder/path", 4, 32, false, true, false, null, true, new int[]{0, 31}, 0.9, "in", 1)
         );
     }
@@ -74,7 +74,7 @@ class MinHashMainTest {
                 .setNumThreads(suggestedNumberOfThreads)
                 .build();
 
-        MinHashMain m = new MinHashMain(param);
+        PropagateMain m = new PropagateMain(param);
         List<Measure> measures = m.run();
         SoftAssertions assertions = new SoftAssertions();
         assertions.assertThat(measures.size()).isEqualTo(param.getNumTests());
@@ -110,7 +110,7 @@ class MinHashMainTest {
                 .setNumThreads(suggestedNumberOfThreads)
                 .build();
 
-        MinHashMain m = new MinHashMain(param);
+        PropagateMain m = new PropagateMain(param);
         assertThrows(IllegalStateException.class, m::run);
     }
 
@@ -141,7 +141,7 @@ class MinHashMainTest {
                 .setNumThreads(suggestedNumberOfThreads)
                 .build();
 
-        MinHashMain m = new MinHashMain(param);
+        PropagateMain m = new PropagateMain(param);
         assertThrows(IllegalArgumentException.class, m::run);
     }
 }

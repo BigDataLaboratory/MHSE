@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class MultithreadBMinHashTest {
+class MultithreadPropagateSTest {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadBMinHashOptimizedTest");
 
@@ -182,7 +182,7 @@ class MultithreadBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadPropagateS algo = new MultithreadPropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -213,7 +213,7 @@ class MultithreadBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadPropagateS algo = new MultithreadPropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -244,7 +244,7 @@ class MultithreadBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadPropagateS algo = new MultithreadPropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -274,7 +274,7 @@ class MultithreadBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadPropagateS algo = new MultithreadPropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -305,7 +305,7 @@ class MultithreadBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadPropagateS algo = new MultithreadPropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -336,7 +336,7 @@ class MultithreadBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadPropagateS algo = new MultithreadPropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -367,7 +367,7 @@ class MultithreadBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadPropagateS algo = new MultithreadPropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -398,7 +398,7 @@ class MultithreadBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadPropagateS algo = new MultithreadPropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -429,7 +429,7 @@ class MultithreadBMinHashTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadPropagateS algo = new MultithreadPropagateS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         GraphMeasureOpt measure = (GraphMeasureOpt) algo.runAlgorithm();
 
@@ -448,7 +448,7 @@ class MultithreadBMinHashTest {
         int[][] collisionMatrix = new int[][]{{1, 4, 32, 55, 98, 101, 201}, {1, 4}, {1}, {1, 32}};
         int nrows = 4;
         int lowerBoundDiameter = 6;
-        MultithreadBMinHash algo = new MultithreadBMinHash(null, 4, 0.9, new int[]{0, 1, 2, 3}, 1, false);
+        MultithreadPropagateS algo = new MultithreadPropagateS(null, 4, 0.9, new int[]{0, 1, 2, 3}, 1, false);
         algo.normalizeCollisionsTable(collisionMatrix, lowerBoundDiameter);
         assertThat(collisionMatrix).as("CollisionsTable # rows # cols").hasDimensions(nrows, lowerBoundDiameter + 1);
     }

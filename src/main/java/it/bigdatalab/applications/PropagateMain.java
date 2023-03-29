@@ -1,12 +1,10 @@
 package it.bigdatalab.applications;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import it.bigdatalab.algorithm.AlgorithmEnum;
 import it.bigdatalab.algorithm.MinHash;
-import it.bigdatalab.algorithm.MinHashFactory;
+import it.bigdatalab.algorithm.PropagateFactory;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
@@ -16,33 +14,25 @@ import it.bigdatalab.utils.Constants;
 import it.bigdatalab.utils.GraphUtils;
 import it.bigdatalab.utils.GsonHelper;
 import it.bigdatalab.utils.PropertiesManager;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.webgraph.ImmutableGraph;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
-public class MinHashMain extends Main{
+public class PropagateMain extends Main{
 
-    private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.MinHashMain");
+    private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.PropagateMain");
 
     /**
-     * Run Minhash algorithm, exit from the process if direction of message transmission or seeds list are not
+     * Run Propagate algorithm, exit from the process if direction of message transmission or seeds list are not
      * correctly set, or if input file is not correctly read from local file system.
      */
-    public MinHashMain(Parameter param) {
+    public PropagateMain(Parameter param) {
         super(param);
     }
 
@@ -142,7 +132,7 @@ public class MinHashMain extends Main{
                 param.persistCollisionTable(),
                 param.getNumThreads());
 
-        MinHashMain main = new MinHashMain(param);
+        PropagateMain main = new PropagateMain(param);
         try {
             List<Measure> measures = main.run();
             String inputGraphName = new File(param.getInputFilePathGraph()).getName();
@@ -171,10 +161,10 @@ public class MinHashMain extends Main{
     }
 
     /**
-     * Run Minhash algorithm (specified in the algorithmName parameter) using properties read from properties file such as:
+     * Run Propagate algorithm (specified in the algorithmName parameter) using properties read from properties file such as:
      * - inputFilePath  the path to the input file representing a graph in a WebGraph format. If the input graph has an edgelist format
      * - outputFolderPath the path to the output folder path that will contain results of the execution of the algorithm
-     * - algorithmName represent the name of the MinHash algorithm to be executed (see AlghorithmEnum for available algorithms)
+     * - algorithmName represent the name of the Propagate algorithm to be executed (see AlghorithmEnum for available algorithms)
      * - mIsSeedsRandom if it is False, seeds' list and nodes' list must be read from external json file for testing purpose
      * whose paths are set in mInputFilePathSeed and mInputFilePathNodes
      * - numTests number of tests to be executed
@@ -192,7 +182,7 @@ public class MinHashMain extends Main{
         List<Measure> measures = new ArrayList<>();
 
         if (!mParam.isSeedsRandom()) {
-            // only for boolean version of minhash
+            // only for boolean version of propagate
             if (mParam.getRange() != null) {
                 int[] n = computeNodesFromRange(mParam.getRange()[0], mParam.getRange()[1]);
                 seedsNodes.add(new SeedNode(null, n));
@@ -212,7 +202,7 @@ public class MinHashMain extends Main{
                 mParam.getDirection(),
                 mParam.getReordering());
 
-        MinHashFactory mhf = new MinHashFactory();
+        PropagateFactory mhf = new PropagateFactory();
 
         for (int i = 0; i < numTest; i++) {
 

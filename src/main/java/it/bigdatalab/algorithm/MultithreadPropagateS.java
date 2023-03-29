@@ -19,9 +19,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implementation of MultithreadBMinHash (MinHash Signature Estimation multithread boolean optimized version) algorithm
+ * Implementation of MultithreadPropagateS (MinHash Signature Estimation multithread boolean optimized version) algorithm
  */
-public class MultithreadBMinHash extends BMinHashOpt {
+public class MultithreadPropagateS extends BMinHashOpt {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadBMinHashOptimized");
 
@@ -35,7 +35,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
     /**
      * Creates a new MultithreadBMinHashOptimized instance with default values
      */
-    public MultithreadBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) {
+    public MultithreadPropagateS(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         this.mSeedTime = new double[mNumSeeds];
@@ -45,7 +45,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
     /**
      * Creates a new MultithreadBMinHashOptimized instance with default values
      */
-    public MultithreadBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int threads, boolean centrality) {
+    public MultithreadPropagateS(final ImmutableGraph g, int numSeeds, double threshold, int threads, boolean centrality) {
         super(g, numSeeds, threshold);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         this.mSeedTime = new double[mNumSeeds];
@@ -66,7 +66,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
     }
 
     /**
-     * Execution of the MultithreadBMinHash algorithm
+     * Execution of the MultithreadPropagateS algorithm
      *
      * @return Computed metrics of the algorithm
      */
@@ -251,9 +251,9 @@ public class MultithreadBMinHash extends BMinHashOpt {
                                     n, mGraph.numNodes(),
                                     h + 1,
                                     String.format("%d min, %d sec",
-                                            TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - MultithreadBMinHash.this.startTime)) / (s + 1)) - (logTime - MultithreadBMinHash.this.startTime)),
-                                            TimeUnit.MILLISECONDS.toSeconds(((mNumSeeds * (logTime - MultithreadBMinHash.this.startTime)) / (s + 1)) - (logTime - MultithreadBMinHash.this.startTime)) -
-                                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - MultithreadBMinHash.this.startTime)) / (s + 1)) - (logTime - MultithreadBMinHash.this.startTime)))));
+                                            TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - MultithreadPropagateS.this.startTime)) / (s + 1)) - (logTime - MultithreadPropagateS.this.startTime)),
+                                            TimeUnit.MILLISECONDS.toSeconds(((mNumSeeds * (logTime - MultithreadPropagateS.this.startTime)) / (s + 1)) - (logTime - MultithreadPropagateS.this.startTime)) -
+                                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - MultithreadPropagateS.this.startTime)) / (s + 1)) - (logTime - MultithreadPropagateS.this.startTime)))));
                             lastLogTime = logTime;
                         }
                     }
@@ -277,7 +277,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
                 }
             }
 
-            MultithreadBMinHash.this.mSeedTime[s] = System.currentTimeMillis() - startSeedTime;
+            MultithreadPropagateS.this.mSeedTime[s] = System.currentTimeMillis() - startSeedTime;
 
             return hopTable;
         }

@@ -19,20 +19,20 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implementation of SE-MHSE (Space Efficient - MinHash Signature Estimation) algorithm
+ * Implementation of SE-Propagate (Space Efficient - MinHash Signature Estimation) algorithm
  */
-public class SEMHSE extends MinHash {
+public class PropagateSE extends MinHash {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.SEMHSE");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.PropagateSE");
 
     private Int2LongOpenHashMap hashes;
     private Int2LongOpenHashMap oldHashes;
     private final long[] graphSignature;
 
     /**
-     * Creates a SE-MHSE instance with default values
+     * Creates a SE-Propagate instance with default values
      */
-    public SEMHSE(ImmutableGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
+    public PropagateSE(ImmutableGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
         super(g, numSeeds, threshold, seeds);
         graphSignature = new long[mNumSeeds];
         //initialize graph signature with Long.MAX_VALUE
@@ -40,9 +40,9 @@ public class SEMHSE extends MinHash {
     }
 
     /**
-     * Creates a SE-MHSE instance with default values
+     * Creates a SE-Propagate instance with default values
      */
-    public SEMHSE(ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
+    public PropagateSE(ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mSeeds = CreateSeeds.genSeeds(mNumSeeds);
         graphSignature = new long[mNumSeeds];
@@ -51,7 +51,7 @@ public class SEMHSE extends MinHash {
     }
 
     /**
-     * Execution of the SE-MHSE algorithm
+     * Execution of the SE-Propagate algorithm
      * @return Computed metrics of the algorithm
      */
     public Measure runAlgorithm() {

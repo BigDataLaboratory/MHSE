@@ -22,9 +22,9 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SEMHSETest {
+class PropagateSETest {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.SEMHSE");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.PropagateSE");
 
     private Comparator<Integer> mLessThan;
 
@@ -180,7 +180,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -209,7 +209,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -238,7 +238,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -267,7 +267,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -296,7 +296,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -325,7 +325,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -354,7 +354,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -383,7 +383,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -412,7 +412,7 @@ class SEMHSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        SEMHSE algo = new SEMHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         GraphMeasure measure = (GraphMeasure) algo.runAlgorithm();
 

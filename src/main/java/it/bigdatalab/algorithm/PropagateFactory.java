@@ -5,9 +5,9 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MinHashFactory {
+public class PropagateFactory {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHashFactory");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.PropagateFactory");
 
     /**
      * Choose one of the algorithm to be executed by the type passed as parameter
@@ -27,23 +27,23 @@ public class MinHashFactory {
         MinHash minHashAlgorithm = null;
 
         switch (type) {
-            case MHSE:
-                minHashAlgorithm = new MHSE(g, numSeeds, threshold, seeds);
+            case Propagate:
+                minHashAlgorithm = new Propagate(g, numSeeds, threshold, seeds);
                 break;
-            case BMHSE:
-                minHashAlgorithm = new MHSEX(g, numSeeds, threshold, nodes, centrality);
+            case PropagateP:
+                minHashAlgorithm = new PropagateP(g, numSeeds, threshold, nodes, centrality);
                 break;
-            case SEMHSE:
-                minHashAlgorithm = new SEMHSE(g, numSeeds, threshold, seeds);
+            case PropagateSE:
+                minHashAlgorithm = new PropagateSE(g, numSeeds, threshold, seeds);
                 break;
-            case SEBMHSE:
-                minHashAlgorithm = new StandaloneBMinHash(g, numSeeds, threshold, nodes, centrality);
+            case PropagateS:
+                minHashAlgorithm = new StandalonePropagateS(g, numSeeds, threshold, nodes, centrality);
                 break;
-            case SEBMHSEMulti:
-                minHashAlgorithm = new MultithreadBMinHash(g, numSeeds, threshold, nodes, threads, centrality);
+            case MultiPropagateS:
+                minHashAlgorithm = new MultithreadPropagateS(g, numSeeds, threshold, nodes, threads, centrality);
                 break;
-            case BMHSEMulti:
-                minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, nodes, threads);
+            case MultiPropagateP:
+                minHashAlgorithm = new MultithreadPropagateP(g, numSeeds, threshold, nodes, threads);
                 break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
@@ -68,23 +68,23 @@ public class MinHashFactory {
         MinHash minHashAlgorithm = null;
 
         switch (type) {
-            case MHSE:
-                minHashAlgorithm = new MHSE(g, numSeeds, threshold);
+            case Propagate:
+                minHashAlgorithm = new Propagate(g, numSeeds, threshold);
                 break;
-            case BMHSE:
-                minHashAlgorithm = new MHSEX(g, numSeeds, threshold, centrality);
+            case PropagateP:
+                minHashAlgorithm = new PropagateP(g, numSeeds, threshold, centrality);
                 break;
-            case SEMHSE:
-                minHashAlgorithm = new SEMHSE(g, numSeeds, threshold);
+            case PropagateSE:
+                minHashAlgorithm = new PropagateSE(g, numSeeds, threshold);
                 break;
-            case SEBMHSE:
-                minHashAlgorithm = new StandaloneBMinHash(g, numSeeds, threshold, centrality);
+            case PropagateS:
+                minHashAlgorithm = new StandalonePropagateS(g, numSeeds, threshold, centrality);
                 break;
-            case SEBMHSEMulti:
-                minHashAlgorithm = new MultithreadBMinHash(g, numSeeds, threshold, threads, centrality);
+            case MultiPropagateS:
+                minHashAlgorithm = new MultithreadPropagateS(g, numSeeds, threshold, threads, centrality);
                 break;
-            case BMHSEMulti:
-                minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, threads);
+            case MultiPropagateP:
+                minHashAlgorithm = new MultithreadPropagateP(g, numSeeds, threshold, threads);
                 break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");

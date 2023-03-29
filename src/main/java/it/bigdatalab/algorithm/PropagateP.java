@@ -10,25 +10,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of MHSE X (MinHash Signature Estimation X version) algorithm
+ * Implementation of Propagate X (MinHash Signature Estimation X version) algorithm
  */
-public class MHSEX extends MinHash {
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSEX");
+public class PropagateP extends MinHash {
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.PropagateP");
 
     private boolean doCentrality;
 
     /**
-     * Creates a new MHSE X instance with default values
+     * Creates a new Propagate X instance with default values
      */
-    public MHSEX(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, boolean centrality) throws SeedsException {
+    public PropagateP(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
         doCentrality = centrality;
     }
 
     /**
-     * Creates a new MHSE X instance with default values
+     * Creates a new Propagate X instance with default values
      */
-    public MHSEX(final ImmutableGraph g, int numSeeds, double threshold, boolean centrality) throws SeedsException {
+    public PropagateP(final ImmutableGraph g, int numSeeds, double threshold, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
         doCentrality = centrality;

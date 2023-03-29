@@ -13,29 +13,29 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implementation of StandaloneBMinHash (MinHash Signature Estimation standalone boolean optimized version) algorithm
+ * Implementation of StandalonePropagateS (MinHash Signature Estimation standalone boolean optimized version) algorithm
  */
-public class StandaloneBMinHash extends BMinHashOpt {
+public class StandalonePropagateS extends BMinHashOpt {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.StandaloneBMinHashOptimized");
 
     /**
      * Creates a new BooleanMinHasOptimized instance with default values
      */
-    public StandaloneBMinHash(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, boolean centrality) {
+    public StandalonePropagateS(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, boolean centrality) {
         super(g, numSeeds, threshold, nodes);
     }
 
     /**
      * Creates a new BooleanMinHasOptimized instance with default values
      */
-    public StandaloneBMinHash(final ImmutableGraph g, int numSeeds, double threshold, boolean centrality) {
+    public StandalonePropagateS(final ImmutableGraph g, int numSeeds, double threshold, boolean centrality) {
         this(g, numSeeds, threshold, null, centrality);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
     }
 
     /**
-     * Execution of the StandaloneBMinHash algorithm
+     * Execution of the StandalonePropagateS algorithm
      *
      * @return Computed metrics of the algorithm
      */

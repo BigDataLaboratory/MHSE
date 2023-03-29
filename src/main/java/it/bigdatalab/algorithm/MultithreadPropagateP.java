@@ -20,10 +20,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
- * Implementation of MHSE X (MinHash Signature Estimation X version) algorithm
+ * Implementation of Propagate X (MinHash Signature Estimation X version) algorithm
  */
-public class MultithreadMHSEX extends MinHash {
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadMHSEX");
+public class MultithreadPropagateP extends MinHash {
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadPropagateP");
 
     private final int mNumberOfThreads;
     private int[] mPosition;
@@ -40,9 +40,9 @@ public class MultithreadMHSEX extends MinHash {
     private ReentrantLock mLock;
 
     /**
-     * Creates a new MHSE X instance with default values
+     * Creates a new Propagate X instance with default values
      */
-    public MultithreadMHSEX(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads) throws SeedsException {
+    public MultithreadPropagateP(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
 
@@ -56,9 +56,9 @@ public class MultithreadMHSEX extends MinHash {
     }
 
     /**
-     * Creates a new MHSE X instance with default values
+     * Creates a new Propagate X instance with default values
      */
-    public MultithreadMHSEX(final ImmutableGraph g, int numSeeds, double threshold, int threads) throws SeedsException {
+    public MultithreadPropagateP(final ImmutableGraph g, int numSeeds, double threshold, int threads) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
