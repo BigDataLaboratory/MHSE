@@ -18,20 +18,20 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implementation of Propagate (MinHash Signature Estimation) algorithm124190
+ * Implementation of MHSE (MinHash Signature Estimation) algorithm124190
  **/
-public class Propagate extends MinHash {
+public class MHSE extends MinHash {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.Propagate");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSE");
 
     private final Int2ObjectOpenHashMap<long[]> signatures;
     private Int2ObjectOpenHashMap<long[]> oldSignatures;
     private final long[] graphSignature;
 
     /**
-     * Creates a new Propagate instance with default values
+     * Creates a new MHSE instance with default values
      */
-    public Propagate(final ImmutableGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
+    public MHSE(final ImmutableGraph g, int numSeeds, double threshold, IntArrayList seeds) throws SeedsException {
         super(g, numSeeds, threshold, seeds);
 
         signatures = new Int2ObjectOpenHashMap<>(mGraph.numNodes());       //initialize signatures map with the expected number of elements(nodes) in the map
@@ -41,9 +41,9 @@ public class Propagate extends MinHash {
     }
 
     /**
-     * Creates a new Propagate instance with default values
+     * Creates a new MHSE instance with default values
      */
-    public Propagate(final ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
+    public MHSE(final ImmutableGraph g, int numSeeds, double threshold) throws SeedsException {
         super(g, numSeeds, threshold);
 
         this.mSeeds = CreateSeeds.genSeeds(mNumSeeds);
@@ -54,7 +54,7 @@ public class Propagate extends MinHash {
     }
 
     /**
-     * Execution of the Propagate algorithm
+     * Execution of the MHSE algorithm
      * @return Metrics of the algorithm
      */
     public Measure runAlgorithm() {

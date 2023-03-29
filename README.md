@@ -3,12 +3,12 @@ We propose two algorithms to efficiently estimate the effective diameter and oth
 large graphs that are based on the neighborhood function such as the exact diameter, the (effective) radius or the average
 distance. We exploit the MinHash approach to derive compressed representations of large and sparse datasets that
 preserve similarity (signatures), thus to provide a good approximation of the size of the neighborhood of a node. The two
-algorithms are based on a technique named Propagate that exploits the similarity between
-signatures to estimate the size of the neighborhood sets. The first algorithm, Propagate, is as effective as HyperANF, the state
+algorithms are based on a technique named MHSE (MinHash Signature Estimation) that exploits the similarity between
+signatures to estimate the size of the neighborhood sets. The first algorithm, MHSE, is as effective as HyperANF, the state
 of art method for the estimation of the neighborhood function in a very large graph. Indeed, the p-values of both parametric
 (t-test) and non-parametric (Wilcoxon) statistical tests on residuals for average distance, effective diameter and number of
-connected pairs, show that Propagate tends to produce results that are statistically similar to the correct diameter in more
-tested graphs than HyperANF. The second algorithm, PropagateSE (Space Efficient), produces the same outcomes of
+connected pairs, show that MHSE tends to produce results that are statistically similar to the correct diameter in more
+tested graphs than HyperANF. The second algorithm, SE-MHSE (Space Efficient MHSE), produces the same outcomes of
 Propagate but with less space complexity.
 These two approaches could be easily extended and optimized in two different ways:
 - first, we used a different representation of data (we sign only the minhash node, without storing informations on

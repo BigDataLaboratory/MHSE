@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implementation of MultithreadPropagateS (MinHash Signature Estimation multithread boolean optimized version) algorithm
+ * Implementation of MultithreadPropagateS (Propagate multithread boolean optimized version) algorithm
  */
 public class MultithreadPropagateS extends BMinHashOpt {
 
@@ -33,7 +33,7 @@ public class MultithreadPropagateS extends BMinHashOpt {
 
 
     /**
-     * Creates a new MultithreadBMinHashOptimized instance with default values
+     * Creates a new MultithreadPropagateS instance with default values
      */
     public MultithreadPropagateS(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) {
         super(g, numSeeds, threshold, nodes);

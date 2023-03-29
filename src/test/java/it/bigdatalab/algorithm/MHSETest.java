@@ -22,9 +22,8 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PropagateSETest {
-
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.PropagateSE");
+public class MHSETest {
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSE");
 
     private Comparator<Integer> mLessThan;
 
@@ -153,18 +152,18 @@ class PropagateSETest {
     }
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         this.mLessThan = (x, y) -> x <= y ? 0 : 1;
     }
 
     @AfterEach
-    void tearDown() {
+    public void tearDown() {
         this.mLessThan = null;
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("cycleProvider")
-    void testAlgorithm_DiCycle(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    public void testAlgorithm_DiCycle(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32-cycle.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -180,7 +179,7 @@ class PropagateSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -193,7 +192,7 @@ class PropagateSETest {
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("pathProvider")
-    void testAlgorithm_DiPath(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+    public void testAlgorithm_DiPath(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32-path.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -209,7 +208,7 @@ class PropagateSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -238,7 +237,7 @@ class PropagateSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -267,7 +266,7 @@ class PropagateSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -296,7 +295,7 @@ class PropagateSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -325,7 +324,8 @@ class PropagateSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+
 
         Measure measure = algo.runAlgorithm();
 
@@ -354,7 +354,7 @@ class PropagateSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -383,7 +383,7 @@ class PropagateSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         Measure measure = algo.runAlgorithm();
 
@@ -395,9 +395,9 @@ class PropagateSETest {
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("completeProvider")
-    void testAlgorithm_Complete_checkSizeCollisionHopTable(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
-        String path = new File("src/test/data/g_undirected/32-complete.graph").getAbsolutePath();
+    @MethodSource("inStarProvider")
+    void testAlgorithm_DiInStar_checkSizeCollisionHopTable(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32in-star.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
                 .setInputFilePathGraph(path)
@@ -412,18 +412,13 @@ class PropagateSETest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        PropagateSE algo = new PropagateSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
+        MHSE algo = new MHSE(g, param.getNumSeeds(), param.getThreshold(), new IntArrayList(seeds));
 
         GraphMeasure measure = (GraphMeasure) algo.runAlgorithm();
 
         // check hop table size (equals to lower bound + 1)
-        // check collisions table # rows (equals to lower bound + 1)
-        // check collisions table # cols (equals to # seed)
-        SoftAssertions assertions = new SoftAssertions();
-        assertions.assertThat(measure.getLastHops()).as("Last hops size").hasSize(seeds.length);
-        assertions.assertThat(measure.getHopTable()).as("HopTable size").hasSize(measure.getLowerBoundDiameter() + 1);
-        assertions.assertThat(measure.getCollisionsTable()).as("CollisionsTable # rows").hasSize(measure.getLowerBoundDiameter() + 1);
-        assertions.assertThat(measure.getCollisionsTable().values()).extracting(record -> record.length).as("CollisionsTable # cols").containsOnly(seeds.length);
-        assertions.assertAll();
+        SoftAssertions hopAndCollision = new SoftAssertions();
+        hopAndCollision.assertThat(measure.getHopTable()).as("HopTable size").hasSize(measure.getLowerBoundDiameter() + 1);
+        hopAndCollision.assertAll();
     }
 }

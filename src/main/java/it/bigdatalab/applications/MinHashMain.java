@@ -4,7 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import it.bigdatalab.algorithm.AlgorithmEnum;
 import it.bigdatalab.algorithm.MinHash;
-import it.bigdatalab.algorithm.PropagateFactory;
+import it.bigdatalab.algorithm.MinHashFactory;
 import it.bigdatalab.model.GraphMeasure;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
@@ -24,15 +24,15 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PropagateMain extends Main{
+public class MinHashMain extends Main{
 
-    private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.PropagateMain");
+    private static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.MinHashMain");
 
     /**
-     * Run Propagate algorithm, exit from the process if direction of message transmission or seeds list are not
+     * Run MHSE algorithm, exit from the process if direction of message transmission or seeds list are not
      * correctly set, or if input file is not correctly read from local file system.
      */
-    public PropagateMain(Parameter param) {
+    public MinHashMain(Parameter param) {
         super(param);
     }
 
@@ -132,7 +132,7 @@ public class PropagateMain extends Main{
                 param.persistCollisionTable(),
                 param.getNumThreads());
 
-        PropagateMain main = new PropagateMain(param);
+        MinHashMain main = new MinHashMain(param);
         try {
             List<Measure> measures = main.run();
             String inputGraphName = new File(param.getInputFilePathGraph()).getName();
@@ -161,10 +161,10 @@ public class PropagateMain extends Main{
     }
 
     /**
-     * Run Propagate algorithm (specified in the algorithmName parameter) using properties read from properties file such as:
+     * Run MHSE algorithm (specified in the algorithmName parameter) using properties read from properties file such as:
      * - inputFilePath  the path to the input file representing a graph in a WebGraph format. If the input graph has an edgelist format
      * - outputFolderPath the path to the output folder path that will contain results of the execution of the algorithm
-     * - algorithmName represent the name of the Propagate algorithm to be executed (see AlghorithmEnum for available algorithms)
+     * - algorithmName represent the name of the MHSE algorithm to be executed (see AlghorithmEnum for available algorithms)
      * - mIsSeedsRandom if it is False, seeds' list and nodes' list must be read from external json file for testing purpose
      * whose paths are set in mInputFilePathSeed and mInputFilePathNodes
      * - numTests number of tests to be executed
@@ -202,7 +202,7 @@ public class PropagateMain extends Main{
                 mParam.getDirection(),
                 mParam.getReordering());
 
-        PropagateFactory mhf = new PropagateFactory();
+        MinHashFactory mhf = new MinHashFactory();
 
         for (int i = 0; i < numTest; i++) {
 

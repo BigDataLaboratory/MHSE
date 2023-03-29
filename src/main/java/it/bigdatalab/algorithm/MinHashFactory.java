@@ -5,9 +5,9 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PropagateFactory {
+public class MinHashFactory {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.PropagateFactory");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHashFactory");
 
     /**
      * Choose one of the algorithm to be executed by the type passed as parameter
@@ -27,14 +27,14 @@ public class PropagateFactory {
         MinHash minHashAlgorithm = null;
 
         switch (type) {
-            case Propagate:
-                minHashAlgorithm = new Propagate(g, numSeeds, threshold, seeds);
+            case MHSE:
+                minHashAlgorithm = new MHSE(g, numSeeds, threshold, seeds);
                 break;
             case PropagateP:
                 minHashAlgorithm = new PropagateP(g, numSeeds, threshold, nodes, centrality);
                 break;
             case PropagateSE:
-                minHashAlgorithm = new PropagateSE(g, numSeeds, threshold, seeds);
+                minHashAlgorithm = new SEMHSE(g, numSeeds, threshold, seeds);
                 break;
             case PropagateS:
                 minHashAlgorithm = new StandalonePropagateS(g, numSeeds, threshold, nodes, centrality);
@@ -68,14 +68,14 @@ public class PropagateFactory {
         MinHash minHashAlgorithm = null;
 
         switch (type) {
-            case Propagate:
-                minHashAlgorithm = new Propagate(g, numSeeds, threshold);
+            case MHSE:
+                minHashAlgorithm = new MHSE(g, numSeeds, threshold);
                 break;
             case PropagateP:
                 minHashAlgorithm = new PropagateP(g, numSeeds, threshold, centrality);
                 break;
             case PropagateSE:
-                minHashAlgorithm = new PropagateSE(g, numSeeds, threshold);
+                minHashAlgorithm = new SEMHSE(g, numSeeds, threshold);
                 break;
             case PropagateS:
                 minHashAlgorithm = new StandalonePropagateS(g, numSeeds, threshold, centrality);

@@ -16,16 +16,16 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class PropagateMainTest {
+class MHSEMainTest {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.PropagateMainTest");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSEMainTest");
 
     private static Stream<Arguments> runProvider() {
         return Stream.of(
-                // execute Propagate with in direction, one run, 4 random seeds, input graph (with isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
-                Arguments.of("Propagate", "src/test/data/g_directed/32-path.graph", "test/output/folder/path", 1, 4, false, true, true, "", true, null, 0.9, "in", 1),
+                // execute MHSE with in direction, one run, 4 random seeds, input graph (with isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
+                Arguments.of("MHSE", "src/test/data/g_directed/32-path.graph", "test/output/folder/path", 1, 4, false, true, true, "", true, null, 0.9, "in", 1),
                 // execute SEHSE with out direction, five run, 8 random seeds, input graph (with isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
-                Arguments.of("PropagateSE", "src/test/data/g_directed/32in-star.graph", "test/output/folder/path", 5, 8, false, true, true, "", true, null, 0.9, "out", 1),
+                Arguments.of("SEMHSE", "src/test/data/g_directed/32in-star.graph", "test/output/folder/path", 5, 8, false, true, true, "", true, null, 0.9, "out", 1),
                 // execute StandalonePropagateS with in direction, one run, # seed is 0 because a range is specified (so seeds are not random), input graph (without isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 1 thread (local computation)
                 Arguments.of("SEBMHSE", "src/test/data/g_directed/32-cycle.graph", "test/output/folder/path", 1, 32, false, true, false, null, true, new int[]{0, 31}, 0.9, "in", 1),
                 // execute MultithreadBMinhash with out direction, seven run, # (random) seed is 16, input graph (without isolated nodes, if there) is not transposed but loaded in memory, threshold is 0.9, 2 thread (parallel computation)
@@ -74,7 +74,7 @@ class PropagateMainTest {
                 .setNumThreads(suggestedNumberOfThreads)
                 .build();
 
-        PropagateMain m = new PropagateMain(param);
+        MinHashMain m = new MinHashMain(param);
         List<Measure> measures = m.run();
         SoftAssertions assertions = new SoftAssertions();
         assertions.assertThat(measures.size()).isEqualTo(param.getNumTests());
@@ -110,7 +110,7 @@ class PropagateMainTest {
                 .setNumThreads(suggestedNumberOfThreads)
                 .build();
 
-        PropagateMain m = new PropagateMain(param);
+        MinHashMain m = new MinHashMain(param);
         assertThrows(IllegalStateException.class, m::run);
     }
 
@@ -141,7 +141,7 @@ class PropagateMainTest {
                 .setNumThreads(suggestedNumberOfThreads)
                 .build();
 
-        PropagateMain m = new PropagateMain(param);
+        MinHashMain m = new MinHashMain(param);
         assertThrows(IllegalArgumentException.class, m::run);
     }
 }

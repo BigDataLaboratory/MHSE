@@ -20,7 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
- * Implementation of Propagate X (MinHash Signature Estimation X version) algorithm
+ * Implementation of Propagate-P algorithm
  */
 public class MultithreadPropagateP extends MinHash {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadPropagateP");
@@ -40,7 +40,7 @@ public class MultithreadPropagateP extends MinHash {
     private ReentrantLock mLock;
 
     /**
-     * Creates a new Propagate X instance with default values
+     * Creates a new Propagate-P instance with default values
      */
     public MultithreadPropagateP(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
@@ -56,7 +56,7 @@ public class MultithreadPropagateP extends MinHash {
     }
 
     /**
-     * Creates a new Propagate X instance with default values
+     * Creates a new Propagate-P instance with default values
      */
     public MultithreadPropagateP(final ImmutableGraph g, int numSeeds, double threshold, int threads) throws SeedsException {
         super(g, numSeeds, threshold);

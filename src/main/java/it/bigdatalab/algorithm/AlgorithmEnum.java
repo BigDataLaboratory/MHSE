@@ -4,7 +4,7 @@ package it.bigdatalab.algorithm;
  * Set algorithm classes as predefined constants.
  */
 public enum AlgorithmEnum {
-    Propagate,
+    MHSE,
     PropagateP,
     PropagateSE,
     PropagateS,
