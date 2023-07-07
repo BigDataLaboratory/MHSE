@@ -171,7 +171,6 @@ public class MultithreadPropagateS extends BMinHashOpt {
             long logTime;
 
             int collisions = 0;
-
             // Set false as signature of all graph nodes
             // used to computing the algorithm
             int[] mutable = new int[lengthBitsArray(g.numNodes())];
