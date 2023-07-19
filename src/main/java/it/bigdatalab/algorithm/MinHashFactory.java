@@ -45,6 +45,9 @@ public class MinHashFactory {
             case BMHSEMulti:
                 minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, nodes, threads);
                 break;
+            case Expansion:
+                minHashAlgorithm = new MultithreadExpansion(g, numSeeds, threshold, nodes, threads, centrality);
+                break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
         }
@@ -85,6 +88,9 @@ public class MinHashFactory {
                 break;
             case BMHSEMulti:
                 minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, threads);
+                break;
+            case Expansion:
+                minHashAlgorithm = new MultithreadExpansion(g, numSeeds, threshold, threads, centrality);
                 break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
