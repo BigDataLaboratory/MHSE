@@ -84,6 +84,7 @@ public class MultithreadExpansion extends BMinHashOpt {
             int[] vp = new int[lengthBitsArray(g.numNodes())];
             int[] p_prev = new int[lengthBitsArray(g.numNodes())];
             int[] p_next = new int[lengthBitsArray(g.numNodes())];
+            int[] expanded = new int[lengthBitsArray(g.numNodes())];
 
             // Choose a random node is equivalent to compute the minhash
             // It could be set in mhse.properties file with the "minhash.nodeIDs" property
@@ -91,6 +92,9 @@ public class MultithreadExpansion extends BMinHashOpt {
 
             int remainderPositionNeigh;
             int quotientNeigh;
+
+            int remainderPositionNode;
+            int quotientNode;
             int node;
             int bit;
 
@@ -124,12 +128,18 @@ public class MultithreadExpansion extends BMinHashOpt {
                     System.arraycopy(a, 0, a_prev, 0, a.length);
 
                     for (int index = 0; index < p_prev.length; index++) {
-                        a[index] = p_prev[index] ^ vp[index];
-                        if (a_prev[index] != 0) { // questo è il pasquini's trick
+                        a[index] = p_prev[index] ^ vp[index]; // get all nodes ready to transmit forward
+                        a[index] = a[index] ^ expanded[index]; // remove all nodes that have transmitted forward in previous hops
+                        if (a_prev[index] != 0) { // trick
                             for (int bitPosition = 0; bitPosition < Integer.SIZE; bitPosition++) {
-                                bit = (a[index] >> bitPosition) & Constants.BIT; // forse da cambiare
+                                bit = (a[index] >> bitPosition) & Constants.BIT; // todo maybe there's another solution?
                                 if (bit == 1) {
                                     node = (index * Integer.SIZE) + bitPosition;
+
+                                    quotientNode = node >>> Constants.MASK; // position into array
+                                    remainderPositionNode = (node << Constants.REMAINDER) >>> Constants.REMAINDER;
+                                    expanded[quotientNode] |= (Constants.BIT) << remainderPositionNode;
+
                                     final int d = g.outdegree(node);
                                     final int[] successors = g.successorArray(node);
                                     for (int l = 0; l < d; l++) {
