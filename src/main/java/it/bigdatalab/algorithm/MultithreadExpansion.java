@@ -1,14 +1,18 @@
 package it.bigdatalab.algorithm;
 
 import it.bigdatalab.applications.CreateSeeds;
+import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
+import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.concurrent.Callable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 public class MultithreadExpansion extends BMinHashOpt {
 
@@ -55,7 +59,88 @@ public class MultithreadExpansion extends BMinHashOpt {
 
     @Override
     public Measure runAlgorithm() throws IOException {
-        return null;
+        startTime = System.currentTimeMillis();
+        long totalTime;
+
+        logger.debug("Number of threads to be used {}", mNumberOfThreads);
+
+        int[][] collisionsMatrix = new int[mNumSeeds][];
+        int[] lastHops = new int[mNumSeeds];
+        double[] hopTableArray;
+
+        int lowerboundDiameter = 0;
+
+        ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
+        List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
+
+        for (int i = 0; i < this.mNumSeeds; i++) {
+            todo.add(new IterationThread(mGraph.copy(), i));
+        }
+
+        if (doCentrality) {
+            mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
+        }
+
+        try {
+            List<Future<int[]>> futures = executor.invokeAll(todo);
+            for (int i = 0; i < this.mNumSeeds; i++) {
+                Future<int[]> future = futures.get(i);
+                if (!future.isCancelled()) {
+                    try {
+                        int[] hopCollisions = future.get();
+                        collisionsMatrix[i] = hopCollisions;
+                        int lastHop = hopCollisions.length - 1;
+                        lastHops[i] = lastHop;
+                        if (lastHop > lowerboundDiameter) {
+                            lowerboundDiameter = lastHop;
+                        }
+
+                    } catch (ExecutionException e) {
+                        logger.error("Failed to get result", e);
+                    } catch (InterruptedException e) {
+                        logger.error("Interrupted", e);
+                        Thread.currentThread().interrupt();
+                    }
+                } else {
+                    //TODO Implement better error management
+                    logger.error("Future is cancelled!");
+                }
+            }
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+        executor.shutdown();
+
+        totalTime = System.currentTimeMillis() - startTime;
+        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
+
+        normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
+
+        hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
+
+        logger.debug("Hop table array is {}", hopTableArray);
+
+        GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
+        graphMeasure.setNumNodes(mGraph.numNodes());
+        graphMeasure.setNumSeeds(mNumSeeds);
+        graphMeasure.setHopTable(hopTableArray);
+        graphMeasure.setCollisionsTable(collisionsMatrix);
+        //graphMeasure.setHopForNode(mHopForNodes);
+        graphMeasure.setLastHops(lastHops);
+        graphMeasure.setLowerBoundDiameter(lowerboundDiameter);
+        graphMeasure.setThreshold(mThreshold);
+        graphMeasure.setSeedsTime(mSeedTime);
+        graphMeasure.setTime(totalTime);
+        graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
+        graphMeasure.setAvgDistance(Stats.averageDistance(hopTableArray));
+        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTableArray, mThreshold));
+        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));
+        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
+
+        return graphMeasure;
     }
 
     class IterationThread implements Callable<int[]> {
@@ -129,11 +214,13 @@ public class MultithreadExpansion extends BMinHashOpt {
 
                     for (int index = 0; index < p_prev.length; index++) {
                         a[index] = p_prev[index] ^ vp[index]; // get all nodes ready to transmit forward
-                        a[index] = a[index] ^ expanded[index]; // remove all nodes that have transmitted forward in previous hops
+                        //a[index] = a[index] ^ expanded[index]; // remove all nodes that have transmitted forward in previous hops
                         if (a_prev[index] != 0) { // trick
                             for (int bitPosition = 0; bitPosition < Integer.SIZE; bitPosition++) {
                                 bit = (a[index] >> bitPosition) & Constants.BIT; // todo maybe there's another solution?
-                                if (bit == 1) {
+                                int bitExpanded = (expanded[index] >> bitPosition) & 1;
+
+                                if (bit == 1 && bitExpanded != 1) {
                                     node = (index * Integer.SIZE) + bitPosition;
 
                                     quotientNode = node >>> Constants.MASK; // position into array
