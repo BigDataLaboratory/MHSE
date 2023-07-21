@@ -6,20 +6,65 @@ import it.bigdatalab.model.Parameter;
 import it.bigdatalab.utils.GraphUtils;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.assertj.core.api.SoftAssertions;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MultithreadExpansionTest extends AlgoTest {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadExpansionTest");
+
+    private static @NotNull Stream<Arguments> pathProvider() {
+        return Stream.of(
+                Arguments.of("out", new int[]{-148195958}, new int[]{6}, new Measure(1, 18, 3.0, 5.3, 224.0, 201.6)),
+                Arguments.of("out", new int[]{-1666501769, 377641651}, new int[]{4, 11}, new Measure(2, 13, 4.470588235294118, 9.3, 272.0, 244.8)),
+                Arguments.of("out", new int[]{252785538, -136010130, -463078329, -1866071554}, new int[]{4, 20, 8, 2}, new Measure(4, 20, 6.815789473684211, 16.200000000000003, 304.0, 273.6)),
+                Arguments.of("out", new int[]{1015761470, -954533682, -1809478130, 404567971, -2106778180, 1587577811, 1281329477, 136212347}, new int[]{9, 6, 29, 22, 12, 17, 19, 1}, new Measure(8, 29, 9.560975609756097, 19.35, 492.0, 442.8)),
+                Arguments.of("out", new int[]{1511313872, -227918291, -1139497127, -372222666, -579314130, 673836020, 1270557561, -1872398185, -1541659072, -1732621646, 1190931453, 1560200934, 1138398279, -204183935, 2070631112, -1359976513}, new int[]{2, 28, 29, 1, 12, 16, 25, 5, 31, 26, 0, 20, 8, 10, 19, 23}, new Measure(16, 31, 11.118081180811808, 22.483333333333334, 542.0, 487.8))
+        );
+    }
+
+    private static @NotNull Stream<Arguments> tPathProvider() {
+        return Stream.of(
+                Arguments.of("out", new int[]{-148195958}, new int[]{6}, new Measure(1, 18, 3.0, 5.3, 224.0, 201.6)),
+                Arguments.of("out", new int[]{-1666501769, 377641651}, new int[]{4, 11}, new Measure(2, 13, 4.470588235294118, 9.3, 272.0, 244.8)),
+                Arguments.of("out", new int[]{252785538, -136010130, -463078329, -1866071554}, new int[]{4, 20, 8, 2}, new Measure(4, 20, 6.815789473684211, 16.200000000000003, 304.0, 273.6)),
+                Arguments.of("out", new int[]{1015761470, -954533682, -1809478130, 404567971, -2106778180, 1587577811, 1281329477, 136212347}, new int[]{9, 6, 29, 22, 12, 17, 19, 1}, new Measure(8, 29, 9.560975609756097, 19.35, 492.0, 442.8)),
+                Arguments.of("out", new int[]{1511313872, -227918291, -1139497127, -372222666, -579314130, 673836020, 1270557561, -1872398185, -1541659072, -1732621646, 1190931453, 1560200934, 1138398279, -204183935, 2070631112, -1359976513}, new int[]{2, 28, 29, 1, 12, 16, 25, 5, 31, 26, 0, 20, 8, 10, 19, 23}, new Measure(16, 31, 11.118081180811808, 22.483333333333334, 542.0, 487.8))
+        );
+    }
+
+    private static @NotNull Stream<Arguments> inStarProvider() {
+        return Stream.of(
+                Arguments.of("out", new int[]{-148195958}, new int[]{20}, new Measure(1, 1, 0.0, 0.0, 33.0, 29.7)),
+                Arguments.of("out", new int[]{-231125982}, new int[]{0}, new Measure(1, 1, 0.9696969696969697, 0.896875, 1089.0, 980.1)),
+                Arguments.of("out", new int[]{1351495042, 600767559}, new int[]{31, 16}, new Measure(2, 1, 0.0, 0.0, 33.0, 29.7)),
+                Arguments.of("out", new int[]{1121441672, -355110414, -1081200504, 1212731417}, new int[]{20, 26, 7, 31}, new Measure(4, 1, 0.0, 0.0, 33.0, 29.7)),
+                Arguments.of("out", new int[]{571898839, -1432145860, -1133378059, 621916878, -1138635951, -1041970128, -1061396053, 332705999}, new int[]{14, 32, 27, 16, 8, 4, 15, 13}, new Measure(8, 1, 0.0, 0.0, 33.0, 29.7)),
+                Arguments.of("out", new int[]{-1661843915, -328937796, 571898839, -1999389973, 11310977, -1781139022, -1001108646, -2046205192, -444995994, -304731378, -724798370, 1784683099, 813722321, -1061396053, 621916878, -1041970128}, new int[]{12, 32, 14, 29, 13, 21, 25, 0, 1, 22, 18, 31, 27, 15, 16, 4}, new Measure(16, 1, 0.6666666666666666, 0.8500000000000001, 99.0, 89.10000000000001))
+        );
+    }
+
+    private static @NotNull Stream<Arguments> outStarProvider() {
+        return Stream.of(
+                Arguments.of("out", new int[]{-148195958}, new int[]{20}, new Measure(1, 1, 0.5, 0.7999999999999999, 66.0, 59.4)),
+                Arguments.of("out", new int[]{-231125982}, new int[]{0}, new Measure(1, 0, 0.0, 0.0, 33.0, 29.7)),
+                Arguments.of("out", new int[]{1351495042, 600767559}, new int[]{31, 16}, new Measure(2, 1, 0.5, 0.7999999999999999, 66.0, 59.4)),
+                Arguments.of("out", new int[]{1121441672, -355110414, -1081200504, 1212731417}, new int[]{20, 26, 7, 31}, new Measure(4, 1, 0.5, 0.7999999999999999, 66.0, 59.4)),
+                Arguments.of("out", new int[]{571898839, -1432145860, -1133378059, 621916878, -1138635951, -1041970128, -1061396053, 332705999}, new int[]{14, 32, 27, 16, 8, 4, 15, 13}, new Measure(8, 1, 0.5, 0.7999999999999999, 66.0, 59.4)),
+                Arguments.of("out", new int[]{-1661843915, -328937796, 571898839, -1999389973, 11310977, -1781139022, -1001108646, -2046205192, -444995994, -304731378, -724798370, 1784683099, 813722321, -1061396053, 621916878, -1041970128}, new int[]{12, 32, 14, 29, 13, 21, 25, 0, 1, 22, 18, 31, 27, 15, 16, 4}, new Measure(16, 1, 0.4838709677419355, 0.7933333333333334, 63.9375, 57.54375))
+        );
+    }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("cycleProvider")

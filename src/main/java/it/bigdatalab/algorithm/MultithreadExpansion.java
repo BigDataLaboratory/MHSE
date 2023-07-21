@@ -160,13 +160,8 @@ public class MultithreadExpansion extends BMinHashOpt {
             long lastLogTime = startSeedTime;
             long logTime;
 
-            int collisions = 0;
+            int collisions;
 
-            int[] a = new int[lengthBitsArray(g.numNodes())];
-            int[] a_prev = new int[lengthBitsArray(g.numNodes())];
-
-            int[] b = new int[lengthBitsArray(g.numNodes())];
-            int[] vp = new int[lengthBitsArray(g.numNodes())];
             int[] p_prev = new int[lengthBitsArray(g.numNodes())];
             int[] p_next = new int[lengthBitsArray(g.numNodes())];
             int[] expanded = new int[lengthBitsArray(g.numNodes())];
@@ -210,12 +205,9 @@ public class MultithreadExpansion extends BMinHashOpt {
 
                     // copy all the actual nodes hash in a new structure
                     System.arraycopy(p_next, 0, p_prev, 0, p_next.length);
-                    //System.arraycopy(a, 0, a_prev, 0, a.length); // todo removed
 
                     for (int index = 0; index < p_prev.length; index++) {
-                        //a[index] = p_prev[index] ^ vp[index]; // get all nodes ready to transmit forward // todo removed
-                        //a[index] = a[index] ^ expanded[index]; // remove all nodes that have transmitted forward in previous hops // todo removed
-                        if (p_prev[index] != 0) { // trick // todo changed
+                        if (p_prev[index] != 0) { // trick
                             for (int bitPosition = 0; bitPosition < Integer.SIZE; bitPosition++) {
                                 bit = (p_prev[index] >> bitPosition) & Constants.BIT; // todo maybe there's another solution?
                                 int bitExpanded = (expanded[index] >> bitPosition) & 1;
@@ -235,7 +227,7 @@ public class MultithreadExpansion extends BMinHashOpt {
                                         final int neighbour = successors[l];
                                         quotientNeigh = neighbour >>> Constants.MASK; // position into array
                                         remainderPositionNeigh = (neighbour << Constants.REMAINDER) >>> Constants.REMAINDER;
-                                        p_next[quotientNeigh] |= (Constants.BIT) << remainderPositionNeigh; // todo changed
+                                        p_next[quotientNeigh] |= (Constants.BIT) << remainderPositionNeigh;
                                         if((p_next[quotientNeigh] ^ p_prev[quotientNeigh]) != 0) {
                                             signatureIsChanged = true;
                                         }
@@ -243,8 +235,6 @@ public class MultithreadExpansion extends BMinHashOpt {
                                 }
                             }
                         }
-                        //vp[index] = vp[index] | a[index]; // todo removed
-                        //p_next[index] = p_next[index] | b[index]; // todo removed
                     }
                 }
                 // count the collision between the node signature and the graph signature
@@ -259,7 +249,6 @@ public class MultithreadExpansion extends BMinHashOpt {
                     hopTable = copy;
 
                     hopTable[h] = collisions;
-                    logger.debug("collisions" + collisions);
 
                     h += 1;
                 }
