@@ -217,7 +217,7 @@ public class MultithreadExpansion extends BMinHashOpt {
                         //a[index] = a[index] ^ expanded[index]; // remove all nodes that have transmitted forward in previous hops // todo removed
                         if (p_prev[index] != 0) { // trick // todo changed
                             for (int bitPosition = 0; bitPosition < Integer.SIZE; bitPosition++) {
-                                bit = (p_next[index] >> bitPosition) & Constants.BIT; // todo maybe there's another solution?
+                                bit = (p_prev[index] >> bitPosition) & Constants.BIT; // todo maybe there's another solution?
                                 int bitExpanded = (expanded[index] >> bitPosition) & 1;
 
                                 if (bit == 1 && bitExpanded != 1) {
@@ -229,12 +229,16 @@ public class MultithreadExpansion extends BMinHashOpt {
 
                                     final int d = g.outdegree(node);
                                     final int[] successors = g.successorArray(node);
+
+
                                     for (int l = 0; l < d; l++) {
                                         final int neighbour = successors[l];
                                         quotientNeigh = neighbour >>> Constants.MASK; // position into array
                                         remainderPositionNeigh = (neighbour << Constants.REMAINDER) >>> Constants.REMAINDER;
                                         p_next[quotientNeigh] |= (Constants.BIT) << remainderPositionNeigh; // todo changed
-                                        signatureIsChanged = true;
+                                        if((p_next[quotientNeigh] ^ p_prev[quotientNeigh]) != 0) {
+                                            signatureIsChanged = true;
+                                        }
                                     }
                                 }
                             }
@@ -255,6 +259,7 @@ public class MultithreadExpansion extends BMinHashOpt {
                     hopTable = copy;
 
                     hopTable[h] = collisions;
+                    logger.debug("collisions" + collisions);
 
                     h += 1;
                 }
