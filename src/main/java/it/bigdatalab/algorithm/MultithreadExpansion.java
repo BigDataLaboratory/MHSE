@@ -210,14 +210,14 @@ public class MultithreadExpansion extends BMinHashOpt {
 
                     // copy all the actual nodes hash in a new structure
                     System.arraycopy(p_next, 0, p_prev, 0, p_next.length);
-                    System.arraycopy(a, 0, a_prev, 0, a.length);
+                    //System.arraycopy(a, 0, a_prev, 0, a.length); // todo removed
 
                     for (int index = 0; index < p_prev.length; index++) {
-                        a[index] = p_prev[index] ^ vp[index]; // get all nodes ready to transmit forward
-                        //a[index] = a[index] ^ expanded[index]; // remove all nodes that have transmitted forward in previous hops
-                        if (a_prev[index] != 0) { // trick
+                        //a[index] = p_prev[index] ^ vp[index]; // get all nodes ready to transmit forward // todo removed
+                        //a[index] = a[index] ^ expanded[index]; // remove all nodes that have transmitted forward in previous hops // todo removed
+                        if (p_prev[index] != 0) { // trick // todo changed
                             for (int bitPosition = 0; bitPosition < Integer.SIZE; bitPosition++) {
-                                bit = (a[index] >> bitPosition) & Constants.BIT; // todo maybe there's another solution?
+                                bit = (p_next[index] >> bitPosition) & Constants.BIT; // todo maybe there's another solution?
                                 int bitExpanded = (expanded[index] >> bitPosition) & 1;
 
                                 if (bit == 1 && bitExpanded != 1) {
@@ -233,14 +233,14 @@ public class MultithreadExpansion extends BMinHashOpt {
                                         final int neighbour = successors[l];
                                         quotientNeigh = neighbour >>> Constants.MASK; // position into array
                                         remainderPositionNeigh = (neighbour << Constants.REMAINDER) >>> Constants.REMAINDER;
-                                        b[quotientNeigh] |= (Constants.BIT) << remainderPositionNeigh;
+                                        p_next[quotientNeigh] |= (Constants.BIT) << remainderPositionNeigh; // todo changed
                                         signatureIsChanged = true;
                                     }
                                 }
                             }
                         }
-                        vp[index] = vp[index] | a[index];
-                        p_next[index] = p_next[index] | b[index];
+                        //vp[index] = vp[index] | a[index]; // todo removed
+                        //p_next[index] = p_next[index] | b[index]; // todo removed
                     }
                 }
                 // count the collision between the node signature and the graph signature
