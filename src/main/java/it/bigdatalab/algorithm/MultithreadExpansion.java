@@ -229,6 +229,9 @@ public class MultithreadExpansion extends BMinHashOpt {
                                         remainderPositionNeigh = (neighbour << Constants.REMAINDER) >>> Constants.REMAINDER;
                                         p_next[quotientNeigh] |= (Constants.BIT) << remainderPositionNeigh;
                                         if((p_next[quotientNeigh] ^ p_prev[quotientNeigh]) != 0) {
+                                            if (doCentrality) {
+                                                mHopForNodes[node][s] = (short) h;
+                                            }
                                             signatureIsChanged = true;
                                         }
                                     }
