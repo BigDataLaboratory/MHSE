@@ -139,7 +139,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setHopTable(hopTableArray);
         graphMeasure.setCollisionsTable(collisionsMatrix);
-        //graphMeasure.setHopForNode(mHopForNodes);
+        graphMeasure.setHopForNode(mHopForNodes);
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setLowerBoundDiameter(lowerboundDiameter);
         graphMeasure.setThreshold(mThreshold);
