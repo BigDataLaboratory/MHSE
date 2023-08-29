@@ -308,7 +308,6 @@ public class MultithreadMHSEX extends MinHash {
                 }
 
                 int b = signatureIsChanged ? 1 : 0;
-                logger.debug("thread {} hop {} signatureIsChanged {}", index, h, signatureIsChanged);
                 mLock.lock();
                 mSignatureIsChanged = (mSignatureIsChanged & ~(1 << index)) | ((b << index) & (1 << index));
                 mLock.unlock();
