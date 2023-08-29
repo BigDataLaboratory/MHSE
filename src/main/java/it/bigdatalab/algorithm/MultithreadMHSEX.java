@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
@@ -39,6 +40,8 @@ public class MultithreadMHSEX extends MinHash {
     private int mSignatureIsChanged;
     private ReentrantLock mLock;
 
+    private boolean[] saturated;
+
     /**
      * Creates a new MHSE X instance with default values
      */
@@ -53,6 +56,8 @@ public class MultithreadMHSEX extends MinHash {
         mTrackerImmutable = new int[lengthBitsArray(mGraph.numNodes())];
         mSignMutable = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
         mSignImmutable = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
+        saturated = new boolean[mGraph.numNodes()];
+        Arrays.fill(saturated, Boolean.FALSE);
     }
 
     /**
@@ -70,6 +75,8 @@ public class MultithreadMHSEX extends MinHash {
         mTrackerImmutable = new int[lengthBitsArray(mGraph.numNodes())];
         mSignMutable = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
         mSignImmutable = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
+        saturated = new boolean[mGraph.numNodes()];
+        Arrays.fill(saturated, Boolean.FALSE);
     }
 
     /**
@@ -242,59 +249,58 @@ public class MultithreadMHSEX extends MinHash {
             boolean signatureIsChanged;
 
             int nPosition, nRemainder, neighPosition, neighRemainder, neighMask;
+
             while (mSignatureIsChanged != 0) {
                 signatureIsChanged = false;
 
                 // update node signature
                 for (int n = start; n < end + 1; n++) {
 
-                    boolean saturated = true;
+                        if (saturated[n] == false) {//Antonio's trick
+                            final int d = g.outdegree(n);
+                            final int[] successors = g.successorArray(n);
 
-                    for (int s = 0; s < mNumSeeds && saturated; s++) {
-                        saturated = saturated && (mSignImmutable[n][s] == 1);
-                    }
+                            nPosition = n >>> Constants.MASK;
+                            nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
 
-                    if(!saturated) {
-                        final int d = g.outdegree(n);
-                        final int[] successors = g.successorArray(n);
+                            // for each neigh of the node n
+                            for (int l = d; l-- != 0; ) {
+                                // check if the neigh has been modified
+                                // in the previous hop. If true, it can modify
+                                // the node n
+                                neighPosition = successors[l] >>> Constants.MASK;
+                                neighRemainder = (successors[l] << Constants.REMAINDER) >>> Constants.REMAINDER;
+                                neighMask = (Constants.BIT << neighRemainder);
 
-                        nPosition = n >>> Constants.MASK;
-                        nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
+                                if (((neighMask & mTrackerImmutable[neighPosition]) >>> neighRemainder) == 1) {
+                                    // for each element of the signature of the node n
+                                    int sMask;
+                                    boolean tmp_saturated = true;
+                                    for (int s = 0; s < mNumSeeds; s++) {
+                                        sMask = (Constants.BIT << mRemainder[s]);
 
-                        // for each neigh of the node n
-                        for (int l = d; l-- != 0; ) {
-                            // check if the neigh has been modified
-                            // in the previous hop. If true, it can modify
-                            // the node n
-                            neighPosition = successors[l] >>> Constants.MASK;
-                            neighRemainder = (successors[l] << Constants.REMAINDER) >>> Constants.REMAINDER;
-                            neighMask = (Constants.BIT << neighRemainder);
+                                        // check if the s-th element of the node n signature
+                                        // it's 0, else jump to the next s-th element of the signature
+                                        if (((sMask & mSignMutable[n][mPosition[s]]) >>> mRemainder[s]) == 0) {
+                                            int bitNeigh;
+                                            int value;
+                                            // change the s-th element of the node n signature
+                                            // only if the s-th element of the neigh signature is 1
+                                            if (((sMask & mSignImmutable[successors[l]][mPosition[s]]) >>> mRemainder[s]) == 1) {
+                                                bitNeigh = (((1 << mRemainder[s]) & mSignImmutable[successors[l]][mPosition[s]]) >>> mRemainder[s]) << mRemainder[s];
+                                                value = bitNeigh | sMask & mSignImmutable[successors[l]][mPosition[s]];
+                                                signatureIsChanged = true; // track the signature changes, to run the next hop
+                                                mTrackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
+                                                mSignMutable[n][mPosition[s]] = mSignMutable[n][mPosition[s]] | value;
+                                                tmp_saturated  = tmp_saturated && (mSignMutable[n][mPosition[s]] == 1);
 
-                            if (((neighMask & mTrackerImmutable[neighPosition]) >>> neighRemainder) == 1) {
-                                // for each element of the signature of the node n
-                                int sMask;
-                                for (int s = 0; s < mNumSeeds; s++) {
-                                    sMask = (Constants.BIT << mRemainder[s]);
-
-                                    // check if the s-th element of the node n signature
-                                    // it's 0, else jump to the next s-th element of the signature
-                                    if (((sMask & mSignMutable[n][mPosition[s]]) >>> mRemainder[s]) == 0) {
-                                        int bitNeigh;
-                                        int value;
-                                        // change the s-th element of the node n signature
-                                        // only if the s-th element of the neigh signature is 1
-                                        if (((sMask & mSignImmutable[successors[l]][mPosition[s]]) >>> mRemainder[s]) == 1) {
-                                            bitNeigh = (((1 << mRemainder[s]) & mSignImmutable[successors[l]][mPosition[s]]) >>> mRemainder[s]) << mRemainder[s];
-                                            value = bitNeigh | sMask & mSignImmutable[successors[l]][mPosition[s]];
-                                            signatureIsChanged = true; // track the signature changes, to run the next hop
-                                            mTrackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
-                                            mSignMutable[n][mPosition[s]] = mSignMutable[n][mPosition[s]] | value;
+                                            }
+                                            saturated[n] = tmp_saturated;
                                         }
                                     }
                                 }
                             }
                         }
-                    }
 
 /*                    logTime = System.currentTimeMillis();
 
