@@ -14,7 +14,7 @@ public class GraphMeasureOpt extends Measure {
     @SerializedName("collision_table")
     private int[][] mCollisionsMatrix;
     @SerializedName("hop_for_node")
-    private Int2ObjectOpenHashMap<short[]> mHopForNode;
+    private short[][] mHopForNode;
 
     public GraphMeasureOpt() {
 
@@ -55,14 +55,14 @@ public class GraphMeasureOpt extends Measure {
     /**
      * @param hopForNode Matrix of the hops when minhash encounters each node
      */
-    public void setHopForNode(Int2ObjectOpenHashMap<short[]> hopForNode) {
+    public void setHopForNode(short[][] hopForNode) {
         this.mHopForNode = hopForNode;
     }
 
     /**
      * @return Matrix of the hops for each node
      */
-    public Int2ObjectOpenHashMap<short[]> getHopFornode() {
+    public short[][] getHopFornode() {
         return mHopForNode;
     }
 

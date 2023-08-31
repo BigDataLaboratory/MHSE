@@ -40,14 +40,20 @@ public class MultithreadMHSEX extends MinHash {
     private int mSignatureIsChanged;
     private ReentrantLock mLock;
 
+    private boolean doCentrality;
+
     private boolean[] saturated;
+
+    private short[][] mHopForNodes;
+
 
     /**
      * Creates a new MHSE X instance with default values
      */
-    public MultithreadMHSEX(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads) throws SeedsException {
+    public MultithreadMHSEX(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
+        this.doCentrality = centrality;
 
         h = 0;
         mPosition = new int[mNumSeeds];
@@ -63,10 +69,11 @@ public class MultithreadMHSEX extends MinHash {
     /**
      * Creates a new MHSE X instance with default values
      */
-    public MultithreadMHSEX(final ImmutableGraph g, int numSeeds, double threshold, int threads) throws SeedsException {
+    public MultithreadMHSEX(final ImmutableGraph g, int numSeeds, double threshold, int threads, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
+        this.doCentrality = centrality;
 
         h = 0;
         mPosition = new int[mNumSeeds];
@@ -106,6 +113,10 @@ public class MultithreadMHSEX extends MinHash {
         mCollisionsVector = new long[1];
         mLock = new ReentrantLock();
         int numberOfNodes4Group = groupNodesByThread(mGraph.numNodes());
+
+        if (doCentrality) {
+            mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
+        }
 
         logger.debug("Number of threads to be used {}", mNumberOfThreads);
         logger.debug("Number of nodes for each group {}", numberOfNodes4Group);
@@ -168,6 +179,7 @@ public class MultithreadMHSEX extends MinHash {
         graphMeasure.setLowerBoundDiameter(mCollisionsVector.length - 1);
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsList(mSeeds);
+        if(doCentrality) graphMeasure.setHopForNode(mHopForNodes);
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
@@ -256,7 +268,7 @@ public class MultithreadMHSEX extends MinHash {
                 // update node signature
                 for (int n = start; n < end + 1; n++) {
 
-                        if (saturated[n] == false) {//Antonio's trick
+                        if (!saturated[n]) {//Antonio's trick
                             final int d = g.outdegree(n);
                             final int[] successors = g.successorArray(n);
 
@@ -294,6 +306,11 @@ public class MultithreadMHSEX extends MinHash {
                                                 mSignMutable[n][mPosition[s]] = mSignMutable[n][mPosition[s]] | value;
                                                 tmp_saturated  = tmp_saturated && (mSignMutable[n][mPosition[s]] == 1);
 
+                                                if ((value >>> nRemainder) == 1) {
+                                                    if (doCentrality) {
+                                                        mHopForNodes[n][s] = (short) h;
+                                                    }
+                                                }
                                             }
                                             saturated[n] = tmp_saturated;
                                         }
@@ -314,7 +331,6 @@ public class MultithreadMHSEX extends MinHash {
                 }
 
                 int b = signatureIsChanged ? 1 : 0;
-                logger.debug("thread {} hop {} signatureIsChanged {}", index, h, signatureIsChanged);
                 mLock.lock();
                 mSignatureIsChanged = (mSignatureIsChanged & ~(1 << index)) | ((b << index) & (1 << index));
                 mLock.unlock();
