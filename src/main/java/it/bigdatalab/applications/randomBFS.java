@@ -22,7 +22,7 @@ public class randomBFS {
     private final ImmutableGraph mGraph;
     private final int nSeed;
     protected IntArrayList mSeeds;
-
+    private boolean doCentrality;
 
     public randomBFS(@NotNull Parameter param) throws IOException {
         this.mParam = param;
@@ -151,6 +151,11 @@ public class randomBFS {
         //double avgDistance = 0.0;
         double[] dd = new double[n];
         double[] dist = new double[n];
+        double[] farness = new double[0];
+        if (doCentrality) {
+                farness = new double[n];
+            Arrays.fill(farness, 0);
+        }
         double lower_bound = 0;
         Arrays.fill(dd, 0);
         int seed;
@@ -176,6 +181,9 @@ public class randomBFS {
                         dd[(int) dist[successors[l]]] +=1;
                         if (lower_bound < dist[successors[l]]){
                             lower_bound = dist[successors[l]];
+                        }
+                        if (doCentrality) {
+                            farness[successors[l]] += dist[successors[l]];
                         }
                         ball.add(successors[l]);
                     }
@@ -205,7 +213,9 @@ public class randomBFS {
                 R[h] = n*accum / nSeed;
             }
         }
-
+        if (doCentrality) {
+            // this must include the centrality computation method
+        }
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
