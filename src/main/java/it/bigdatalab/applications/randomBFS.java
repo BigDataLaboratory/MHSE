@@ -230,6 +230,7 @@ public class randomBFS {
         graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(R, mParam.getThreshold()));
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(R));
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(R, mParam.getThreshold()));
+        //If centrality
         if(doCentrality){
             graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),nSeed,farness));
             graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),nSeed,farness));
