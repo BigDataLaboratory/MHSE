@@ -79,9 +79,12 @@ public class RandomBFS {
         long totalTime;
 
         int[][] collisionsMatrix = new int[mNumSeeds][];
+        int[][] distancesMatrix = new int[0][];
         int[] lastHops = new int[mNumSeeds];
         double[] hopTableArray;
-
+        if (mDoCentrality){
+            distancesMatrix = new int[mNumSeeds][mGraph.numNodes()];
+        }
         int lowerboundDiameter = 0;
 
         logger.debug("Number of threads to be used {}", mNumberOfThreads);

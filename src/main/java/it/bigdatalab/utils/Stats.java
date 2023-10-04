@@ -133,4 +133,36 @@ public class Stats {
         return hopTable;
     }
 
+    public static double [] ClosenessCentrality(int n,int s, double [] fareness){
+       double[] closenessCentrality = new double[n];
+       int i;
+       for (i = 0; i < n; i++){
+           closenessCentrality[i] += (s * (n-1)) / (n * fareness[i]);
+       }
+       return closenessCentrality;
+    }
+
+    public static double [] HarmonicCentrality(int n,int s, double [] fareness){
+        double[] harmonicCentrality = new double[n];
+        int i;
+        for (i = 0; i < n; i++){
+            harmonicCentrality[i] += 1. / fareness[i];
+        }
+        for (i = 0; i < n; i++){
+            harmonicCentrality[i] += harmonicCentrality[i]* ((double) n /(s*(n-1)));
+        }
+        return harmonicCentrality;
+    }
+
+    public static double [] LinnCentrality(int n,int s, double [] fareness, double[] R){
+        double[] LinnCentrality = new double[n];
+        int i;
+        for (i = 0; i < n; i++){
+            LinnCentrality[i] += s * (R[R.length] * R[R.length]) /(n * fareness[i]) ;
+        }
+        for (i = 0; i < n; i++){
+            LinnCentrality[i] += LinnCentrality[i]* ((double) n /(n-1));
+        }
+        return LinnCentrality;
+    }
 }

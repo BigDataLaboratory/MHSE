@@ -154,7 +154,7 @@ public class randomBFS {
         double[] farness = new double[0];
         if (doCentrality) {
                 farness = new double[n];
-            Arrays.fill(farness, 0);
+                Arrays.fill(farness, 0);
         }
         double lower_bound = 0;
         Arrays.fill(dd, 0);
@@ -213,9 +213,7 @@ public class randomBFS {
                 R[h] = n*accum / nSeed;
             }
         }
-        if (doCentrality) {
-            // this must include the centrality computation method
-        }
+
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
@@ -232,6 +230,11 @@ public class randomBFS {
         graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(R, mParam.getThreshold()));
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(R));
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(R, mParam.getThreshold()));
+        if(doCentrality){
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),nSeed,farness));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),nSeed,farness));
+            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),nSeed,farness,R));
+        }
         return graphMeasure;
     }
 
