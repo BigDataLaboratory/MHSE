@@ -25,6 +25,8 @@ public class RandomBFS {
     protected ImmutableGraph mGraph;
     protected int[] mMinHashNodeIDs;
     private boolean mDoCentrality;
+    private int[][] mHopForNodes;
+
 
     /**
      * Number of max threads to use for the computation
@@ -82,8 +84,8 @@ public class RandomBFS {
         int[][] distancesMatrix = new int[0][];
         int[] lastHops = new int[mNumSeeds];
         double[] hopTableArray;
-        if (mDoCentrality){
-            distancesMatrix = new int[mNumSeeds][mGraph.numNodes()];
+        if (mDoCentrality) {
+            mHopForNodes = new int[mGraph.numNodes()][mNumSeeds];
         }
         int lowerboundDiameter = 0;
 
@@ -144,7 +146,12 @@ public class RandomBFS {
         graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTableArray, mThreshold));
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
-
+        if(mDoCentrality){
+            double [] farness = farnessArray(mHopForNodes);
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),mNumSeeds,farness));
+            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),mNumSeeds,farness,hopTableArray));
+        }
         return graphMeasure;
     }
 
@@ -169,6 +176,18 @@ public class RandomBFS {
         return hoptable;
     }
 
+    public double[] farnessArray(int [][] hopMatrix ){
+        int i,j;
+        double [] fareness = new double[mGraph.numNodes()];
+        Arrays.fill(fareness,0);
+        for (i = 0; i < mGraph.numNodes(); i++){
+            for (j = 0; j < mGraph.numNodes(); j++){
+                fareness[i] += hopMatrix[i][j];
+            }
+        }
+        return fareness;
+
+    }
     class IterationThread implements Callable<int[]> {
 
         private final ImmutableGraph g;
@@ -218,6 +237,9 @@ public class RandomBFS {
                         distances[neighbour] = distances[node] + 1;
                         ball.add(neighbour);
                         nodesAtDistanceHNext += 1;
+                        if (mDoCentrality){
+                            mHopForNodes[neighbour][s] = distances[neighbour];
+                        }
                     }
                 }
 
