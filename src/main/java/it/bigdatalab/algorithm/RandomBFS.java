@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class RandomBFS {
+public class RandomBFS  {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.RandomBFS");
 
@@ -181,7 +181,7 @@ public class RandomBFS {
         double [] fareness = new double[mGraph.numNodes()];
         Arrays.fill(fareness,0);
         for (i = 0; i < mGraph.numNodes(); i++){
-            for (j = 0; j < mGraph.numNodes(); j++){
+            for (j = 0; j < this.mNumSeeds; j++){
                 fareness[i] += hopMatrix[i][j];
             }
         }

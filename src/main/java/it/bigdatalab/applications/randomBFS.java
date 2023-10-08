@@ -30,6 +30,7 @@ public class randomBFS {
 
         //this.mParam = param;
         this.nSeed = param.getNumSeeds();
+        this.doCentrality = param.computeCentrality();
     }
 
     public static void main(String[] args) throws IOException {
@@ -41,6 +42,7 @@ public class randomBFS {
         boolean transpose = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("randomBFS.transpose"));
         double threshold = Double.parseDouble(PropertiesManager.getPropertyIfNotEmpty("randomBFS.threshold"));
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("randomBFS.inMemory", Constants.FALSE));
+        boolean computeCentrality = Boolean.parseBoolean(PropertiesManager.getProperty("randomBFS.computeCentrality", Constants.FALSE));
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("randomBFS.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
         Parameter param = new Parameter.Builder()
                 .setAlgorithmName("randomBFS")
@@ -51,6 +53,7 @@ public class randomBFS {
                 .setTranspose(transpose)
                 .setInMemory(inMemory)
                 .setIsolatedVertices(isolatedVertices)
+                .setComputeCentrality(computeCentrality)
                 .setThreshold(threshold)
                 .setNumThreads(suggestedNumberOfThreads)
                 .build();
@@ -236,6 +239,11 @@ public class randomBFS {
             graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),nSeed,farness));
             graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),nSeed,farness,R));
         }
+        double [] A= Stats.HarmonicCentrality(mGraph.numNodes(),nSeed,farness);
+        for (int k = 0;k<A.length;k++){
+            System.out.println(k+") "+A[k]);
+        }
+        System.out.println("MIAOOO");
         return graphMeasure;
     }
 
