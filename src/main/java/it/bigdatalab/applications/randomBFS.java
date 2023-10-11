@@ -24,6 +24,7 @@ public class randomBFS {
     protected IntArrayList mSeeds;
     private boolean doCentrality;
 
+    private boolean mNormalized;
     public randomBFS(@NotNull Parameter param) throws IOException {
         this.mParam = param;
         this.mGraph = GraphUtils.loadGraph(param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(),"out");
@@ -235,7 +236,7 @@ public class randomBFS {
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(R, mParam.getThreshold()));
         //If centrality
         if(doCentrality){
-            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),nSeed,farness));
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),nSeed,farness,true));
             graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),nSeed,farness));
             graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),nSeed,farness,R));
         }

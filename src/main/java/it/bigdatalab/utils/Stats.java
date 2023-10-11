@@ -133,12 +133,17 @@ public class Stats {
         return hopTable;
     }
     // We need to check these three functions
-    public static double [] ClosenessCentrality(int n,int s, double [] fareness){
+    public static double [] ClosenessCentrality(int n,int s, double [] fareness,boolean normalized){
        double[] closenessCentrality = new double[n];
        int i;
        for (i = 0; i < n; i++){
-           closenessCentrality[i] += (s * (n-1)) / (n * fareness[i]);
+           if (normalized){
+               closenessCentrality[i] +=  s  / (n * fareness[i]);
+           }else{
+               closenessCentrality[i] += (s * (n-1)) / (n * fareness[i]);
+           }
        }
+
        return closenessCentrality;
     }
 
@@ -158,7 +163,7 @@ public class Stats {
         }
         return harmonicCentrality;
     }
-
+    // Consider normalization
     public static double [] LinnCentrality(int n,int s, double [] fareness, double[] R){
         double[] LinnCentrality = new double[n];
         int i;
