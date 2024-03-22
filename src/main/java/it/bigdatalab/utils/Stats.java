@@ -137,11 +137,14 @@ public class Stats {
        double[] closenessCentrality = new double[n];
        int i;
        for (i = 0; i < n; i++){
+           closenessCentrality[i] += (s * (n-1)) / (n * fareness[i]);
+            //To check how to normalize
+           /*
            if (normalized){
                closenessCentrality[i] +=  s  / (n * fareness[i]);
            }else{
-               closenessCentrality[i] += (s * (n-1)) / (n * fareness[i]);
            }
+            */
        }
 
        return closenessCentrality;
@@ -152,15 +155,17 @@ public class Stats {
         int i;
         for (i = 0; i < n; i++){
             if (fareness[i] > 0){
-                harmonicCentrality[i] += 1. / fareness[i];
+                harmonicCentrality[i] += 1. / (((double) n /(s*(n-1)))*fareness[i]);
             } else{
                 harmonicCentrality[i] += 0;
             }
 
         }
+        /*
         for (i = 0; i < n; i++){
             harmonicCentrality[i] += harmonicCentrality[i]* ((double) n /(s*(n-1)));
         }
+         */
         return harmonicCentrality;
     }
     // Consider normalization
@@ -170,14 +175,16 @@ public class Stats {
         int l = R.length -1;
         for (i = 0; i < n; i++) {
             if (fareness[i] > 0){
-                LinnCentrality[i] += s * (R[l] * R[l]) / (n * fareness[i]);
+                LinnCentrality[i] +=  ((double) (s/n) * (R[l] * R[l]) / fareness[i]);
             }else{
                 LinnCentrality[i] += 0;
             }
         }
+        /*
         for (i = 0; i < n; i++){
             LinnCentrality[i] += LinnCentrality[i]* ((double) n /(n-1));
         }
+         */
         return LinnCentrality;
     }
 }
