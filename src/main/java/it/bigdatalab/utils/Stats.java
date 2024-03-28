@@ -156,17 +156,17 @@ public class Stats {
         int i;
         for (i = 0; i < n; i++){
             if (fareness[i] > 0){
-                harmonicCentrality[i] += 1. / (((double) n /(s*(n-1)))*fareness[i]);
+                harmonicCentrality[i] += 1. / fareness[i];
             } else{
                 harmonicCentrality[i] += 0;
             }
 
         }
-        /*
+
         for (i = 0; i < n; i++){
-            harmonicCentrality[i] += harmonicCentrality[i]* ((double) n /(s*(n-1)));
+            harmonicCentrality[i] = harmonicCentrality[i]* ((double) n /(s*(n-1)));
         }
-         */
+
         return harmonicCentrality;
     }
     // Consider normalization
