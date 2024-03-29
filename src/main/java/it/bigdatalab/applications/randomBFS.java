@@ -156,9 +156,13 @@ public class randomBFS {
         double[] dd = new double[n];
         double[] dist = new double[n];
         double[] farness = new double[0];
+        double[] inverse_farness = new double[0];
+
         if (doCentrality) {
                 farness = new double[n];
+                inverse_farness = new double[n];
                 Arrays.fill(farness, 0);
+                Arrays.fill(inverse_farness,0);
         }
         double lower_bound = 0;
         Arrays.fill(dd, 0);
@@ -188,6 +192,9 @@ public class randomBFS {
                         }
                         if (doCentrality) {
                             farness[successors[l]] += dist[successors[l]];
+                            if (dist[successors[l]] > 0){
+                                inverse_farness[successors[l]] += 1.0 / dist[successors[l]];
+                            }
                         }
                         ball.add(successors[l]);
                     }
@@ -237,7 +244,7 @@ public class randomBFS {
         //If centrality
         if(doCentrality){
             graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),nSeed,farness,true));
-            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),nSeed,farness));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),nSeed,inverse_farness));
             graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),nSeed,farness,R));
         }
         double [] A= Stats.HarmonicCentrality(mGraph.numNodes(),nSeed,farness);

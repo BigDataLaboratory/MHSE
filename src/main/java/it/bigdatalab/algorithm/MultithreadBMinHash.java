@@ -140,6 +140,17 @@ public class MultithreadBMinHash extends BMinHashOpt {
         graphMeasure.setHopTable(hopTableArray);
         graphMeasure.setCollisionsTable(collisionsMatrix);
         graphMeasure.setHopForNode(mHopForNodes);
+        if(doCentrality){
+            // Idk what is this next line, @Daniele check it
+            graphMeasure.setHopForNode(mHopForNodes);
+            // Antonio's code
+            double [] farness = farnessArray(mHopForNodes);
+            double [] inverseFarness = inverseFarnessArray(mHopForNodes);
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),mNumSeeds,inverseFarness));
+            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),mNumSeeds,farness,hopTableArray));
+
+        }
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setLowerBoundDiameter(lowerboundDiameter);
         graphMeasure.setThreshold(mThreshold);

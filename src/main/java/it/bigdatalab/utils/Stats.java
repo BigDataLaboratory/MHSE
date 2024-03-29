@@ -151,9 +151,10 @@ public class Stats {
        return closenessCentrality;
     }
 
-    public static double [] HarmonicCentrality(int n,int s, double [] fareness){
-        double[] harmonicCentrality = new double[n];
+    public static double [] HarmonicCentrality(int n,int s, double [] harmonicCentrality){
+        //double[] harmonicCentrality = new double[n];
         int i;
+        /*
         for (i = 0; i < n; i++){
             if (fareness[i] > 0){
                 harmonicCentrality[i] += 1. / fareness[i];
@@ -162,6 +163,7 @@ public class Stats {
             }
 
         }
+        */
 
         for (i = 0; i < n; i++){
             harmonicCentrality[i] = harmonicCentrality[i]* ((double) n /(s*(n-1)));

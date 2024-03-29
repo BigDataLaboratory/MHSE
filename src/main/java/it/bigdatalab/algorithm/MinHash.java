@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public abstract class MinHash {
 
@@ -58,6 +59,33 @@ public abstract class MinHash {
         SeedsException(String message) {
             super(message);
         }
+    }
+
+    //Classes for computing the farness
+    public double[] inverseFarnessArray(short [][] hopMatrix){
+        int i,j;
+        double [] inverseFareness = new double[mGraph.numNodes()];
+        Arrays.fill(inverseFareness,0);
+        for (i = 0; i < mGraph.numNodes(); i++){
+            for (j = 0; j < this.mNumSeeds; j++){
+                if (hopMatrix[i][j] > 0) {
+                    inverseFareness[i] += 1.0/hopMatrix[i][j];
+                }
+            }
+        }
+        return inverseFareness;
+    }
+    public double[] farnessArray(short [][] hopMatrix ){
+        int i,j;
+        double [] fareness = new double[mGraph.numNodes()];
+        Arrays.fill(fareness,0);
+        for (i = 0; i < mGraph.numNodes(); i++){
+            for (j = 0; j < this.mNumSeeds; j++){
+                fareness[i] += hopMatrix[i][j];
+            }
+        }
+        return fareness;
+
     }
 
 }
