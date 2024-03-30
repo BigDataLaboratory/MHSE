@@ -12,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +23,8 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BFSTest {
+
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.BFSTest");
 
     private Comparator<Integer> mLessThan;
 
@@ -51,6 +55,21 @@ public class BFSTest {
                 Arguments.of("out", new int[]{453057370, -456587907, 607574255, -2104320307}, new int[]{23, 4, 30, 28}, new Measure(4, 16, 8.0, 13.9, 1024.0, 921.6)),
                 Arguments.of("out", new int[]{1970239154, 1757455415, 100373564, 363336826, 1406431479, 689901333, 1516449588, 1505011033}, new int[]{3, 15, 20, 29, 15, 19, 8, 24}, new Measure(8, 16, 8.0, 13.9, 1024.0, 921.6)),
                 Arguments.of("out", new int[]{-664801267, 1258820520, -947422122, 1283387230, -1456301379, 899107882, 1353530495, 900655226, 535242463, 2115096797, 748669758, 725549636, -1886462093, -1116647959, -1743103279, 1134030635}, new int[]{31, 3, 2, 16, 31, 28, 12, 21, 6, 11, 0, 24, 18, 5, 22, 20}, new Measure(16, 16, 8.0, 13.9, 1024.0, 921.6))
+        );
+    }
+
+    private static @NotNull Stream<Arguments> unCycleFarenessProvider() {
+        return Stream.of(
+                Arguments.of("in",
+                        new int[]{266306011,-939308478,-174211261,35858331,-660663465,1710739066,-1067134873,-942482549,1005288810,-872134992,904022323,1686364410,1188664018,1436956473,-2083884661,-1508901730,-958858242,1456980451,789002170,-1610682797,935447814,-1899901463,-345347755,758360383,290712598,-1128005423,982201761,-667083757,-292381408,-1020489139,-1077237281,429326219},
+                        //new int[]{2,28,7,3,6,11,15,19,9,27,4,8,14,16,21,25,18,10,22,1,24,12,17,31,23,20,5,13,26,30,0,29},
+                        new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31},
+                        new int[]{256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256}),
+                Arguments.of("out",
+                        new int[]{266306011,-939308478,-174211261,35858331,-660663465,1710739066,-1067134873,-942482549,1005288810,-872134992,904022323,1686364410,1188664018,1436956473,-2083884661,-1508901730,-958858242,1456980451,789002170,-1610682797,935447814,-1899901463,-345347755,758360383,290712598,-1128005423,982201761,-667083757,-292381408,-1020489139,-1077237281,429326219},
+                        //new int[]{2,28,7,3,6,11,15,19,9,27,4,8,14,16,21,25,18,10,22,1,24,12,17,31,23,20,5,13,26,30,0,29},
+                        new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31},
+                        new int[]{256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256})
         );
     }
 
@@ -408,4 +427,39 @@ public class BFSTest {
         assertions.assertAll();
     }
 
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("unCycleFarenessProvider")
+    void testFareness_UnCycle(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_undirected/32-cycle.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setThreshold(0.9)
+                .setComputeCentrality(true)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        RandomBFS algo = new RandomBFS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        Measure measure = algo.runAlgorithm();
+
+        int[] sum_fareness = new int[nodes.length];
+        short[][] fareness = measure.getFareness();
+        for(int i = 0; i < fareness.length; i++) {
+            logger.debug("fareness {}", fareness[i]);
+            for(int j = 0; j < fareness[i].length; j++) {
+                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
+            }
+        }
+
+        assertThat(expected).containsExactly(sum_fareness);
+    }
 }

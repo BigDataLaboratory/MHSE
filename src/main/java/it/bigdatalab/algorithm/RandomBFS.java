@@ -25,7 +25,7 @@ public class RandomBFS  {
     protected ImmutableGraph mGraph;
     protected int[] mMinHashNodeIDs;
     private boolean mDoCentrality;
-    private int[][] mHopForNodes;
+    private short[][] mHopForNodes;
 
 
     /**
@@ -85,7 +85,7 @@ public class RandomBFS  {
         int[] lastHops = new int[mNumSeeds];
         double[] hopTableArray;
         if (mDoCentrality) {
-            mHopForNodes = new int[mGraph.numNodes()][mNumSeeds];
+            mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
         }
         int lowerboundDiameter = 0;
 
@@ -147,6 +147,7 @@ public class RandomBFS  {
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
         if(mDoCentrality){
+            graphMeasure.setFareness(mHopForNodes);
             double [] farness = farnessArray(mHopForNodes);
             double [] inverseFarness = inverseFarnessArray(mHopForNodes);
             graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
@@ -176,7 +177,7 @@ public class RandomBFS  {
         }
         return hoptable;
     }
-    public double[] inverseFarnessArray(int [][] hopMatrix){
+    public double[] inverseFarnessArray(short [][] hopMatrix){
         int i,j;
         double [] inverseFareness = new double[mGraph.numNodes()];
         Arrays.fill(inverseFareness,0);
@@ -189,7 +190,7 @@ public class RandomBFS  {
         }
         return inverseFareness;
     }
-    public double[] farnessArray(int [][] hopMatrix ){
+    public double[] farnessArray(short [][] hopMatrix ){
         int i,j;
         double [] fareness = new double[mGraph.numNodes()];
         Arrays.fill(fareness,0);
@@ -251,7 +252,7 @@ public class RandomBFS  {
                         ball.add(neighbour);
                         nodesAtDistanceHNext += 1;
                         if (mDoCentrality){
-                            mHopForNodes[neighbour][s] = distances[neighbour];
+                            mHopForNodes[neighbour][s] = (short) distances[neighbour];
                         }
                     }
                 }

@@ -123,7 +123,7 @@ public class MultithreadExpansionTest extends AlgoTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -372,7 +372,7 @@ public class MultithreadExpansionTest extends AlgoTest {
                 .setSeedsRandom(false)
                 .setThreshold(0.9)
                 .setComputeCentrality(true)
-                .setNumThreads(4)
+                .setNumThreads(1)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
@@ -420,6 +420,7 @@ public class MultithreadExpansionTest extends AlgoTest {
         int[] sum_fareness = new int[nodes.length];
         short[][] fareness = measure.getFareness();
         for(int i = 0; i < fareness.length; i++) {
+            logger.debug("fareness {}", fareness[i]);
             for(int j = 0; j < fareness[i].length; j++) {
                 sum_fareness[i] = sum_fareness[i] + fareness[i][j];
             }

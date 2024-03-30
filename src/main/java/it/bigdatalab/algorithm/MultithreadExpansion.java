@@ -229,8 +229,7 @@ public class MultithreadExpansion extends BMinHashOpt {
 
                                     final int d = g.outdegree(node);
                                     final int[] successors = g.successorArray(node);
-
-
+                                    logger.debug("seed {} node {} successors {}",s, node, successors);
                                     for (int l = 0; l < d; l++) {
                                         final int neighbour = successors[l];
                                         quotientNeigh = neighbour >>> Constants.MASK; // position into array
@@ -238,7 +237,20 @@ public class MultithreadExpansion extends BMinHashOpt {
                                         p_next[quotientNeigh] |= (Constants.BIT) << remainderPositionNeigh;
                                         if((p_next[quotientNeigh] ^ p_prev[quotientNeigh]) != 0) {
                                             if (doCentrality) {
-                                                mHopForNodes[node][s] = (short) h;
+                                                int a1 = p_next[quotientNeigh] & (1 >> remainderPositionNeigh);
+
+                                                if(((p_next[quotientNeigh] & (1 >> remainderPositionNeigh)) & (p_prev[quotientNeigh] & (1 >> remainderPositionNeigh))) != 1) {
+
+                                                    mHopForNodes[neighbour][s] = (short) h;
+                                                    if (neighbour == 0 && s == 0) {
+                                                        logger.debug("a1 {} remainder {}", a1, remainderPositionNeigh);
+                                                        logger.debug("p_next[quotientNeigh] {}", Integer.toBinaryString(p_next[quotientNeigh]));
+                                                        logger.debug("p_prev[quotientNeigh] {}", Integer.toBinaryString(p_prev[quotientNeigh]));
+                                                        logger.debug("W seed {} node {} successors {}", s, node, successors);
+                                                        logger.debug("neighbour = {} s = {} h = {}", neighbour, s, h);
+
+                                                }
+                                            }
                                             }
                                             signatureIsChanged = true;
                                         }
@@ -264,6 +276,8 @@ public class MultithreadExpansion extends BMinHashOpt {
                     h += 1;
                 }
             }
+            logger.debug("hop for node {}", mHopForNodes);
+            logger.debug("numero totale hop {}", h);
             return hopTable;
         }
     }
