@@ -50,7 +50,7 @@ class MHSEXTest extends AlgoTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -80,7 +80,7 @@ class MHSEXTest extends AlgoTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -110,7 +110,7 @@ class MHSEXTest extends AlgoTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -140,7 +140,7 @@ class MHSEXTest extends AlgoTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -170,7 +170,7 @@ class MHSEXTest extends AlgoTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -200,7 +200,7 @@ class MHSEXTest extends AlgoTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -230,7 +230,7 @@ class MHSEXTest extends AlgoTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -260,7 +260,7 @@ class MHSEXTest extends AlgoTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -271,5 +271,187 @@ class MHSEXTest extends AlgoTest {
         int expected = 1;
         int actual = algo.lengthBitsArray(20);
         assertThat(actual).isEqualTo(expected);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("unCycleFarenessProvider")
+    void testFareness_UnCycle(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_undirected/32-cycle.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(false)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setThreshold(0.9)
+                .setComputeCentrality(true)
+                .setNumThreads(1)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        Measure measure = algo.runAlgorithm();
+
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("cycleFarenessProvider")
+    void testFareness_DiCycle(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32-cycle.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(false)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setThreshold(0.9)
+                .setComputeCentrality(true)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        Measure measure = algo.runAlgorithm();
+
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("unWheelFarenessProvider")
+    void testFareness_UnWheel(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_undirected/32-wheel.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(false)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setThreshold(0.9)
+                .setComputeCentrality(true)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        Measure measure = algo.runAlgorithm();
+
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("pathFarenessProvider")
+    void testFareness_DiPath(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32-path.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setComputeCentrality(true)
+                .setThreshold(0.9)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        Measure measure = algo.runAlgorithm();
+
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("tPathFarenessProvider")
+    void testAlgorithm_DiTPath(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32t-path.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(true)
+                .setSeedsRandom(false)
+                .setThreshold(0.9)
+                .setComputeCentrality(true)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        Measure measure = algo.runAlgorithm();
+
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("inStarFarenessProvider")
+    void testFareness_DiInStar(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32in-star.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setComputeCentrality(true)
+                .setThreshold(0.9)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        Measure measure = algo.runAlgorithm();
+
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("outStarFarenessProvider")
+    void testFareness_DiOutStar(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32out-star.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setComputeCentrality(true)
+                .setThreshold(0.9)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        Measure measure = algo.runAlgorithm();
+
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
     }
 }

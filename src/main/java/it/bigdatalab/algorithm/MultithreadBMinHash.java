@@ -28,7 +28,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
     private final int mNumberOfThreads;
     private final double[] mSeedTime;
     private long startTime;
-    private boolean doCentrality;
+    private boolean mDoCentrality;
     private short[][] mHopForNodes;
 
 
@@ -39,7 +39,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         this.mSeedTime = new double[mNumSeeds];
-        doCentrality = centrality;
+        mDoCentrality = centrality;
     }
 
     /**
@@ -50,7 +50,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         this.mSeedTime = new double[mNumSeeds];
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
-        doCentrality = centrality;
+        mDoCentrality = centrality;
     }
 
     /**
@@ -89,7 +89,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
             todo.add(new IterationThread(mGraph.copy(), i));
         }
 
-        if (doCentrality) {
+        if (mDoCentrality) {
             mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
         }
 
@@ -139,15 +139,14 @@ public class MultithreadBMinHash extends BMinHashOpt {
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setHopTable(hopTableArray);
         graphMeasure.setCollisionsTable(collisionsMatrix);
-        if(doCentrality){
-            // Idk what is this next line, @Daniele check it
-            graphMeasure.setFareness(mHopForNodes);
-            // Antonio's code
-            double [] farness = farnessArray(mHopForNodes);
-            double [] inverseFarness = inverseFarnessArray(mHopForNodes);
-            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
-            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),mNumSeeds,inverseFarness));
-            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),mNumSeeds,farness,hopTableArray));
+        if(mDoCentrality){
+            int[] farness = farnessArray(mHopForNodes);
+            float[] inverseFarness = inverseFarnessArray(mHopForNodes);
+            graphMeasure.setFarness(farness);
+            graphMeasure.setInverseFarness(inverseFarness);
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds, farness,true));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(), mNumSeeds, inverseFarness));
+            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), mNumSeeds, farness, hopTableArray));
 
         }
         graphMeasure.setLastHops(lastHops);
@@ -244,7 +243,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
                                 bitNeigh = (((1 << remainderPositionNeigh) & immutable[quotientNeigh]) >>> remainderPositionNeigh) << remainderPositionNode;
                                 value = bitNeigh | nodeMask & immutable[quotientNode];
                                 if ((value >>> remainderPositionNode) == 1) {
-                                    if (doCentrality) {
+                                    if (mDoCentrality) {
                                         mHopForNodes[n][s] = (short) h;
                                     }
                                     signatureIsChanged = true;

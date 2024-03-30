@@ -41,9 +41,10 @@ public class Measure {
     protected int[] mLastHops;
     @SerializedName("run")
     protected int mRun;
-
-    @SerializedName("fareness")
-    protected short[][] mFareness;
+    @SerializedName("farness")
+    protected int[] mFarness;
+    @SerializedName("inverse_farness")
+    protected float[] mInverseFarness;
 
 
 
@@ -52,14 +53,15 @@ public class Measure {
 
     public Measure(int numSeeds, int lowerBound,
                    double avgDistance, double effectiveDiameter,
-                   double totalCouple, double totalCouplePerc, short[][] fareness) {
+                   double totalCouple, double totalCouplePerc, int[] farness, float[] inverseFarness) {
         this.mNumSeeds = numSeeds;
         this.mLowerBoundDiameter = lowerBound;
         this.mAvgDistance = avgDistance;
         this.mEffectiveDiameter = effectiveDiameter;
         this.mTotalCouples = totalCouple;
         this.mTotalCouplePercentage = totalCouplePerc;
-        this.mFareness = fareness;
+        this.mFarness = farness;
+        this.mInverseFarness = inverseFarness;
     }
 
     public Measure(int numSeeds, int lowerBound,
@@ -77,8 +79,18 @@ public class Measure {
      *                                  GETTER METHODS
      * ****************************************************************************/
 
-    public short[][] getFareness() {
-        return mFareness;
+    /**
+     * @return Matrix of the hops for each node
+     */
+    public int[] getFarness() {
+        return mFarness;
+    }
+
+    /**
+     * @return Matrix of the (inverse) hops for each node
+     */
+    public float[] getInverseFarness() {
+        return mInverseFarness;
     }
 
     /**
@@ -206,8 +218,18 @@ public class Measure {
      * ****************************************************************************/
 
 
-    public void setFareness(short[][] fareness) {
-        this.mFareness = fareness;
+    /**
+     * @param farness Matrix of the hops when minhash encounters each node
+     */
+    public void setFarness(int[] farness) {
+        this.mFarness = farness;
+    }
+
+    /**
+     * @param inverseFarness Matrix of the (inverse) hops when minhash encounters each node
+     */
+    public void setInverseFarness(float[] inverseFarness) {
+        this.mInverseFarness = inverseFarness;
     }
 
     /**

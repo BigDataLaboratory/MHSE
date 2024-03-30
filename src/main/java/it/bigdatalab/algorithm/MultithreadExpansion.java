@@ -20,8 +20,8 @@ public class MultithreadExpansion extends BMinHashOpt {
 
     private final int mNumberOfThreads;
     private final double[] mSeedTime;
+    private final boolean mDoCentrality;
     private long startTime;
-    private boolean doCentrality;
     private short[][] mHopForNodes;
 
     /**
@@ -31,7 +31,7 @@ public class MultithreadExpansion extends BMinHashOpt {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         this.mSeedTime = new double[mNumSeeds];
-        doCentrality = centrality;
+        mDoCentrality = centrality;
     }
 
     /**
@@ -42,7 +42,7 @@ public class MultithreadExpansion extends BMinHashOpt {
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         this.mSeedTime = new double[mNumSeeds];
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
-        doCentrality = centrality;
+        mDoCentrality = centrality;
     }
 
     /**
@@ -77,7 +77,7 @@ public class MultithreadExpansion extends BMinHashOpt {
             todo.add(new IterationThread(mGraph.copy(), i));
         }
 
-        if (doCentrality) {
+        if (mDoCentrality) {
             mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
         }
 
@@ -128,13 +128,14 @@ public class MultithreadExpansion extends BMinHashOpt {
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setHopTable(hopTableArray);
         graphMeasure.setCollisionsTable(collisionsMatrix);
-        if(doCentrality){
-            graphMeasure.setFareness(mHopForNodes);
-            double [] farness = farnessArray(mHopForNodes);
-            double [] inverseFarness = inverseFarnessArray(mHopForNodes);
-            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
-            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),mNumSeeds,inverseFarness));
-            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),mNumSeeds,farness,hopTableArray));
+        if (mDoCentrality) {
+            int[] farness = farnessArray(mHopForNodes);
+            float[] inverseFarness = inverseFarnessArray(mHopForNodes);
+            graphMeasure.setFarness(farness);
+            graphMeasure.setInverseFarness(inverseFarness);
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), mNumSeeds, farness, true));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(), mNumSeeds, inverseFarness));
+            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), mNumSeeds, farness, hopTableArray));
 
         }
         graphMeasure.setLastHops(lastHops);
@@ -163,10 +164,6 @@ public class MultithreadExpansion extends BMinHashOpt {
 
         @Override
         public int[] call() throws Exception {
-
-            long startSeedTime = System.currentTimeMillis();
-            long lastLogTime = startSeedTime;
-            long logTime;
 
             int collisions;
 
@@ -229,28 +226,18 @@ public class MultithreadExpansion extends BMinHashOpt {
 
                                     final int d = g.outdegree(node);
                                     final int[] successors = g.successorArray(node);
-                                    logger.debug("seed {} node {} successors {}",s, node, successors);
                                     for (int l = 0; l < d; l++) {
                                         final int neighbour = successors[l];
                                         quotientNeigh = neighbour >>> Constants.MASK; // position into array
                                         remainderPositionNeigh = (neighbour << Constants.REMAINDER) >>> Constants.REMAINDER;
                                         p_next[quotientNeigh] |= (Constants.BIT) << remainderPositionNeigh;
-                                        if((p_next[quotientNeigh] ^ p_prev[quotientNeigh]) != 0) {
-                                            if (doCentrality) {
-                                                int a1 = p_next[quotientNeigh] & (1 >> remainderPositionNeigh);
-
-                                                if(((p_next[quotientNeigh] & (1 >> remainderPositionNeigh)) & (p_prev[quotientNeigh] & (1 >> remainderPositionNeigh))) != 1) {
-
+                                        if ((p_next[quotientNeigh] ^ p_prev[quotientNeigh]) != 0) {
+                                            if (mDoCentrality) {
+                                                int bit_neigh_next = (p_next[quotientNeigh] & ((Constants.BIT) << remainderPositionNeigh)) >>> remainderPositionNeigh;
+                                                int bit_neigh_prev = (p_prev[quotientNeigh] & ((Constants.BIT) << remainderPositionNeigh)) >>> remainderPositionNeigh;
+                                                if ((bit_neigh_next & bit_neigh_prev) != 1) {
                                                     mHopForNodes[neighbour][s] = (short) h;
-                                                    if (neighbour == 0 && s == 0) {
-                                                        logger.debug("a1 {} remainder {}", a1, remainderPositionNeigh);
-                                                        logger.debug("p_next[quotientNeigh] {}", Integer.toBinaryString(p_next[quotientNeigh]));
-                                                        logger.debug("p_prev[quotientNeigh] {}", Integer.toBinaryString(p_prev[quotientNeigh]));
-                                                        logger.debug("W seed {} node {} successors {}", s, node, successors);
-                                                        logger.debug("neighbour = {} s = {} h = {}", neighbour, s, h);
-
                                                 }
-                                            }
                                             }
                                             signatureIsChanged = true;
                                         }
@@ -276,8 +263,6 @@ public class MultithreadExpansion extends BMinHashOpt {
                     h += 1;
                 }
             }
-            logger.debug("hop for node {}", mHopForNodes);
-            logger.debug("numero totale hop {}", h);
             return hopTable;
         }
     }

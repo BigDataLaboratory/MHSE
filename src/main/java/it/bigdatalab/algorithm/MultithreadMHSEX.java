@@ -40,7 +40,7 @@ public class MultithreadMHSEX extends MinHash {
     private int mSignatureIsChanged;
     private ReentrantLock mLock;
 
-    private boolean doCentrality;
+    private boolean mDoCentrality;
 
     private boolean[] saturated;
 
@@ -55,7 +55,7 @@ public class MultithreadMHSEX extends MinHash {
     public MultithreadMHSEX(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
-        this.doCentrality = centrality;
+        this.mDoCentrality = centrality;
 
         h = 0;
         mPosition = new int[mNumSeeds];
@@ -75,7 +75,7 @@ public class MultithreadMHSEX extends MinHash {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
-        this.doCentrality = centrality;
+        this.mDoCentrality = centrality;
 
         h = 0;
         mPosition = new int[mNumSeeds];
@@ -118,7 +118,7 @@ public class MultithreadMHSEX extends MinHash {
         mLock = new ReentrantLock();
         int numberOfNodes4Group = groupNodesByThread(mGraph.numNodes());
 
-        if (doCentrality) {
+        if (mDoCentrality) {
             mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
         }
 
@@ -183,11 +183,11 @@ public class MultithreadMHSEX extends MinHash {
         graphMeasure.setLowerBoundDiameter(mCollisionsVector.length - 1);
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsList(mSeeds);
-        if(doCentrality){
-            // Idk what is this next line, @Daniele check it
-            graphMeasure.setFareness(mHopForNodes);            // Antonio's code
-            double [] farness = farnessArray(mHopForNodes);
-            double [] inverseFarness = inverseFarnessArray(mHopForNodes);
+        if(mDoCentrality){
+            int[] farness = farnessArray(mHopForNodes);
+            float[] inverseFarness = inverseFarnessArray(mHopForNodes);
+            graphMeasure.setFarness(farness);
+            graphMeasure.setInverseFarness(inverseFarness);
             graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
             graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),mNumSeeds,inverseFarness));
             graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),mNumSeeds,farness,hopTable));
@@ -322,7 +322,7 @@ public class MultithreadMHSEX extends MinHash {
                                                 tmp_saturated  = tmp_saturated && (mSignMutable[n][mPosition[s]] == 1);
 
                                                 if ((value >>> nRemainder) == 1) {
-                                                    if (doCentrality) {
+                                                    if (mDoCentrality) {
                                                         mHopForNodes[n][s] = (short) h;
                                                     }
                                                 }

@@ -155,14 +155,12 @@ public class randomBFS {
         //double avgDistance = 0.0;
         double[] dd = new double[n];
         double[] dist = new double[n];
-        double[] farness = new double[0];
-        double[] inverse_farness = new double[0];
+        int[] farness = new int[0];
+        float[] inverse_farness = new float[0];
 
         if (doCentrality) {
-                farness = new double[n];
-                inverse_farness = new double[n];
-                Arrays.fill(farness, 0);
-                Arrays.fill(inverse_farness,0);
+                farness = new int[n];
+                inverse_farness = new float[n];
         }
         double lower_bound = 0;
         Arrays.fill(dd, 0);
@@ -243,15 +241,11 @@ public class randomBFS {
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(R, mParam.getThreshold()));
         //If centrality
         if(doCentrality){
-            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),nSeed,farness,true));
-            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),nSeed,inverse_farness));
-            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),nSeed,farness,R));
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), nSeed, farness,true));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(), nSeed, inverse_farness));
+            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), nSeed, farness, R));
         }
-        double [] A= Stats.HarmonicCentrality(mGraph.numNodes(),nSeed,farness);
-        for (int k = 0;k<A.length;k++){
-            System.out.println(k+") "+A[k]);
-        }
-        System.out.println("MIAOOO");
+
         return graphMeasure;
     }
 

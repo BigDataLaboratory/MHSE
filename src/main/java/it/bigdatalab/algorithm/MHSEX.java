@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class MHSEX extends MinHash {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSEX");
 
-    private boolean doCentrality;
+    private boolean mDoCentrality;
     private short[][] mHopForNodes;
 
 
@@ -24,7 +24,7 @@ public class MHSEX extends MinHash {
      */
     public MHSEX(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
-        doCentrality = centrality;
+        mDoCentrality = centrality;
     }
 
     /**
@@ -33,7 +33,7 @@ public class MHSEX extends MinHash {
     public MHSEX(final ImmutableGraph g, int numSeeds, double threshold, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold);
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
-        doCentrality = centrality;
+        mDoCentrality = centrality;
     }
 
     public int lengthBitsArray(int value) {
@@ -60,7 +60,7 @@ public class MHSEX extends MinHash {
 
         boolean signatureIsChanged = true;
         int h = 0;
-        if (doCentrality) {
+        if (mDoCentrality) {
             mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
         }
         int nPosition, nRemainder, neighPosition, neighRemainder, neighMask;
@@ -116,7 +116,7 @@ public class MHSEX extends MinHash {
                                         trackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
                                         signMutable[n][position[s]] = signMutable[n][position[s]] | value;
                                         if ((value >>> nRemainder) == 1) {
-                                            if (doCentrality) {
+                                            if (mDoCentrality) {
                                                 mHopForNodes[n][s] = (short) h;
                                             }
                                         }
@@ -175,13 +175,14 @@ public class MHSEX extends MinHash {
         graphMeasure.setLowerBoundDiameter(collisionsVector.length - 1);
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsList(mSeeds);
-        if(doCentrality){
-            graphMeasure.setFareness(mHopForNodes);
-            double [] farness = farnessArray(mHopForNodes);
-            double [] inverseFarness = inverseFarnessArray(mHopForNodes);
-            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
-            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),mNumSeeds,inverseFarness));
-            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),mNumSeeds,farness,hopTable));
+        if(mDoCentrality){
+            int[] farness = farnessArray(mHopForNodes);
+            float[] inverseFarness = inverseFarnessArray(mHopForNodes);
+            graphMeasure.setFarness(farness);
+            graphMeasure.setInverseFarness(inverseFarness);
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), mNumSeeds, farness,true));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(), mNumSeeds,inverseFarness));
+            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), mNumSeeds, farness, hopTable));
 
         }
         graphMeasure.setNumSeeds(mNumSeeds);

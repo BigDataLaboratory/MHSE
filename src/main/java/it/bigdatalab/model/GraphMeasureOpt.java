@@ -13,11 +13,8 @@ public class GraphMeasureOpt extends Measure {
     private double[] mHopTable;
     @SerializedName("collision_table")
     private int[][] mCollisionsMatrix;
-    @SerializedName("fareness")
-    private short[][] mFareness;
-
     private double[] mClosenessCentrality;
-    private double[] mHarmonicCentrality;
+    private float[] mHarmonicCentrality;
     private double[] mLinnCentrality;
     public GraphMeasureOpt() {
 
@@ -58,27 +55,13 @@ public class GraphMeasureOpt extends Measure {
     public double[] getClosenessCentrality() {
         return mClosenessCentrality;
     }
-    public double[] getHarmonicsCentrality() {
+    public float[] getHarmonicsCentrality() {
         return mHarmonicCentrality;
     }
     public double[] getLinnCentrality() {
         return mLinnCentrality;
     }
 
-
-    /**
-     * @param fareness Matrix of the hops when minhash encounters each node
-     */
-    public void setFareness(short[][] fareness) {
-        this.mFareness = fareness;
-    }
-
-    /**
-     * @return Matrix of the hops for each node
-     */
-    public short[][] getFareness() {
-        return mFareness;
-    }
 
     /**
      * @param collisionsMatrix Matrix of the collisions for each hash function and for each hop
@@ -98,7 +81,7 @@ public class GraphMeasureOpt extends Measure {
         this.mClosenessCentrality = closenessCentrality;
     }
 
-    public void setHarmonicCentrality(double[] HarmonicCentrality) {
+    public void setHarmonicCentrality(float[] HarmonicCentrality) {
         this.mHarmonicCentrality = HarmonicCentrality;
     }
 

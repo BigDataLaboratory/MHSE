@@ -52,7 +52,7 @@ class MultithreadBMinHashTest extends AlgoTest{
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -83,7 +83,7 @@ class MultithreadBMinHashTest extends AlgoTest{
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -114,7 +114,7 @@ class MultithreadBMinHashTest extends AlgoTest{
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -144,7 +144,7 @@ class MultithreadBMinHashTest extends AlgoTest{
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -175,7 +175,7 @@ class MultithreadBMinHashTest extends AlgoTest{
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -206,7 +206,7 @@ class MultithreadBMinHashTest extends AlgoTest{
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -237,7 +237,7 @@ class MultithreadBMinHashTest extends AlgoTest{
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -268,7 +268,7 @@ class MultithreadBMinHashTest extends AlgoTest{
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -336,21 +336,11 @@ class MultithreadBMinHashTest extends AlgoTest{
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
-
         Measure measure = algo.runAlgorithm();
 
-        int[] sum_fareness = new int[nodes.length];
-        short[][] fareness = measure.getFareness();
-        for(int i = 0; i < fareness.length; i++) {
-            logger.debug("node {} fareness {}", i, fareness[i]);
-            for(int j = 0; j < fareness[i].length; j++) {
-                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
-            }
-        }
-
-        assertThat(expected).containsExactly(sum_fareness);
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
@@ -372,21 +362,11 @@ class MultithreadBMinHashTest extends AlgoTest{
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
-
         Measure measure = algo.runAlgorithm();
 
-        int[] sum_fareness = new int[nodes.length];
-        short[][] fareness = measure.getFareness();
-        for(int i = 0; i < fareness.length; i++) {
-            logger.debug("node {} fareness {}", i, fareness[i]);
-            for(int j = 0; j < fareness[i].length; j++) {
-                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
-            }
-        }
-
-        assertThat(expected).containsExactly(sum_fareness);
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
@@ -408,21 +388,11 @@ class MultithreadBMinHashTest extends AlgoTest{
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
-
         Measure measure = algo.runAlgorithm();
 
-        int[] sum_fareness = new int[nodes.length];
-        short[][] fareness = measure.getFareness();
-        for(int i = 0; i < fareness.length; i++) {
-            logger.debug("node {} fareness {}", i, fareness[i]);
-            for(int j = 0; j < fareness[i].length; j++) {
-                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
-            }
-        }
-
-        assertThat(expected).containsExactly(sum_fareness);
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
@@ -444,21 +414,11 @@ class MultithreadBMinHashTest extends AlgoTest{
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
-
         Measure measure = algo.runAlgorithm();
 
-        int[] sum_fareness = new int[nodes.length];
-        short[][] fareness = measure.getFareness();
-        for(int i = 0; i < fareness.length; i++) {
-            logger.debug("node {} fareness {}", i, fareness[i]);
-            for(int j = 0; j < fareness[i].length; j++) {
-                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
-            }
-        }
-
-        assertThat(expected).containsExactly(sum_fareness);
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
@@ -480,21 +440,11 @@ class MultithreadBMinHashTest extends AlgoTest{
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
-
         Measure measure = algo.runAlgorithm();
 
-        int[] sum_fareness = new int[nodes.length];
-        short[][] fareness = measure.getFareness();
-        for(int i = 0; i < fareness.length; i++) {
-            logger.debug("node {} fareness {}", i, fareness[i]);
-            for(int j = 0; j < fareness[i].length; j++) {
-                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
-            }
-        }
-
-        assertThat(expected).containsExactly(sum_fareness);
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
@@ -516,21 +466,11 @@ class MultithreadBMinHashTest extends AlgoTest{
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-
-
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
-
         Measure measure = algo.runAlgorithm();
 
-        int[] sum_fareness = new int[nodes.length];
-        short[][] fareness = measure.getFareness();
-        for(int i = 0; i < fareness.length; i++) {
-            for(int j = 0; j < fareness[i].length; j++) {
-                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
-            }
-        }
-
-        assertThat(expected).containsExactly(sum_fareness);
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
@@ -552,19 +492,10 @@ class MultithreadBMinHashTest extends AlgoTest{
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
-
         Measure measure = algo.runAlgorithm();
 
-        int[] sum_fareness = new int[nodes.length];
-        short[][] fareness = measure.getFareness();
-        for(int i = 0; i < fareness.length; i++) {
-            for(int j = 0; j < fareness[i].length; j++) {
-                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
-            }
-        }
-
-        assertThat(expected).containsExactly(sum_fareness);
+        int[] fareness = measure.getFarness();
+        assertThat(expected).containsExactly(fareness);
     }
 }

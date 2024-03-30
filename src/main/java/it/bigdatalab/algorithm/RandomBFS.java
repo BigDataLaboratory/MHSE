@@ -147,12 +147,13 @@ public class RandomBFS  {
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
         if(mDoCentrality){
-            graphMeasure.setFareness(mHopForNodes);
-            double [] farness = farnessArray(mHopForNodes);
-            double [] inverseFarness = inverseFarnessArray(mHopForNodes);
+            int[] farness = farnessArray(mHopForNodes);
+            float[] inverseFarness = inverseFarnessArray(mHopForNodes);
+            graphMeasure.setFarness(farness);
+            graphMeasure.setInverseFarness(inverseFarness);
             graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
-            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),mNumSeeds,inverseFarness));
-            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),mNumSeeds,farness,hopTableArray));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(), mNumSeeds, inverseFarness));
+            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), mNumSeeds, farness, hopTableArray));
         }
         return graphMeasure;
     }
@@ -177,29 +178,27 @@ public class RandomBFS  {
         }
         return hoptable;
     }
-    public double[] inverseFarnessArray(short [][] hopMatrix){
+    public float[] inverseFarnessArray(short[][] hopMatrix){
         int i,j;
-        double [] inverseFareness = new double[mGraph.numNodes()];
-        Arrays.fill(inverseFareness,0);
+        float [] inverseFarness = new float[mGraph.numNodes()];
         for (i = 0; i < mGraph.numNodes(); i++){
             for (j = 0; j < this.mNumSeeds; j++){
                 if (hopMatrix[i][j] > 0) {
-                    inverseFareness[i] += 1.0/hopMatrix[i][j];
+                    inverseFarness[i] += 1.0/hopMatrix[i][j];
                 }
             }
         }
-        return inverseFareness;
+        return inverseFarness;
     }
-    public double[] farnessArray(short [][] hopMatrix ){
+    public int[] farnessArray(short[][] hopMatrix){
         int i,j;
-        double [] fareness = new double[mGraph.numNodes()];
-        Arrays.fill(fareness,0);
+        int [] farness = new int[mGraph.numNodes()];
         for (i = 0; i < mGraph.numNodes(); i++){
             for (j = 0; j < this.mNumSeeds; j++){
-                fareness[i] += hopMatrix[i][j];
+                farness[i] += hopMatrix[i][j];
             }
         }
-        return fareness;
+        return farness;
 
     }
     class IterationThread implements Callable<int[]> {
