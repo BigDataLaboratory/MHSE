@@ -44,6 +44,8 @@ public class MultithreadMHSEX extends MinHash {
 
     private boolean[] saturated;
 
+    private int[] mToVisit;
+
     private short[][] mHopForNodes;
 
 
@@ -84,6 +86,8 @@ public class MultithreadMHSEX extends MinHash {
         mSignImmutable = new int[mGraph.numNodes()][lengthBitsArray(mNumSeeds)];
         saturated = new boolean[mGraph.numNodes()];
         Arrays.fill(saturated, Boolean.FALSE);
+        mToVisit = new int[lengthBitsArray(mGraph.numNodes())];
+
     }
 
     /**
@@ -179,7 +183,16 @@ public class MultithreadMHSEX extends MinHash {
         graphMeasure.setLowerBoundDiameter(mCollisionsVector.length - 1);
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsList(mSeeds);
-        if(doCentrality) graphMeasure.setFareness(mHopForNodes);
+        if(doCentrality){
+            // Idk what is this next line, @Daniele check it
+            graphMeasure.setFareness(mHopForNodes);            // Antonio's code
+            double [] farness = farnessArray(mHopForNodes);
+            double [] inverseFarness = inverseFarnessArray(mHopForNodes);
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),mNumSeeds,inverseFarness));
+            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),mNumSeeds,farness,hopTable));
+
+        }
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
@@ -267,7 +280,9 @@ public class MultithreadMHSEX extends MinHash {
 
                 // update node signature
                 for (int n = start; n < end + 1; n++) {
-
+                        nPosition = n >>> Constants.MASK;
+                        nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
+                        //        mToVisit = new int[lengthBitsArray(mGraph.numNodes())];
                         if (!saturated[n]) {//Antonio's trick
                             final int d = g.outdegree(n);
                             final int[] successors = g.successorArray(n);

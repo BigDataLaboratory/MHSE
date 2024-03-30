@@ -128,7 +128,15 @@ public class MultithreadExpansion extends BMinHashOpt {
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setHopTable(hopTableArray);
         graphMeasure.setCollisionsTable(collisionsMatrix);
-        if(doCentrality) graphMeasure.setFareness(mHopForNodes);
+        if(doCentrality){
+            graphMeasure.setFareness(mHopForNodes);
+            double [] farness = farnessArray(mHopForNodes);
+            double [] inverseFarness = inverseFarnessArray(mHopForNodes);
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),mNumSeeds,inverseFarness));
+            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),mNumSeeds,farness,hopTableArray));
+
+        }
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setLowerBoundDiameter(lowerboundDiameter);
         graphMeasure.setThreshold(mThreshold);

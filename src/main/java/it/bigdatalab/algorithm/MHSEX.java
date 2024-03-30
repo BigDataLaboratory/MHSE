@@ -16,6 +16,8 @@ public class MHSEX extends MinHash {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSEX");
 
     private boolean doCentrality;
+    private short[][] mHopForNodes;
+
 
     /**
      * Creates a new MHSE X instance with default values
@@ -58,7 +60,9 @@ public class MHSEX extends MinHash {
 
         boolean signatureIsChanged = true;
         int h = 0;
-
+        if (doCentrality) {
+            mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
+        }
         int nPosition, nRemainder, neighPosition, neighRemainder, neighMask;
         while (signatureIsChanged) {
             hopStartTime = System.currentTimeMillis();
@@ -111,6 +115,11 @@ public class MHSEX extends MinHash {
                                         signatureIsChanged = true; // track the signature changes, to run the next hop
                                         trackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
                                         signMutable[n][position[s]] = signMutable[n][position[s]] | value;
+                                        if ((value >>> nRemainder) == 1) {
+                                            if (doCentrality) {
+                                                mHopForNodes[n][s] = (short) h;
+                                            }
+                                        }
                                     }
                                 } // else is already 1
                             }
@@ -166,6 +175,15 @@ public class MHSEX extends MinHash {
         graphMeasure.setLowerBoundDiameter(collisionsVector.length - 1);
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsList(mSeeds);
+        if(doCentrality){
+            graphMeasure.setHopForNode(mHopForNodes);
+            double [] farness = farnessArray(mHopForNodes);
+            double [] inverseFarness = inverseFarnessArray(mHopForNodes);
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),mNumSeeds,inverseFarness));
+            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),mNumSeeds,farness,hopTable));
+
+        }
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);

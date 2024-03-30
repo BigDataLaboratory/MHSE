@@ -22,14 +22,16 @@ public class randomBFS {
     private final ImmutableGraph mGraph;
     private final int nSeed;
     protected IntArrayList mSeeds;
+    private boolean doCentrality;
 
-
+    private boolean mNormalized;
     public randomBFS(@NotNull Parameter param) throws IOException {
         this.mParam = param;
         this.mGraph = GraphUtils.loadGraph(param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(),"out");
 
         //this.mParam = param;
         this.nSeed = param.getNumSeeds();
+        this.doCentrality = param.computeCentrality();
     }
 
     public static void main(String[] args) throws IOException {
@@ -41,6 +43,7 @@ public class randomBFS {
         boolean transpose = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("randomBFS.transpose"));
         double threshold = Double.parseDouble(PropertiesManager.getPropertyIfNotEmpty("randomBFS.threshold"));
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("randomBFS.inMemory", Constants.FALSE));
+        boolean computeCentrality = Boolean.parseBoolean(PropertiesManager.getProperty("randomBFS.computeCentrality", Constants.FALSE));
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("randomBFS.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
         Parameter param = new Parameter.Builder()
                 .setAlgorithmName("randomBFS")
@@ -51,6 +54,7 @@ public class randomBFS {
                 .setTranspose(transpose)
                 .setInMemory(inMemory)
                 .setIsolatedVertices(isolatedVertices)
+                .setComputeCentrality(computeCentrality)
                 .setThreshold(threshold)
                 .setNumThreads(suggestedNumberOfThreads)
                 .build();
@@ -151,6 +155,15 @@ public class randomBFS {
         //double avgDistance = 0.0;
         double[] dd = new double[n];
         double[] dist = new double[n];
+        double[] farness = new double[0];
+        double[] inverse_farness = new double[0];
+
+        if (doCentrality) {
+                farness = new double[n];
+                inverse_farness = new double[n];
+                Arrays.fill(farness, 0);
+                Arrays.fill(inverse_farness,0);
+        }
         double lower_bound = 0;
         Arrays.fill(dd, 0);
         int seed;
@@ -176,6 +189,12 @@ public class randomBFS {
                         dd[(int) dist[successors[l]]] +=1;
                         if (lower_bound < dist[successors[l]]){
                             lower_bound = dist[successors[l]];
+                        }
+                        if (doCentrality) {
+                            farness[successors[l]] += dist[successors[l]];
+                            if (dist[successors[l]] > 0){
+                                inverse_farness[successors[l]] += 1.0 / dist[successors[l]];
+                            }
                         }
                         ball.add(successors[l]);
                     }
@@ -222,6 +241,17 @@ public class randomBFS {
         graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(R, mParam.getThreshold()));
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(R));
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(R, mParam.getThreshold()));
+        //If centrality
+        if(doCentrality){
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),nSeed,farness,true));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),nSeed,inverse_farness));
+            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),nSeed,farness,R));
+        }
+        double [] A= Stats.HarmonicCentrality(mGraph.numNodes(),nSeed,farness);
+        for (int k = 0;k<A.length;k++){
+            System.out.println(k+") "+A[k]);
+        }
+        System.out.println("MIAOOO");
         return graphMeasure;
     }
 

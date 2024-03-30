@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class RandomBFS {
+public class RandomBFS  {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.RandomBFS");
 
@@ -25,6 +25,8 @@ public class RandomBFS {
     protected ImmutableGraph mGraph;
     protected int[] mMinHashNodeIDs;
     private boolean mDoCentrality;
+    private int[][] mHopForNodes;
+
 
     /**
      * Number of max threads to use for the computation
@@ -79,9 +81,12 @@ public class RandomBFS {
         long totalTime;
 
         int[][] collisionsMatrix = new int[mNumSeeds][];
+        int[][] distancesMatrix = new int[0][];
         int[] lastHops = new int[mNumSeeds];
         double[] hopTableArray;
-
+        if (mDoCentrality) {
+            mHopForNodes = new int[mGraph.numNodes()][mNumSeeds];
+        }
         int lowerboundDiameter = 0;
 
         logger.debug("Number of threads to be used {}", mNumberOfThreads);
@@ -141,7 +146,13 @@ public class RandomBFS {
         graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTableArray, mThreshold));
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
-
+        if(mDoCentrality){
+            double [] farness = farnessArray(mHopForNodes);
+            double [] inverseFarness = inverseFarnessArray(mHopForNodes);
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),mNumSeeds,inverseFarness));
+            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),mNumSeeds,farness,hopTableArray));
+        }
         return graphMeasure;
     }
 
@@ -165,7 +176,31 @@ public class RandomBFS {
         }
         return hoptable;
     }
+    public double[] inverseFarnessArray(int [][] hopMatrix){
+        int i,j;
+        double [] inverseFareness = new double[mGraph.numNodes()];
+        Arrays.fill(inverseFareness,0);
+        for (i = 0; i < mGraph.numNodes(); i++){
+            for (j = 0; j < this.mNumSeeds; j++){
+                if (hopMatrix[i][j] > 0) {
+                    inverseFareness[i] += 1.0/hopMatrix[i][j];
+                }
+            }
+        }
+        return inverseFareness;
+    }
+    public double[] farnessArray(int [][] hopMatrix ){
+        int i,j;
+        double [] fareness = new double[mGraph.numNodes()];
+        Arrays.fill(fareness,0);
+        for (i = 0; i < mGraph.numNodes(); i++){
+            for (j = 0; j < this.mNumSeeds; j++){
+                fareness[i] += hopMatrix[i][j];
+            }
+        }
+        return fareness;
 
+    }
     class IterationThread implements Callable<int[]> {
 
         private final ImmutableGraph g;
@@ -215,6 +250,9 @@ public class RandomBFS {
                         distances[neighbour] = distances[node] + 1;
                         ball.add(neighbour);
                         nodesAtDistanceHNext += 1;
+                        if (mDoCentrality){
+                            mHopForNodes[neighbour][s] = distances[neighbour];
+                        }
                     }
                 }
 
