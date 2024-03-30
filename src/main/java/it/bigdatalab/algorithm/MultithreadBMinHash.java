@@ -141,6 +141,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         graphMeasure.setCollisionsTable(collisionsMatrix);
         if(mDoCentrality){
             int[] farness = farnessArray(mHopForNodes);
+            for (short[] mHopForNode : mHopForNodes) logger.debug("hopfornodes {}", mHopForNode);
             float[] inverseFarness = inverseFarnessArray(mHopForNodes);
             graphMeasure.setFarness(farness);
             graphMeasure.setInverseFarness(inverseFarness);

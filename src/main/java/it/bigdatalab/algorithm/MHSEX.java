@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class MHSEX extends MinHash {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSEX");
 
-    private boolean mDoCentrality;
+    private final boolean mDoCentrality;
     private short[][] mHopForNodes;
 
 
@@ -86,7 +86,6 @@ public class MHSEX extends MinHash {
 
                     nPosition = n >>> Constants.MASK;
                     nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
-
                     // for each neigh of the node n
                     for (int l = d; l-- != 0; ) {
                         // check if the neigh has been modified
@@ -115,7 +114,7 @@ public class MHSEX extends MinHash {
                                         signatureIsChanged = true; // track the signature changes, to run the next hop
                                         trackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
                                         signMutable[n][position[s]] = signMutable[n][position[s]] | value;
-                                        if ((value >>> nRemainder) == 1) {
+                                        if (signatureIsChanged) {
                                             if (mDoCentrality) {
                                                 mHopForNodes[n][s] = (short) h;
                                             }
@@ -175,13 +174,14 @@ public class MHSEX extends MinHash {
         graphMeasure.setLowerBoundDiameter(collisionsVector.length - 1);
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsList(mSeeds);
-        if(mDoCentrality){
+        if (mDoCentrality) {
             int[] farness = farnessArray(mHopForNodes);
             float[] inverseFarness = inverseFarnessArray(mHopForNodes);
+            for (short[] mHopForNode : mHopForNodes) logger.debug("hopfornodes {}", mHopForNode);
             graphMeasure.setFarness(farness);
             graphMeasure.setInverseFarness(inverseFarness);
-            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), mNumSeeds, farness,true));
-            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(), mNumSeeds,inverseFarness));
+            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), mNumSeeds, farness, true));
+            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(), mNumSeeds, inverseFarness));
             graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), mNumSeeds, farness, hopTable));
 
         }

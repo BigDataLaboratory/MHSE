@@ -339,8 +339,9 @@ class MultithreadBMinHashTest extends AlgoTest{
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        logger.debug("farness {}", farness);
+        assertThat(expected).containsExactly(farness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
