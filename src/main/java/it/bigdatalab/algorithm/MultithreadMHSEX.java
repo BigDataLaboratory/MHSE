@@ -179,7 +179,7 @@ public class MultithreadMHSEX extends MinHash {
         graphMeasure.setLowerBoundDiameter(mCollisionsVector.length - 1);
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsList(mSeeds);
-        if(doCentrality) graphMeasure.setHopForNode(mHopForNodes);
+        if(doCentrality) graphMeasure.setFareness(mHopForNodes);
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
         graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);

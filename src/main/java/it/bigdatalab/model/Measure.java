@@ -42,8 +42,24 @@ public class Measure {
     @SerializedName("run")
     protected int mRun;
 
+    @SerializedName("fareness")
+    protected short[][] mFareness;
+
+
 
     public Measure() {
+    }
+
+    public Measure(int numSeeds, int lowerBound,
+                   double avgDistance, double effectiveDiameter,
+                   double totalCouple, double totalCouplePerc, short[][] fareness) {
+        this.mNumSeeds = numSeeds;
+        this.mLowerBoundDiameter = lowerBound;
+        this.mAvgDistance = avgDistance;
+        this.mEffectiveDiameter = effectiveDiameter;
+        this.mTotalCouples = totalCouple;
+        this.mTotalCouplePercentage = totalCouplePerc;
+        this.mFareness = fareness;
     }
 
     public Measure(int numSeeds, int lowerBound,
@@ -60,6 +76,10 @@ public class Measure {
     /*******************************************************************************
      *                                  GETTER METHODS
      * ****************************************************************************/
+
+    public short[][] getFareness() {
+        return mFareness;
+    }
 
     /**
      * @return time in ms for each seed
@@ -184,6 +204,11 @@ public class Measure {
     /*******************************************************************************
      *                                  SETTER METHODS
      * ****************************************************************************/
+
+
+    public void setFareness(short[][] fareness) {
+        this.mFareness = fareness;
+    }
 
     /**
      * @param minHashNodeIDs Comma separated IDs of minHash nodes

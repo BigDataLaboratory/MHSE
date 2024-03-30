@@ -13,8 +13,8 @@ public class GraphMeasureOpt extends Measure {
     private double[] mHopTable;
     @SerializedName("collision_table")
     private int[][] mCollisionsMatrix;
-    @SerializedName("hop_for_node")
-    private short[][] mHopForNode;
+    @SerializedName("fareness")
+    private short[][] mFareness;
 
     public GraphMeasureOpt() {
 
@@ -53,17 +53,17 @@ public class GraphMeasureOpt extends Measure {
     }
 
     /**
-     * @param hopForNode Matrix of the hops when minhash encounters each node
+     * @param fareness Matrix of the hops when minhash encounters each node
      */
-    public void setHopForNode(short[][] hopForNode) {
-        this.mHopForNode = hopForNode;
+    public void setFareness(short[][] fareness) {
+        this.mFareness = fareness;
     }
 
     /**
      * @return Matrix of the hops for each node
      */
-    public short[][] getHopFornode() {
-        return mHopForNode;
+    public short[][] getFareness() {
+        return mFareness;
     }
 
     /**

@@ -317,4 +317,254 @@ class MultithreadBMinHashTest extends AlgoTest{
         assertThat(collisionMatrix).as("CollisionsTable # rows # cols").hasDimensions(nrows, lowerBoundDiameter + 1);
     }
 
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("unCycleFarenessProvider")
+    void testFareness_UnCycle(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_undirected/32-cycle.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(false)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setThreshold(0.9)
+                .setComputeCentrality(true)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        int[] sum_fareness = new int[nodes.length];
+        short[][] fareness = measure.getFareness();
+        for(int i = 0; i < fareness.length; i++) {
+            logger.debug("node {} fareness {}", i, fareness[i]);
+            for(int j = 0; j < fareness[i].length; j++) {
+                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
+            }
+        }
+
+        assertThat(expected).containsExactly(sum_fareness);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("cycleFarenessProvider")
+    void testFareness_DiCycle(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32-cycle.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(false)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setThreshold(0.9)
+                .setComputeCentrality(true)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        int[] sum_fareness = new int[nodes.length];
+        short[][] fareness = measure.getFareness();
+        for(int i = 0; i < fareness.length; i++) {
+            logger.debug("node {} fareness {}", i, fareness[i]);
+            for(int j = 0; j < fareness[i].length; j++) {
+                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
+            }
+        }
+
+        assertThat(expected).containsExactly(sum_fareness);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("unWheelFarenessProvider")
+    void testFareness_UnWheel(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_undirected/32-wheel.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(false)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setThreshold(0.9)
+                .setComputeCentrality(true)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        int[] sum_fareness = new int[nodes.length];
+        short[][] fareness = measure.getFareness();
+        for(int i = 0; i < fareness.length; i++) {
+            logger.debug("node {} fareness {}", i, fareness[i]);
+            for(int j = 0; j < fareness[i].length; j++) {
+                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
+            }
+        }
+
+        assertThat(expected).containsExactly(sum_fareness);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("pathFarenessProvider")
+    void testFareness_DiPath(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32-path.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setComputeCentrality(true)
+                .setThreshold(0.9)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        int[] sum_fareness = new int[nodes.length];
+        short[][] fareness = measure.getFareness();
+        for(int i = 0; i < fareness.length; i++) {
+            logger.debug("node {} fareness {}", i, fareness[i]);
+            for(int j = 0; j < fareness[i].length; j++) {
+                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
+            }
+        }
+
+        assertThat(expected).containsExactly(sum_fareness);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("tPathFarenessProvider")
+    void testAlgorithm_DiTPath(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32t-path.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(true)
+                .setSeedsRandom(false)
+                .setThreshold(0.9)
+                .setComputeCentrality(true)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        int[] sum_fareness = new int[nodes.length];
+        short[][] fareness = measure.getFareness();
+        for(int i = 0; i < fareness.length; i++) {
+            logger.debug("node {} fareness {}", i, fareness[i]);
+            for(int j = 0; j < fareness[i].length; j++) {
+                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
+            }
+        }
+
+        assertThat(expected).containsExactly(sum_fareness);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("inStarFarenessProvider")
+    void testFareness_DiInStar(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32in-star.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setComputeCentrality(true)
+                .setThreshold(0.9)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+
+        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        int[] sum_fareness = new int[nodes.length];
+        short[][] fareness = measure.getFareness();
+        for(int i = 0; i < fareness.length; i++) {
+            for(int j = 0; j < fareness[i].length; j++) {
+                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
+            }
+        }
+
+        assertThat(expected).containsExactly(sum_fareness);
+    }
+
+    @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
+    @MethodSource("outStarFarenessProvider")
+    void testFareness_DiOutStar(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+        String path = new File("src/test/data/g_directed/32out-star.graph").getAbsolutePath();
+        path = path.substring(0, path.lastIndexOf('.'));
+        Parameter param = new Parameter.Builder()
+                .setInputFilePathGraph(path)
+                .setIsolatedVertices(true)
+                .setInMemory(true)
+                .setNumSeeds(seeds.length)
+                .setDirection(direction)
+                .setTranspose(false)
+                .setSeedsRandom(false)
+                .setComputeCentrality(true)
+                .setThreshold(0.9)
+                .setNumThreads(4)
+                .build();
+
+        ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
+
+        MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+
+        Measure measure = algo.runAlgorithm();
+
+        int[] sum_fareness = new int[nodes.length];
+        short[][] fareness = measure.getFareness();
+        for(int i = 0; i < fareness.length; i++) {
+            for(int j = 0; j < fareness[i].length; j++) {
+                sum_fareness[i] = sum_fareness[i] + fareness[i][j];
+            }
+        }
+
+        assertThat(expected).containsExactly(sum_fareness);
+    }
 }
