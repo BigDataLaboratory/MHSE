@@ -200,7 +200,6 @@ public class MultithreadMHSEX extends MinHash {
         graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTable, mThreshold));
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTable));
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTable, mThreshold));
-
         return graphMeasure;
     }
 

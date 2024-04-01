@@ -74,7 +74,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         startTime = System.currentTimeMillis();
         long totalTime;
 
-        logger.debug("Number of threads to be used {}", mNumberOfThreads);
+        //logger.debug("Number of threads to be used {}", mNumberOfThreads);
 
         int[][] collisionsMatrix = new int[mNumSeeds][];
         int[] lastHops = new int[mNumSeeds];
@@ -132,7 +132,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
 
         hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
 
-        logger.debug("Hop table array is {}", hopTableArray);
+        //logger.debug("Hop table array is {}", hopTableArray);
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
@@ -141,7 +141,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         graphMeasure.setCollisionsTable(collisionsMatrix);
         if(mDoCentrality){
             int[] farness = farnessArray(mHopForNodes);
-            for (short[] mHopForNode : mHopForNodes) logger.debug("hopfornodes {}", mHopForNode);
+            //for (short[] mHopForNode : mHopForNodes) logger.debug("hopfornodes {}", mHopForNode);
             float[] inverseFarness = inverseFarnessArray(mHopForNodes);
             graphMeasure.setFarness(farness);
             graphMeasure.setInverseFarness(inverseFarness);
