@@ -136,7 +136,9 @@ public class Stats {
     public static double [] ClosenessCentrality(int n, int s, int[] farness, boolean normalized){
        double[] closenessCentrality = new double[n];
        for (int i = 0; i < n; i++){
-           closenessCentrality[i] += (s * (n-1)) / (double) (n * farness[i]);
+           if (farness[i] >0) {
+               closenessCentrality[i] += (s * (n - 1)) / (double) (n * farness[i]);
+           }
             //todo  check how to normalize
            /*
            if (normalized){
