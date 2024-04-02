@@ -13,8 +13,11 @@ public class GraphMeasureOpt extends Measure {
     private double[] mHopTable;
     @SerializedName("collision_table")
     private int[][] mCollisionsMatrix;
+    @SerializedName("closeness_centrality_apx")
     private double[] mClosenessCentrality;
+    @SerializedName("harmonic_centrality_apx")
     private float[] mHarmonicCentrality;
+    @SerializedName("linn_centrality_apx")
     private double[] mLinnCentrality;
     public GraphMeasureOpt() {
 
