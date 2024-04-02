@@ -55,7 +55,7 @@ public class GraphMeasureOpt extends Measure {
     public double[] getClosenessCentrality() {
         return mClosenessCentrality;
     }
-    public float[] getHarmonicsCentrality() {
+    public float[] getHarmonicCentrality() {
         return mHarmonicCentrality;
     }
     public double[] getLinnCentrality() {
