@@ -6,23 +6,18 @@ import it.bigdatalab.model.Parameter;
 import it.bigdatalab.utils.GraphUtils;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class MultithreadBMinHashTest extends AlgoTest{
+class MultithreadBMinHashTest extends AlgoTest {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadBMinHashOptimizedTest");
 
@@ -318,8 +313,8 @@ class MultithreadBMinHashTest extends AlgoTest{
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("unCycleFarenessProvider")
-    void testFareness_UnCycle(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+    @MethodSource("unCyclefarnessProvider")
+    void testfarness_UnCycle(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_undirected/32-cycle.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -340,13 +335,12 @@ class MultithreadBMinHashTest extends AlgoTest{
         Measure measure = algo.runAlgorithm();
 
         int[] farness = measure.getFarness();
-        logger.debug("farness {}", farness);
         assertThat(expected).containsExactly(farness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("cycleFarenessProvider")
-    void testFareness_DiCycle(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+    @MethodSource("cyclefarnessProvider")
+    void testfarness_DiCycle(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32-cycle.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -366,13 +360,13 @@ class MultithreadBMinHashTest extends AlgoTest{
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        assertThat(expected).containsExactly(farness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("unWheelFarenessProvider")
-    void testFareness_UnWheel(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+    @MethodSource("unWheelfarnessProvider")
+    void testfarness_UnWheel(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_undirected/32-wheel.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -392,13 +386,13 @@ class MultithreadBMinHashTest extends AlgoTest{
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        assertThat(expected).containsExactly(farness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("pathFarenessProvider")
-    void testFareness_DiPath(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+    @MethodSource("pathfarnessProvider")
+    void testfarness_DiPath(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32-path.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -418,12 +412,12 @@ class MultithreadBMinHashTest extends AlgoTest{
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        assertThat(expected).containsExactly(farness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("tPathFarenessProvider")
+    @MethodSource("tPathfarnessProvider")
     void testAlgorithm_DiTPath(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32t-path.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
@@ -444,13 +438,13 @@ class MultithreadBMinHashTest extends AlgoTest{
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        assertThat(expected).containsExactly(farness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("inStarFarenessProvider")
-    void testFareness_DiInStar(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+    @MethodSource("inStarfarnessProvider")
+    void testfarness_DiInStar(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32in-star.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -470,13 +464,13 @@ class MultithreadBMinHashTest extends AlgoTest{
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        assertThat(expected).containsExactly(farness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("outStarFarenessProvider")
-    void testFareness_DiOutStar(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+    @MethodSource("outStarfarnessProvider")
+    void testfarness_DiOutStar(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32out-star.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -496,7 +490,7 @@ class MultithreadBMinHashTest extends AlgoTest{
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        assertThat(expected).containsExactly(farness);
     }
 }

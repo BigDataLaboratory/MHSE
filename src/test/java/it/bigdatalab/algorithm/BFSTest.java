@@ -43,7 +43,7 @@ public class BFSTest {
         );
     }
 
-    private static Stream<Arguments> cycleFarenessProvider() {
+    private static Stream<Arguments> cyclefarnessProvider() {
         return Stream.of(
                 Arguments.of("in",
                         new int[]{266306011,-939308478,-174211261,35858331,-660663465,1710739066,-1067134873,-942482549,1005288810,-872134992,904022323,1686364410,1188664018,1436956473,-2083884661,-1508901730,-958858242,1456980451,789002170,-1610682797,935447814,-1899901463,-345347755,758360383,290712598,-1128005423,982201761,-667083757,-292381408,-1020489139,-1077237281,429326219},
@@ -71,7 +71,7 @@ public class BFSTest {
         );
     }
 
-    private static @NotNull Stream<Arguments> unCycleFarenessProvider() {
+    private static @NotNull Stream<Arguments> unCyclefarnessProvider() {
         return Stream.of(
                 Arguments.of("in",
                         new int[]{266306011,-939308478,-174211261,35858331,-660663465,1710739066,-1067134873,-942482549,1005288810,-872134992,904022323,1686364410,1188664018,1436956473,-2083884661,-1508901730,-958858242,1456980451,789002170,-1610682797,935447814,-1899901463,-345347755,758360383,290712598,-1128005423,982201761,-667083757,-292381408,-1020489139,-1077237281,429326219},
@@ -99,7 +99,7 @@ public class BFSTest {
         );
     }
 
-    private static Stream<Arguments> unWheelFarenessProvider() {
+    private static Stream<Arguments> unWheelfarnessProvider() {
         return Stream.of(
                 Arguments.of("in",
                         new int[]{266306011,-939308478,-174211261,35858331,-660663465,1710739066,-1067134873,-942482549,1005288810,-872134992,904022323,1686364410,1188664018,1436956473,-2083884661,-1508901730,-958858242,1456980451,789002170,-1610682797,935447814,-1899901463,-345347755,758360383,290712598,-1128005423,982201761,-667083757,-292381408,-1020489139,-1077237281,429326219},
@@ -137,7 +137,7 @@ public class BFSTest {
         );
     }
 
-    private static Stream<Arguments> pathFarenessProvider() {
+    private static Stream<Arguments> pathfarnessProvider() {
         return Stream.of(
                 Arguments.of("in",
                         new int[]{266306011,-939308478,-174211261,35858331,-660663465,1710739066,-1067134873,-942482549,1005288810,-872134992,904022323,1686364410,1188664018,1436956473,-2083884661,-1508901730,-958858242,1456980451,789002170,-1610682797,935447814,-1899901463,-345347755,758360383,290712598,-1128005423,982201761,-667083757,-292381408,-1020489139,-1077237281,429326219},
@@ -156,7 +156,7 @@ public class BFSTest {
         );
     }
 
-    private static Stream<Arguments> tPathFarenessProvider() {
+    private static Stream<Arguments> tPathfarnessProvider() {
         return Stream.of(
                 Arguments.of("in",
                         new int[]{266306011,-939308478,-174211261,35858331,-660663465,1710739066,-1067134873,-942482549,1005288810,-872134992,904022323,1686364410,1188664018,1436956473,-2083884661,-1508901730,-958858242,1456980451,789002170,-1610682797,935447814,-1899901463,-345347755,758360383,290712598,-1128005423,982201761,-667083757,-292381408,-1020489139,-1077237281,429326219},
@@ -176,7 +176,7 @@ public class BFSTest {
         );
     }
 
-    private static Stream<Arguments> inStarFarenessProvider() {
+    private static Stream<Arguments> inStarfarnessProvider() {
         return Stream.of(
                 Arguments.of("in",
                         new int[]{266306011,-939308478,-174211261,35858331,-660663465,1710739066,-1067134873,-942482549,1005288810,-872134992,904022323,1686364410,1188664018,1436956473,-2083884661,-1508901730,-958858242,1456980451,789002170,-1610682797,935447814,-1899901463,-345347755,758360383,290712598,-1128005423,982201761,-667083757,-292381408,-1020489139,-1077237281,429326219, -1077237281},
@@ -196,7 +196,7 @@ public class BFSTest {
         );
     }
 
-    private static Stream<Arguments> outStarFarenessProvider() {
+    private static Stream<Arguments> outStarfarnessProvider() {
         return Stream.of(
                 Arguments.of("out",
                         new int[]{266306011,-939308478,-174211261,35858331,-660663465,1710739066,-1067134873,-942482549,1005288810,-872134992,904022323,1686364410,1188664018,1436956473,-2083884661,-1508901730,-958858242,1456980451,789002170,-1610682797,935447814,-1899901463,-345347755,758360383,290712598,-1128005423,982201761,-667083757,-292381408,-1020489139,-1077237281,429326219, -1077237281},
@@ -489,8 +489,8 @@ public class BFSTest {
 
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("unCycleFarenessProvider")
-    void testFareness_UnCycle(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+    @MethodSource("unCyclefarnessProvider")
+    void testfarness_UnCycle(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_undirected/32-cycle.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -510,13 +510,13 @@ public class BFSTest {
         RandomBFS algo = new RandomBFS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        assertThat(expected).containsExactly(farness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("cycleFarenessProvider")
-    void testFareness_DiCycle(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+    @MethodSource("cyclefarnessProvider")
+    void testfarness_DiCycle(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32-cycle.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -536,13 +536,13 @@ public class BFSTest {
         RandomBFS algo = new RandomBFS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        assertThat(expected).containsExactly(farness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("unWheelFarenessProvider")
-    void testFareness_UnWheel(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+    @MethodSource("unWheelfarnessProvider")
+    void testfarness_UnWheel(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_undirected/32-wheel.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -562,13 +562,13 @@ public class BFSTest {
         RandomBFS algo = new RandomBFS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        assertThat(expected).containsExactly(farness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("pathFarenessProvider")
-    void testFareness_DiPath(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+    @MethodSource("pathfarnessProvider")
+    void testfarness_DiPath(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32-path.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -588,12 +588,12 @@ public class BFSTest {
         RandomBFS algo = new RandomBFS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        assertThat(expected).containsExactly(farness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("tPathFarenessProvider")
+    @MethodSource("tPathfarnessProvider")
     void testAlgorithm_DiTPath(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32t-path.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
@@ -614,13 +614,13 @@ public class BFSTest {
         RandomBFS algo = new RandomBFS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        assertThat(expected).containsExactly(farness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("inStarFarenessProvider")
-    void testFareness_DiInStar(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+    @MethodSource("inStarfarnessProvider")
+    void testfarness_DiInStar(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32in-star.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -640,13 +640,13 @@ public class BFSTest {
         RandomBFS algo = new RandomBFS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        assertThat(expected).containsExactly(farness);
     }
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
-    @MethodSource("outStarFarenessProvider")
-    void testFareness_DiOutStar(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
+    @MethodSource("outStarfarnessProvider")
+    void testfarness_DiOutStar(String direction, int[] seeds, int[] nodes, int[] expected) throws IOException, MinHash.SeedsException {
         String path = new File("src/test/data/g_directed/32out-star.graph").getAbsolutePath();
         path = path.substring(0, path.lastIndexOf('.'));
         Parameter param = new Parameter.Builder()
@@ -667,7 +667,7 @@ public class BFSTest {
         RandomBFS algo = new RandomBFS(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
-        int[] fareness = measure.getFarness();
-        assertThat(expected).containsExactly(fareness);
+        int[] farness = measure.getFarness();
+        assertThat(expected).containsExactly(farness);
     }
 }

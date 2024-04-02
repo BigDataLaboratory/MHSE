@@ -133,14 +133,14 @@ public class Stats {
         return hopTable;
     }
     // We need to check these three functions
-    public static double [] ClosenessCentrality(int n, int s, int[] fareness, boolean normalized){
+    public static double [] ClosenessCentrality(int n, int s, int[] farness, boolean normalized){
        double[] closenessCentrality = new double[n];
        for (int i = 0; i < n; i++){
-           closenessCentrality[i] += (s * (n-1)) / (double) (n * fareness[i]);
+           closenessCentrality[i] += (s * (n-1)) / (double) (n * farness[i]);
             //todo  check how to normalize
            /*
            if (normalized){
-               closenessCentrality[i] +=  s  / (n * fareness[i]);
+               closenessCentrality[i] +=  s  / (n * farness[i]);
            }else{
            }
             */
@@ -157,12 +157,12 @@ public class Stats {
     }
 
     // todo Consider normalization
-    public static double [] LinnCentrality(int n,int s, int[] fareness, double[] R){
+    public static double [] LinnCentrality(int n,int s, int[] farness, double[] R){
         double[] LinnCentrality = new double[n];
         int l = R.length -1;
         for (int i = 0; i < n; i++) {
-            if (fareness[i] > 0) {
-                LinnCentrality[i] +=  ((double) (s/n) * (R[l] * R[l]) / fareness[i]);
+            if (farness[i] > 0) {
+                LinnCentrality[i] +=  ((double) (s/n) * (R[l] * R[l]) / farness[i]);
             } else{
                 LinnCentrality[i] += 0;
             }
