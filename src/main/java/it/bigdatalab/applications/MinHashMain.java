@@ -91,7 +91,7 @@ public class MinHashMain extends Main{
         boolean computeCentrality = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.computeCentrality", Constants.FALSE));
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
         boolean persistCollisionTable = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.persistCollisionTable", Constants.TRUE));
-
+        boolean persistFarness = computeCentrality && Boolean.parseBoolean(PropertiesManager.getProperty("minhash.persistFarness", Constants.FALSE));
 
         Parameter param = new Parameter.Builder()
                 .setAlgorithmName(algorithmName)
@@ -111,6 +111,7 @@ public class MinHashMain extends Main{
                 .setReordering(reorder)
                 .setNumThreads(suggestedNumberOfThreads)
                 .setPersistCollisionTable(persistCollisionTable)
+                .setPersistFarness(persistFarness)
                 .build();
 
         logger.info("\n\n********************** Parameters **********************\n\n" +
@@ -125,6 +126,7 @@ public class MinHashMain extends Main{
                         "threshold for eff. diameter is: {}\n" +
                         "graph will be reordered by outdegree: {}\n" +
                         "algorithm must compute centrality: {}\n" +
+                        "persist farness for centrality: {}\n" +
                         "persist collision table: {}\n" +
                         "number of threads: {}\n" +
                         "\n********************************************************\n\n",
@@ -139,6 +141,7 @@ public class MinHashMain extends Main{
                 param.getThreshold(),
                 param.getReordering(),
                 param.computeCentrality(),
+                param.persistFarness(),
                 param.persistCollisionTable(),
                 param.getNumThreads());
 
@@ -245,6 +248,13 @@ public class MinHashMain extends Main{
                     ((GraphMeasure) measure).setCollisionsTable(null);
                 }
                 measure.setMinHashNodeIDs(null);
+            }
+
+            if (!mParam.persistFarness()) {
+                if (measure instanceof GraphMeasureOpt) {
+                    measure.setInverseFarness(null);
+                    measure.setFarness(null);
+                }
             }
 
             measures.add(measure);

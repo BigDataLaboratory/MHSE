@@ -25,6 +25,8 @@ public class Parameter {
     private final int mNumThreads;
 
     private final boolean mPersistCollisionTable;
+    private final boolean mPersistFarness;
+
 
     @org.jetbrains.annotations.Contract(pure = true)
     public Parameter(Builder builder) {
@@ -51,6 +53,7 @@ public class Parameter {
 
         this.mNumThreads = builder.numThreads;
         this.mPersistCollisionTable = builder.persistCollisionTable;
+        this.mPersistFarness = builder.persistFarness;
     }
 
     public String getInputFilePathGraph() {
@@ -125,6 +128,10 @@ public class Parameter {
         return mPersistCollisionTable;
     }
 
+    public boolean persistFarness() {
+        return mPersistFarness;
+    }
+
     public static class Builder {
         private String inputFilePathGraph;
         private String outputFolderPath;
@@ -149,6 +156,8 @@ public class Parameter {
         private int numThreads;
 
         private boolean persistCollisionTable;
+        private boolean persistFarness;
+
 
         public Builder() {
         }
@@ -240,6 +249,11 @@ public class Parameter {
 
         public Builder setPersistCollisionTable(boolean persistCollisionTable) {
             this.persistCollisionTable = persistCollisionTable;
+            return this;
+        }
+
+        public Builder setPersistFarness(boolean persistFarness) {
+            this.persistFarness = persistFarness;
             return this;
         }
 
