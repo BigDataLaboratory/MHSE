@@ -17,6 +17,8 @@ public class GraphMeasureOpt extends Measure {
     private double[] mClosenessCentrality;
     @SerializedName("harmonic_centrality_apx")
     private float[] mHarmonicCentrality;
+    //@SerializedName("harmonic_centrality_apx_topk")
+    //private Hasm[] mHarmonicCentralityTopK;
     @SerializedName("linn_centrality_apx")
     private double[] mLinnCentrality;
     public GraphMeasureOpt() {
@@ -87,6 +89,9 @@ public class GraphMeasureOpt extends Measure {
     public void setHarmonicCentrality(float[] HarmonicCentrality) {
         this.mHarmonicCentrality = HarmonicCentrality;
     }
+   // public void setHarmonicCentralityTopK(float[] HarmonicCentralityTopK) {
+      //  this.mHarmonicCentrality = HarmonicCentrality;
+   // }
 
     public void setLinnCentrality(double[] LinnCentrality) {
         this.mLinnCentrality = LinnCentrality;
