@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class RandomBFS  {
+public class RandomBFS extends BMinHashOpt {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.RandomBFS");
 
@@ -44,7 +44,7 @@ public class RandomBFS  {
      * Creates a new RandomBFS instance with default values
      */
     public RandomBFS(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) {
-
+        super(g, numSeeds, threshold, nodes);
         if (numSeeds != (nodes != null ? nodes.length : 0)) {
             assert nodes != null;
             throw new MinHash.SeedsException("Specified different number of seeds in properties. \"randomBFS.numSeeds\" is " + mNumSeeds + " and length of seeds list is " + nodes.length);
@@ -62,6 +62,7 @@ public class RandomBFS  {
      * Creates a new RandomBFS instance with default values
      */
     public RandomBFS(final ImmutableGraph g, int numSeeds, double threshold, int threads, boolean centrality) {
+        super(g, numSeeds, threshold);
         this.mNumSeeds = numSeeds;
         this.mThreshold = threshold;
         this.mGraph = g;

@@ -48,6 +48,9 @@ public class MinHashFactory {
             case Expansion:
                 minHashAlgorithm = new MultithreadExpansion(g, numSeeds, threshold, nodes, threads, centrality);
                 break;
+            case RandomBFS:
+                minHashAlgorithm = new RandomBFS(g, numSeeds, threshold, nodes, threads, centrality);
+                break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
         }
@@ -91,6 +94,9 @@ public class MinHashFactory {
                 break;
             case Expansion:
                 minHashAlgorithm = new MultithreadExpansion(g, numSeeds, threshold, threads, centrality);
+                break;
+            case RandomBFS:
+                minHashAlgorithm = new RandomBFS(g, numSeeds, threshold, threads, centrality);
                 break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
