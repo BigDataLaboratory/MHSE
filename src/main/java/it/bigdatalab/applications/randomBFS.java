@@ -241,9 +241,9 @@ public class randomBFS {
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(R, mParam.getThreshold()));
         //If centrality
         if(doCentrality){
-            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), nSeed, farness,true));
+            //graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), nSeed, farness,true));
             graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(), nSeed, inverse_farness));
-            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), nSeed, farness, R));
+            //graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), nSeed, farness, R));
         }
 
         return graphMeasure;

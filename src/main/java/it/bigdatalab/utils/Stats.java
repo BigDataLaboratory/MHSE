@@ -158,17 +158,18 @@ public class Stats {
         return harmonicCentrality;
     }
 
-    // todo Consider normalization
+    // todo Consider normalization and check if the estimator is correct
     public static double [] LinnCentrality(int n,int s, int[] farness, double[] R){
         double[] LinnCentrality = new double[n];
         int l = R.length -1;
         for (int i = 0; i < n; i++) {
             if (farness[i] > 0) {
-                LinnCentrality[i] +=  ((double) (s/n) * (R[l] * R[l]) / farness[i]);
+                LinnCentrality[i] +=  ((double) (1/s*n)  / farness[i]);
             } else{
                 LinnCentrality[i] += 0;
             }
         }
         return LinnCentrality;
     }
+
 }

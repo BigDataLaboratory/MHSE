@@ -133,9 +133,9 @@ public class MultithreadExpansion extends BMinHashOpt {
             float[] inverseFarness = inverseFarnessArray(mHopForNodes);
             graphMeasure.setFarness(farness);
             graphMeasure.setInverseFarness(inverseFarness);
-            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), mNumSeeds, farness, true));
+            //graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), mNumSeeds, farness, true));
             graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(), mNumSeeds, inverseFarness));
-            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), mNumSeeds, farness, hopTableArray));
+            //graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), mNumSeeds, farness, hopTableArray));
 
         }
         graphMeasure.setLastHops(lastHops);

@@ -179,9 +179,9 @@ public class MHSEX extends MinHash {
             float[] inverseFarness = inverseFarnessArray(mHopForNodes);
             graphMeasure.setFarness(farness);
             graphMeasure.setInverseFarness(inverseFarness);
-            graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), mNumSeeds, farness, true));
+            //graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), mNumSeeds, farness, true));
             graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(), mNumSeeds, inverseFarness));
-            graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), mNumSeeds, farness, hopTable));
+            //graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), mNumSeeds, farness, hopTable));
         }
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
