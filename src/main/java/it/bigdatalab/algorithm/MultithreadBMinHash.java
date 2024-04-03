@@ -180,7 +180,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         }
         local_last_hops.add(h-1);
     }
-    public Measure runAlgorithm_tmp() {
+    public Measure runAlgorithm() {
         startTime = System.currentTimeMillis();
         long totalTime;
 
@@ -193,11 +193,12 @@ public class MultithreadBMinHash extends BMinHashOpt {
 
         int[] vs_active = new int[mNumSeeds];
         for (int i = 0; i < mNumSeeds; i++) {
-            vs_active[i] = i+1;
+            vs_active[i] = i;
         }
         int d = mNumSeeds / mNumberOfThreads;
         int r = mNumSeeds % mNumberOfThreads;
         int ntasks = (d== 0) ? r:mNumberOfThreads;
+        logger.debug("NUmber of tasks {}",ntasks);
         List<int[]> local_lb_diameter = new ArrayList<>();
         List<int[]> local_hop_table = new ArrayList<>();
         List<float[]> local_harmonic = new ArrayList<>();
@@ -218,12 +219,15 @@ public class MultithreadBMinHash extends BMinHashOpt {
         }
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
         int task_size = (int) Math.ceil((double) mNumSeeds / mNumberOfThreads);
+        logger.debug(" TASK SIZE {}",task_size);
         for (int t = 0; t < ntasks; t++) {
             int start = t * task_size;
             int end = Math.min((t + 1) * task_size,  mNumSeeds);
             final int taskRangeStart = start;
             final int taskRangeEnd = end;
+            logger.debug(" start {} end {} ",start,end);
             final int taskIndex = t;
+            // Check this one probably it is missing something
             executor.execute(() -> {
                 for (int s = taskRangeStart; s < taskRangeEnd; s++) {
                     compute_harmonic(s,local_lb_diameter.get(taskIndex),local_hop_table.get(taskIndex),local_last_hops.get(taskIndex),local_farness.get(taskIndex),local_harmonic.get(taskIndex));
@@ -233,12 +237,13 @@ public class MultithreadBMinHash extends BMinHashOpt {
         }
         executor.shutdown();
         totalTime = System.currentTimeMillis() - startTime;
-        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
         try {
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
+
         // Reduction phase
         float[] harmonic = new float[0];
         int[] farness = new int[0];
@@ -309,22 +314,22 @@ public class MultithreadBMinHash extends BMinHashOpt {
      *
      * @return Computed metrics of the algorithm
      */
-    public Measure runAlgorithm() {
+    public Measure runAlgorithm_tmp() {
         startTime = System.currentTimeMillis();
         long totalTime;
 
         //logger.debug("Number of threads to be used {}", mNumberOfThreads);
 
-        int[][] collisionsMatrix = new int[mNumberOfThreads][];
-        int[] lastHops = new int[mNumberOfThreads];
+        int[][] collisionsMatrix = new int[mNumSeeds][];
+        int[] lastHops = new int[mNumSeeds];
         double[] hopTableArray;
 
         int lowerboundDiameter = 0;
 
-        ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
-        List<IterationThread> todo = new ArrayList<>(this.mNumberOfThreads);
+        ExecutorService executor = Executors.newFixedThreadPool(mNumSeeds); //creating a pool of threads
+        List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
 
-        for (int i = 0; i < this.mNumberOfThreads; i++) {
+        for (int i = 0; i < this.mNumSeeds; i++) {
             todo.add(new IterationThread(mGraph.copy(), i));
         }
 
@@ -513,6 +518,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
                     for (int aMutable : mutable) {
                         collisions += Integer.bitCount(aMutable);
                     }
+                    logger.debug(" random node {} hop {} collisions {}",randomNode,h,collisions);
 
                     int[] copy = new int[h + 1];
                     System.arraycopy(hopTable, 0, copy, 0, hopTable.length);

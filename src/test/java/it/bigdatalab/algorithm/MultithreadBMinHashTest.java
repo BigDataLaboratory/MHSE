@@ -159,11 +159,11 @@ class MultithreadBMinHashTest extends AlgoTest {
                 .setSeedsRandom(false)
                 .setThreshold(0.9)
                 .setComputeCentrality(false)
-                .setNumThreads(1)
+                .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-
+        logger.debug("NUM NODES {}",g.numNodes());
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
