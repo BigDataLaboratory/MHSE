@@ -130,7 +130,8 @@ public class MultithreadExpansion extends BMinHashOpt {
         hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
 
         logger.debug("Hop table array is {}", hopTableArray);
-
+        logger.debug("last hops {} ",lastHops);
+        logger.debug(" seeds {}",mMinHashNodeIDs);
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumSeeds(mNumSeeds);

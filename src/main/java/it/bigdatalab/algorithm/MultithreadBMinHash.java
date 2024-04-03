@@ -64,7 +64,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         if (suggestedNumberOfThreads > 0) return suggestedNumberOfThreads;
         return Runtime.getRuntime().availableProcessors();
     }
-    private void compute_harmonic(int s,double[] local_farness,double[] local_harmonic){
+    private void compute_harmonic(int s,int[] local_lb_diameter,int [] local_hop_table,List<Integer> local_last_hops,int[] local_farness,float[] local_harmonic){
         long startSeedTime = System.currentTimeMillis();
         long lastLogTime = startSeedTime;
         long logTime;
@@ -87,7 +87,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         // we use a dict because we want to iterate over the nodes until
         // the number of collisions in the actual hop
         // is different than the previous hop
-        int[] hopTable = new int[1];
+        //int[] hopTable = new int[1];
 
         while (signatureIsChanged) {
             //first hop - initialization
@@ -166,18 +166,21 @@ public class MultithreadBMinHash extends BMinHashOpt {
                 for (int aMutable : mutable) {
                     collisions += Integer.bitCount(aMutable);
                 }
+                logger.debug(" random node {} hop {} collisions {}",randomNode,h,collisions);
+                local_hop_table[h] += collisions;
+                //int[] copy = new int[h + 1];
+                //System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
+                //hopTable = copy;
 
-                int[] copy = new int[h + 1];
-                System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
-                hopTable = copy;
-
-                hopTable[h] = collisions;
+                //hopTable[h] = collisions;
+                if (local_lb_diameter[0] <= h) local_lb_diameter[0] = h;
 
                 h += 1;
             }
         }
+        local_last_hops.add(h-1);
     }
-    public Measure runAlgorithm() {
+    public Measure runAlgorithm_tmp() {
         startTime = System.currentTimeMillis();
         long totalTime;
 
@@ -190,17 +193,27 @@ public class MultithreadBMinHash extends BMinHashOpt {
 
         int[] vs_active = new int[mNumSeeds];
         for (int i = 0; i < mNumSeeds; i++) {
-            vs_active[i] = i + 1;
+            vs_active[i] = i+1;
         }
         int d = mNumSeeds / mNumberOfThreads;
         int r = mNumSeeds % mNumberOfThreads;
         int ntasks = (d== 0) ? r:mNumberOfThreads;
-        List<double[]> local_harmonic = new ArrayList<>();
-        List<double[]> local_farness = new ArrayList<>();
-
+        List<int[]> local_lb_diameter = new ArrayList<>();
+        List<int[]> local_hop_table = new ArrayList<>();
+        List<float[]> local_harmonic = new ArrayList<>();
+        List<int[]> local_farness = new ArrayList<>();
+        List<List<Integer>> local_last_hops = new ArrayList<>();
         for (int i = 0; i < mNumberOfThreads; i++) {
-            local_harmonic.add(new double[mGraph.numNodes()]); // Initialize local_harmonic
-            local_farness.add(new double[mGraph.numNodes()]); // Initialize local_farness
+            local_hop_table.add(new int[mGraph.numNodes()]); // Initialize local_hop_table
+            local_lb_diameter.add(new int[1]);
+            local_last_hops.add(new ArrayList());
+            if (mDoCentrality) {
+                local_harmonic.add(new float[mGraph.numNodes()]); // Initialize local_harmonic
+                local_farness.add(new int[mGraph.numNodes()]); // Initialize local_farness
+            }else{
+                local_harmonic.add(new float[0]);
+                local_farness.add(new int[0]);
+            }
 
         }
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
@@ -213,35 +226,78 @@ public class MultithreadBMinHash extends BMinHashOpt {
             final int taskIndex = t;
             executor.execute(() -> {
                 for (int s = taskRangeStart; s < taskRangeEnd; s++) {
-                    compute_harmonic(s,local_farness.get(taskIndex),local_harmonic.get(taskIndex));
+                    compute_harmonic(s,local_lb_diameter.get(taskIndex),local_hop_table.get(taskIndex),local_last_hops.get(taskIndex),local_farness.get(taskIndex),local_harmonic.get(taskIndex));
                 }
             });
 
         }
         executor.shutdown();
+        totalTime = System.currentTimeMillis() - startTime;
+        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
         try {
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        // Reduction step
-        double[] harmonic = new double[mGraph.numNodes()];
-        double[] farness = new double[mGraph.numNodes()];
-
-        for (int i = 0; i < mGraph.numNodes(); i++) {
-            for (int j = 0; j < ntasks; j++) {
-                harmonic[i] += local_harmonic.get(j)[i];
-                farness[i] += local_farness.get(j)[i];
-            }
-            farness[i] = farness[i] *  mGraph.numNodes()/mNumSeeds;
-            harmonic[i] = harmonic[i] * mGraph.numNodes()/((mGraph.numNodes()-1) *mNumSeeds);
+        // Reduction phase
+        float[] harmonic = new float[0];
+        int[] farness = new int[0];
+        for (int i = 0; i<mNumberOfThreads;i++){
+            if (lowerboundDiameter < local_lb_diameter.get(i)[0]) lowerboundDiameter = local_lb_diameter.get(i)[0];
         }
+
+        if (mDoCentrality) {
+            harmonic = new float[mGraph.numNodes()];
+            farness = new int[mGraph.numNodes()];
+        }
+        logger.debug("seeds {} ",mMinHashNodeIDs);
+        for (int j = 0; j < mNumberOfThreads; j++) {
+            collisionsMatrix[j] = new int[lowerboundDiameter+1];
+            logger.debug("local [{}][] = {} ",j,local_hop_table.get(j));
+            logger.debug("last hops {} ",local_last_hops.get(j));
+            for (int i = 0; i < lowerboundDiameter+1; i++) {
+                collisionsMatrix[j][i] =  local_hop_table.get(j)[i];
+            }
+        }
+        for (int i = 0; i < mGraph.numNodes(); i++) {
+            for (int j = 0; j < mNumberOfThreads; j++) {
+                if (mDoCentrality) {
+                    harmonic[i] += local_harmonic.get(j)[i];
+                    farness[i] += local_farness.get(j)[i];
+                }
+            }
+            if (mDoCentrality) {
+                farness[i] = farness[i] * mGraph.numNodes() / mNumSeeds;
+                harmonic[i] = harmonic[i] * mGraph.numNodes() / ((mGraph.numNodes() - 1) * mNumSeeds);
+            }
+        }
+
+        normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
+
+        hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
+
+        logger.debug(" Diameter {}",lowerboundDiameter);
         logger.debug(" Farness Centrality {} ",farness);
         logger.debug(" Harmonic Centrality {}",harmonic);
-
+        logger.debug("hopTableArray {} ",hopTableArray);
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumSeeds(mNumSeeds);
+        graphMeasure.setHopTable(hopTableArray);
+        graphMeasure.setCollisionsTable(collisionsMatrix);
+        if(mDoCentrality){
+            graphMeasure.setFarness(farness);
+            graphMeasure.setHarmonicCentrality(harmonic);
+        }
+        graphMeasure.setLowerBoundDiameter(lowerboundDiameter);
+        graphMeasure.setThreshold(mThreshold);
+        graphMeasure.setSeedsTime(mSeedTime);
+        graphMeasure.setTime(totalTime);
+        graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
+        graphMeasure.setAvgDistance(Stats.averageDistance(hopTableArray));
+        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTableArray, mThreshold));
+        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));
+        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
 
 
         return graphMeasure;
@@ -253,7 +309,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
      *
      * @return Computed metrics of the algorithm
      */
-    public Measure runAlgorithm_tmp() {
+    public Measure runAlgorithm() {
         startTime = System.currentTimeMillis();
         long totalTime;
 

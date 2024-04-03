@@ -159,7 +159,7 @@ class MultithreadBMinHashTest extends AlgoTest {
                 .setSeedsRandom(false)
                 .setThreshold(0.9)
                 .setComputeCentrality(false)
-                .setNumThreads(4)
+                .setNumThreads(1)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());

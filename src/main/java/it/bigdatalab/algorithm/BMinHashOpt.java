@@ -58,8 +58,11 @@ public abstract class BMinHashOpt extends MinHash {
             for (int[] matrix : collisionsMatrix) {
                 sumCollisions += matrix[hop];
             }
+            logger.debug("collisions at hop {} = {} ",hop,sumCollisions);
             couples = ((double) sumCollisions * mGraph.numNodes()) / this.mNumSeeds;
             hoptable[hop] = couples;
+            logger.debug("couples at hop {} = {} ",hop,couples);
+
         }
         return hoptable;
     }
