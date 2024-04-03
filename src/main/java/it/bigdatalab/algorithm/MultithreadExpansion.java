@@ -77,12 +77,14 @@ public class MultithreadExpansion extends BMinHashOpt {
             todo.add(new IterationThread(mGraph.copy(), i));
         }
         /*
+
         !!! TODO (VERY IMPORTANT) !!
         This is not space efficient, we should opt for a different approach in which
         we have mHopForNodes = new short[mGraph.numNodes()][mNumberOfThreads]
         and each thread gets assigned mNumSeeds/mNumberOfThreads seeds. This reduces the space complexity
         to  n x ThreadNumber (now the space complexity is n x mNumberOfThreads (if we consider the theoretical bound on
         mNumberOfThreads, the space complexity becomes polynomial and not linear in n.
+
         */
         if (mDoCentrality) {
             mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
