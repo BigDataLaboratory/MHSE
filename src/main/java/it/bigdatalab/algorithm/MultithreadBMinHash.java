@@ -64,28 +64,211 @@ public class MultithreadBMinHash extends BMinHashOpt {
         if (suggestedNumberOfThreads > 0) return suggestedNumberOfThreads;
         return Runtime.getRuntime().availableProcessors();
     }
+    private void compute_harmonic(int s,double[] local_farness,double[] local_harmonic){
+        long startSeedTime = System.currentTimeMillis();
+        long lastLogTime = startSeedTime;
+        long logTime;
 
-    /**
-     * Execution of the MultithreadBMinHash algorithm
-     *
-     * @return Computed metrics of the algorithm
-     */
+        int collisions = 0;
+
+        // Set false as signature of all graph nodes
+        // used to computing the algorithm
+        int[] mutable = new int[lengthBitsArray(mGraph.numNodes())];
+        int[] immutable = new int[lengthBitsArray(mGraph.numNodes())];
+
+        // Choose a random node is equivalent to compute the minhash
+        //It could be set in mhse.properties file with the "minhash.nodeIDs" property
+        int randomNode = mMinHashNodeIDs[s];
+
+        int h = 0;
+        boolean signatureIsChanged = true;
+
+        // initialization of the collision counter for the hop
+        // we use a dict because we want to iterate over the nodes until
+        // the number of collisions in the actual hop
+        // is different than the previous hop
+        int[] hopTable = new int[1];
+
+        while (signatureIsChanged) {
+            //first hop - initialization
+            if (h == 0) {
+
+                // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
+                // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
+                // This is equal to logical and operation.
+                // remaremainderPositionRandomNode contains the bit index of the node
+                int remainderPositionRandomNode = (randomNode << Constants.REMAINDER) >>> Constants.REMAINDER;
+                // quotient is randomNode >>> MASK and give us the position of the node in the array
+                // i.e if the actual node is 16 and we use an array of int (32 bit lenght for each cell) then
+                // the node is at index 0 of the array of the first int from 0 to 31
+                mutable[randomNode >>> Constants.MASK] |= (Constants.BIT) << remainderPositionRandomNode;
+            } else { // next hops
+                signatureIsChanged = false;
+
+                // copy all the actual nodes hash in a new structure
+                System.arraycopy(mutable, 0, immutable, 0, mutable.length);
+                int remainderPositionNode;
+                int quotientNode;
+                for (int n = 0; n < mGraph.numNodes(); n++) {
+
+                    final int node = n;
+                    final int d = mGraph.outdegree(node);
+                    final int[] successors = mGraph.successorArray(node);
+
+                    // update the node hash iterating over all its neighbors
+                    // and computing the OR between the node signature and
+                    // the neighbor signature.
+                    // store the new signature as the current one
+                    remainderPositionNode = (node << Constants.REMAINDER) >>> Constants.REMAINDER;
+                    quotientNode = node >>> Constants.MASK;
+                    int value = immutable[quotientNode];
+                    int bitNeigh;
+                    int nodeMask = (1 << remainderPositionNode);
+                    if (((nodeMask & value) >>> remainderPositionNode) == 0) { // check if node bit is 0
+                        for (int l = 0; l < d; l++) {
+                            final int neighbour = successors[l];
+                            int quotientNeigh = neighbour >>> Constants.MASK;
+                            int remainderPositionNeigh = (neighbour << Constants.REMAINDER) >>> Constants.REMAINDER;
+
+                            bitNeigh = (((1 << remainderPositionNeigh) & immutable[quotientNeigh]) >>> remainderPositionNeigh) << remainderPositionNode;
+                            value = bitNeigh | nodeMask & immutable[quotientNode];
+                            if ((value >>> remainderPositionNode) == 1) {
+                                if (mDoCentrality) {
+                                    local_farness[n] += (short) h;
+                                    local_harmonic[n] += 1.0/ (short) h;
+                                }
+                                signatureIsChanged = true;
+                                break;
+                            }
+                        }
+                    }
+                    mutable[quotientNode] = mutable[quotientNode] | value;
+
+                    logTime = System.currentTimeMillis();
+                    if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
+                        logger.info("(seed # {}) # nodes analyzed {} / {} for hop {}, estimated time remaining {}",
+                                s,
+                                n, mGraph.numNodes(),
+                                h + 1,
+                                String.format("%d min, %d sec",
+                                        TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - MultithreadBMinHash.this.startTime)) / (s + 1)) - (logTime - MultithreadBMinHash.this.startTime)),
+                                        TimeUnit.MILLISECONDS.toSeconds(((mNumSeeds * (logTime - MultithreadBMinHash.this.startTime)) / (s + 1)) - (logTime - MultithreadBMinHash.this.startTime)) -
+                                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(((mNumSeeds * (logTime - MultithreadBMinHash.this.startTime)) / (s + 1)) - (logTime - MultithreadBMinHash.this.startTime)))));
+                        lastLogTime = logTime;
+                    }
+                }
+            }
+
+
+            // count the collision between the node signature and the graph signature
+            if (signatureIsChanged) {
+                collisions = 0;
+                for (int aMutable : mutable) {
+                    collisions += Integer.bitCount(aMutable);
+                }
+
+                int[] copy = new int[h + 1];
+                System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
+                hopTable = copy;
+
+                hopTable[h] = collisions;
+
+                h += 1;
+            }
+        }
+    }
     public Measure runAlgorithm() {
         startTime = System.currentTimeMillis();
         long totalTime;
 
         //logger.debug("Number of threads to be used {}", mNumberOfThreads);
 
-        int[][] collisionsMatrix = new int[mNumSeeds][];
-        int[] lastHops = new int[mNumSeeds];
+        int[][] collisionsMatrix = new int[mNumberOfThreads][];
+        int[] lastHops = new int[mNumberOfThreads];
+        double[] hopTableArray;
+        int lowerboundDiameter = 0;
+
+        int[] vs_active = new int[mNumSeeds];
+        for (int i = 0; i < mNumSeeds; i++) {
+            vs_active[i] = i + 1;
+        }
+        int d = mNumSeeds / mNumberOfThreads;
+        int r = mNumSeeds % mNumberOfThreads;
+        int ntasks = (d== 0) ? r:mNumberOfThreads;
+        List<double[]> local_harmonic = new ArrayList<>();
+        List<double[]> local_farness = new ArrayList<>();
+
+        for (int i = 0; i < mNumberOfThreads; i++) {
+            local_harmonic.add(new double[mGraph.numNodes()]); // Initialize local_harmonic
+            local_farness.add(new double[mGraph.numNodes()]); // Initialize local_farness
+
+        }
+        ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
+        int task_size = (int) Math.ceil((double) mNumSeeds / mNumberOfThreads);
+        for (int t = 0; t < ntasks; t++) {
+            int start = t * task_size;
+            int end = Math.min((t + 1) * task_size,  mNumSeeds);
+            final int taskRangeStart = start;
+            final int taskRangeEnd = end;
+            final int taskIndex = t;
+            executor.execute(() -> {
+                for (int s = taskRangeStart; s < taskRangeEnd; s++) {
+                    compute_harmonic(s,local_farness.get(taskIndex),local_harmonic.get(taskIndex));
+                }
+            });
+
+        }
+        executor.shutdown();
+        try {
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // Reduction step
+        double[] harmonic = new double[mGraph.numNodes()];
+        double[] farness = new double[mGraph.numNodes()];
+
+        for (int i = 0; i < mGraph.numNodes(); i++) {
+            for (int j = 0; j < ntasks; j++) {
+                harmonic[i] += local_harmonic.get(j)[i];
+                farness[i] += local_farness.get(j)[i];
+            }
+            farness[i] = farness[i] *  mGraph.numNodes()/mNumSeeds;
+            harmonic[i] = harmonic[i] * mGraph.numNodes()/((mGraph.numNodes()-1) *mNumSeeds);
+        }
+        logger.debug(" Farness Centrality {} ",farness);
+        logger.debug(" Harmonic Centrality {}",harmonic);
+
+        GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
+        graphMeasure.setNumNodes(mGraph.numNodes());
+        graphMeasure.setNumSeeds(mNumSeeds);
+
+
+        return graphMeasure;
+    }
+
+
+    /**
+     * Execution of the MultithreadBMinHash algorithm
+     *
+     * @return Computed metrics of the algorithm
+     */
+    public Measure runAlgorithm_tmp() {
+        startTime = System.currentTimeMillis();
+        long totalTime;
+
+        //logger.debug("Number of threads to be used {}", mNumberOfThreads);
+
+        int[][] collisionsMatrix = new int[mNumberOfThreads][];
+        int[] lastHops = new int[mNumberOfThreads];
         double[] hopTableArray;
 
         int lowerboundDiameter = 0;
 
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
-        List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
+        List<IterationThread> todo = new ArrayList<>(this.mNumberOfThreads);
 
-        for (int i = 0; i < this.mNumSeeds; i++) {
+        for (int i = 0; i < this.mNumberOfThreads; i++) {
             todo.add(new IterationThread(mGraph.copy(), i));
         }
 
