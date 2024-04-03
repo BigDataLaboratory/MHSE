@@ -166,8 +166,13 @@ public class MultithreadBMinHash extends BMinHashOpt {
                 for (int aMutable : mutable) {
                     collisions += Integer.bitCount(aMutable);
                 }
-                logger.debug(" random node {} hop {} collisions {}",randomNode,h,collisions);
+                int check = local_hop_table[h];
                 local_hop_table[h] += collisions;
+                if (check != local_hop_table[h] - collisions){
+                    logger.debug("ERRORE ");
+                }
+                logger.debug(" random node {} hop {} collisions {} table {} ",randomNode,h,collisions,local_hop_table[h]);
+
                 //int[] copy = new int[h + 1];
                 //System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
                 //hopTable = copy;
@@ -178,6 +183,11 @@ public class MultithreadBMinHash extends BMinHashOpt {
                 h += 1;
             }
         }
+        if (randomNode == 0) {
+            logger.debug("NODE {} MAX HOP {} TOT COLL {} node COL {} NEIG {}", randomNode, h, local_hop_table, collisions,mGraph.successorArray(randomNode));
+        }
+        if (randomNode == 1) logger.debug("NODE {} MAX HOP {} COLL {}",randomNode,h,local_hop_table);
+
         local_last_hops.add(h-1);
     }
     public Measure runAlgorithm() {
@@ -236,12 +246,12 @@ public class MultithreadBMinHash extends BMinHashOpt {
 
         }
         executor.shutdown();
-        totalTime = System.currentTimeMillis() - startTime;
         try {
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
         // Reduction phase
@@ -261,8 +271,9 @@ public class MultithreadBMinHash extends BMinHashOpt {
             logger.debug("local [{}][] = {} ",j,local_hop_table.get(j));
             logger.debug("last hops {} ",local_last_hops.get(j));
             for (int i = 0; i < lowerboundDiameter+1; i++) {
-                collisionsMatrix[j][i] =  local_hop_table.get(j)[i];
+                    collisionsMatrix[j][i] =  local_hop_table.get(j)[i];
             }
+            logger.debug("collision matrix at index {} =  {} ",j,collisionsMatrix[j]);
         }
         for (int i = 0; i < mGraph.numNodes(); i++) {
             for (int j = 0; j < mNumberOfThreads; j++) {
@@ -276,10 +287,23 @@ public class MultithreadBMinHash extends BMinHashOpt {
                 harmonic[i] = harmonic[i] * mGraph.numNodes() / ((mGraph.numNodes() - 1) * mNumSeeds);
             }
         }
-
-        normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
-
-        hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
+        //for (int i = 0; i < collisionsMatrix.length; i++)  logger.debug("collision matrix at index {} =  {} ",i,collisionsMatrix[i]);
+        // The problem is here, we need to reduce the hop table in a different way
+        //normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
+        for (int i = 0; i < collisionsMatrix.length; i++)  logger.debug("collision matrix at index {} =  {} ",i,collisionsMatrix[i]);
+        double[] dd = new double[lowerboundDiameter+1];
+        for (int j = 0;j<lowerboundDiameter+1;j++){
+            for (int i = 0; i<mNumberOfThreads; i++){
+                dd[j] += collisionsMatrix[i][j];
+            }
+        }
+        hopTableArray = new double[lowerboundDiameter+1];
+        int accum = 0;
+        for (int i = 0; i< lowerboundDiameter+1;i++){
+            accum += dd[i];
+            hopTableArray[i] = (double) (accum * mGraph.numNodes()) / mNumSeeds;
+        }
+        //hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
 
         logger.debug(" Diameter {}",lowerboundDiameter);
         logger.debug(" Farness Centrality {} ",farness);
@@ -372,7 +396,10 @@ public class MultithreadBMinHash extends BMinHashOpt {
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
+        for (int i = 0; i < collisionsMatrix.length; i++)  logger.debug("collision matrix at index {} =  {} ",i,collisionsMatrix[i]);
+
         normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
+        for (int i = 0; i < collisionsMatrix.length; i++)  logger.debug("collision matrix after norm at index {} =  {} ",i,collisionsMatrix[i]);
 
         hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
 
