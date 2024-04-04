@@ -64,11 +64,10 @@ public class MultithreadBMinHash extends BMinHashOpt {
         if (suggestedNumberOfThreads > 0) return suggestedNumberOfThreads;
         return Runtime.getRuntime().availableProcessors();
     }
-    private void compute_harmonic(int s,int[] local_lb_diameter,int [] local_hop_table,List<Integer> local_last_hops,int[] local_farness,float[] local_harmonic){
+    private void compute_harmonic(int s,int[] local_lb_diameter,List<int []> local_hop_table,List<Integer> local_last_hops,int[] local_farness,float[] local_harmonic){
         long startSeedTime = System.currentTimeMillis();
         long lastLogTime = startSeedTime;
         long logTime;
-
         int collisions = 0;
 
         // Set false as signature of all graph nodes
@@ -87,7 +86,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         // we use a dict because we want to iterate over the nodes until
         // the number of collisions in the actual hop
         // is different than the previous hop
-        //int[] hopTable = new int[1];
+        int[] hopTable = new int[1];
 
         while (signatureIsChanged) {
             //first hop - initialization
@@ -166,12 +165,14 @@ public class MultithreadBMinHash extends BMinHashOpt {
                 for (int aMutable : mutable) {
                     collisions += Integer.bitCount(aMutable);
                 }
-                int check = local_hop_table[h];
-                local_hop_table[h] += collisions;
-                if (check != local_hop_table[h] - collisions){
-                    logger.debug("ERRORE ");
-                }
-                logger.debug(" random node {} hop {} collisions {} table {} ",randomNode,h,collisions,local_hop_table[h]);
+                int[] copy = new int[h + 1];
+                System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
+                hopTable = copy;
+
+                hopTable[h] = collisions;
+                //local_hop_table.add(h);
+
+                //logger.debug(" random node {} hop {} collisions {} table {} ",randomNode,h,collisions,local_hop_table[h]);
 
                 //int[] copy = new int[h + 1];
                 //System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
@@ -183,12 +184,9 @@ public class MultithreadBMinHash extends BMinHashOpt {
                 h += 1;
             }
         }
-        if (randomNode == 0) {
-            logger.debug("NODE {} MAX HOP {} TOT COLL {} node COL {} NEIG {}", randomNode, h, local_hop_table, collisions,mGraph.successorArray(randomNode));
-        }
-        if (randomNode == 1) logger.debug("NODE {} MAX HOP {} COLL {}",randomNode,h,local_hop_table);
 
         local_last_hops.add(h-1);
+        local_hop_table.add(hopTable);
     }
     public Measure runAlgorithm() {
         startTime = System.currentTimeMillis();
@@ -196,8 +194,8 @@ public class MultithreadBMinHash extends BMinHashOpt {
 
         //logger.debug("Number of threads to be used {}", mNumberOfThreads);
 
-        int[][] collisionsMatrix = new int[mNumberOfThreads][];
-        int[] lastHops = new int[mNumberOfThreads];
+        int[][] collisionsMatrix = new int[mNumSeeds][];
+        int[] lastHops = new int[mNumSeeds];
         double[] hopTableArray;
         int lowerboundDiameter = 0;
 
@@ -210,12 +208,12 @@ public class MultithreadBMinHash extends BMinHashOpt {
         int ntasks = (d== 0) ? r:mNumberOfThreads;
         logger.debug("NUmber of tasks {}",ntasks);
         List<int[]> local_lb_diameter = new ArrayList<>();
-        List<int[]> local_hop_table = new ArrayList<>();
+        List<List<int[]>> local_hop_table = new ArrayList<>();
         List<float[]> local_harmonic = new ArrayList<>();
         List<int[]> local_farness = new ArrayList<>();
         List<List<Integer>> local_last_hops = new ArrayList<>();
         for (int i = 0; i < mNumberOfThreads; i++) {
-            local_hop_table.add(new int[mGraph.numNodes()]); // Initialize local_hop_table
+            local_hop_table.add(new ArrayList()); // Initialize local_hop_table
             local_lb_diameter.add(new int[1]);
             local_last_hops.add(new ArrayList());
             if (mDoCentrality) {
@@ -229,6 +227,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         }
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
         int task_size = (int) Math.ceil((double) mNumSeeds / mNumberOfThreads);
+
         logger.debug(" TASK SIZE {}",task_size);
         for (int t = 0; t < ntasks; t++) {
             int start = t * task_size;
@@ -265,15 +264,20 @@ public class MultithreadBMinHash extends BMinHashOpt {
             harmonic = new float[mGraph.numNodes()];
             farness = new int[mGraph.numNodes()];
         }
-        logger.debug("seeds {} ",mMinHashNodeIDs);
-        for (int j = 0; j < mNumberOfThreads; j++) {
-            collisionsMatrix[j] = new int[lowerboundDiameter+1];
-            logger.debug("local [{}][] = {} ",j,local_hop_table.get(j));
-            logger.debug("last hops {} ",local_last_hops.get(j));
-            for (int i = 0; i < lowerboundDiameter+1; i++) {
-                    collisionsMatrix[j][i] =  local_hop_table.get(j)[i];
+        int p = 0;
+        for (int t = 0; t<mNumberOfThreads;t++){
+            for (int j = 0; j < local_hop_table.get(t).size(); j++) {
+                collisionsMatrix[p] = local_hop_table.get(t).get(j);
+                p+=1;
             }
-            logger.debug("collision matrix at index {} =  {} ",j,collisionsMatrix[j]);
+        }
+        p = 0;
+
+        for (int t = 0; t<mNumberOfThreads;t++){
+            for (int j = 0; j < local_last_hops.get(t).size(); j++) {
+                lastHops[p] = local_last_hops.get(t).get(j);
+                p+=1;
+            }
         }
         for (int i = 0; i < mGraph.numNodes(); i++) {
             for (int j = 0; j < mNumberOfThreads; j++) {
@@ -290,20 +294,14 @@ public class MultithreadBMinHash extends BMinHashOpt {
         //for (int i = 0; i < collisionsMatrix.length; i++)  logger.debug("collision matrix at index {} =  {} ",i,collisionsMatrix[i]);
         // The problem is here, we need to reduce the hop table in a different way
         //normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
-        for (int i = 0; i < collisionsMatrix.length; i++)  logger.debug("collision matrix at index {} =  {} ",i,collisionsMatrix[i]);
-        double[] dd = new double[lowerboundDiameter+1];
-        for (int j = 0;j<lowerboundDiameter+1;j++){
-            for (int i = 0; i<mNumberOfThreads; i++){
-                dd[j] += collisionsMatrix[i][j];
-            }
+
+        for (int i = 0; i< collisionsMatrix.length;i++){
+            logger.debug("CM LOL {}",collisionsMatrix[i]);
         }
-        hopTableArray = new double[lowerboundDiameter+1];
-        int accum = 0;
-        for (int i = 0; i< lowerboundDiameter+1;i++){
-            accum += dd[i];
-            hopTableArray[i] = (double) (accum * mGraph.numNodes()) / mNumSeeds;
-        }
-        //hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
+        normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
+
+
+        hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
 
         logger.debug(" Diameter {}",lowerboundDiameter);
         logger.debug(" Farness Centrality {} ",farness);
@@ -318,6 +316,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
             graphMeasure.setFarness(farness);
             graphMeasure.setHarmonicCentrality(harmonic);
         }
+        graphMeasure.setLastHops(lastHops);
         graphMeasure.setLowerBoundDiameter(lowerboundDiameter);
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsTime(mSeedTime);
@@ -397,13 +396,17 @@ public class MultithreadBMinHash extends BMinHashOpt {
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
         for (int i = 0; i < collisionsMatrix.length; i++)  logger.debug("collision matrix at index {} =  {} ",i,collisionsMatrix[i]);
-
+        logger.debug("------------------");
         normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
         for (int i = 0; i < collisionsMatrix.length; i++)  logger.debug("collision matrix after norm at index {} =  {} ",i,collisionsMatrix[i]);
+        //for(int i = 0;i<collisionsMatrix.length;i++) {
+        //    logger.debug(" cm [{}] = {}",i,collisionsMatrix[i]);
+        //}
+
 
         hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
 
-        //logger.debug("Hop table array is {}", hopTableArray);
+        logger.debug("Hop table array is {}", hopTableArray);
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
