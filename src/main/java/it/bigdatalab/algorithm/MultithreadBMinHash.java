@@ -64,7 +64,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         if (suggestedNumberOfThreads > 0) return suggestedNumberOfThreads;
         return Runtime.getRuntime().availableProcessors();
     }
-    private void compute_harmonic(int s,int task_id,int[] local_lb_diameter,int [][] local_hop_table,int[] local_last_hops,int[] local_farness,float[] local_harmonic){
+    private void iteration_thread(int s,int task_id,int[] local_lb_diameter,int [][] local_hop_table,int[] local_last_hops,int[] local_farness,float[] local_harmonic){
         long startSeedTime = System.currentTimeMillis();
         long lastLogTime = startSeedTime;
         long logTime;
@@ -198,7 +198,6 @@ public class MultithreadBMinHash extends BMinHashOpt {
         int r = mNumSeeds % mNumberOfThreads;
         int ntasks = (d== 0) ? r:mNumberOfThreads;
         int [][]  local_lb_diameter = new int[mNumberOfThreads][];
-
         int [][][] local_hop_table = new int[mNumberOfThreads][][];
         float [][] local_harmonic = new float[mNumberOfThreads][];
         int [][] local_farness = new int[mNumberOfThreads][];
@@ -235,7 +234,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
             executor.execute(() -> {
                 int task_id = 0;
                 for (int s = taskRangeStart; s < taskRangeEnd; s++) {
-                    compute_harmonic(s,task_id,local_lb_diameter[taskIndex],local_hop_table[taskIndex],local_last_hops[taskIndex],local_farness[taskIndex],local_harmonic[taskIndex]);
+                    iteration_thread(s,task_id,local_lb_diameter[taskIndex],local_hop_table[taskIndex],local_last_hops[taskIndex],local_farness[taskIndex],local_harmonic[taskIndex]);
                     task_id +=1;
                 }
             });

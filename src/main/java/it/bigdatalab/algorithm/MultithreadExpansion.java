@@ -56,7 +56,12 @@ public class MultithreadExpansion extends BMinHashOpt {
         if (suggestedNumberOfThreads > 0) return suggestedNumberOfThreads;
         return Runtime.getRuntime().availableProcessors();
     }
+    /*
+    To DO
+    public Measure runAlgorithm() throws IOException {
 
+    }
+    */
     @Override
     public Measure runAlgorithm() throws IOException {
         startTime = System.currentTimeMillis();
