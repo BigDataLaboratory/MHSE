@@ -54,7 +54,7 @@ public class RandomRadiusBall {
             ball.add(i);
             dist[i] = 0;
             h = 0;
-            while (ball.size() != 0 && h < tau) {
+            while (!ball.isEmpty() && h < tau) {
                 hopStartTime = System.currentTimeMillis();
                 int w = ball.remove();
                 final int d = mGraph.outdegree(w);
