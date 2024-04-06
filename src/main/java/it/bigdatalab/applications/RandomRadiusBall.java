@@ -80,7 +80,7 @@ public class RandomRadiusBall {
 
             }
         }
-
+        // Normalizing the estimator
         for (i = 0; i <n; i++) {
             centrality[i] = centrality[i] /t;
         }
