@@ -48,6 +48,8 @@ public class MultithreadMHSEX extends MinHash {
 
     private short[][] mHopForNodes;
 
+    private double [][] mHarmonic;
+
 
     /**
      * Creates a new MHSE X instance with default values
@@ -120,6 +122,7 @@ public class MultithreadMHSEX extends MinHash {
 
         if (mDoCentrality) {
             mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
+            mHarmonic = new double[mGraph.numNodes()][mNumSeeds];
         }
 
         logger.debug("Number of threads to be used {}", mNumberOfThreads);
@@ -174,7 +177,17 @@ public class MultithreadMHSEX extends MinHash {
 
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
+        float [] inverseFarness = new float[1];
+        if (mDoCentrality){
+            inverseFarness = new float [mGraph.numNodes()];
+            for (int i = 0; i < mGraph.numNodes(); i++) {
+                for (int j = 0; j < this.mNumSeeds; j++) {
+                    inverseFarness[i] += mHarmonic[i][j];
+                }
+                inverseFarness[i] = inverseFarness[i] * mGraph.numNodes()/(mNumSeeds*(mGraph.numNodes()-1));
+            }
 
+        }
         double[] hopTable = hopTable(mCollisionsVector);
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
@@ -185,11 +198,10 @@ public class MultithreadMHSEX extends MinHash {
         graphMeasure.setSeedsList(mSeeds);
         if(mDoCentrality){
             int[] farness = farnessArray(mHopForNodes);
-            float[] inverseFarness = inverseFarnessArray(mHopForNodes);
             graphMeasure.setFarness(farness);
             graphMeasure.setInverseFarness(inverseFarness);
             //graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
-            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(),mNumSeeds,inverseFarness));
+            graphMeasure.setHarmonicCentrality(inverseFarness);
             //graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(),mNumSeeds,farness,hopTable));
 
         }
@@ -322,6 +334,7 @@ public class MultithreadMHSEX extends MinHash {
                                                 if ((value >>> nRemainder) == 1) {
                                                     if (mDoCentrality) {
                                                         mHopForNodes[n][s] = (short) h;
+                                                        mHarmonic[n][s] += 1.0/h;
                                                     }
                                                 }
                                             }
@@ -345,8 +358,10 @@ public class MultithreadMHSEX extends MinHash {
 
                 int b = signatureIsChanged ? 1 : 0;
                 mLock.lock();
+                logger.debug("Updating ");
                 mSignatureIsChanged = (mSignatureIsChanged & ~(1 << index)) | ((b << index) & (1 << index));
                 mLock.unlock();
+                logger.debug("Updated ");
 
                 try {
                     mCyclicBarrier.await();

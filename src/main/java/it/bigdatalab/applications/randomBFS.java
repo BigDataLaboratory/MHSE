@@ -145,109 +145,111 @@ public class randomBFS {
         return measures;
     }
 
-    private Measure run_bfs(){
-        mSeeds = new IntArrayList();
-        int n = mGraph.numNodes();
-        long startTime = System.currentTimeMillis();
-        long totalTime,logTime,hopStartTime;
-        long lastLogTime = startTime;
-        //ProgressLogger pl = new ProgressLogger();
-        //double avgDistance = 0.0;
-        double[] dd = new double[n];
-        double[] dist = new double[n];
-        int[] farness = new int[0];
-        float[] inverse_farness = new float[0];
 
-        if (doCentrality) {
-                farness = new int[n];
-                inverse_farness = new float[n];
-        }
-        double lower_bound = 0;
-        Arrays.fill(dd, 0);
-        int seed;
-        int h;
 
-        for (int i = 0; i< nSeed; i++){
-            seed = getRandomNumber(n);
-            mSeeds.add(seed);
-            Arrays.fill(dist, -1);
-            Queue<Integer> ball = new LinkedList<>();
-            ball.add(seed);
-            dist[seed] = 0;
-            h = 0;
-            dd[0] += 1;
-            while(ball.size() != 0){
-                hopStartTime =  System.currentTimeMillis();
-                int w = ball.remove();
-                final int d = mGraph.outdegree(w);
-                final int[] successors = mGraph.successorArray(w);
-                for (int l = 0;l<d; l++){
-                    if (dist[successors[l]] == -1){
-                        dist[successors[l]] = dist[w] +1;
-                        dd[(int) dist[successors[l]]] +=1;
-                        if (lower_bound < dist[successors[l]]){
-                            lower_bound = dist[successors[l]];
-                        }
-                        if (doCentrality) {
-                            farness[successors[l]] += dist[successors[l]];
-                            if (dist[successors[l]] > 0){
-                                inverse_farness[successors[l]] += 1.0 / dist[successors[l]];
-                            }
-                        }
-                        ball.add(successors[l]);
-                    }
-                }
+private Measure run_bfs(){
+    mSeeds = new IntArrayList();
+    int n = mGraph.numNodes();
+    long startTime = System.currentTimeMillis();
+    long totalTime,logTime,hopStartTime;
+    long lastLogTime = startTime;
+    //ProgressLogger pl = new ProgressLogger();
+    //double avgDistance = 0.0;
+    double[] dd = new double[n];
+    double[] dist = new double[n];
+    int[] farness = new int[0];
+    float[] inverse_farness = new float[0];
 
-                logTime = System.currentTimeMillis();
-                if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
-                    logger.info("# nodes analyzed {} / {} for hop {} [elapsed {}, node/s {}]",
-                            n, mGraph.numNodes(),
-                            h,
-                            (logTime - hopStartTime) / (double) 1000,
-                            ((n + 1) / ((logTime - hopStartTime) / (double) 1000)));
-                    lastLogTime = logTime;
-                }
-                h+=1;
-            }
-        }
-        double[] R = new double[(int) lower_bound+1];
-        Arrays.fill(R, 0);
-        double accum = 0;
-
-        for (h = 0; h< lower_bound+1;h++){
-            accum += dd[h];
-            if (h == 0) {
-                R[h] = n*dd[h]/nSeed;
-            }else{
-                R[h] = n*accum / nSeed;
-            }
-        }
-
-        totalTime = System.currentTimeMillis() - startTime;
-        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
-
-        GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
-        graphMeasure.setNumNodes(mGraph.numNodes());
-        graphMeasure.setHopTable(R);
-        graphMeasure.setLowerBoundDiameter((int) lower_bound);
-        graphMeasure.setThreshold(mParam.getThreshold());
-        graphMeasure.setSeedsList(mSeeds);
-        graphMeasure.setNumSeeds(nSeed);
-        // gm
-        graphMeasure.setAvgDistance(Stats.averageDistance(R));
-        graphMeasure.setTime(totalTime);
-        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(R, mParam.getThreshold()));
-        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(R));
-        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(R, mParam.getThreshold()));
-        //If centrality
-        if(doCentrality){
-            //graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), nSeed, farness,true));
-            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(), nSeed, inverse_farness));
-            //graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), nSeed, farness, R));
-        }
-
-        return graphMeasure;
+    if (doCentrality) {
+            farness = new int[n];
+            inverse_farness = new float[n];
     }
+    double lower_bound = 0;
+    Arrays.fill(dd, 0);
+    int seed;
+    int h;
+
+    for (int i = 0; i< nSeed; i++){
+        seed = getRandomNumber(n);
+        mSeeds.add(seed);
+        Arrays.fill(dist, -1);
+        Queue<Integer> ball = new LinkedList<>();
+        ball.add(seed);
+        dist[seed] = 0;
+        h = 0;
+        dd[0] += 1;
+        while(ball.size() != 0){
+            hopStartTime =  System.currentTimeMillis();
+            int w = ball.remove();
+            final int d = mGraph.outdegree(w);
+            final int[] successors = mGraph.successorArray(w);
+            for (int l = 0;l<d; l++){
+                if (dist[successors[l]] == -1){
+                    dist[successors[l]] = dist[w] +1;
+                    dd[(int) dist[successors[l]]] +=1;
+                    if (lower_bound < dist[successors[l]]){
+                        lower_bound = dist[successors[l]];
+                    }
+                    if (doCentrality) {
+                        farness[successors[l]] += dist[successors[l]];
+                        if (dist[successors[l]] > 0){
+                            inverse_farness[successors[l]] += 1.0 / dist[successors[l]];
+                        }
+                    }
+                    ball.add(successors[l]);
+                }
+            }
+
+            logTime = System.currentTimeMillis();
+            if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
+                logger.info("# nodes analyzed {} / {} for hop {} [elapsed {}, node/s {}]",
+                        n, mGraph.numNodes(),
+                        h,
+                        (logTime - hopStartTime) / (double) 1000,
+                        ((n + 1) / ((logTime - hopStartTime) / (double) 1000)));
+                lastLogTime = logTime;
+            }
+            h+=1;
+        }
+    }
+    double[] R = new double[(int) lower_bound+1];
+    Arrays.fill(R, 0);
+    double accum = 0;
+
+    for (h = 0; h< lower_bound+1;h++){
+        accum += dd[h];
+        if (h == 0) {
+            R[h] = n*dd[h]/nSeed;
+        }else{
+            R[h] = n*accum / nSeed;
+        }
+    }
+
+    totalTime = System.currentTimeMillis() - startTime;
+    logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
+
+    GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
+    graphMeasure.setNumNodes(mGraph.numNodes());
+    graphMeasure.setHopTable(R);
+    graphMeasure.setLowerBoundDiameter((int) lower_bound);
+    graphMeasure.setThreshold(mParam.getThreshold());
+    graphMeasure.setSeedsList(mSeeds);
+    graphMeasure.setNumSeeds(nSeed);
+    // gm
+    graphMeasure.setAvgDistance(Stats.averageDistance(R));
+    graphMeasure.setTime(totalTime);
+    graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(R, mParam.getThreshold()));
+    graphMeasure.setTotalCouples(Stats.totalCouplesReachable(R));
+    graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(R, mParam.getThreshold()));
+    //If centrality
+    if(doCentrality){
+        //graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), nSeed, farness,true));
+        graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(), nSeed, inverse_farness));
+        //graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), nSeed, farness, R));
+    }
+
+    return graphMeasure;
+}
 
 
 
