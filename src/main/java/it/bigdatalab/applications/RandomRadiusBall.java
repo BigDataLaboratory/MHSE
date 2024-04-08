@@ -18,11 +18,15 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class RandomRadiusBall {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.applications.RandomRadiusBall");
     private final Parameter mParam;
+    private final int mNumberOfThreads;
     private final ImmutableGraph mGraph;
     private final int t;
     protected IntArrayList mSeeds;
@@ -34,18 +38,27 @@ public class RandomRadiusBall {
     public RandomRadiusBall(@NotNull Parameter param) throws IOException {
         this.mParam = param;
         this.mGraph = GraphUtils.loadGraph(param.getInputFilePathGraph(),param.isTranspose(),param.isInMemory(),param.keepIsolatedVertices(),"out");
-
+        this.mNumberOfThreads = getNumberOfMaxThreads(param.getNumThreads());
         //this.mParam = param;
-        this.t = param.getNumSeeds();
+        this.t = param.getTBall();
     }
     // Implementation of the algorithm Random-Radius Ball Method for Estimating Closeness Centrality
-
+    /**
+     * Number of max threads to use for the computation
+     *
+     * @param suggestedNumberOfThreads if not equal to zero return the number of threads
+     *                                 passed as parameter, else the number of max threads available
+     * @return number of threads to use for the computation
+     */
+    private static int getNumberOfMaxThreads(int suggestedNumberOfThreads) {
+        if (suggestedNumberOfThreads > 0) return suggestedNumberOfThreads;
+        return Runtime.getRuntime().availableProcessors();
+    }
 
     public static void main(String[] args) throws IOException {
 
         String inputFilePath = PropertiesManager.getPropertyIfNotEmpty("RRB.inputFilePath");
         String outputFolderPath = PropertiesManager.getPropertyIfNotEmpty("RRB.outputFolderPath");
-        int numTests = Integer.parseInt(PropertiesManager.getProperty("RRB.numTests", Constants.NUM_RUN_DEFAULT));
         int t = Integer.parseInt(PropertiesManager.getProperty("RRB.t"));
         boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("RRB.isolatedVertices"));
         boolean transpose = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("RRB.transpose"));
@@ -55,12 +68,12 @@ public class RandomRadiusBall {
                 .setAlgorithmName("RRB")
                 .setInputFilePathGraph(inputFilePath)
                 .setOutputFolderPath(outputFolderPath)
-                .setNumTests(numTests)
                 .setNumSeeds(t)
                 .setTranspose(transpose)
                 .setInMemory(inMemory)
                 .setIsolatedVertices(isolatedVertices)
                 .setNumThreads(suggestedNumberOfThreads)
+                .setTBall(t)
                 .build();
         logger.info("\n\n********************** Parameters **********************\n\n" +
                         "# executions will be run {} time(s)\n" +
@@ -116,21 +129,120 @@ public class RandomRadiusBall {
         //List<SeedNode> seedsNodes = new ArrayList<>();
         List<Measure> measures = new ArrayList<>();
 
+        measure = runRBB();
+        measure.setAlgorithmName(mParam.getAlgorithmName());
+        measure.setRun(1);
+        measures.add(measure);
+        logger.info("\n\n********************************************************\n\n" +
+                        "Test n. 1 executed correctly\n\n" +
+                        "********************************************************\n\n");
 
-        for (int i = 0; i < numTest; i++) {
-            measure = runRBB();
-            measure.setAlgorithmName(mParam.getAlgorithmName());
-            measure.setRun(i + 1);
-            measures.add(measure);
-            logger.info("\n\n********************************************************\n\n" +
-                            "Test n.{} executed correctly\n\n" +
-                            "********************************************************\n\n",
-                    i + 1);
-        }
+        //for (int i = 0; i < numTest; i++) {
+
+       // }
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Application successfully completed. Time elapsed (in milliseconds) {}", totalTime);
         return measures;
     }
+    //iteration_thread(s,task_id,local_random_ball_size[taskIndex],local_centrality[taskIndex]);
+    private void iteration_thread(int s,int t,float [] centrality){
+        int n = mGraph.numNodes();
+        double[] dist = new double[n];
+        int tau,h;
+        double r;
+        r = Math.random();
+        tau = (int) Math.floor(t / r);
+        //BFS of depth tau from i
+        Arrays.fill(dist, -1);
+        Queue<Integer> ball = new LinkedList<>();
+        ball.add(s);
+        dist[s] = 0;
+        h = 0;
+        while (!ball.isEmpty() && h < tau) {
+            int w = ball.remove();
+            final int d = mGraph.outdegree(w);
+            final int[] successors = mGraph.successorArray(w);
+            for (int l = 0; l < d; l++) {
+                if (dist[successors[l]] == -1) {
+                    dist[successors[l]] = dist[w] + 1;
+                    centrality[successors[l]] += 1;
+                    ball.add(successors[l]);
+                }
+            }
+
+
+            h += 1;
+
+        }
+
+
+
+    }
+
+    public Measure runRBB(){
+        long startTime = System.currentTimeMillis();
+        long totalTime;
+        int i,j,n;
+        n = mGraph.numNodes();
+        //int [][] local_random_ball_size = new int[mNumberOfThreads][n];
+        float [][] local_centrality = new float[mNumberOfThreads][mGraph.numNodes()];
+        float [] centrality = new float[n];
+        int [] random_ball_size = new int[n];
+        int task_size = (int) Math.ceil((double) n / mNumberOfThreads);
+        int d = n / mNumberOfThreads;
+        int y = n % mNumberOfThreads;
+        int ntasks = (d== 0) ? y:mNumberOfThreads;
+        ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
+
+        for (int f = 0; f < ntasks; f++) {
+            int start = f * task_size;
+            int end = Math.min((f + 1) * task_size,  n);
+            final int taskRangeStart = start;
+            final int taskRangeEnd = end;
+            final int taskIndex = f;
+            // Here we could change lists with arrays of fixed sizes
+            executor.execute(() -> {
+                int task_id = 0;
+                for (int s = taskRangeStart; s < taskRangeEnd; s++) {
+                    iteration_thread(s,t,local_centrality[taskIndex]);
+                    task_id +=1;
+                }
+            });
+
+        }
+        executor.shutdown();
+        try {
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        totalTime = System.currentTimeMillis() - startTime;
+        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
+
+
+
+        // Normalizing the estimator the original estimator is centrality[i] /t
+        for (i = 0; i <n; i++) {
+            for (j = 0; j< mNumberOfThreads; j++){
+                centrality[i] += local_centrality[j][i];
+            }
+            centrality[i] = centrality[i] /(t*(n-1));
+        }
+
+
+
+
+        GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
+        graphMeasure.setNumNodes(mGraph.numNodes());
+        graphMeasure.setTime(totalTime);
+        graphMeasure.setHarmonicCentrality(centrality);
+        graphMeasure.setTBall(t);
+
+        return graphMeasure;
+    }
+}
+
+/*
 
     public Measure runRBB(){
         long startTime = System.currentTimeMillis();
@@ -212,3 +324,4 @@ public class RandomRadiusBall {
         return graphMeasure;
     }
 }
+*/

@@ -21,6 +21,8 @@ public class GraphMeasureOpt extends Measure {
     //private Hasm[] mHarmonicCentralityTopK;
     @SerializedName("linn_centrality_apx")
     private double[] mLinnCentrality;
+    @SerializedName("t_ball_size")
+    private int TBall;
     public GraphMeasureOpt() {
 
     }
@@ -66,6 +68,10 @@ public class GraphMeasureOpt extends Measure {
     public double[] getLinnCentrality() {
         return mLinnCentrality;
     }
+
+
+    public void setTBall(int TBall) {this.TBall = TBall;}
+    public int getTBall() {return this.TBall;}
 
 
     /**
