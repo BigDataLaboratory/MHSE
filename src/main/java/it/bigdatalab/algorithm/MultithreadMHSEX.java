@@ -154,20 +154,22 @@ public class MultithreadMHSEX extends MinHash {
             mSignatureIsChanged = (mSignatureIsChanged & ~(1 << nt)) | ((1 << nt));
 
             if (nt == mNumberOfThreads - 1) {
-                logger.debug("start {} end {} index {}", start, mGraph.numNodes() - 1, nt);
+                //logger.debug("start {} end {} index {}", start, mGraph.numNodes() - 1, nt);
                 todo.add(new IterationThread(mGraph.copy(), start, mGraph.numNodes() - 1, nt));
             } else {
-                logger.debug("start {} end {} index {}", start, end, nt);
+                //logger.debug("start {} end {} index {}", start, end, nt);
                 todo.add(new IterationThread(mGraph.copy(), start, end, nt));
             }
             start = end + 1;
             end = start + numberOfNodes4Group;
         }
+
         try {
             executor.invokeAll(todo);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
        executor.shutdown();
 
         totalTime = System.currentTimeMillis() - startTime;
@@ -286,8 +288,8 @@ public class MultithreadMHSEX extends MinHash {
 
                 // update node signature
                 for (int n = start; n < end + 1; n++) {
-                        nPosition = n >>> Constants.MASK;
-                        nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
+                        //nPosition = n >>> Constants.MASK;
+                        //nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
                         if (!saturated[n]) {// todo cambiare in array di int - trick
                             final int d = g.outdegree(n);
                             final int[] successors = g.successorArray(n);
@@ -345,16 +347,24 @@ public class MultithreadMHSEX extends MinHash {
                     if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
                         logger.info("(hop # {}) # nodes analyzed {} / {}, estimated time remaining {} ms",
                                 h,
-                                (n-start), end-start,
+                                (n-stProcessed node {}art), end-start,
                                 (((end-start)-(n-start)) * (logTime - startHopTime)) / n);
                         lastLogTime = logTime;
                     }*/
+                    // If we print this logger, the algorithm does not get stuck
+                    // If we keep it commented, there will be an execution that will get stuck
+                    // wtf
+                    //logger.info(" Processed {}",n)
+
+
+
                 }
 
                 int b = signatureIsChanged ? 1 : 0;
                 mLock.lock();
                 mSignatureIsChanged = (mSignatureIsChanged & ~(1 << index)) | ((b << index) & (1 << index));
                 mLock.unlock();
+                mLock.notify();
                 try {
                     mCyclicBarrier.await();
                 } catch (InterruptedException | BrokenBarrierException e) {
