@@ -274,7 +274,7 @@ public class MultithreadMHSEX extends MinHash {
         }
 
         @Override
-        public Integer call() {
+        public Integer call() throws InterruptedException {
             long startHopTime = System.currentTimeMillis();
             long lastLogTime = startHopTime;
             long logTime;
@@ -342,7 +342,7 @@ public class MultithreadMHSEX extends MinHash {
                             }
                         }
 
-/*                    logTime = System.currentTimeMillis();
+/*
 
                     if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
                         logger.info("(hop # {}) # nodes analyzed {} / {}, estimated time remaining {} ms",
@@ -354,7 +354,9 @@ public class MultithreadMHSEX extends MinHash {
                     // If we print this logger, the algorithm does not get stuck
                     // If we keep it commented, there will be an execution that will get stuck
                     // wtf
-                    //logger.info(" Processed {}",n)
+                    // This is needed to make the system work
+                    logTime = System.currentTimeMillis();
+                    logger.info("Thread {} Processed hop {} in {} milliseconds",index,h,(logTime - startHopTime));
 
 
 
@@ -364,7 +366,6 @@ public class MultithreadMHSEX extends MinHash {
                 mLock.lock();
                 mSignatureIsChanged = (mSignatureIsChanged & ~(1 << index)) | ((b << index) & (1 << index));
                 mLock.unlock();
-                mLock.notify();
                 try {
                     mCyclicBarrier.await();
                 } catch (InterruptedException | BrokenBarrierException e) {
