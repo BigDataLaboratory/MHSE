@@ -30,10 +30,11 @@ public class MultithreadMHSEX extends MinHash {
     private int[][] mSignMutable;
     private int[][] mSignImmutable;
     private CyclicBarrier mCyclicBarrier;
+    private boolean barrierFree;
     private int h;
 
     private long[] mCollisionsVector;
-    private int mSignatureIsChanged;
+    private volatile int mSignatureIsChanged;
     private ReentrantLock mLock;
 
     private boolean mDoCentrality;
@@ -117,8 +118,11 @@ public class MultithreadMHSEX extends MinHash {
         int numberOfNodes4Group = groupNodesByThread(mGraph.numNodes());
 
         if (mDoCentrality) {
-            mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
-            mHarmonic = new double[mGraph.numNodes()][mNumSeeds];
+            //mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
+            //mHarmonic = new double[mGraph.numNodes()][mNumSeeds];
+
+            mHopForNodes = new short[mGraph.numNodes()][mNumberOfThreads];
+            mHarmonic = new double[mGraph.numNodes()][mNumberOfThreads];
         }
 
         logger.debug("Number of threads to be used {}", mNumberOfThreads);
@@ -142,17 +146,15 @@ public class MultithreadMHSEX extends MinHash {
 
         mCollisionsVector[h] = collisions;
         h += 1;
-
         mCyclicBarrier = new CyclicBarrier(mNumberOfThreads, new AggregatorThread(mGraph.copy()));
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
-
+        barrierFree = false;
         int start = 0;
         int end = start + numberOfNodes4Group;
+        //logger.debug(" number of threads for node {}",numberOfNodes4Group);
         List<IterationThread> todo = new ArrayList<>(mNumberOfThreads);
-
         for (int nt = 0; nt < mNumberOfThreads; nt++) {
             mSignatureIsChanged = (mSignatureIsChanged & ~(1 << nt)) | ((1 << nt));
-
             if (nt == mNumberOfThreads - 1) {
                 //logger.debug("start {} end {} index {}", start, mGraph.numNodes() - 1, nt);
                 todo.add(new IterationThread(mGraph.copy(), start, mGraph.numNodes() - 1, nt));
@@ -160,28 +162,41 @@ public class MultithreadMHSEX extends MinHash {
                 //logger.debug("start {} end {} index {}", start, end, nt);
                 todo.add(new IterationThread(mGraph.copy(), start, end, nt));
             }
+
             start = end + 1;
             end = start + numberOfNodes4Group;
         }
 
-        try {
+
+        try{
             executor.invokeAll(todo);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-       executor.shutdown();
 
+
+       executor.shutdown();
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
+        try {
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         float [] inverseFarness = new float[1];
+        int [] farness = new int[1];
         if (mDoCentrality){
             inverseFarness = new float [mGraph.numNodes()];
+            farness = new int[mGraph.numNodes()];
             for (int i = 0; i < mGraph.numNodes(); i++) {
-                for (int j = 0; j < this.mNumSeeds; j++) {
+                for (int j = 0; j < this.mNumberOfThreads; j++) {
                     inverseFarness[i] += mHarmonic[i][j];
+                    farness[i] += mHopForNodes[i][j];
                 }
                 inverseFarness[i] = inverseFarness[i] * mGraph.numNodes()/(mNumSeeds*(mGraph.numNodes()-1));
+                farness[i] = farness[i] * mGraph.numNodes()/mNumSeeds;
             }
 
         }
@@ -194,7 +209,7 @@ public class MultithreadMHSEX extends MinHash {
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsList(mSeeds);
         if(mDoCentrality){
-            int[] farness = farnessArray(mHopForNodes);
+            //int[] farness = farnessArray(mHopForNodes);
             graphMeasure.setFarness(farness);
             graphMeasure.setInverseFarness(inverseFarness);
             //graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
@@ -235,7 +250,8 @@ public class MultithreadMHSEX extends MinHash {
         @Override
         public void run() {
             logger.debug("barrier, mSignatureIsChanged {}", mSignatureIsChanged);
-            if (mSignatureIsChanged != 0) {
+
+           if (mSignatureIsChanged != 0) {
                 System.arraycopy(mTrackerMutable, 0, mTrackerImmutable, 0, mTrackerMutable.length);
                 mTrackerMutable = new int[lengthBitsArray(mGraph.numNodes())];
 
@@ -254,6 +270,9 @@ public class MultithreadMHSEX extends MinHash {
 
                 mCollisionsVector[h] = collisions;
                 h += 1;
+            }else{
+                logger.debug("Barrier free");
+                barrierFree = true;
             }
         }
 
@@ -279,11 +298,15 @@ public class MultithreadMHSEX extends MinHash {
             long lastLogTime = startHopTime;
             long logTime;
 
-            boolean signatureIsChanged;
-
+            boolean signatureIsChanged,awaitCall;
             int nPosition, nRemainder, neighPosition, neighRemainder, neighMask;
+            awaitCall = false;
 
-            while (mSignatureIsChanged != 0) {
+            //while (mSignatureIsChanged != 0 ) {
+            while (mSignatureIsChanged != 0 ) {
+                //logger.debug("SIGNATURE CHANGE {}",mSignatureIsChanged);
+                awaitCall = false;
+
                 signatureIsChanged = false;
 
                 // update node signature
@@ -330,8 +353,13 @@ public class MultithreadMHSEX extends MinHash {
 
                                                 if ((value >>> nRemainder) == 1) {
                                                     if (mDoCentrality) {
-                                                        mHopForNodes[n][s] = (short) h;
-                                                        mHarmonic[n][s] += 1.0/h;
+                                                        mLock.lock();
+                                                        try {
+                                                            mHopForNodes[n][index] += (short) h;
+                                                            mHarmonic[n][index] += 1.0/h;
+                                                        }finally {
+                                                            mLock.unlock();
+                                                        }
                                                     }
                                                 }
                                             }
@@ -342,36 +370,44 @@ public class MultithreadMHSEX extends MinHash {
                             }
                         }
 
-/*
-
-                    if (logTime - lastLogTime >= Constants.LOG_INTERVAL) {
-                        logger.info("(hop # {}) # nodes analyzed {} / {}, estimated time remaining {} ms",
-                                h,
-                                (n-stProcessed node {}art), end-start,
-                                (((end-start)-(n-start)) * (logTime - startHopTime)) / n);
-                        lastLogTime = logTime;
-                    }*/
-                    // If we print this logger, the algorithm does not get stuck
-                    // If we keep it commented, there will be an execution that will get stuck
-                    // wtf
-                    // This is needed to make the system work
-                    logTime = System.currentTimeMillis();
-                    logger.info("Thread {} Processed hop {} in {} milliseconds",index,h,(logTime - startHopTime));
-
-
 
                 }
 
                 int b = signatureIsChanged ? 1 : 0;
                 mLock.lock();
-                mSignatureIsChanged = (mSignatureIsChanged & ~(1 << index)) | ((b << index) & (1 << index));
-                mLock.unlock();
                 try {
+                    mSignatureIsChanged = (mSignatureIsChanged & ~(1 << index)) | ((b << index) & (1 << index));
+                }finally {
+                    mLock.unlock();
+                }
+
+                try {
+                    awaitCall = true;
+
+                    mCyclicBarrier.await();
+
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    e.printStackTrace();
+
+                }
+                if (mSignatureIsChanged == 0){
+                    awaitCall = false;
+                }
+
+            }
+            if (!awaitCall && !barrierFree){
+                try {
+                    //logger.debug("Forcing Thread {} CALLING WAIT ",Thread.currentThread().getId());
+                    //awaitCall = true;
                     mCyclicBarrier.await();
                 } catch (InterruptedException | BrokenBarrierException e) {
                     e.printStackTrace();
+
                 }
             }
+            //logger.debug("Thread {} finished index {} await {}",Thread.currentThread().getId(), index ,awaitCall);
+            //logger.debug("Released thread, number of waiting {} ",mCyclicBarrier.getNumberWaiting());
+
             return 0;
         }
     }
