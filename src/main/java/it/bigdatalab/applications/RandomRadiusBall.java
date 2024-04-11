@@ -59,6 +59,7 @@ public class RandomRadiusBall {
 
         String inputFilePath = PropertiesManager.getPropertyIfNotEmpty("RRB.inputFilePath");
         String outputFolderPath = PropertiesManager.getPropertyIfNotEmpty("RRB.outputFolderPath");
+        int numTests = Integer.parseInt(PropertiesManager.getProperty("RRB.numTests", Constants.NUM_RUN_DEFAULT));
         int t = Integer.parseInt(PropertiesManager.getProperty("RRB.t"));
         boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("RRB.isolatedVertices"));
         boolean transpose = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("RRB.transpose"));
@@ -68,6 +69,7 @@ public class RandomRadiusBall {
                 .setAlgorithmName("RRB")
                 .setInputFilePathGraph(inputFilePath)
                 .setOutputFolderPath(outputFolderPath)
+                .setNumTests(numTests)
                 .setNumSeeds(t)
                 .setTranspose(transpose)
                 .setInMemory(inMemory)
@@ -129,17 +131,18 @@ public class RandomRadiusBall {
         //List<SeedNode> seedsNodes = new ArrayList<>();
         List<Measure> measures = new ArrayList<>();
 
-        measure = runRBB();
-        measure.setAlgorithmName(mParam.getAlgorithmName());
-        measure.setRun(1);
-        measures.add(measure);
-        logger.info("\n\n********************************************************\n\n" +
-                        "Test n. 1 executed correctly\n\n" +
-                        "********************************************************\n\n");
 
-        //for (int i = 0; i < numTest; i++) {
 
-       // }
+        for (int i = 0; i < numTest; i++) {
+            measure = runRBB();
+            measure.setAlgorithmName(mParam.getAlgorithmName());
+            measure.setRun(i+1);
+            measures.add(measure);
+            logger.info("\n\n********************************************************\n\n" +
+                    "Test n. {} executed correctly\n\n" +
+                    "********************************************************\n\n",i+1);
+
+        }
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Application successfully completed. Time elapsed (in milliseconds) {}", totalTime);
         return measures;

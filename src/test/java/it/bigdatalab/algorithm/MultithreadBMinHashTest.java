@@ -166,8 +166,8 @@ class MultithreadBMinHashTest extends AlgoTest {
         logger.debug("NUM NODES {}",g.numNodes());
         MultithreadBMinHash algo = new MultithreadBMinHash(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
-        Measure measure = algo.runAlgorithm();
-
+        Measure measure =  algo.runAlgorithm();
+        logger.debug("ed {}",measure.getEffectiveDiameter());
         assertThat(measure)
                 .usingRecursiveComparison()
                 .ignoringFields("mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")

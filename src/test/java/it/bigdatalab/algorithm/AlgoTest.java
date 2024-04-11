@@ -1,5 +1,6 @@
 package it.bigdatalab.algorithm;
 
+import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -215,6 +216,8 @@ public class AlgoTest {
                 Arguments.of("out", new int[]{-1661843915, -328937796, 571898839, -1999389973, 11310977, -1781139022, -1001108646, -2046205192, -444995994, -304731378, -724798370, 1784683099, 813722321, -1061396053, 621916878, -1041970128}, new int[]{12, 32, 14, 29, 13, 21, 25, 0, 1, 22, 18, 31, 27, 15, 16, 4}, new Measure(16, 1, 0.6666666666666666, 0.8500000000000001, 99.0, 89.10000000000001))
         );
     }
+
+
 
     private static Stream<Arguments> outStarFarnessProvider() {
         return Stream.of(

@@ -31,10 +31,13 @@ public class MultithreadMHSEX extends MinHash {
     private int[][] mSignImmutable;
     private CyclicBarrier mCyclicBarrier;
     private boolean barrierFree;
-    private int h;
+    //private boolean []  waiting;
+    //private boolean []  waiting_outside;
 
+    private int h;
     private long[] mCollisionsVector;
     private volatile int mSignatureIsChanged;
+    private volatile boolean [] mSetSignaturesChanged;
     private ReentrantLock mLock;
 
     private boolean mDoCentrality;
@@ -108,7 +111,7 @@ public class MultithreadMHSEX extends MinHash {
     public int groupNodesByThread(int value) {
         return (int) Math.ceil(value / mNumberOfThreads);
     }
-
+    private void iteration_thread(){}
     public Measure runAlgorithm() {
         long startTime = System.currentTimeMillis();
         long totalTime;
@@ -149,11 +152,18 @@ public class MultithreadMHSEX extends MinHash {
         mCyclicBarrier = new CyclicBarrier(mNumberOfThreads, new AggregatorThread(mGraph.copy()));
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
         barrierFree = false;
+        //waiting = new boolean[mNumberOfThreads];
+        //waiting_outside = new boolean[mNumberOfThreads];
+
+        mSetSignaturesChanged = new boolean[mNumberOfThreads];
         int start = 0;
         int end = start + numberOfNodes4Group;
         //logger.debug(" number of threads for node {}",numberOfNodes4Group);
         List<IterationThread> todo = new ArrayList<>(mNumberOfThreads);
         for (int nt = 0; nt < mNumberOfThreads; nt++) {
+           // waiting[nt] = false;
+           // waiting_outside[nt] = true;
+            mSetSignaturesChanged[nt] = true;
             mSignatureIsChanged = (mSignatureIsChanged & ~(1 << nt)) | ((1 << nt));
             if (nt == mNumberOfThreads - 1) {
                 //logger.debug("start {} end {} index {}", start, mGraph.numNodes() - 1, nt);
@@ -176,7 +186,7 @@ public class MultithreadMHSEX extends MinHash {
 
 
 
-       executor.shutdown();
+        executor.shutdown();
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
         try {
@@ -250,8 +260,9 @@ public class MultithreadMHSEX extends MinHash {
         @Override
         public void run() {
             logger.debug("barrier, mSignatureIsChanged {}", mSignatureIsChanged);
-
-           if (mSignatureIsChanged != 0) {
+            barrierFree = true;
+            for (int i = 0; i < mNumberOfThreads; i++) barrierFree = barrierFree & !mSetSignaturesChanged[i];
+            if (mSignatureIsChanged != 0) {
                 System.arraycopy(mTrackerMutable, 0, mTrackerImmutable, 0, mTrackerMutable.length);
                 mTrackerMutable = new int[lengthBitsArray(mGraph.numNodes())];
 
@@ -301,16 +312,16 @@ public class MultithreadMHSEX extends MinHash {
             boolean signatureIsChanged,awaitCall;
             int nPosition, nRemainder, neighPosition, neighRemainder, neighMask;
             awaitCall = false;
-
+            boolean allConverged = false;
             //while (mSignatureIsChanged != 0 ) {
-            while (mSignatureIsChanged != 0 ) {
+            while (mSignatureIsChanged != 0  || !barrierFree) {
                 //logger.debug("SIGNATURE CHANGE {}",mSignatureIsChanged);
                 awaitCall = false;
 
                 signatureIsChanged = false;
-
-                // update node signature
-                for (int n = start; n < end + 1; n++) {
+                if (mSetSignaturesChanged[index]) {
+                    // update node signature
+                    for (int n = start; n < end + 1; n++) {
                         //nPosition = n >>> Constants.MASK;
                         //nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
                         if (!saturated[n]) {// todo cambiare in array di int - trick
@@ -349,15 +360,15 @@ public class MultithreadMHSEX extends MinHash {
                                                 signatureIsChanged = true; // track the signature changes, to run the next hop
                                                 mTrackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
                                                 mSignMutable[n][mPosition[s]] = mSignMutable[n][mPosition[s]] | value;
-                                                tmp_saturated  = tmp_saturated && (mSignMutable[n][mPosition[s]] == 1);
+                                                tmp_saturated = tmp_saturated && (mSignMutable[n][mPosition[s]] == 1);
 
                                                 if ((value >>> nRemainder) == 1) {
                                                     if (mDoCentrality) {
                                                         mLock.lock();
                                                         try {
                                                             mHopForNodes[n][index] += (short) h;
-                                                            mHarmonic[n][index] += 1.0/h;
-                                                        }finally {
+                                                            mHarmonic[n][index] += 1.0 / h;
+                                                        } finally {
                                                             mLock.unlock();
                                                         }
                                                     }
@@ -371,17 +382,22 @@ public class MultithreadMHSEX extends MinHash {
                         }
 
 
+                    }
+                    mSetSignaturesChanged[index] = signatureIsChanged;
+                    int b = signatureIsChanged ? 1 : 0;
+                    mLock.lock();
+                    try {
+                        mSignatureIsChanged = (mSignatureIsChanged & ~(1 << index)) | ((b << index) & (1 << index));
+                    } finally {
+                        mLock.unlock();
+                    }
                 }
-
-                int b = signatureIsChanged ? 1 : 0;
-                mLock.lock();
-                try {
-                    mSignatureIsChanged = (mSignatureIsChanged & ~(1 << index)) | ((b << index) & (1 << index));
-                }finally {
-                    mLock.unlock();
-                }
+                //if (mSignatureIsChanged == 0) waiting[index] = true;
+                //if (!waiting[index] && mSignatureIsChanged!=0){
 
                 try {
+                    //logger.debug("(INSIDE) Thread waiting index {}  value signature {} sign changed? {}", index, mSignatureIsChanged, signatureIsChanged);
+                    //waiting[index] = true;
                     awaitCall = true;
 
                     mCyclicBarrier.await();
@@ -390,13 +406,34 @@ public class MultithreadMHSEX extends MinHash {
                     e.printStackTrace();
 
                 }
+                //waiting[index] = false;
+
+
+
+
+                /*
+                waiting[index] = false;
+                //}
+                allConverged = true;
+                for(int i =0;i<mNumberOfThreads;i++) allConverged = allConverged & !mSetSignaturesChanged[i];
+                logger.debug("ALL Converged for {} , {}, mSignatureIsChanged {}, signatures {}",index,allConverged,mSignatureIsChanged,mSetSignaturesChanged );
+                logger.debug("Waiting {}",waiting);
+                //logger.debug("(INSIDE) Thread , released index {} ", index );
+
                 if (mSignatureIsChanged == 0){
                     awaitCall = false;
                 }
+                */
 
             }
+
+
+            /*
+            logger.debug("# waiting inside {} await call {} barrier free {}",k,awaitCall,barrierFree);
             if (!awaitCall && !barrierFree){
                 try {
+                    logger.debug("(OUTSIDE) FORCING Thread waiting index {}  has to stop {} ", index ,mSignatureIsChanged);
+
                     //logger.debug("Forcing Thread {} CALLING WAIT ",Thread.currentThread().getId());
                     //awaitCall = true;
                     mCyclicBarrier.await();
@@ -404,7 +441,10 @@ public class MultithreadMHSEX extends MinHash {
                     e.printStackTrace();
 
                 }
+                logger.debug("(OUTSIDE) Thread , released index {} ", index );
+
             }
+            */
             //logger.debug("Thread {} finished index {} await {}",Thread.currentThread().getId(), index ,awaitCall);
             //logger.debug("Released thread, number of waiting {} ",mCyclicBarrier.getNumberWaiting());
 
