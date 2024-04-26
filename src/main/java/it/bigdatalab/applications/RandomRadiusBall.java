@@ -93,7 +93,7 @@ public class RandomRadiusBall {
                 param.isInMemory(),
                 param.keepIsolatedVertices(),
                 param.getOutputFolderPath(),
-                param.getNumSeeds(),
+                param.getTBall(),
                 param.getNumThreads());
 
         RandomRadiusBall rrb = new RandomRadiusBall(param);
