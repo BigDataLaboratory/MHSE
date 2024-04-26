@@ -28,7 +28,7 @@ public class RandomRadiusBall {
     private final Parameter mParam;
     private final int mNumberOfThreads;
     private final ImmutableGraph mGraph;
-    private final int t;
+    private final float t;
     protected IntArrayList mSeeds;
 
     private boolean doCentrality;
@@ -60,7 +60,7 @@ public class RandomRadiusBall {
         String inputFilePath = PropertiesManager.getPropertyIfNotEmpty("RRB.inputFilePath");
         String outputFolderPath = PropertiesManager.getPropertyIfNotEmpty("RRB.outputFolderPath");
         int numTests = Integer.parseInt(PropertiesManager.getProperty("RRB.numTests", Constants.NUM_RUN_DEFAULT));
-        int t = Integer.parseInt(PropertiesManager.getProperty("RRB.t"));
+        float t = Float.parseFloat(PropertiesManager.getProperty("RRB.t"));
         boolean isolatedVertices = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("RRB.isolatedVertices"));
         boolean transpose = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("RRB.transpose"));
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("RRB.inMemory", Constants.FALSE));
@@ -70,7 +70,7 @@ public class RandomRadiusBall {
                 .setInputFilePathGraph(inputFilePath)
                 .setOutputFolderPath(outputFolderPath)
                 .setNumTests(numTests)
-                .setNumSeeds(t)
+                .setNumSeeds(0)
                 .setTranspose(transpose)
                 .setInMemory(inMemory)
                 .setIsolatedVertices(isolatedVertices)
@@ -148,14 +148,15 @@ public class RandomRadiusBall {
         return measures;
     }
     //iteration_thread(s,task_id,local_random_ball_size[taskIndex],local_centrality[taskIndex]);
-    private void iteration_thread(int s,int t,float [] centrality){
+    private void iteration_thread(int s,float t,float [] centrality,int [] ball_size){
         int n = mGraph.numNodes();
         double[] dist = new double[n];
         int tau,h;
         double r;
         r = Math.random();
         tau = (int) Math.floor(t / r);
-        //BFS of depth tau from i
+        //BFS of depth tau from 1
+        ball_size[s] += tau;
         Arrays.fill(dist, -1);
         Queue<Integer> ball = new LinkedList<>();
         ball.add(s);
@@ -187,10 +188,11 @@ public class RandomRadiusBall {
         long totalTime;
         int i,j,n;
         n = mGraph.numNodes();
-        //int [][] local_random_ball_size = new int[mNumberOfThreads][n];
-        float [][] local_centrality = new float[mNumberOfThreads][mGraph.numNodes()];
+        int [][] local_random_ball_size = new int[mNumberOfThreads][n];
+        float [][] local_centrality = new float[mNumberOfThreads][n];
+        ArrayList<Integer> random_ball_size_array = new ArrayList<Integer>();
         float [] centrality = new float[n];
-        int [] random_ball_size = new int[n];
+        double random_ball_size,std_random_ball_size;
         int task_size = (int) Math.ceil((double) n / mNumberOfThreads);
         int d = n / mNumberOfThreads;
         int y = n % mNumberOfThreads;
@@ -207,7 +209,7 @@ public class RandomRadiusBall {
             executor.execute(() -> {
                 int task_id = 0;
                 for (int s = taskRangeStart; s < taskRangeEnd; s++) {
-                    iteration_thread(s,t,local_centrality[taskIndex]);
+                    iteration_thread(s,t,local_centrality[taskIndex],local_random_ball_size[taskIndex]);
                     task_id +=1;
                 }
             });
@@ -225,13 +227,22 @@ public class RandomRadiusBall {
 
 
         // Normalizing the estimator the original estimator is centrality[i] /t
+        random_ball_size = 0.0;
         for (i = 0; i <n; i++) {
             for (j = 0; j< mNumberOfThreads; j++){
                 centrality[i] += local_centrality[j][i];
+                random_ball_size+=local_random_ball_size[j][i];
+                random_ball_size_array.add(local_random_ball_size[j][i]);
             }
             centrality[i] = centrality[i] /(t*(n-1));
         }
-
+        random_ball_size = random_ball_size/n;
+        std_random_ball_size = 0.0;
+        for (i = 0; i< n; i++){
+            std_random_ball_size += (random_ball_size_array.get(i) - random_ball_size) * (random_ball_size_array.get(i) - random_ball_size);
+        }
+        std_random_ball_size = Math.sqrt(std_random_ball_size/n);
+        logger.info("Average Ball Size {} ({})",random_ball_size,std_random_ball_size);
 
 
 
@@ -240,6 +251,8 @@ public class RandomRadiusBall {
         graphMeasure.setTime(totalTime);
         graphMeasure.setHarmonicCentrality(centrality);
         graphMeasure.setTBall(t);
+        graphMeasure.setAvgBallSize(random_ball_size);
+        graphMeasure.setStdBallSize(std_random_ball_size);
 
         return graphMeasure;
     }

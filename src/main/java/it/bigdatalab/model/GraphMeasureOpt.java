@@ -22,7 +22,9 @@ public class GraphMeasureOpt extends Measure {
     @SerializedName("linn_centrality_apx")
     private double[] mLinnCentrality;
     @SerializedName("t_ball_size")
-    private int TBall;
+    private float TBall;
+    private double AvgBallSize;
+    private double StdBallSize;
     public GraphMeasureOpt() {
 
     }
@@ -70,9 +72,13 @@ public class GraphMeasureOpt extends Measure {
     }
 
 
-    public void setTBall(int TBall) {this.TBall = TBall;}
-    public int getTBall() {return this.TBall;}
+    public void setTBall(float TBall) {this.TBall = TBall;}
+    public float getTBall() {return this.TBall;}
 
+    public void setAvgBallSize(double avgSize){this.AvgBallSize = avgSize;}
+    public double getAvgBallSize(){return this.AvgBallSize;}
+    public void setStdBallSize(double stdSize){this.StdBallSize = stdSize;}
+    public double getStdBallSize(){return this.StdBallSize;}
 
     /**
      * @param collisionsMatrix Matrix of the collisions for each hash function and for each hop

@@ -27,7 +27,7 @@ public class Parameter {
     private final boolean mPersistCollisionTable;
     private final boolean mPersistFarness;
 
-    private int TBall;
+    private float TBall;
 
     @org.jetbrains.annotations.Contract(pure = true)
     public Parameter(Builder builder) {
@@ -135,7 +135,7 @@ public class Parameter {
         return mPersistFarness;
     }
 
-    public int getTBall(){return TBall;}
+    public float getTBall(){return TBall;}
 
     public static class Builder {
         private String inputFilePathGraph;
@@ -163,7 +163,7 @@ public class Parameter {
         private boolean persistCollisionTable;
         private boolean persistFarness;
 
-        private int TBall;
+        private float TBall;
 
         public Builder() {
         }
@@ -188,7 +188,7 @@ public class Parameter {
             return this;
         }
 
-        public Builder setTBall(int TBall) {
+        public Builder setTBall(float TBall) {
             this.TBall = TBall;
             return this;
         }
