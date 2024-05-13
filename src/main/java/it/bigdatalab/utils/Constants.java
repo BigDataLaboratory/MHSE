@@ -12,6 +12,7 @@ public class Constants {
     public static final String DEFAULT_MODE = "WebGraph";
     public static final String WEBGRAPH = DEFAULT_MODE;
     public static final String BFS = "BFS";
+    public static final String HYPERBALL = "HYPERBALL";
 
     public static final String NAMESEPARATOR = "_";
     public static final String WITHISOLATED = "with_iso";

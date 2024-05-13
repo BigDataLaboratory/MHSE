@@ -741,15 +741,18 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
         int numTest = Integer.parseInt(PropertiesManager.getProperty("hyperball.numTests", Constants.NUM_RUN_DEFAULT));
         int log2m = Integer.parseInt(PropertiesManager.getProperty("hyperball.log2m", Constants.LOG2M_DEFAULT));
         String direction = PropertiesManager.getPropertyIfNotEmpty("hyperball.direction");
+        boolean computeCentrality = Boolean.parseBoolean(PropertiesManager.getProperty("hyperball.computeCentrality", Constants.FALSE));
+
         it.bigdatalab.model.Parameter param = new it.bigdatalab.model.Parameter.Builder()
                 .setInputFilePathGraph(inputFilePath)
                 .setOutputFolderPath(outputFolderPath)
                 .setThreshold(threshold)
-                .setAlgorithmName("Hyperball")
+                .setAlgorithmName(Constants.HYPERBALL)
                 .setNumThreads(threadNumber)
                 .setInMemory(inMemory)
                 .setDirection(direction)
                 .setIsolatedVertices(isolatedVertices)
+                .setComputeCentrality(computeCentrality)
                 .setNumTests(numTest).build();
 
         List<Measure> measures = new ArrayList<>();
@@ -758,14 +761,24 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
         for (int i = 0; i < param.getNumTests(); i++) {
             long runTime = System.currentTimeMillis();
 
-            HyperBall hyperBall = new HyperBall(g, null, threadNumber, log2m, new ProgressLogger());
+            HyperBall hyperBall;
+            if(param.computeCentrality()) {
+                 hyperBall = new HyperBall(g, null, log2m, new ProgressLogger(), threadNumber, 0, 0, false, false, true, null, 0);
+            }
+            else {
+                 hyperBall = new HyperBall(g, null, threadNumber, log2m, new ProgressLogger());
+            }
+
             hyperBall.run();
             hyperBall.close();
             double[] hopTable = hyperBall.neighbourhoodFunction.toDoubleArray();
             logger.info("Neighbourhood function computed by Hyperball {}", hopTable);
             GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
+            graphMeasure.setAlgorithmName(param.getAlgorithmName());
+            graphMeasure.setDirection(param.getDirection());
             graphMeasure.setHopTable(hopTable);
             graphMeasure.setLowerBoundDiameter(hopTable.length - 1);
+            graphMeasure.setHarmonicCentrality(hyperBall.sumOfInverseDistances);
             graphMeasure.setAvgDistance(it.bigdatalab.utils.Stats.averageDistance(hopTable));
             graphMeasure.setEffectiveDiameter(it.bigdatalab.utils.Stats.effectiveDiameter(hopTable, param.getThreshold()));
             graphMeasure.setTotalCouples(it.bigdatalab.utils.Stats.totalCouplesReachable(hopTable));
