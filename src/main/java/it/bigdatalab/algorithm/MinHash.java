@@ -62,9 +62,9 @@ public abstract class MinHash {
     }
 
     //Classes for computing the farness
-    public float[] inverseFarnessArray(short[][] hopMatrix){
+    public double[] inverseFarnessArray(short[][] hopMatrix){
         int i,j;
-        float [] inversefarness = new float[mGraph.numNodes()];
+        double [] inversefarness = new double[mGraph.numNodes()];
         Arrays.fill(inversefarness,0);
         for (i = 0; i < mGraph.numNodes(); i++){
             for (j = 0; j < this.mNumSeeds; j++){
@@ -75,9 +75,9 @@ public abstract class MinHash {
         }
         return inversefarness;
     }
-    public int[] farnessArray(short[][] hopMatrix ){
+    public double[] farnessArray(short[][] hopMatrix ){
         int i,j;
-        int [] farness = new int[mGraph.numNodes()];
+        double [] farness = new double[mGraph.numNodes()];
         Arrays.fill(farness,0);
         for (i = 0; i < mGraph.numNodes(); i++){
             for (j = 0; j < this.mNumSeeds; j++){

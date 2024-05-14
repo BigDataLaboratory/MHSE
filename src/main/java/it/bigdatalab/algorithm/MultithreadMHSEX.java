@@ -195,18 +195,26 @@ public class MultithreadMHSEX extends MinHash {
             e.printStackTrace();
         }
 
-        float [] inverseFarness = new float[1];
-        int [] farness = new int[1];
+        double [] inverseFarness = new double[1];
+        double [] farness = new double[1];
         if (mDoCentrality){
-            inverseFarness = new float [mGraph.numNodes()];
-            farness = new int[mGraph.numNodes()];
+            inverseFarness = new double [mGraph.numNodes()];
+            farness = new double[mGraph.numNodes()];
             for (int i = 0; i < mGraph.numNodes(); i++) {
                 for (int j = 0; j < this.mNumberOfThreads; j++) {
                     inverseFarness[i] += mHarmonic[i][j];
+
                     farness[i] += mHopForNodes[i][j];
                 }
-                inverseFarness[i] = inverseFarness[i] * mGraph.numNodes()/(mNumSeeds*(mGraph.numNodes()-1));
-                farness[i] = farness[i] * mGraph.numNodes()/mNumSeeds;
+                //double prima = inverseFarness[i];
+                //inverseFarness[i] = inverseFarness[i] * mGraph.numNodes()/(mNumSeeds*(mGraph.numNodes()-1));
+                inverseFarness[i] = (double) inverseFarness[i] * mGraph.numNodes()/(mGraph.numNodes()-1)/mNumSeeds;
+                if (inverseFarness[i] < 0 ){
+                        logger.debug("ERROR NEG");
+                        System.exit(1);
+            }
+                farness[i] = (double) farness[i] * mGraph.numNodes()/mNumSeeds;
+
             }
 
         }
@@ -367,7 +375,16 @@ public class MultithreadMHSEX extends MinHash {
                                                         mLock.lock();
                                                         try {
                                                             mHopForNodes[n][index] += (short) h;
+                                                            if (h == 0){
+                                                                logger.debug("ZEROOOOO HOP {}",h);
+                                                                System.exit(1);
+                                                            }
                                                             mHarmonic[n][index] += 1.0 / h;
+                                                            if (mHarmonic[n][index] < 0){
+                                                                logger.debug("Harmonic <0 {}",mHarmonic[n][index]);
+                                                                System.exit(1);
+                                                            }
+
                                                         } finally {
                                                             mLock.unlock();
                                                         }

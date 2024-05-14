@@ -148,8 +148,8 @@ public class RandomBFS extends BMinHashOpt {
         graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));
         graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
         if(mDoCentrality){
-            int[] farness = farnessArray(mHopForNodes);
-            float[] inverseFarness = inverseFarnessArray(mHopForNodes);
+            double [] farness = farnessArray(mHopForNodes);
+            double[] inverseFarness = inverseFarnessArray(mHopForNodes);
             graphMeasure.setFarness(farness);
             graphMeasure.setInverseFarness(inverseFarness);
             //graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds,farness,true));
@@ -179,9 +179,9 @@ public class RandomBFS extends BMinHashOpt {
         }
         return hoptable;
     }
-    public float[] inverseFarnessArray(short[][] hopMatrix){
+    public double[] inverseFarnessArray(short[][] hopMatrix){
         int i,j;
-        float [] inverseFarness = new float[mGraph.numNodes()];
+        double [] inverseFarness = new double[mGraph.numNodes()];
         for (i = 0; i < mGraph.numNodes(); i++){
             for (j = 0; j < this.mNumSeeds; j++){
                 if (hopMatrix[i][j] > 0) {
@@ -191,9 +191,9 @@ public class RandomBFS extends BMinHashOpt {
         }
         return inverseFarness;
     }
-    public int[] farnessArray(short[][] hopMatrix){
+    public double [] farnessArray(short[][] hopMatrix){
         int i,j;
-        int [] farness = new int[mGraph.numNodes()];
+        double [] farness = new double[mGraph.numNodes()];
         for (i = 0; i < mGraph.numNodes(); i++){
             for (j = 0; j < this.mNumSeeds; j++){
                 farness[i] += hopMatrix[i][j];

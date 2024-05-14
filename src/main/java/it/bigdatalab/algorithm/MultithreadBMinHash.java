@@ -223,6 +223,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
             }
 
         }
+        // TODO: Same grouping as MHSEX
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
 
         for (int t = 0; t < ntasks; t++) {
@@ -251,12 +252,12 @@ public class MultithreadBMinHash extends BMinHashOpt {
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
 
         // Reduction phase
-        float[] harmonic = new float[0];
-        int[] farness = new int[0];
+        double[] harmonic = new double[0];
+        double[] farness = new double[0];
 
         if (mDoCentrality) {
-            harmonic = new float[mGraph.numNodes()];
-            farness = new int[mGraph.numNodes()];
+            harmonic = new double[mGraph.numNodes()];
+            farness = new double[mGraph.numNodes()];
         }
 
         int p = 0;
@@ -280,8 +281,8 @@ public class MultithreadBMinHash extends BMinHashOpt {
                 }
             }
             if (mDoCentrality) {
-                farness[i] = farness[i] * mGraph.numNodes() / mNumSeeds;
-                harmonic[i] = harmonic[i] * mGraph.numNodes() / ((mGraph.numNodes() - 1) * mNumSeeds);
+                farness[i] = (double) farness[i] * mGraph.numNodes() / mNumSeeds;
+                harmonic[i] = (double) harmonic[i] * mGraph.numNodes() / (mGraph.numNodes() - 1) / mNumSeeds;
             }
         }
 
@@ -390,8 +391,8 @@ public class MultithreadBMinHash extends BMinHashOpt {
         graphMeasure.setHopTable(hopTableArray);
         graphMeasure.setCollisionsTable(collisionsMatrix);
         if(mDoCentrality){
-            int[] farness = farnessArray(mHopForNodes);
-            float[] inverseFarness = inverseFarnessArray(mHopForNodes);
+            double[] farness = farnessArray(mHopForNodes);
+            double[] inverseFarness = inverseFarnessArray(mHopForNodes);
             graphMeasure.setFarness(farness);
             graphMeasure.setInverseFarness(inverseFarness);
             //graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(),mNumSeeds, farness,true));

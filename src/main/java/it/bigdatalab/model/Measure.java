@@ -42,9 +42,9 @@ public class Measure {
     @SerializedName("run")
     protected int mRun;
     @SerializedName("farness")
-    protected int[] mFarness;
+    protected double[] mFarness;
     @SerializedName("inverse_farness")
-    protected float[] mInverseFarness;
+    protected double[] mInverseFarness;
 
 
 
@@ -53,7 +53,7 @@ public class Measure {
 
     public Measure(int numSeeds, int lowerBound,
                    double avgDistance, double effectiveDiameter,
-                   double totalCouple, double totalCouplePerc, int[] farness, float[] inverseFarness) {
+                   double totalCouple, double totalCouplePerc, double[] farness, double[] inverseFarness) {
         this.mNumSeeds = numSeeds;
         this.mLowerBoundDiameter = lowerBound;
         this.mAvgDistance = avgDistance;
@@ -82,14 +82,14 @@ public class Measure {
     /**
      * @return Matrix of the hops for each node
      */
-    public int[] getFarness() {
+    public double[] getFarness() {
         return mFarness;
     }
 
     /**
      * @return Matrix of the (inverse) hops for each node
      */
-    public float[] getInverseFarness() {
+    public double[] getInverseFarness() {
         return mInverseFarness;
     }
 
@@ -221,14 +221,14 @@ public class Measure {
     /**
      * @param farness Matrix of the hops when minhash encounters each node
      */
-    public void setFarness(int[] farness) {
+    public void setFarness(double[] farness) {
         this.mFarness = farness;
     }
 
     /**
      * @param inverseFarness Matrix of the (inverse) hops when minhash encounters each node
      */
-    public void setInverseFarness(float[] inverseFarness) {
+    public void setInverseFarness(double[] inverseFarness) {
         this.mInverseFarness = inverseFarness;
     }
 

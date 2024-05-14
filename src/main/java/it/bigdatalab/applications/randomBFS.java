@@ -158,11 +158,11 @@ private Measure run_bfs(){
     double[] dd = new double[n];
     double[] dist = new double[n];
     int[] farness = new int[0];
-    float[] inverse_farness = new float[0];
+    double[] inverse_farness = new double[0];
 
     if (doCentrality) {
             farness = new int[n];
-            inverse_farness = new float[n];
+            inverse_farness = new double[n];
     }
     double lower_bound = 0;
     Arrays.fill(dd, 0);

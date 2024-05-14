@@ -57,13 +57,13 @@ public class MultithreadExpansion extends BMinHashOpt {
         return Runtime.getRuntime().availableProcessors();
     }
 
-    private void iteration_thread(ImmutableGraph g,int s,int task_id,int[] local_lb_diameter,int [][] local_hop_table,int[] local_last_hops,int[] local_farness,float[] local_harmonic){
+    private void iteration_thread(int s,int task_id,int[] local_lb_diameter,int [][] local_hop_table,int[] local_last_hops,int[] local_farness,float[] local_harmonic){
         int collisions;
 
-        int[] p_prev = new int[lengthBitsArray(g.numNodes())];
-        int[] p_next = new int[lengthBitsArray(g.numNodes())];
-        int[] expanded = new int[lengthBitsArray(g.numNodes())];
-        int[] visited = new int[g.numNodes()];
+        int[] p_prev = new int[lengthBitsArray(mGraph.numNodes())];
+        int[] p_next = new int[lengthBitsArray(mGraph.numNodes())];
+        int[] expanded = new int[lengthBitsArray(mGraph.numNodes())];
+        int[] visited = new int[mGraph.numNodes()];
 
         // Choose a random node is equivalent to compute the minhash
         // It could be set in mhse.properties file with the "minhash.nodeIDs" property
@@ -119,8 +119,8 @@ public class MultithreadExpansion extends BMinHashOpt {
                                 remainderPositionNode = (node << Constants.REMAINDER) >>> Constants.REMAINDER;
                                 expanded[quotientNode] |= (Constants.BIT) << remainderPositionNode;
 
-                                final int d = g.outdegree(node);
-                                final int[] successors = g.successorArray(node);
+                                final int d = mGraph.outdegree(node);
+                                final int[] successors = mGraph.successorArray(node);
                                 for (int l = 0; l < d; l++) {
                                     final int neighbour = successors[l];
                                     quotientNeigh = neighbour >>> Constants.MASK; // position into array
@@ -207,6 +207,8 @@ public class MultithreadExpansion extends BMinHashOpt {
             }
 
         }
+        // TODO: same grouping as MHSEX
+
 
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
         for (int t = 0; t < ntasks; t++) {
@@ -219,7 +221,7 @@ public class MultithreadExpansion extends BMinHashOpt {
             executor.execute(() -> {
                 int task_id = 0;
                 for (int s = taskRangeStart; s < taskRangeEnd; s++) {
-                    iteration_thread(mGraph.copy(),s, task_id, local_lb_diameter[taskIndex], local_hop_table[taskIndex], local_last_hops[taskIndex], local_farness[taskIndex], local_harmonic[taskIndex]);
+                    iteration_thread(s, task_id, local_lb_diameter[taskIndex], local_hop_table[taskIndex], local_last_hops[taskIndex], local_farness[taskIndex], local_harmonic[taskIndex]);
                     task_id += 1;
                 }
             });
@@ -233,12 +235,12 @@ public class MultithreadExpansion extends BMinHashOpt {
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
         // Reduction phase
-        float[] harmonic = new float[0];
-        int[] farness = new int[0];
+        double[] harmonic = new double[0];
+        double [] farness = new double[0];
 
         if (mDoCentrality) {
-            harmonic = new float[mGraph.numNodes()];
-            farness = new int[mGraph.numNodes()];
+            harmonic = new double[mGraph.numNodes()];
+            farness = new double[mGraph.numNodes()];
         }
 
         int p = 0;
@@ -263,10 +265,12 @@ public class MultithreadExpansion extends BMinHashOpt {
             }
 
             if (mDoCentrality) {
-                farness[i] = farness[i] * mGraph.numNodes() / mNumSeeds;
-                harmonic[i] = harmonic[i] * mGraph.numNodes() / ((mGraph.numNodes() - 1) * mNumSeeds);
+                farness[i] = (double) farness[i] * mGraph.numNodes() / mNumSeeds;
+                harmonic[i] = (double) harmonic[i] * mGraph.numNodes() /(mGraph.numNodes()-1)/ mNumSeeds;
                 //logger.debug(" Fareness node {} = {}",i,farness[i]);
             }
+
+
         }
         normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
         hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
@@ -379,10 +383,10 @@ public class MultithreadExpansion extends BMinHashOpt {
         graphMeasure.setHopTable(hopTableArray);
         graphMeasure.setCollisionsTable(collisionsMatrix);
         if (mDoCentrality) {
-            int[] farness = farnessArray(mHopForNodes);
+            double[] farness = farnessArray(mHopForNodes);
             for (int i= 0; i<farness.length;i++) logger.debug(" Fareness node {} = {}",i,farness[i]);
 
-            float[] inverseFarness = inverseFarnessArray(mHopForNodes);
+            double[] inverseFarness = inverseFarnessArray(mHopForNodes);
             graphMeasure.setFarness(farness);
             graphMeasure.setInverseFarness(inverseFarness);
             //graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), mNumSeeds, farness, true));

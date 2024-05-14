@@ -773,6 +773,10 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
             hyperBall.run();
             hyperBall.close();
             double[] hopTable = hyperBall.neighbourhoodFunction.toDoubleArray();
+            double [] harmonic_centrality = new double[g.numNodes()];
+            float [] sum_of_inverse = hyperBall.sumOfInverseDistances;
+            for (int j = 0; j<g.numNodes();j++) harmonic_centrality[j] = (double) sum_of_inverse[j];
+
             logger.info("Neighbourhood function computed by Hyperball {}", hopTable);
             GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
             graphMeasure.setAlgorithmName(param.getAlgorithmName());
@@ -780,7 +784,7 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
             graphMeasure.setHopTable(hopTable);
             graphMeasure.setNumSeeds(param.getNumSeeds());
             graphMeasure.setLowerBoundDiameter(hopTable.length - 1);
-            graphMeasure.setHarmonicCentrality(hyperBall.sumOfInverseDistances);
+            graphMeasure.setHarmonicCentrality(harmonic_centrality);
             graphMeasure.setAvgDistance(it.bigdatalab.utils.Stats.averageDistance(hopTable));
             graphMeasure.setEffectiveDiameter(it.bigdatalab.utils.Stats.effectiveDiameter(hopTable, param.getThreshold()));
             graphMeasure.setTotalCouples(it.bigdatalab.utils.Stats.totalCouplesReachable(hopTable));

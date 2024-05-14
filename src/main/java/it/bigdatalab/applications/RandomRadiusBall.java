@@ -191,7 +191,7 @@ public class RandomRadiusBall {
         int [][] local_random_ball_size = new int[mNumberOfThreads][n];
         float [][] local_centrality = new float[mNumberOfThreads][n];
         ArrayList<Integer> random_ball_size_array = new ArrayList<Integer>();
-        float [] centrality = new float[n];
+        double [] centrality = new double[n];
         double random_ball_size,std_random_ball_size;
         int task_size = (int) Math.ceil((double) n / mNumberOfThreads);
         int d = n / mNumberOfThreads;

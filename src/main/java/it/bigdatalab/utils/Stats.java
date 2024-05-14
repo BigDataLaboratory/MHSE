@@ -151,9 +151,9 @@ public class Stats {
        return closenessCentrality;
     }
 
-    public static float [] HarmonicCentrality(int n, int s, float[] harmonicCentrality){
+    public static double [] HarmonicCentrality(int n, int s, double[] harmonicCentrality){
         for (int i = 0; i < n; i++){
-            harmonicCentrality[i] = harmonicCentrality[i]* ((float) n /(s*(n-1)));
+            harmonicCentrality[i] = (double) harmonicCentrality[i]*  n /s/(n-1);
         }
         return harmonicCentrality;
     }
