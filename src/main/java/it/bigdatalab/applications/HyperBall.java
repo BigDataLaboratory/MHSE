@@ -748,6 +748,7 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
                 .setOutputFolderPath(outputFolderPath)
                 .setThreshold(threshold)
                 .setAlgorithmName(Constants.HYPERBALL)
+                .setNumSeeds(log2m)
                 .setNumThreads(threadNumber)
                 .setInMemory(inMemory)
                 .setDirection(direction)
@@ -777,6 +778,7 @@ public class HyperBall extends HyperLogLogCounterArray implements SafelyCloseabl
             graphMeasure.setAlgorithmName(param.getAlgorithmName());
             graphMeasure.setDirection(param.getDirection());
             graphMeasure.setHopTable(hopTable);
+            graphMeasure.setNumSeeds(param.getNumSeeds());
             graphMeasure.setLowerBoundDiameter(hopTable.length - 1);
             graphMeasure.setHarmonicCentrality(hyperBall.sumOfInverseDistances);
             graphMeasure.setAvgDistance(it.bigdatalab.utils.Stats.averageDistance(hopTable));
