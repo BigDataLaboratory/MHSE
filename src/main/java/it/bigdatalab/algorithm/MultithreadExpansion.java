@@ -205,7 +205,7 @@ public class MultithreadExpansion extends BMinHashOpt {
                 local_harmonic[i] = new float[0];
                 local_farness[i]= new int[0];
             }
-
+        //DIAO
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
