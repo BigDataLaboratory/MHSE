@@ -202,6 +202,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         float [][] local_harmonic = new float[mNumberOfThreads][];
         int [][] local_farness = new int[mNumberOfThreads][];
         int [][] local_last_hops = new int[mNumberOfThreads][];
+
         //List<int[]> local_lb_diameter = new ArrayList<>();
         //List<List<int[]>> local_hop_table = new ArrayList<>();
         //List<float[]> local_harmonic = new ArrayList<>();
