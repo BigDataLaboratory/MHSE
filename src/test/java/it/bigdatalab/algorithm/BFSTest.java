@@ -239,7 +239,7 @@ public class BFSTest {
         Measure measure = algo.runAlgorithm();
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -269,7 +269,7 @@ public class BFSTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -298,7 +298,7 @@ public class BFSTest {
         Measure measure = algo.runAlgorithm();
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("AvgBallSize", "StdBallSize","TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -327,7 +327,7 @@ public class BFSTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -357,7 +357,7 @@ public class BFSTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -387,7 +387,7 @@ public class BFSTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -417,7 +417,7 @@ public class BFSTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -448,7 +448,7 @@ public class BFSTest {
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
