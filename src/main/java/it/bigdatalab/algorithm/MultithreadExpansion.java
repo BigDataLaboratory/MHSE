@@ -57,7 +57,7 @@ public class MultithreadExpansion extends BMinHashOpt {
         return Runtime.getRuntime().availableProcessors();
     }
 
-    private void iteration_thread(int s,int task_id,int[] local_lb_diameter,int [][] local_hop_table,int[] local_last_hops,int[] local_farness,float[] local_harmonic){
+    private void iteration_thread(ImmutableGraph g,int s,int task_id,int[] local_lb_diameter,int [][] local_hop_table,int[] local_last_hops,int[] local_farness,float[] local_harmonic){
         int collisions;
 
         int[] p_prev = new int[lengthBitsArray(mGraph.numNodes())];
@@ -119,8 +119,8 @@ public class MultithreadExpansion extends BMinHashOpt {
                                 remainderPositionNode = (node << Constants.REMAINDER) >>> Constants.REMAINDER;
                                 expanded[quotientNode] |= (Constants.BIT) << remainderPositionNode;
 
-                                final int d = mGraph.outdegree(node);
-                                final int[] successors = mGraph.successorArray(node);
+                                final int d = g.outdegree(node);
+                                final int[] successors = g.successorArray(node);
                                 for (int l = 0; l < d; l++) {
                                     final int neighbour = successors[l];
                                     quotientNeigh = neighbour >>> Constants.MASK; // position into array
@@ -168,7 +168,6 @@ public class MultithreadExpansion extends BMinHashOpt {
             }
         }
         local_last_hops[task_id] = h-1;
-
 
     }
 
@@ -220,7 +219,7 @@ public class MultithreadExpansion extends BMinHashOpt {
             executor.execute(() -> {
                 int task_id = 0;
                 for (int s = taskRangeStart; s < taskRangeEnd; s++) {
-                    iteration_thread(s, task_id, local_lb_diameter[taskIndex], local_hop_table[taskIndex], local_last_hops[taskIndex], local_farness[taskIndex], local_harmonic[taskIndex]);
+                    iteration_thread(mGraph.copy(),s, task_id, local_lb_diameter[taskIndex], local_hop_table[taskIndex], local_last_hops[taskIndex], local_farness[taskIndex], local_harmonic[taskIndex]);
                     task_id += 1;
                 }
             });
