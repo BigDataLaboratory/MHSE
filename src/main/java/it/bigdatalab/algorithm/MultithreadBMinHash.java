@@ -64,7 +64,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         if (suggestedNumberOfThreads > 0) return suggestedNumberOfThreads;
         return Runtime.getRuntime().availableProcessors();
     }
-    private void iteration_thread(int s,int task_id,int[] local_lb_diameter,int [][] local_hop_table,int[] local_last_hops,int[] local_farness,float[] local_harmonic){
+    private void iteration_thread(ImmutableGraph g,int s,int task_id,int[] local_lb_diameter,int [][] local_hop_table,int[] local_last_hops,int[] local_farness,float[] local_harmonic){
         long startSeedTime = System.currentTimeMillis();
         long lastLogTime = startSeedTime;
         long logTime;
@@ -72,8 +72,8 @@ public class MultithreadBMinHash extends BMinHashOpt {
 
         // Set false as signature of all graph nodes
         // used to computing the algorithm
-        int[] mutable = new int[lengthBitsArray(mGraph.numNodes())];
-        int[] immutable = new int[lengthBitsArray(mGraph.numNodes())];
+        int[] mutable = new int[lengthBitsArray(g.numNodes())];
+        int[] immutable = new int[lengthBitsArray(g.numNodes())];
 
         // Choose a random node is equivalent to compute the minhash
         //It could be set in mhse.properties file with the "minhash.nodeIDs" property
@@ -108,11 +108,11 @@ public class MultithreadBMinHash extends BMinHashOpt {
                 System.arraycopy(mutable, 0, immutable, 0, mutable.length);
                 int remainderPositionNode;
                 int quotientNode;
-                for (int n = 0; n < mGraph.numNodes(); n++) {
+                for (int n = 0; n < g.numNodes(); n++) {
 
                     final int node = n;
-                    final int d = mGraph.outdegree(node);
-                    final int[] successors = mGraph.successorArray(node);
+                    final int d = g.outdegree(node);
+                    final int[] successors = g.successorArray(node);
 
                     // update the node hash iterating over all its neighbors
                     // and computing the OR between the node signature and
@@ -235,7 +235,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
             executor.execute(() -> {
                 int task_id = 0;
                 for (int s = taskRangeStart; s < taskRangeEnd; s++) {
-                    iteration_thread(s,task_id,local_lb_diameter[taskIndex],local_hop_table[taskIndex],local_last_hops[taskIndex],local_farness[taskIndex],local_harmonic[taskIndex]);
+                    iteration_thread(mGraph.copy(),s,task_id,local_lb_diameter[taskIndex],local_hop_table[taskIndex],local_last_hops[taskIndex],local_farness[taskIndex],local_harmonic[taskIndex]);
                     task_id +=1;
                 }
             });

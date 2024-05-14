@@ -60,10 +60,10 @@ public class MultithreadExpansion extends BMinHashOpt {
     private void iteration_thread(ImmutableGraph g,int s,int task_id,int[] local_lb_diameter,int [][] local_hop_table,int[] local_last_hops,int[] local_farness,float[] local_harmonic){
         int collisions;
 
-        int[] p_prev = new int[lengthBitsArray(mGraph.numNodes())];
-        int[] p_next = new int[lengthBitsArray(mGraph.numNodes())];
-        int[] expanded = new int[lengthBitsArray(mGraph.numNodes())];
-        int[] visited = new int[mGraph.numNodes()];
+        int[] p_prev = new int[lengthBitsArray(g.numNodes())];
+        int[] p_next = new int[lengthBitsArray(g.numNodes())];
+        int[] expanded = new int[lengthBitsArray(g.numNodes())];
+        int[] visited = new int[g.numNodes()];
 
         // Choose a random node is equivalent to compute the minhash
         // It could be set in mhse.properties file with the "minhash.nodeIDs" property
@@ -205,7 +205,7 @@ public class MultithreadExpansion extends BMinHashOpt {
                 local_harmonic[i] = new float[0];
                 local_farness[i]= new int[0];
             }
-        //DIAO
+
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
