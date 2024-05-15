@@ -209,11 +209,8 @@ public class MultithreadMHSEX extends MinHash {
                 //double prima = inverseFarness[i];
                 //inverseFarness[i] = inverseFarness[i] * mGraph.numNodes()/(mNumSeeds*(mGraph.numNodes()-1));
                 inverseFarness[i] = (double) inverseFarness[i] * mGraph.numNodes()/(mGraph.numNodes()-1)/mNumSeeds;
-                if (inverseFarness[i] < 0 ){
-                        logger.debug("ERROR NEG");
-                        System.exit(1);
-            }
-                farness[i] = (double) farness[i] * mGraph.numNodes()/mNumSeeds;
+
+                farness[i] = (double) farness[i]   * mGraph.numNodes() /mNumSeeds;
 
             }
 
@@ -375,15 +372,9 @@ public class MultithreadMHSEX extends MinHash {
                                                         mLock.lock();
                                                         try {
                                                             mHopForNodes[n][index] += (short) h;
-                                                            if (h == 0){
-                                                                logger.debug("ZEROOOOO HOP {}",h);
-                                                                System.exit(1);
-                                                            }
-                                                            mHarmonic[n][index] += 1.0 / h;
-                                                            if (mHarmonic[n][index] < 0){
-                                                                logger.debug("Harmonic <0 {}",mHarmonic[n][index]);
-                                                                System.exit(1);
-                                                            }
+
+                                                            mHarmonic[n][index] +=  1.0 /  h;
+
 
                                                         } finally {
                                                             mLock.unlock();
