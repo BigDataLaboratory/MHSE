@@ -22,6 +22,7 @@ public class MultithreadExpansion extends BMinHashOpt {
     private final int mNumberOfThreads;
     private final double[] mSeedTime;
     private final boolean mDoCentrality;
+    private final boolean mUnnormalized;
     private long startTime;
     private long[][] mHopForNodes;
     private double [][] mHarmonic;
@@ -31,22 +32,24 @@ public class MultithreadExpansion extends BMinHashOpt {
     /**
      * Creates a new MultithreadExpansion instance with default values
      */
-    public MultithreadExpansion(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) {
+    public MultithreadExpansion(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality,boolean normalized) {
         super(g, numSeeds, threshold, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         this.mSeedTime = new double[mNumSeeds];
         mDoCentrality = centrality;
+        mUnnormalized = normalized;
     }
 
     /**
      * Creates a new MultithreadExpansion instance with default values
      */
-    public MultithreadExpansion(final ImmutableGraph g, int numSeeds, double threshold, int threads, boolean centrality) {
+    public MultithreadExpansion(final ImmutableGraph g, int numSeeds, double threshold, int threads, boolean centrality, boolean normalized) {
         super(g, numSeeds, threshold);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         this.mSeedTime = new double[mNumSeeds];
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
         mDoCentrality = centrality;
+        mUnnormalized = normalized;
     }
 
     /**
@@ -238,11 +241,16 @@ public class MultithreadExpansion extends BMinHashOpt {
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
         // Reduction phase
         double[] harmonic = new double[0];
+        double[] unnorm_harmonic = new double[0];
         double [] farness = new double[0];
 
         if (mDoCentrality) {
             harmonic = new double[mGraph.numNodes()];
             farness = new double[mGraph.numNodes()];
+            if(mUnnormalized) {
+                unnorm_harmonic = new double[mGraph.numNodes()];
+            }
+
         }
 
         int p = 0;
@@ -267,8 +275,12 @@ public class MultithreadExpansion extends BMinHashOpt {
             }
 
             if (mDoCentrality) {
+                if (mUnnormalized){
+                    unnorm_harmonic[i]  = (double) harmonic[i] *  mGraph.numNodes() /mNumSeeds;
+                }
                 farness[i] =  (double) farness[i] *  mGraph.numNodes() / mNumSeeds;
                 harmonic[i] =  (double) harmonic[i] *  mGraph.numNodes() /(mGraph.numNodes()-1)/ mNumSeeds;
+
                 //logger.debug(" Fareness node {} = {}",i,farness[i]);
             }
 
@@ -287,7 +299,9 @@ public class MultithreadExpansion extends BMinHashOpt {
 
             graphMeasure.setFarness(farness);
             graphMeasure.setHarmonicCentrality(harmonic);
-
+            if (mUnnormalized){
+                graphMeasure.setHarmonicCentralityUnnorm(unnorm_harmonic);
+            }
         }
         graphMeasure.setLastHops(lastHops);
         graphMeasure.setLowerBoundDiameter(lowerboundDiameter);

@@ -26,7 +26,7 @@ public class Parameter {
 
     private final boolean mPersistCollisionTable;
     private final boolean mPersistFarness;
-
+    private final boolean mPersistUnnormalized;
     private float TBall;
 
     @org.jetbrains.annotations.Contract(pure = true)
@@ -55,7 +55,7 @@ public class Parameter {
         this.mNumThreads = builder.numThreads;
         this.mPersistCollisionTable = builder.persistCollisionTable;
         this.mPersistFarness = builder.persistFarness;
-
+        this.mPersistUnnormalized = builder.persistUnnormalized;
         this.TBall = builder.TBall;
     }
 
@@ -134,6 +134,9 @@ public class Parameter {
     public boolean persistFarness() {
         return mPersistFarness;
     }
+    public boolean persistUnnormalized(){
+        return mPersistUnnormalized;
+    }
 
     public float getTBall(){return TBall;}
 
@@ -162,7 +165,7 @@ public class Parameter {
 
         private boolean persistCollisionTable;
         private boolean persistFarness;
-
+        private boolean persistUnnormalized;
         private float TBall;
 
         public Builder() {
@@ -265,6 +268,11 @@ public class Parameter {
 
         public Builder setPersistFarness(boolean persistFarness) {
             this.persistFarness = persistFarness;
+            return this;
+        }
+
+        public Builder setPersistUnnormalized(boolean persistUnnormalized){
+            this.persistUnnormalized = persistUnnormalized;
             return this;
         }
 

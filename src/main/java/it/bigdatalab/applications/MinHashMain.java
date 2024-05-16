@@ -92,7 +92,7 @@ public class MinHashMain extends Main{
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
         boolean persistCollisionTable = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.persistCollisionTable", Constants.TRUE));
         boolean persistFarness = computeCentrality && Boolean.parseBoolean(PropertiesManager.getProperty("minhash.persistFarness", Constants.FALSE));
-
+        boolean persistUnnormalized = computeCentrality && Boolean.parseBoolean(PropertiesManager.getProperty("minhash.persistUnnormalized", Constants.FALSE));
         Parameter param = new Parameter.Builder()
                 .setAlgorithmName(algorithmName)
                 .setInputFilePathGraph(inputFilePath)
@@ -112,8 +112,9 @@ public class MinHashMain extends Main{
                 .setNumThreads(suggestedNumberOfThreads)
                 .setPersistCollisionTable(persistCollisionTable)
                 .setPersistFarness(persistFarness)
+                .setPersistUnnormalized(persistUnnormalized)
                 .build();
-
+        logger.debug("shuhf {}",param.persistCollisionTable());
         logger.info("\n\n********************** Parameters **********************\n\n" +
                         "# executions will be run {} time(s)\n" +
                         "ready to start algorithm: {}\n" +
@@ -127,6 +128,7 @@ public class MinHashMain extends Main{
                         "graph will be reordered by outdegree: {}\n" +
                         "algorithm must compute centrality: {}\n" +
                         "persist farness for centrality: {}\n" +
+                        "persist unnormalized centrality: {}\n"+
                         "persist collision table: {}\n" +
                         "number of threads: {}\n" +
                         "\n********************************************************\n\n",
@@ -142,6 +144,7 @@ public class MinHashMain extends Main{
                 param.getReordering(),
                 param.computeCentrality(),
                 param.persistFarness(),
+                param.persistUnnormalized(),
                 param.persistCollisionTable(),
                 param.getNumThreads());
 
@@ -220,8 +223,8 @@ public class MinHashMain extends Main{
         for (int i = 0; i < numTest; i++) {
 
             MinHash minHash = mParam.isSeedsRandom() ?
-                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), mParam.getNumThreads(), mParam.computeCentrality()) :
-                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), seedsNodes.get(i).getSeeds(), seedsNodes.get(i).getNodes(), mParam.getNumThreads(), mParam.computeCentrality());
+                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), mParam.getNumThreads(), mParam.computeCentrality(),mParam.persistUnnormalized()) :
+                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), seedsNodes.get(i).getSeeds(), seedsNodes.get(i).getNodes(), mParam.getNumThreads(), mParam.computeCentrality(),mParam.persistUnnormalized());
 
             measure = minHash.runAlgorithm();
             measure.setAlgorithmName(mParam.getAlgorithmName());

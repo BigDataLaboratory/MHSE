@@ -25,7 +25,7 @@ public class RandomBFS extends BMinHashOpt {
     protected ImmutableGraph mGraph;
     protected int[] mMinHashNodeIDs;
     private boolean mDoCentrality;
-    private short[][] mHopForNodes;
+    private long[][] mHopForNodes;
 
 
     /**
@@ -86,7 +86,7 @@ public class RandomBFS extends BMinHashOpt {
         int[] lastHops = new int[mNumSeeds];
         double[] hopTableArray;
         if (mDoCentrality) {
-            mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
+            mHopForNodes = new long[mGraph.numNodes()][mNumSeeds];
         }
         int lowerboundDiameter = 0;
 

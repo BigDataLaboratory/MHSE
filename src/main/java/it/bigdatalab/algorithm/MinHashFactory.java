@@ -22,7 +22,7 @@ public class MinHashFactory {
                                 IntArrayList seeds,
                                 int[] nodes,
                                 int threads,
-                                boolean centrality) throws IllegalArgumentException, MinHash.SeedsException {
+                                boolean centrality,boolean normalized) throws IllegalArgumentException, MinHash.SeedsException {
 
         MinHash minHashAlgorithm = null;
 
@@ -46,7 +46,7 @@ public class MinHashFactory {
                 minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, nodes, threads, centrality);
                 break;
             case Expansion:
-                minHashAlgorithm = new MultithreadExpansion(g, numSeeds, threshold, nodes, threads, centrality);
+                minHashAlgorithm = new MultithreadExpansion(g, numSeeds, threshold, nodes, threads, centrality,normalized);
                 break;
             case RandomBFS:
                 minHashAlgorithm = new RandomBFS(g, numSeeds, threshold, nodes, threads, centrality);
@@ -69,7 +69,7 @@ public class MinHashFactory {
                                 int numSeeds,
                                 double threshold,
                                 int threads,
-                                boolean centrality) throws IllegalArgumentException, MinHash.SeedsException {
+                                boolean centrality,boolean normalized) throws IllegalArgumentException, MinHash.SeedsException {
 
         MinHash minHashAlgorithm = null;
 
@@ -93,7 +93,7 @@ public class MinHashFactory {
                 minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, threads, centrality);
                 break;
             case Expansion:
-                minHashAlgorithm = new MultithreadExpansion(g, numSeeds, threshold, threads, centrality);
+                minHashAlgorithm = new MultithreadExpansion(g, numSeeds, threshold, threads, centrality,normalized);
                 break;
             case RandomBFS:
                 minHashAlgorithm = new RandomBFS(g, numSeeds, threshold, threads, centrality);

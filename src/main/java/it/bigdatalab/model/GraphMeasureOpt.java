@@ -15,8 +15,10 @@ public class GraphMeasureOpt extends Measure {
     private int[][] mCollisionsMatrix;
     @SerializedName("closeness_centrality_apx")
     private double[] mClosenessCentrality;
-    @SerializedName("harmonic_centrality_apx")
+    @SerializedName("harmonic_centrality")
     private double[] mHarmonicCentrality;
+    @SerializedName("harmonic_centrality_unnorm")
+    private double[] mHarmonicCentralityUnnorm;
     //@SerializedName("harmonic_centrality_apx_topk")
     //private Hasm[] mHarmonicCentralityTopK;
     @SerializedName("linn_centrality_apx")
@@ -100,6 +102,9 @@ public class GraphMeasureOpt extends Measure {
 
     public void setHarmonicCentrality(double[] HarmonicCentrality) {
         this.mHarmonicCentrality = HarmonicCentrality;
+    }
+    public void setHarmonicCentralityUnnorm(double [] HarmonicCentralityUnnorm){
+        this.mHarmonicCentralityUnnorm = HarmonicCentralityUnnorm;
     }
    // public void setHarmonicCentralityTopK(float[] HarmonicCentralityTopK) {
       //  this.mHarmonicCentrality = HarmonicCentrality;
