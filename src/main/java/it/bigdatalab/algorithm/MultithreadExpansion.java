@@ -26,6 +26,7 @@ public class MultithreadExpansion extends BMinHashOpt {
     private double [][] mHarmonic;
     private double [][] mFareness;
     private int [] mLowerBoundDiameter;
+    private int [][][] mHopTable;
     /**
      * Creates a new MultithreadExpansion instance with default values
      */
@@ -410,7 +411,7 @@ public class MultithreadExpansion extends BMinHashOpt {
 
 
 
-    public Measure runAlgorithm_new() throws IOException {
+    public Measure runAlgorithm_tmp2() throws IOException {
         startTime = System.currentTimeMillis();
         long totalTime;
 
@@ -431,12 +432,13 @@ public class MultithreadExpansion extends BMinHashOpt {
         int ntasks = (d== 0) ? r:mNumberOfThreads;
         int [][]  local_lb_diameter = new int[mNumberOfThreads][];
         int [][][] local_hop_table = new int[mNumberOfThreads][][];
+        mHopTable = new int[mNumberOfThreads][][];
         float [][] local_harmonic = new float[mNumberOfThreads][];
         int [][] local_farness = new int[mNumberOfThreads][];
         int [][] local_last_hops = new int[mNumberOfThreads][];
         int task_size = (int) Math.ceil((double) mNumSeeds / mNumberOfThreads);
         for (int i = 0; i < mNumberOfThreads; i++) {
-            local_hop_table[i] = new int[task_size][];
+            mHopTable[i] = new int[task_size][];
             local_lb_diameter[i] = new int[1];
             local_last_hops[i] = new int[task_size];
             if (mDoCentrality) {
@@ -476,7 +478,6 @@ public class MultithreadExpansion extends BMinHashOpt {
                         try {
                             int[] hopCollisions = future.get();
                             collisionsMatrix[i] = hopCollisions;
-                            logger.debug("COLL for {} : {} ", i, collisionsMatrix[i]);
                         } catch (ExecutionException e) {
                             logger.error("Failed to get result", e);
                         } catch (InterruptedException e) {
@@ -501,10 +502,27 @@ public class MultithreadExpansion extends BMinHashOpt {
 
         // Reduction phase
         lowerboundDiameter = 0;
+        /*
         for (int i = 0;i <ntasks;i++){
             if (mLowerBoundDiameter[i] > lowerboundDiameter) lowerboundDiameter = mLowerBoundDiameter[i];
         }
-        //normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
+        */
+        int p = 0;
+        for (int t = 0; t<mNumberOfThreads;t++){
+            if (t < ntasks) {
+                if (mLowerBoundDiameter[t] > lowerboundDiameter) lowerboundDiameter = mLowerBoundDiameter[t];
+            }
+            for (int j = 0; j < mHopTable[t].length; j++) {
+                // this handles the case in which the number of seeds is less than the number of threads
+                if (mHopTable[t][j] != null) {
+                    collisionsMatrix[p] = mHopTable[t][j];
+                    //lastHops[p] = local_last_hops[t][j];
+                    p += 1;
+                }
+            }
+        }
+
+        normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
         hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
 
         double[] harmonic = new double[0];
@@ -540,7 +558,7 @@ public class MultithreadExpansion extends BMinHashOpt {
             graphMeasure.setHarmonicCentrality(harmonic);
 
         }
-        graphMeasure.setLastHops(lastHops);
+        //graphMeasure.setLastHops(lastHops);
         graphMeasure.setLowerBoundDiameter(lowerboundDiameter);
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsTime(mSeedTime);
@@ -671,7 +689,7 @@ public class MultithreadExpansion extends BMinHashOpt {
             int[] expanded = new int[1];
             int[] visited = new int[1];
             int randomNode = -1;
-
+            int task_id = 0;
             int remainderPositionNeigh;
             int quotientNeigh;
 
@@ -681,8 +699,8 @@ public class MultithreadExpansion extends BMinHashOpt {
             int bit;
             int h = 0;
             boolean signatureIsChanged = true;
-            int[] hopTable = new int[g.numNodes()];
-            //int[] hopTable = new int[1];
+            //int[] hopTable = new int[g.numNodes()];
+            int[] hopTable = new int[1];
 
             for (int s = start; s < end ; s++) {
                 // Initializing variables
@@ -705,6 +723,7 @@ public class MultithreadExpansion extends BMinHashOpt {
                 h = 0;
                 signatureIsChanged = true;
                 //hopTable = new int[1];
+                mHopTable[index][task_id] = new int[1];
 
                 while (signatureIsChanged) {
                     //first hop - initialization
@@ -775,13 +794,15 @@ public class MultithreadExpansion extends BMinHashOpt {
                         for (int aMutable : p_next) {
                             collisions += Integer.bitCount(aMutable);
                         }
+
+
                         // this array copy becomes slow on big graphs with big diameter
-                        //int[] copy = new int[h + 1];
-                        //System.arraycopy(hopTable, 0, copy, 0, hopTable.length);
-                        //hopTable = copy;
+                        int[] copy = new int[h + 1];
+                        System.arraycopy(mHopTable[index][task_id], 0, copy, 0, mHopTable[index][task_id].length);
+                        mHopTable[index][task_id] = copy;
                         // Check this accumulation, I believe we need to accumulate because we are processing start-end of threads
                         // Before returning the hopTable
-                        hopTable[h] += collisions;
+                        mHopTable[index][task_id][h] = collisions;
                         // This keeps track of the diameter lowerbound for each thread
                         if (mLowerBoundDiameter[index] < h) mLowerBoundDiameter[index] = h;
                         h += 1;
@@ -830,7 +851,6 @@ public class MultithreadExpansion extends BMinHashOpt {
             int quotientNode;
             int node;
             int bit;
-
             int h = 0;
             boolean signatureIsChanged = true;
 
