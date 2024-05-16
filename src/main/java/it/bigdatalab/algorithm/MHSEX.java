@@ -9,6 +9,8 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+
 /**
  * Implementation of MHSE X (MinHash Signature Estimation X version) algorithm
  */
@@ -17,6 +19,8 @@ public class MHSEX extends MinHash {
 
     private final boolean mDoCentrality;
     private short[][] mHopForNodes;
+    private double [] mHarmonic;
+    private boolean[] saturated;
 
 
     /**
@@ -60,8 +64,11 @@ public class MHSEX extends MinHash {
 
         boolean signatureIsChanged = true;
         int h = 0;
+        saturated = new boolean[mGraph.numNodes()];
+        Arrays.fill(saturated, Boolean.FALSE);
         if (mDoCentrality) {
             mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
+            mHarmonic = new double[mGraph.numNodes()];
         }
         int nPosition, nRemainder, neighPosition, neighRemainder, neighMask;
         while (signatureIsChanged) {
@@ -81,46 +88,53 @@ public class MHSEX extends MinHash {
 
                 // update node signature
                 for (int n = 0; n < mGraph.numNodes(); n++) {
-                    final int d = mGraph.outdegree(n);
-                    final int[] successors = mGraph.successorArray(n);
+                    if (!saturated[n]) {
+                        final int d = mGraph.outdegree(n);
+                        final int[] successors = mGraph.successorArray(n);
 
-                    nPosition = n >>> Constants.MASK;
-                    nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
-                    // for each neigh of the node n
-                    for (int l = d; l-- != 0; ) {
-                        // check if the neigh has been modified
-                        // in the previous hop. If true, it can modify
-                        // the node n
-                        neighPosition = successors[l] >>> Constants.MASK;
-                        neighRemainder = (successors[l] << Constants.REMAINDER) >>> Constants.REMAINDER;
-                        neighMask = (Constants.BIT << neighRemainder);
+                        nPosition = n >>> Constants.MASK;
+                        nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
+                        // for each neigh of the node n
+                        for (int l = d; l-- != 0; ) {
+                            // check if the neigh has been modified
+                            // in the previous hop. If true, it can modify
+                            // the node n
+                            neighPosition = successors[l] >>> Constants.MASK;
+                            neighRemainder = (successors[l] << Constants.REMAINDER) >>> Constants.REMAINDER;
+                            neighMask = (Constants.BIT << neighRemainder);
 
-                        if (((neighMask & trackerImmutable[neighPosition]) >>> neighRemainder) == 1) {
-                            // for each element of the signature of the node n
-                            int sMask;
-                            for (int s = 0; s < mNumSeeds; s++) {
-                                sMask = (Constants.BIT << remainder[s]);
+                            if (((neighMask & trackerImmutable[neighPosition]) >>> neighRemainder) == 1) {
+                                // for each element of the signature of the node n
+                                int sMask;
+                                boolean tmp_saturated = true;
 
-                                // check if the s-th element of the node n signature
-                                // it's 0, else jump to the next s-th element of the signature
-                                if (((sMask & signMutable[n][position[s]]) >>> remainder[s]) == 0) {
-                                    int bitNeigh;
-                                    int value;
-                                    // change the s-th element of the node n signature
-                                    // only if the s-th element of the neigh signature is 1
-                                    if (((sMask & signImmutable[successors[l]][position[s]]) >>> remainder[s]) == 1) {
-                                        bitNeigh = (((1 << remainder[s]) & signImmutable[successors[l]][position[s]]) >>> remainder[s]) << remainder[s];
-                                        value = bitNeigh | sMask & signImmutable[successors[l]][position[s]];
-                                        signatureIsChanged = true; // track the signature changes, to run the next hop
-                                        trackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
-                                        signMutable[n][position[s]] = signMutable[n][position[s]] | value;
-                                        if (signatureIsChanged) {
-                                            if (mDoCentrality) {
-                                                mHopForNodes[n][s] = (short) h;
+                                for (int s = 0; s < mNumSeeds; s++) {
+                                    sMask = (Constants.BIT << remainder[s]);
+
+                                    // check if the s-th element of the node n signature
+                                    // it's 0, else jump to the next s-th element of the signature
+                                    if (((sMask & signMutable[n][position[s]]) >>> remainder[s]) == 0) {
+                                        int bitNeigh;
+                                        int value;
+                                        // change the s-th element of the node n signature
+                                        // only if the s-th element of the neigh signature is 1
+                                        if (((sMask & signImmutable[successors[l]][position[s]]) >>> remainder[s]) == 1) {
+                                            bitNeigh = (((1 << remainder[s]) & signImmutable[successors[l]][position[s]]) >>> remainder[s]) << remainder[s];
+                                            value = bitNeigh | sMask & signImmutable[successors[l]][position[s]];
+                                            signatureIsChanged = true; // track the signature changes, to run the next hop
+                                            trackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
+                                            signMutable[n][position[s]] = signMutable[n][position[s]] | value;
+                                            tmp_saturated = tmp_saturated && (signMutable[n][position[s]] == 1);
+                                            if (signatureIsChanged) {
+                                                if (mDoCentrality) {
+                                                    mHopForNodes[n][s] = (short) h;
+                                                    mHarmonic[n] += 1.0 / ((double) h);
+                                                }
                                             }
                                         }
-                                    }
-                                } // else is already 1
+                                        saturated[n] = tmp_saturated;
+                                    } // else is already 1
+                                }
                             }
                         }
                     }
@@ -164,7 +178,7 @@ public class MHSEX extends MinHash {
 
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
-
+        for (int i= 0; i<mGraph.numNodes();i++) mHarmonic[i] = (double) mHarmonic[i] * mGraph.numNodes()/(mGraph.numNodes()-1)/mNumSeeds;
         double[] hopTable = hopTable(collisionsVector);
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
@@ -180,7 +194,7 @@ public class MHSEX extends MinHash {
             graphMeasure.setFarness(farness);
             graphMeasure.setInverseFarness(inverseFarness);
             //graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), mNumSeeds, farness, true));
-            graphMeasure.setHarmonicCentrality(Stats.HarmonicCentrality(mGraph.numNodes(), mNumSeeds, inverseFarness));
+            graphMeasure.setHarmonicCentrality(mHarmonic);
             //graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), mNumSeeds, farness, hopTable));
         }
         graphMeasure.setNumSeeds(mNumSeeds);

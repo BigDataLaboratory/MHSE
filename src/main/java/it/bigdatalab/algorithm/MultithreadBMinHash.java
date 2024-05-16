@@ -281,8 +281,8 @@ public class MultithreadBMinHash extends BMinHashOpt {
                 }
             }
             if (mDoCentrality) {
-                farness[i] = (double) farness[i] * mGraph.numNodes() / mNumSeeds;
-                harmonic[i] = (double) harmonic[i] * mGraph.numNodes() / (mGraph.numNodes() - 1) / mNumSeeds;
+                farness[i] =  farness[i] * ((double) mGraph.numNodes() / mNumSeeds);
+                harmonic[i] = harmonic[i] * ((double) mGraph.numNodes() / (mGraph.numNodes() - 1) / mNumSeeds);
             }
         }
 

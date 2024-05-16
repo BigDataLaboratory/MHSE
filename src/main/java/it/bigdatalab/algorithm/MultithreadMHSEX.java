@@ -206,11 +206,12 @@ public class MultithreadMHSEX extends MinHash {
 
                     farness[i] += mHopForNodes[i][j];
                 }
+                //logger.debug("{} ",inverseFarness[i]);
                 //double prima = inverseFarness[i];
                 //inverseFarness[i] = inverseFarness[i] * mGraph.numNodes()/(mNumSeeds*(mGraph.numNodes()-1));
-                inverseFarness[i] = (double) inverseFarness[i] * mGraph.numNodes()/(mGraph.numNodes()-1)/mNumSeeds;
+                inverseFarness[i] = inverseFarness[i] * ((double) mGraph.numNodes()/(mGraph.numNodes()-1)/mNumSeeds);
 
-                farness[i] = (double) farness[i]   * mGraph.numNodes() /mNumSeeds;
+                farness[i] =  farness[i]   * ((double) mGraph.numNodes() /mNumSeeds);
 
             }
 
@@ -367,13 +368,14 @@ public class MultithreadMHSEX extends MinHash {
                                                 mSignMutable[n][mPosition[s]] = mSignMutable[n][mPosition[s]] | value;
                                                 tmp_saturated = tmp_saturated && (mSignMutable[n][mPosition[s]] == 1);
 
-                                                if ((value >>> nRemainder) == 1) {
+                                                //if ((value >>> nRemainder) == 1) {
+                                                if(signatureIsChanged){
                                                     if (mDoCentrality) {
                                                         mLock.lock();
                                                         try {
                                                             mHopForNodes[n][index] += (short) h;
 
-                                                            mHarmonic[n][index] +=  1.0 /  h;
+                                                            mHarmonic[n][index] +=  1.0 /((double)  h);
 
 
                                                         } finally {
