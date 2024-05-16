@@ -46,7 +46,7 @@ public class MultithreadMHSEX extends MinHash {
 
     private int[] mToVisit;
 
-    private short[][] mHopForNodes;
+    private long[][] mHopForNodes;
 
     private double [][] mHarmonic;
 
@@ -124,7 +124,7 @@ public class MultithreadMHSEX extends MinHash {
             //mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
             //mHarmonic = new double[mGraph.numNodes()][mNumSeeds];
 
-            mHopForNodes = new short[mGraph.numNodes()][mNumberOfThreads];
+            mHopForNodes = new long[mGraph.numNodes()][mNumberOfThreads];
             mHarmonic = new double[mGraph.numNodes()][mNumberOfThreads];
         }
 
@@ -204,14 +204,14 @@ public class MultithreadMHSEX extends MinHash {
                 for (int j = 0; j < this.mNumberOfThreads; j++) {
                     inverseFarness[i] += mHarmonic[i][j];
 
-                    farness[i] += mHopForNodes[i][j];
+                    farness[i] += (double) mHopForNodes[i][j];
                 }
                 //logger.debug("{} ",inverseFarness[i]);
                 //double prima = inverseFarness[i];
                 //inverseFarness[i] = inverseFarness[i] * mGraph.numNodes()/(mNumSeeds*(mGraph.numNodes()-1));
                 inverseFarness[i] = inverseFarness[i] * ((double) mGraph.numNodes()/(mGraph.numNodes()-1)/mNumSeeds);
 
-                farness[i] =  farness[i]   * ((double) mGraph.numNodes() /mNumSeeds);
+                farness[i] = (double) farness[i]   * ((double) mGraph.numNodes() /mNumSeeds);
 
             }
 
@@ -330,7 +330,7 @@ public class MultithreadMHSEX extends MinHash {
                     for (int n = start; n < end + 1; n++) {
                         //nPosition = n >>> Constants.MASK;
                         //nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
-                        if (true) {// todo cambiare in array di int - trick
+                        if (!saturated[n]) {// todo cambiare in array di int - trick
                             final int d = g.outdegree(n);
                             final int[] successors = g.successorArray(n);
 
@@ -373,9 +373,9 @@ public class MultithreadMHSEX extends MinHash {
                                                     if (mDoCentrality) {
                                                         mLock.lock();
                                                         try {
-                                                            mHopForNodes[n][index] += (short) h;
+                                                            mHopForNodes[n][index] +=  h;
 
-                                                            mHarmonic[n][index] +=  1.0 /((double)  h);
+                                                            mHarmonic[n][index] +=  (double) 1.0 /h;
 
 
                                                         } finally {

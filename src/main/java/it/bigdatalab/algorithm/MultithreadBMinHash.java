@@ -29,7 +29,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
     private final double[] mSeedTime;
     private long startTime;
     private boolean mDoCentrality;
-    private short[][] mHopForNodes;
+    private long[][] mHopForNodes;
 
 
     /**
@@ -64,7 +64,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         if (suggestedNumberOfThreads > 0) return suggestedNumberOfThreads;
         return Runtime.getRuntime().availableProcessors();
     }
-    private void iteration_thread(ImmutableGraph g,int s,int task_id,int[] local_lb_diameter,int [][] local_hop_table,int[] local_last_hops,int[] local_farness,float[] local_harmonic){
+    private void iteration_thread(ImmutableGraph g,int s,int task_id,int[] local_lb_diameter,int [][] local_hop_table,int[] local_last_hops,int[] local_farness,double[] local_harmonic){
         long startSeedTime = System.currentTimeMillis();
         long lastLogTime = startSeedTime;
         long logTime;
@@ -133,8 +133,8 @@ public class MultithreadBMinHash extends BMinHashOpt {
                             value = bitNeigh | nodeMask & immutable[quotientNode];
                             if ((value >>> remainderPositionNode) == 1) {
                                 if (mDoCentrality) {
-                                    local_farness[n] += (short) h;
-                                    local_harmonic[n] += 1.0/ (short) h;
+                                    local_farness[n] += h;
+                                    local_harmonic[n] += (double) 1.0/h;
                                 }
                                 signatureIsChanged = true;
                                 break;
@@ -199,7 +199,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         int ntasks = (d== 0) ? r:mNumberOfThreads;
         int [][]  local_lb_diameter = new int[mNumberOfThreads][];
         int [][][] local_hop_table = new int[mNumberOfThreads][][];
-        float [][] local_harmonic = new float[mNumberOfThreads][];
+        double [][] local_harmonic = new double[mNumberOfThreads][];
         int [][] local_farness = new int[mNumberOfThreads][];
         int [][] local_last_hops = new int[mNumberOfThreads][];
 
@@ -215,10 +215,10 @@ public class MultithreadBMinHash extends BMinHashOpt {
             local_lb_diameter[i] = new int[1];
             local_last_hops[i] = new int[task_size];
             if (mDoCentrality) {
-                local_harmonic[i] = new float[mGraph.numNodes()];
+                local_harmonic[i] = new double[mGraph.numNodes()];
                 local_farness[i] = new int[mGraph.numNodes()];
             }else{
-                local_harmonic[i] = new float[0];
+                local_harmonic[i] = new double[0];
                 local_farness[i]= new int[0];
             }
 
@@ -342,7 +342,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
         }
 
         if (mDoCentrality) {
-            mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
+            mHopForNodes = new long[mGraph.numNodes()][mNumSeeds];
         }
 
         try {
@@ -494,7 +494,7 @@ public class MultithreadBMinHash extends BMinHashOpt {
                                 value = bitNeigh | nodeMask & immutable[quotientNode];
                                 if ((value >>> remainderPositionNode) == 1) {
                                     if (mDoCentrality) {
-                                        mHopForNodes[n][s] = (short) h;
+                                        mHopForNodes[n][s] =  h;
                                     }
                                     signatureIsChanged = true;
                                     break;

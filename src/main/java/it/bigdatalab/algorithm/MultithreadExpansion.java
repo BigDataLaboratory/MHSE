@@ -23,7 +23,7 @@ public class MultithreadExpansion extends BMinHashOpt {
     private final double[] mSeedTime;
     private final boolean mDoCentrality;
     private long startTime;
-    private short[][] mHopForNodes;
+    private long[][] mHopForNodes;
     private double [][] mHarmonic;
     private double [][] mFareness;
     private int [] mLowerBoundDiameter;
@@ -61,7 +61,7 @@ public class MultithreadExpansion extends BMinHashOpt {
         return Runtime.getRuntime().availableProcessors();
     }
 
-    private void iteration_thread(int s,int task_id,int[] local_lb_diameter,int [][] local_hop_table,int[] local_last_hops,int[] local_farness,float[] local_harmonic){
+    private void iteration_thread(int s,int task_id,int[] local_lb_diameter,int [][] local_hop_table,int[] local_last_hops,long[] local_farness,float[] local_harmonic){
         int collisions;
 
         int[] p_prev = new int[lengthBitsArray(mGraph.numNodes())];
@@ -139,8 +139,8 @@ public class MultithreadExpansion extends BMinHashOpt {
                                             //if ((bit_neigh_next & bit_neigh_prev) != 1) {
                                                 if (visited[neighbour] != 1){
                                                     visited[neighbour] = 1;
-                                                    local_farness[neighbour] += (short) h;
-                                                    local_harmonic[neighbour] += 1.0/(short) h;
+                                                    local_farness[neighbour] +=  h;
+                                                    local_harmonic[neighbour] += 1.0/ h;
                                                 }
                                                 //logger.debug("father {} local farness of {} = {}, hop to be added {}",node,neighbour,local_farness[neighbour],h);
 
@@ -195,7 +195,7 @@ public class MultithreadExpansion extends BMinHashOpt {
         int [][]  local_lb_diameter = new int[mNumberOfThreads][];
         int [][][] local_hop_table = new int[mNumberOfThreads][][];
         float [][] local_harmonic = new float[mNumberOfThreads][];
-        int [][] local_farness = new int[mNumberOfThreads][];
+        long [][] local_farness = new long[mNumberOfThreads][];
         int [][] local_last_hops = new int[mNumberOfThreads][];
         int task_size = (int) Math.ceil((double) mNumSeeds / mNumberOfThreads);
         for (int i = 0; i < mNumberOfThreads; i++) {
@@ -204,10 +204,10 @@ public class MultithreadExpansion extends BMinHashOpt {
             local_last_hops[i] = new int[task_size];
             if (mDoCentrality) {
                 local_harmonic[i] = new float[mGraph.numNodes()];
-                local_farness[i] = new int[mGraph.numNodes()];
+                local_farness[i] = new long[mGraph.numNodes()];
             }else{
                 local_harmonic[i] = new float[0];
-                local_farness[i]= new int[0];
+                local_farness[i]= new long[0];
             }
 
         }
@@ -336,7 +336,7 @@ public class MultithreadExpansion extends BMinHashOpt {
 
         */
         if (mDoCentrality) {
-            mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
+            mHopForNodes = new long[mGraph.numNodes()][mNumSeeds];
         }
         try {
             List<Future<int[]>> futures = executor.invokeAll(todo);
