@@ -18,7 +18,7 @@ public class MHSEX extends MinHash {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSEX");
 
     private final boolean mDoCentrality;
-    private short[][] mHopForNodes;
+    private long[][] mHopForNodes;
     private double [] mHarmonic;
     private boolean[] saturated;
 
@@ -67,7 +67,7 @@ public class MHSEX extends MinHash {
         saturated = new boolean[mGraph.numNodes()];
         Arrays.fill(saturated, Boolean.FALSE);
         if (mDoCentrality) {
-            mHopForNodes = new short[mGraph.numNodes()][mNumSeeds];
+            mHopForNodes = new long[mGraph.numNodes()][mNumSeeds];
             mHarmonic = new double[mGraph.numNodes()];
         }
         int nPosition, nRemainder, neighPosition, neighRemainder, neighMask;
@@ -127,8 +127,8 @@ public class MHSEX extends MinHash {
                                             tmp_saturated = tmp_saturated && (signMutable[n][position[s]] == 1);
                                             if (signatureIsChanged) {
                                                 if (mDoCentrality) {
-                                                    mHopForNodes[n][s] = (short) h;
-                                                    mHarmonic[n] += 1.0 / ((double) h);
+                                                    mHopForNodes[n][s] =  h;
+                                                    mHarmonic[n] += 1.0 / h;
                                                 }
                                             }
                                         }
