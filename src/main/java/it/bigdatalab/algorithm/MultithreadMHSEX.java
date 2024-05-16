@@ -371,16 +371,16 @@ public class MultithreadMHSEX extends MinHash {
                                                 //if ((value >>> nRemainder) == 1) {
                                                 if(signatureIsChanged){
                                                     if (mDoCentrality) {
-                                                        mLock.lock();
-                                                        try {
+                                                        //mLock.lock();
+                                                        //try {
                                                             mHopForNodes[n][index] +=  h;
 
                                                             mHarmonic[n][index] +=  (double) 1.0 /h;
 
 
-                                                        } finally {
-                                                            mLock.unlock();
-                                                        }
+                                                       // } finally {
+                                                         //   mLock.unlock();
+                                                       // }
                                                     }
                                                 }
                                             }
