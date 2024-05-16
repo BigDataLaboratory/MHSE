@@ -330,7 +330,7 @@ public class MultithreadMHSEX extends MinHash {
                     for (int n = start; n < end + 1; n++) {
                         //nPosition = n >>> Constants.MASK;
                         //nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
-                        if (!saturated[n]) {// todo cambiare in array di int - trick
+                        if (true) {// todo cambiare in array di int - trick
                             final int d = g.outdegree(n);
                             final int[] successors = g.successorArray(n);
 
