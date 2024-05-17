@@ -400,33 +400,28 @@ public class MultithreadMHSEX extends MinHash {
                                                 tmp_saturated = tmp_saturated && (mSignMutable[n][mPosition[s]] == 1);
 
                                                 //if ((value >>> nRemainder) == 1) {
-                                                if(signatureIsChanged){
+                                                if (signatureIsChanged) {
                                                     if (mDoCentrality) {
-                                                        mLock.lock();
-                                                        try {
-                                                            mHopForNodes[n][index] +=  (double)  h;
 
-                                                            mHarmonic[n][index] +=  (double) 1.0 /h;
+                                                        mHopForNodes[n][index] += (double) h;
+
+                                                        mHarmonic[n][index] += (double) 1.0 / h;
 
 
-                                                       } finally {
-                                                           mLock.unlock();
-                                                       }
                                                     }
                                                 }
+                                                //if (((sMask & mSignImmutable[successors[l]][mPosition[s]]) >>> mRemainder[s]) == 0) {
+                                                //    tmp_saturated = false;
+                                                //}
+
                                             }
-                                            //if (((sMask & mSignImmutable[successors[l]][mPosition[s]]) >>> mRemainder[s]) == 0) {
-                                            //    tmp_saturated = false;
-                                            //}
 
                                         }
-
+                                        saturated[n] = tmp_saturated;
                                     }
-                                    saturated[n] = tmp_saturated;
                                 }
                             }
                         }
-
 
                     }
                     int b = signatureIsChanged ? 1 : 0;
@@ -437,63 +432,23 @@ public class MultithreadMHSEX extends MinHash {
                     } finally {
                         mLock.unlock();
                     }
+                    //Else for the signature change
                 }
 
-                //if (mSignatureIsChanged == 0) waiting[index] = true;
-                //if (!waiting[index] && mSignatureIsChanged!=0){
+                    try {
 
-                try {
-                    //logger.debug("(INSIDE) Thread waiting index {}  value signature {} sign changed? {}", index, mSignatureIsChanged, signatureIsChanged);
-                    //waiting[index] = true;
-                    //awaitCall = true;
+                        mCyclicBarrier.await();
 
-                    mCyclicBarrier.await();
+                    } catch (InterruptedException | BrokenBarrierException e) {
+                        e.printStackTrace();
 
-                } catch (InterruptedException | BrokenBarrierException e) {
-                    e.printStackTrace();
-
+                    }
                 }
-                //waiting[index] = false;
 
 
 
 
-                /*
-                waiting[index] = false;
-                //}
-                allConverged = true;
-                for(int i =0;i<mNumberOfThreads;i++) allConverged = allConverged & !mSetSignaturesChanged[i];
-                logger.debug("ALL Converged for {} , {}, mSignatureIsChanged {}, signatures {}",index,allConverged,mSignatureIsChanged,mSetSignaturesChanged );
-                logger.debug("Waiting {}",waiting);
-                //logger.debug("(INSIDE) Thread , released index {} ", index );
 
-                if (mSignatureIsChanged == 0){
-                    awaitCall = false;
-                }
-                */
-
-            }
-
-
-            /*
-            logger.debug("# waiting inside {} await call {} barrier free {}",k,awaitCall,barrierFree);
-            if (!awaitCall && !barrierFree){
-                try {
-                    logger.debug("(OUTSIDE) FORCING Thread waiting index {}  has to stop {} ", index ,mSignatureIsChanged);
-
-                    //logger.debug("Forcing Thread {} CALLING WAIT ",Thread.currentThread().getId());
-                    //awaitCall = true;
-                    mCyclicBarrier.await();
-                } catch (InterruptedException | BrokenBarrierException e) {
-                    e.printStackTrace();
-
-                }
-                logger.debug("(OUTSIDE) Thread , released index {} ", index );
-
-            }
-            */
-            //logger.debug("Thread {} finished index {} await {}",Thread.currentThread().getId(), index ,awaitCall);
-            //logger.debug("Released thread, number of waiting {} ",mCyclicBarrier.getNumberWaiting());
 
             return 0;
         }

@@ -18,7 +18,9 @@ public class MHSEX extends MinHash {
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSEX");
 
     private final boolean mDoCentrality;
-    private long[][] mHopForNodes;
+    //private long[][] mHopForNodes;
+    private long[] mHopForNodes;
+
     private double [] mHarmonic;
     private boolean[] saturated;
 
@@ -67,7 +69,8 @@ public class MHSEX extends MinHash {
         saturated = new boolean[mGraph.numNodes()];
         Arrays.fill(saturated, Boolean.FALSE);
         if (mDoCentrality) {
-            mHopForNodes = new long[mGraph.numNodes()][mNumSeeds];
+            mHopForNodes = new long[mGraph.numNodes()];
+           // mHopForNodes = new long[mGraph.numNodes()][mNumSeeds];
             mHarmonic = new double[mGraph.numNodes()];
         }
         int nPosition, nRemainder, neighPosition, neighRemainder, neighMask;
@@ -126,7 +129,8 @@ public class MHSEX extends MinHash {
                                             signMutable[n][position[s]] = signMutable[n][position[s]] | value;
                                             if (signatureIsChanged) {
                                                 if (mDoCentrality) {
-                                                    mHopForNodes[n][s] =  h;
+                                                    //mHopForNodes[n][s] =  h;
+                                                    mHopForNodes[n] += h;
                                                     mHarmonic[n] += 1.0 / h;
                                                 }
                                             }
@@ -184,8 +188,15 @@ public class MHSEX extends MinHash {
 
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
+        double [] farness = new double[mGraph.numNodes()];
+        double[] inverseFarness = new double[mGraph.numNodes()];
+
         if (mDoCentrality){
-        for (int i= 0; i<mGraph.numNodes();i++) mHarmonic[i] = (double) mHarmonic[i] * mGraph.numNodes()/(mGraph.numNodes()-1)/mNumSeeds;
+        for (int i= 0; i<mGraph.numNodes();i++) {
+            mHarmonic[i] = (double) mHarmonic[i] * mGraph.numNodes() / (mGraph.numNodes() - 1) / mNumSeeds;
+            farness[i] = (double) mHopForNodes[i] * mGraph.numNodes() / mNumSeeds;
+        }
+
         }
         double[] hopTable = hopTable(collisionsVector);
 
@@ -197,10 +208,9 @@ public class MHSEX extends MinHash {
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsList(mSeeds);
         if (mDoCentrality) {
-            double [] farness = farnessArray(mHopForNodes);
-            double[] inverseFarness = inverseFarnessArray(mHopForNodes);
+
             graphMeasure.setFarness(farness);
-            graphMeasure.setInverseFarness(inverseFarness);
+            graphMeasure.setInverseFarness(mHarmonic);
             //graphMeasure.setClosenessCentrality(Stats.ClosenessCentrality(mGraph.numNodes(), mNumSeeds, farness, true));
             graphMeasure.setHarmonicCentrality(mHarmonic);
             //graphMeasure.setLinnCentrality(Stats.LinnCentrality(mGraph.numNodes(), mNumSeeds, farness, hopTable));
