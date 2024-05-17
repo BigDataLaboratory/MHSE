@@ -367,7 +367,8 @@ public class MultithreadMHSEX extends MinHash {
 
                             nPosition = n >>> Constants.MASK;
                             nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
-
+                            //mLock.lock();
+                            //try {
                             // for each neigh of the node n
                             for (int l = d; l-- != 0; ) {
                                 // check if the neigh has been modified
@@ -391,36 +392,42 @@ public class MultithreadMHSEX extends MinHash {
                                             int value;
                                             // change the s-th element of the node n signature
                                             // only if the s-th element of the neigh signature is 1
-                                            if (((sMask & mSignImmutable[successors[l]][mPosition[s]]) >>> mRemainder[s]) == 1) {
-                                                bitNeigh = (((1 << mRemainder[s]) & mSignImmutable[successors[l]][mPosition[s]]) >>> mRemainder[s]) << mRemainder[s];
-                                                value = bitNeigh | sMask & mSignImmutable[successors[l]][mPosition[s]];
-                                                signatureIsChanged = true; // track the signature changes, to run the next hop
-                                                mTrackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
-                                                mSignMutable[n][mPosition[s]] = mSignMutable[n][mPosition[s]] | value;
-                                                tmp_saturated = tmp_saturated && (mSignMutable[n][mPosition[s]] == 1);
+                                           // mLock.lock();
+                                            //try {
+                                                if (((sMask & mSignImmutable[successors[l]][mPosition[s]]) >>> mRemainder[s]) == 1) {
+                                                    bitNeigh = (((1 << mRemainder[s]) & mSignImmutable[successors[l]][mPosition[s]]) >>> mRemainder[s]) << mRemainder[s];
+                                                    value = bitNeigh | sMask & mSignImmutable[successors[l]][mPosition[s]];
+                                                    signatureIsChanged = true; // track the signature changes, to run the next hop
+                                                    mTrackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
+                                                    mSignMutable[n][mPosition[s]] = mSignMutable[n][mPosition[s]] | value;
+                                                    tmp_saturated = tmp_saturated && (mSignMutable[n][mPosition[s]] == 1);
 
-                                                //if ((value >>> nRemainder) == 1) {
-                                                if (signatureIsChanged) {
-                                                    if (mDoCentrality) {
+                                                    //if ((value >>> nRemainder) == 1) {
+                                                    if (signatureIsChanged) {
+                                                        if (mDoCentrality) {
 
-                                                        mHopForNodes[n][index] += (double) h;
+                                                            mHopForNodes[n][index] += (double) h;
 
-                                                        mHarmonic[n][index] += (double) 1.0 / h;
+                                                            mHarmonic[n][index] += (double) 1.0 / h;
 
 
+                                                        }
                                                     }
-                                                }
-                                                //if (((sMask & mSignImmutable[successors[l]][mPosition[s]]) >>> mRemainder[s]) == 0) {
-                                                //    tmp_saturated = false;
-                                                //}
 
-                                            }
+                                                }
+                                           // }finally {
+                                           //     mLock.unlock();
+                                            //}
 
                                         }
                                         saturated[n] = tmp_saturated;
                                     }
                                 }
                             }
+
+                       // } finally {
+                         //   mLock.unlock();
+                       // }//here
                         }
 
                     }
