@@ -124,7 +124,6 @@ public class MHSEX extends MinHash {
                                             signatureIsChanged = true; // track the signature changes, to run the next hop
                                             trackerMutable[nPosition] |= (Constants.BIT) << nRemainder;
                                             signMutable[n][position[s]] = signMutable[n][position[s]] | value;
-                                            tmp_saturated = tmp_saturated && (signMutable[n][position[s]] == 1);
                                             if (signatureIsChanged) {
                                                 if (mDoCentrality) {
                                                     mHopForNodes[n][s] =  h;
@@ -132,9 +131,16 @@ public class MHSEX extends MinHash {
                                                 }
                                             }
                                         }
-                                        saturated[n] = tmp_saturated;
+                                        if (((sMask & signMutable[n][position[s]]) >>> remainder[s]) == 0) {
+                                            tmp_saturated = false;
+                                        }
+
                                     } // else is already 1
+
                                 }
+                                saturated[n] = tmp_saturated;
+
+
                             }
                         }
                     }
@@ -178,7 +184,9 @@ public class MHSEX extends MinHash {
 
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
+        if (mDoCentrality){
         for (int i= 0; i<mGraph.numNodes();i++) mHarmonic[i] = (double) mHarmonic[i] * mGraph.numNodes()/(mGraph.numNodes()-1)/mNumSeeds;
+        }
         double[] hopTable = hopTable(collisionsVector);
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
