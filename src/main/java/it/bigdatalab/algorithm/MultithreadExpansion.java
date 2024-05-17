@@ -179,7 +179,7 @@ public class MultithreadExpansion extends BMinHashOpt {
 
     }
 
-    public Measure runAlgorithm() throws IOException {
+    public Measure runAlgorithm_tmp3() throws IOException {
         startTime = System.currentTimeMillis();
         long totalTime;
 
@@ -427,15 +427,10 @@ public class MultithreadExpansion extends BMinHashOpt {
 
 
 
-    public Measure runAlgorithm_tmp3() throws IOException {
+    public Measure runAlgorithm() throws IOException {
         startTime = System.currentTimeMillis();
         long totalTime;
-
-        logger.debug("Number of threads to be used {}", mNumberOfThreads);
-
-        //int[][] collisionsMatrix = new int[mNumSeeds][];
         int[][] collisionsMatrix = new int[mNumSeeds][];
-
         double[] hopTableArray;
         int lowerboundDiameter = 0;
         int[] vs_active = new int[mNumSeeds];
@@ -445,28 +440,27 @@ public class MultithreadExpansion extends BMinHashOpt {
         int d = mNumSeeds / mNumberOfThreads;
         int r = mNumSeeds % mNumberOfThreads;
         int ntasks = (d== 0) ? r:mNumberOfThreads;
-        mHopTable = new int[mNumberOfThreads][][];
-        mLastHops = new int[mNumberOfThreads][];
-        int task_size = (int) Math.ceil((double) mNumSeeds / mNumberOfThreads);
-        for (int i = 0; i < mNumberOfThreads; i++) {
+        logger.debug("Number of threads to be used {}", ntasks);
+        mHopTable = new int[ntasks][][];
+        mLastHops = new int[ntasks][];
+        int task_size = (int) Math.ceil((double) mNumSeeds / ntasks);
+        for (int i = 0; i < ntasks; i++) {
             mHopTable[i] = new int[task_size][];
             mLastHops[i] = new int[task_size];
         }
-        // TODO: same grouping as MHSEX
         if (mDoCentrality){
-            mFareness = new double[mNumberOfThreads][mGraph.numNodes()];
+            mFareness = new double[ntasks][mGraph.numNodes()];
 
-            mHarmonic = new double[mNumberOfThreads][mGraph.numNodes()];
+            mHarmonic = new double[ntasks][mGraph.numNodes()];
 
         }
-        mLowerBoundDiameter = new int[mNumberOfThreads];
-        //collisionsMatrix = new int[ntasks][];
+        mLowerBoundDiameter = new int[ntasks];
         ExecutorService executor = Executors.newFixedThreadPool(ntasks); //creating a pool of threads
         List<IterationThread> todo = new ArrayList<>(ntasks);
-       logger.debug("Nseeds {} - Ntasks {} - Nodes {} - Assignnnment {}",mNumSeeds,ntasks,mGraph.numNodes(),mNumSeeds/ntasks);
         for (int t = 0; t < ntasks; t++) {
             int start = t * task_size;
             int end = Math.min((t + 1) * task_size, mNumSeeds);
+            //logger.debug("Thread {}/{} start {} end {} ",t,ntasks,start,end);
             todo.add(new IterationThread(mGraph.copy(),start,end,t));
         }
 
@@ -475,33 +469,6 @@ public class MultithreadExpansion extends BMinHashOpt {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-/*
-        try {
-            List<Future<Integer>> futures = executor.invokeAll(todo);
-            for (int i = 0; i < this.mNumberOfThreads; i++) {
-                if (i<futures.size()) {
-                    Future<Integer> future = futures.get(i);
-                    if (!future.isCancelled()) {
-                        try {
-                            int hopCollisions = future.get();
-                        } catch (ExecutionException e) {
-                            logger.error("Failed to get result", e);
-                        } catch (InterruptedException e) {
-                            logger.error("Interrupted", e);
-                            Thread.currentThread().interrupt();
-                        }
-                    } else {
-                        //TODO Implement better error management
-                        logger.error("Future is cancelled!");
-                    }
-                }
-            }
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        */
 
         executor.shutdown();
 
@@ -514,19 +481,12 @@ public class MultithreadExpansion extends BMinHashOpt {
         }
         // Reduction phase
         lowerboundDiameter = 0;
-        /*
-        for (int i = 0;i <ntasks;i++){
-            if (mLowerBoundDiameter[i] > lowerboundDiameter) lowerboundDiameter = mLowerBoundDiameter[i];
-        }
-        */
+
         int [] lastHops = new int[mNumSeeds];
         int p = 0;
-        for (int t = 0; t<mNumberOfThreads;t++){
-            //if (t < ntasks) {
-                if (mLowerBoundDiameter[t] > lowerboundDiameter) lowerboundDiameter = mLowerBoundDiameter[t];
-            //}
+        for (int t = 0; t<ntasks;t++){
+            if (mLowerBoundDiameter[t] > lowerboundDiameter) lowerboundDiameter = mLowerBoundDiameter[t];
             for (int j = 0; j < mHopTable[t].length; j++) {
-                // this handles the case in which the number of seeds is less than the number of threads
                 if (mHopTable[t][j] != null) {
                     collisionsMatrix[p] = mHopTable[t][j];
                     lastHops[p] = mLastHops[t][j];
@@ -539,24 +499,27 @@ public class MultithreadExpansion extends BMinHashOpt {
 
         double[] harmonic = new double[0];
         double [] farness = new double[0];
-
+        double [] unnorm_harmonic = new double[0];
         if (mDoCentrality) {
             harmonic = new double[mGraph.numNodes()];
             farness = new double[mGraph.numNodes()];
+            unnorm_harmonic = new double[mGraph.numNodes()];
         }
 
         for (int i = 0; i < mGraph.numNodes(); i++) {
-            for (int j = 0; j < mNumberOfThreads; j++) {
+            for (int j = 0; j < ntasks; j++) {
                 if (mDoCentrality) {
                     harmonic[i] += mHarmonic[j][i];
                     farness[i] += mFareness[j][i];
                 }
-            }
 
+            }
             if (mDoCentrality) {
-                farness[i] =  (double) farness[i] * ( mGraph.numNodes() / mNumSeeds);
-                harmonic[i] =(double) harmonic[i] * ( mGraph.numNodes() /(mGraph.numNodes()-1)/ mNumSeeds);
-                //logger.debug(" Fareness node {} = {}",i,farness[i]);
+                if (mUnnormalized){
+                    unnorm_harmonic[i]  = (double) harmonic[i] *  mGraph.numNodes() /mNumSeeds;
+                }
+                farness[i] =  (double) farness[i] *  mGraph.numNodes() / mNumSeeds;
+                harmonic[i] =  (double) harmonic[i] *  mGraph.numNodes() /(mGraph.numNodes()-1)/ mNumSeeds;
             }
         }
         normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
@@ -569,97 +532,9 @@ public class MultithreadExpansion extends BMinHashOpt {
         if (mDoCentrality) {
             graphMeasure.setFarness(farness);
             graphMeasure.setHarmonicCentrality(harmonic);
-
-        }
-        graphMeasure.setLastHops(lastHops);
-        graphMeasure.setLowerBoundDiameter(lowerboundDiameter);
-        graphMeasure.setThreshold(mThreshold);
-        graphMeasure.setSeedsTime(mSeedTime);
-        graphMeasure.setTime(totalTime);
-        graphMeasure.setMinHashNodeIDs(mMinHashNodeIDs);
-        graphMeasure.setAvgDistance(Stats.averageDistance(hopTableArray));
-        graphMeasure.setEffectiveDiameter(Stats.effectiveDiameter(hopTableArray, mThreshold));
-        graphMeasure.setTotalCouples(Stats.totalCouplesReachable(hopTableArray));
-        graphMeasure.setTotalCouplesPercentage(Stats.totalCouplesPercentage(hopTableArray, mThreshold));
-
-        return graphMeasure;
-        //------------------
-        /*
-        ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
-        for (int t = 0; t < ntasks; t++) {
-            int start = t * task_size;
-            int end = Math.min((t + 1) * task_size, mNumSeeds);
-            final int taskRangeStart = start;
-            final int taskRangeEnd = end;
-            final int taskIndex = t;
-            // Here we could change lists with arrays of fixed sizes
-            executor.execute(() -> {
-                int task_id = 0;
-                for (int s = taskRangeStart; s < taskRangeEnd; s++) {
-                    iteration_thread(s, task_id, local_lb_diameter[taskIndex], local_hop_table[taskIndex], local_last_hops[taskIndex], local_farness[taskIndex], local_harmonic[taskIndex]);
-                    task_id += 1;
-                }
-            });
-        }
-        executor.shutdown();
-        try {
-            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        totalTime = System.currentTimeMillis() - startTime;
-        logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
-        // Reduction phase
-        double[] harmonic = new double[0];
-        double [] farness = new double[0];
-
-        if (mDoCentrality) {
-            harmonic = new double[mGraph.numNodes()];
-            farness = new double[mGraph.numNodes()];
-        }
-
-        int p = 0;
-        for (int t = 0; t<mNumberOfThreads;t++){
-            if (lowerboundDiameter < local_lb_diameter[t][0]) lowerboundDiameter = local_lb_diameter[t][0];
-            for (int j = 0; j < local_hop_table[t].length; j++) {
-                // this handles the case in which the number of seeds is less than the number of threads
-                if (local_hop_table[t][j] != null) {
-                    collisionsMatrix[p] = local_hop_table[t][j];
-                    lastHops[p] = local_last_hops[t][j];
-                    p += 1;
-                }
+            if (mUnnormalized){
+                graphMeasure.setHarmonicCentralityUnnorm(unnorm_harmonic);
             }
-        }
-
-        for (int i = 0; i < mGraph.numNodes(); i++) {
-            for (int j = 0; j < mNumberOfThreads; j++) {
-                if (mDoCentrality) {
-                    harmonic[i] += local_harmonic[j][i];
-                    farness[i] += local_farness[j][i];
-                }
-            }
-
-            if (mDoCentrality) {
-                farness[i] = (double) farness[i] * mGraph.numNodes() / mNumSeeds;
-                harmonic[i] = (double) harmonic[i] * mGraph.numNodes() /(mGraph.numNodes()-1)/ mNumSeeds;
-                //logger.debug(" Fareness node {} = {}",i,farness[i]);
-            }
-
-
-        }
-        normalizeCollisionsTable(collisionsMatrix, lowerboundDiameter);
-        hopTableArray = hopTable(collisionsMatrix, lowerboundDiameter);
-
-
-        GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
-        graphMeasure.setNumNodes(mGraph.numNodes());
-        graphMeasure.setNumSeeds(mNumSeeds);
-        graphMeasure.setHopTable(hopTableArray);
-        graphMeasure.setCollisionsTable(collisionsMatrix);
-        if (mDoCentrality) {
-
-            graphMeasure.setFarness(farness);
-            graphMeasure.setHarmonicCentrality(harmonic);
 
         }
         graphMeasure.setLastHops(lastHops);
@@ -675,7 +550,6 @@ public class MultithreadExpansion extends BMinHashOpt {
 
         return graphMeasure;
 
-         */
 
     }
 
@@ -787,8 +661,8 @@ public class MultithreadExpansion extends BMinHashOpt {
                                                     */
                                                     if (visited[neighbour] != 1){
                                                         visited[neighbour] = 1;
-                                                        mFareness[index][neighbour] +=  h;
-                                                        mHarmonic[index][neighbour] += 1.0/h;
+                                                        mFareness[this.index][neighbour] +=  h;
+                                                        mHarmonic[this.index][neighbour] += 1.0/h;
                                                     }
 
                                                 }

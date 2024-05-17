@@ -442,7 +442,6 @@ public class MultithreadExpansionTest extends AlgoTest {
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
-        logger.debug("{}",expected);
         assertThat(expected).containsExactly(farness);
     }
 

@@ -352,18 +352,16 @@ public class MultithreadMHSEX extends MinHash {
             awaitCall = false;
             boolean allConverged = false;
             //while (mSignatureIsChanged != 0 ) {
-            while(!barrierFree){
-            //while (mSignatureIsChanged != 0  || !barrierFree) {
+            while (mSignatureIsChanged != 0  || !barrierFree) {
                 //logger.debug("SIGNATURE CHANGE {}",mSignatureIsChanged);
                 awaitCall = false;
                 signatureIsChanged = false;
                 if (mSetSignaturesChanged[index]) {
                     // update node signature
                     for (int n = start; n < end ; n++) {
-                        logger.debug("Thread {} seed {}",index,n);
                         //nPosition = n >>> Constants.MASK;
                         //nRemainder = (n << Constants.REMAINDER) >>> Constants.REMAINDER;
-                        if (!saturated[n] ) {// todo cambiare in array di int - trick
+                        if (!saturated[n]) {// todo cambiare in array di int - trick
                             final int d = g.outdegree(n);
                             final int[] successors = g.successorArray(n);
 
@@ -431,10 +429,10 @@ public class MultithreadMHSEX extends MinHash {
 
 
                     }
-                    mSetSignaturesChanged[index] = signatureIsChanged;
                     int b = signatureIsChanged ? 1 : 0;
                     mLock.lock();
                     try {
+                        mSetSignaturesChanged[index] = signatureIsChanged;
                         mSignatureIsChanged = (mSignatureIsChanged & ~(1 << index)) | ((b << index) & (1 << index));
                     } finally {
                         mLock.unlock();
