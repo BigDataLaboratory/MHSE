@@ -29,6 +29,7 @@ public class MultithreadExpansion extends BMinHashOpt {
     private double [][] mFareness;
     private int [] mLowerBoundDiameter;
     private int [][][] mHopTable;
+    private int [][] mLastHops;
     /**
      * Creates a new MultithreadExpansion instance with default values
      */
@@ -334,7 +335,7 @@ public class MultithreadExpansion extends BMinHashOpt {
         int lowerboundDiameter = 0;
 
         ExecutorService executor = Executors.newFixedThreadPool(mNumberOfThreads); //creating a pool of threads
-        List<IterationThread> todo = new ArrayList<>(this.mNumSeeds);
+        List<IterationThread_tmp> todo = new ArrayList<>(this.mNumSeeds);
 
         for (int i = 0; i < this.mNumSeeds; i++) {
             //todo.add(new IterationThread(mGraph.copy(), i));
@@ -445,10 +446,11 @@ public class MultithreadExpansion extends BMinHashOpt {
         int r = mNumSeeds % mNumberOfThreads;
         int ntasks = (d== 0) ? r:mNumberOfThreads;
         mHopTable = new int[mNumberOfThreads][][];
-
+        mLastHops = new int[mNumberOfThreads][];
         int task_size = (int) Math.ceil((double) mNumSeeds / mNumberOfThreads);
         for (int i = 0; i < mNumberOfThreads; i++) {
             mHopTable[i] = new int[task_size][];
+            mLastHops[i] = new int[task_size];
         }
         // TODO: same grouping as MHSEX
         if (mDoCentrality){
@@ -468,14 +470,21 @@ public class MultithreadExpansion extends BMinHashOpt {
             todo.add(new IterationThread(mGraph.copy(),start,end,t));
         }
 
+        try{
+            executor.invokeAll(todo);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+/*
         try {
-            List<Future<int[]>> futures = executor.invokeAll(todo);
+            List<Future<Integer>> futures = executor.invokeAll(todo);
             for (int i = 0; i < this.mNumberOfThreads; i++) {
                 if (i<futures.size()) {
-                    Future<int[]> future = futures.get(i);
+                    Future<Integer> future = futures.get(i);
                     if (!future.isCancelled()) {
                         try {
-                            int[] hopCollisions = future.get();
+                            int hopCollisions = future.get();
                         } catch (ExecutionException e) {
                             logger.error("Failed to get result", e);
                         } catch (InterruptedException e) {
@@ -492,12 +501,17 @@ public class MultithreadExpansion extends BMinHashOpt {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        */
 
         executor.shutdown();
 
         totalTime = System.currentTimeMillis() - startTime;
         logger.info("Algorithm successfully completed. Time elapsed (in milliseconds) {}", totalTime);
-
+        try {
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // Reduction phase
         lowerboundDiameter = 0;
         /*
@@ -505,6 +519,7 @@ public class MultithreadExpansion extends BMinHashOpt {
             if (mLowerBoundDiameter[i] > lowerboundDiameter) lowerboundDiameter = mLowerBoundDiameter[i];
         }
         */
+        int [] lastHops = new int[mNumSeeds];
         int p = 0;
         for (int t = 0; t<mNumberOfThreads;t++){
             //if (t < ntasks) {
@@ -514,7 +529,7 @@ public class MultithreadExpansion extends BMinHashOpt {
                 // this handles the case in which the number of seeds is less than the number of threads
                 if (mHopTable[t][j] != null) {
                     collisionsMatrix[p] = mHopTable[t][j];
-                    //lastHops[p] = local_last_hops[t][j];
+                    lastHops[p] = mLastHops[t][j];
                     p += 1;
                 }
             }
@@ -556,7 +571,7 @@ public class MultithreadExpansion extends BMinHashOpt {
             graphMeasure.setHarmonicCentrality(harmonic);
 
         }
-        //graphMeasure.setLastHops(lastHops);
+        graphMeasure.setLastHops(lastHops);
         graphMeasure.setLowerBoundDiameter(lowerboundDiameter);
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsTime(mSeedTime);
@@ -664,7 +679,7 @@ public class MultithreadExpansion extends BMinHashOpt {
 
     }
 
-    class IterationThread implements Callable<int[]> {
+    class IterationThread implements Callable<Integer> {
         private final ImmutableGraph g;
         private final int start;
         private final int end;
@@ -676,7 +691,7 @@ public class MultithreadExpansion extends BMinHashOpt {
             this.index = index;
         }
         @Override
-        public int[] call() throws InterruptedException {
+        public Integer call() throws InterruptedException {
             long startHopTime = System.currentTimeMillis();
             long lastLogTime = startHopTime;
             long logTime;
@@ -698,7 +713,7 @@ public class MultithreadExpansion extends BMinHashOpt {
             int h = 0;
             boolean signatureIsChanged = true;
             //int[] hopTable = new int[g.numNodes()];
-            int[] hopTable = new int[1];
+            //int[] hopTable = new int[1];
             for (int s = start; s < end ; s++) {
                 // Initializing variables
                 p_prev = new int[lengthBitsArray(g.numNodes())];
@@ -772,8 +787,8 @@ public class MultithreadExpansion extends BMinHashOpt {
                                                     */
                                                     if (visited[neighbour] != 1){
                                                         visited[neighbour] = 1;
-                                                        mFareness[index][neighbour] += (short) h;
-                                                        mHarmonic[index][neighbour] += 1.0/(short) h;
+                                                        mFareness[index][neighbour] +=  h;
+                                                        mHarmonic[index][neighbour] += 1.0/h;
                                                     }
 
                                                 }
@@ -805,11 +820,12 @@ public class MultithreadExpansion extends BMinHashOpt {
                         h += 1;
                     }
                 }
+                mLastHops[index][task_id] = h-1;
                 task_id +=1;
 
             }
 
-        return hopTable;
+        return 0;
 
         }
 

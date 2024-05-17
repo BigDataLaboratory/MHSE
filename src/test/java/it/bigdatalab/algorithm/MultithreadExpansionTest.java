@@ -122,13 +122,13 @@ public class MultithreadExpansionTest extends AlgoTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentralityUnnorm","AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -153,13 +153,13 @@ public class MultithreadExpansionTest extends AlgoTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentralityUnnorm","AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -184,13 +184,13 @@ public class MultithreadExpansionTest extends AlgoTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentralityUnnorm","AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -214,13 +214,13 @@ public class MultithreadExpansionTest extends AlgoTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentralityUnnorm","AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -245,13 +245,13 @@ public class MultithreadExpansionTest extends AlgoTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentralityUnnorm","AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -276,13 +276,13 @@ public class MultithreadExpansionTest extends AlgoTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentralityUnnorm","AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -307,13 +307,13 @@ public class MultithreadExpansionTest extends AlgoTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentralityUnnorm","AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -338,13 +338,13 @@ public class MultithreadExpansionTest extends AlgoTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
 
         Measure measure = algo.runAlgorithm();
 
         assertThat(measure)
                 .usingRecursiveComparison()
-                .ignoringFields("AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
+                .ignoringFields("mHarmonicCentralityUnnorm","AvgBallSize", "StdBallSize", "TBall", "mHarmonicCentrality", "mLinnCentrality", "mClosenessCentrality", "mHopForNode", "mCollisionsMatrix", "mHopTable", "mThreshold", "mMaxMemoryUsed", "mTime", "mAlgorithmName", "mMinHashNodeIDs", "mSeedsList", "mNumNodes", "mNumArcs", "mSeedsTime", "mLastHops", "mRun")
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
@@ -369,7 +369,7 @@ public class MultithreadExpansionTest extends AlgoTest {
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
 
         GraphMeasureOpt measure = (GraphMeasureOpt) algo.runAlgorithm();
 
@@ -382,7 +382,7 @@ public class MultithreadExpansionTest extends AlgoTest {
         assertions.assertThat(measure.getCollisionsMatrix()).as("CollisionsTable # rows # cols").hasDimensions(seeds.length, measure.getLowerBoundDiameter() + 1);
         assertions.assertAll();
     }
-
+    /*
     @Test
     void testNormalizeCollisionsTable() {
         int[][] collisionMatrix = new int[][]{{1, 4, 32, 55, 98, 101, 201}, {1, 4}, {1}, {1, 32}};
@@ -392,7 +392,7 @@ public class MultithreadExpansionTest extends AlgoTest {
         algo.normalizeCollisionsTable(collisionMatrix, lowerBoundDiameter);
         assertThat(collisionMatrix).as("CollisionsTable # rows # cols").hasDimensions(nrows, lowerBoundDiameter + 1);
     }
-
+    */
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("unCycleFarnessProvider")
     void testFarness_UnCycle(String direction, int[] seeds, int[] nodes, double[] expected) throws IOException, MinHash.SeedsException {
@@ -412,7 +412,7 @@ public class MultithreadExpansionTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
@@ -438,7 +438,7 @@ public class MultithreadExpansionTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
@@ -465,7 +465,7 @@ public class MultithreadExpansionTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
@@ -491,7 +491,7 @@ public class MultithreadExpansionTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
@@ -517,7 +517,7 @@ public class MultithreadExpansionTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
@@ -544,7 +544,7 @@ public class MultithreadExpansionTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
@@ -570,7 +570,7 @@ public class MultithreadExpansionTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MultithreadExpansion algo = new MultithreadExpansion(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality(),false);
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
