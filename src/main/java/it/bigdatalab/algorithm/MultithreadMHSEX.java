@@ -384,7 +384,7 @@ public class MultithreadMHSEX extends MinHash {
                                     boolean tmp_saturated = true;
                                     for (int s = 0; s < mNumSeeds; s++) {
                                         sMask = (Constants.BIT << mRemainder[s]);
-
+                                        // Use map as Daniele san said
                                         // check if the s-th element of the node n signature
                                         // it's 0, else jump to the next s-th element of the signature
                                         if (((sMask & mSignMutable[n][mPosition[s]]) >>> mRemainder[s]) == 0) {
