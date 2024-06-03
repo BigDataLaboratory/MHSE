@@ -44,9 +44,6 @@ public class MinHashFactory {
             case SEBMHSEMulti:
                 minHashAlgorithm = new MultithreadBMinHash(g, numSeeds, threshold, nodes, threads, centrality);
                 break;
-            case BMHSEMulti:
-                minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, nodes, threads, centrality);
-                break;
             case Expansion:
                 minHashAlgorithm = new MultithreadExpansion(g, numSeeds, threshold, nodes, threads, centrality,normalized);
                 break;
@@ -93,9 +90,6 @@ public class MinHashFactory {
                 break;
             case SEBMHSEMulti:
                 minHashAlgorithm = new MultithreadBMinHash(g, numSeeds, threshold, threads, centrality);
-                break;
-            case BMHSEMulti:
-                minHashAlgorithm = new MultithreadMHSEX(g, numSeeds, threshold, threads, centrality);
                 break;
             case Expansion:
                 minHashAlgorithm = new MultithreadExpansion(g, numSeeds, threshold, threads, centrality,normalized);

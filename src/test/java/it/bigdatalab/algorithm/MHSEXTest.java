@@ -338,7 +338,7 @@ class MHSEXTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MultithreadMHSEX algo = new MultithreadMHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();

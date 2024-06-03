@@ -26,7 +26,7 @@ public class PropagateP extends BMinHashOpt {
     private double[][] mHarmonic;
 
     /**
-     * Creates a new MHSE X instance with default values
+     * Creates a new PropagateP instance with default values
      */
     public PropagateP(final ImmutableGraph g, int numSeeds, double threshold, int[] nodes, int threads, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold, nodes);
@@ -35,7 +35,7 @@ public class PropagateP extends BMinHashOpt {
     }
 
     /**
-     * Creates a new MHSE X instance with default values
+     * Creates a new PropagateP instance with default values
      */
     public PropagateP(final ImmutableGraph g, int numSeeds, double threshold, int threads, boolean centrality) throws SeedsException {
         super(g, numSeeds, threshold);
@@ -83,7 +83,7 @@ public class PropagateP extends BMinHashOpt {
             mHopForNodes = new long[ntasks][mGraph.numNodes()];
             mHarmonic = new double[ntasks][mGraph.numNodes()];
         }
-        
+
         ExecutorService executor = Executors.newFixedThreadPool(ntasks); //creating a pool of threads
         List<IterationThread> todo = new ArrayList<>(ntasks);
         for (int t = 0; t < ntasks; t++) {

@@ -10,7 +10,6 @@ public enum AlgorithmEnum {
     SEBMHSE,
     SEBMHSEMulti,
     Expansion,
-    BMHSEMulti,
     RandomBFS,
     PropagateP
 }
