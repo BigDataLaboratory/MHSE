@@ -659,10 +659,12 @@ public class MultithreadExpansion extends BMinHashOpt {
                                                         mHopForNodes[neighbour][s] = (short) h;
                                                     }
                                                     */
-                                                    if (visited[neighbour] != 1){
+                                                    if (visited[neighbour] != 1) {
                                                         visited[neighbour] = 1;
-                                                        mFareness[this.index][neighbour] +=  h;
-                                                        mHarmonic[this.index][neighbour] += 1.0/h;
+
+                                                        mFareness[this.index][neighbour] += h;
+                                                        mHarmonic[this.index][neighbour] += 1.0 / h;
+
                                                     }
 
                                                 }

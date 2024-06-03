@@ -164,7 +164,8 @@ public class PropagateP extends BMinHashOpt {
         graphMeasure.setSeedsList(mSeeds);
         if (mDoCentrality) {
             graphMeasure.setFarness(farness);
-            graphMeasure.setInverseFarness(harmonic);
+            //graphMeasure.setInverseFarness(harmonic);
+            graphMeasure.setHarmonicCentrality(harmonic);
         }
         graphMeasure.setNumSeeds(mNumSeeds);
         graphMeasure.setTime(totalTime);
