@@ -452,11 +452,6 @@ public class MultithreadMHSEX extends MinHash {
                     }
                 }
 
-
-
-
-
-
             return 0;
         }
     }

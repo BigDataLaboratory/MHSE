@@ -5,6 +5,8 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static it.bigdatalab.algorithm.AlgorithmEnum.PropagateP;
+
 public class MinHashFactory {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHashFactory");
@@ -50,6 +52,9 @@ public class MinHashFactory {
                 break;
             case RandomBFS:
                 minHashAlgorithm = new RandomBFS(g, numSeeds, threshold, nodes, threads, centrality);
+                break;
+            case PropagateP:
+                minHashAlgorithm = new PropagateP(g, numSeeds, threshold, nodes, threads, centrality);
                 break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
@@ -97,6 +102,9 @@ public class MinHashFactory {
                 break;
             case RandomBFS:
                 minHashAlgorithm = new RandomBFS(g, numSeeds, threshold, threads, centrality);
+                break;
+            case PropagateP:
+                minHashAlgorithm = new PropagateP(g, numSeeds, threshold, threads, centrality);
                 break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");

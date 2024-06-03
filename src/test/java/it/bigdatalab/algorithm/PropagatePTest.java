@@ -16,9 +16,9 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class MHSEXTest extends AlgoTest {
+public class PropagatePTest extends AlgoTest {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MHSEBSideTest");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.PropagatePTest");
 
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("cycleProvider")
@@ -35,11 +35,12 @@ class MHSEXTest extends AlgoTest {
                 .setSeedsRandom(false)
                 .setComputeCentrality(false)
                 .setThreshold(0.9)
+                .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         GraphMeasureOpt measure = (GraphMeasureOpt) algo.runAlgorithm();
 
@@ -49,7 +50,6 @@ class MHSEXTest extends AlgoTest {
                 .withComparatorForFields(mLessThan, "mLowerBoundDiameter")
                 .isEqualTo(expected);
     }
-
     @ParameterizedTest(name = "{index} => direction={0}, seeds={1}, nodes={2}, expected={3}")
     @MethodSource("pathProvider")
     void testAlgorithm_DiPath(String direction, int[] seeds, int[] nodes, Measure expected) throws IOException, MinHash.SeedsException {
@@ -65,11 +65,12 @@ class MHSEXTest extends AlgoTest {
                 .setSeedsRandom(false)
                 .setComputeCentrality(false)
                 .setThreshold(0.9)
+                .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -95,11 +96,12 @@ class MHSEXTest extends AlgoTest {
                 .setSeedsRandom(false)
                 .setComputeCentrality(false)
                 .setThreshold(0.9)
+                .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -125,11 +127,12 @@ class MHSEXTest extends AlgoTest {
                 .setSeedsRandom(false)
                 .setComputeCentrality(false)
                 .setThreshold(0.9)
+                .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -155,11 +158,12 @@ class MHSEXTest extends AlgoTest {
                 .setSeedsRandom(false)
                 .setComputeCentrality(false)
                 .setThreshold(0.9)
+                .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -185,11 +189,12 @@ class MHSEXTest extends AlgoTest {
                 .setSeedsRandom(false)
                 .setComputeCentrality(false)
                 .setThreshold(0.9)
+                .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -215,11 +220,12 @@ class MHSEXTest extends AlgoTest {
                 .setSeedsRandom(false)
                 .setComputeCentrality(false)
                 .setThreshold(0.9)
+                .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -245,11 +251,12 @@ class MHSEXTest extends AlgoTest {
                 .setSeedsRandom(false)
                 .setComputeCentrality(false)
                 .setThreshold(0.9)
+                .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
 
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
 
         Measure measure = algo.runAlgorithm();
 
@@ -262,7 +269,7 @@ class MHSEXTest extends AlgoTest {
 
     @Test
     void testLenghtBitsArray() {
-        MHSEX algo = new MHSEX(null, 4, 0.9, new int[]{0, 1, 2, 3}, false);
+        PropagateP algo = new PropagateP(null, 4, 0.9, new int[]{0, 1, 2, 3}, 4, false);
         int expected = 1;
         int actual = algo.lengthBitsArray(20);
         assertThat(actual).isEqualTo(expected);
@@ -283,11 +290,12 @@ class MHSEXTest extends AlgoTest {
                 .setSeedsRandom(false)
                 .setThreshold(0.9)
                 .setComputeCentrality(true)
-                .setNumThreads(1)
+                .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
@@ -309,10 +317,11 @@ class MHSEXTest extends AlgoTest {
                 .setSeedsRandom(false)
                 .setThreshold(0.9)
                 .setComputeCentrality(true)
+                .setNumThreads(4)
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
@@ -338,7 +347,7 @@ class MHSEXTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MultithreadMHSEX algo = new MultithreadMHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
@@ -364,7 +373,7 @@ class MHSEXTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
@@ -390,7 +399,7 @@ class MHSEXTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
@@ -416,7 +425,7 @@ class MHSEXTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
@@ -442,7 +451,7 @@ class MHSEXTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
         Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
@@ -468,8 +477,8 @@ class MHSEXTest extends AlgoTest {
                 .build();
 
         ImmutableGraph g = GraphUtils.loadGraph(param.getInputFilePathGraph(), param.isTranspose(), param.isInMemory(), param.keepIsolatedVertices(), param.getDirection());
-        MHSEX algo = new MHSEX(g, param.getNumSeeds(), param.getThreshold(), nodes, param.computeCentrality());
-        Measure measure = algo.runAlgorithm();
+        PropagateP algo = new PropagateP(g, param.getNumSeeds(), param.getThreshold(), nodes, param.getNumThreads(), param.computeCentrality());
+            Measure measure = algo.runAlgorithm();
 
         double[] farness = measure.getFarness();
         assertThat(expected).containsExactly(farness);
