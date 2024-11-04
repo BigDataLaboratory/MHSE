@@ -21,6 +21,7 @@ public class MinHashFactory {
                                 AlgorithmEnum type,
                                 int numSeeds,
                                 double threshold,
+
                                 IntArrayList seeds,
                                 int[] nodes,
                                 int threads,
@@ -53,6 +54,9 @@ public class MinHashFactory {
             case PropagateP:
                 minHashAlgorithm = new PropagateP(g, numSeeds, threshold, nodes, threads, centrality);
                 break;
+           // case RndExpansion:
+            //    minHashAlgorithm = new MultithreadRandomExpansion(g, numSeeds, threshold, t,nodes, threads, centrality);
+             //   break;
             default:
                 throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
         }
