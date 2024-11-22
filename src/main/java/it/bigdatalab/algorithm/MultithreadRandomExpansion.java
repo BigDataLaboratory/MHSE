@@ -189,8 +189,7 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
                 p_next = new int[lengthBitsArray(g.numNodes())];
                 expanded = new int[lengthBitsArray(g.numNodes())];
                 r = Math.random();
-                h_max = (int) Math.floor(rndT / r);
-
+                h_max = (int) Math.floor(rndT/r);
                 Arrays.fill(visited, 0);
                 randomNode = mMinHashNodeIDs[s];
                 visited[randomNode] = 1;
@@ -202,6 +201,7 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
                 while (signatureIsChanged) {
                     //first hop - initialization
                     if (h == 0) {
+
 
                         // take a long number, if we divide it to power of 2, quotient is in the first 6 bit, remainder
                         // in the last 58 bit. So, move the remainder to the left, and then to the right to delete the quotient.
@@ -259,6 +259,7 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
                     if (h > h_max) {
                         signatureIsChanged = false;
                     }
+                    h++;
                 }
                 task_id += 1;
 
