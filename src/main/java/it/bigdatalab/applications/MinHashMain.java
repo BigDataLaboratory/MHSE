@@ -227,28 +227,37 @@ public class MinHashMain extends Main{
 
         MinHash minHash;
         for (int i = 0; i < numTest; i++) {
-
-            MinHash minHash = mParam.isSeedsRandom() ?
-                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), mParam.getNumThreads(), mParam.computeCentrality(),mParam.persistUnnormalized()) :
-                    mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), seedsNodes.get(i).getSeeds(), seedsNodes.get(i).getNodes(), mParam.getNumThreads(), mParam.computeCentrality(),mParam.persistUnnormalized());
-
+            if (Objects.equals(mParam.getAlgorithmName(), "RndExpansion")){
+                minHash = mParam.isSeedsRandom() ?
+                        mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getTBall(), mParam.getNumThreads(), mParam.persistUnnormalized()) :
+                        mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getTBall(), seedsNodes.get(i).getNodes(), mParam.getNumThreads(), mParam.persistUnnormalized());
+            } else {
+                minHash = mParam.isSeedsRandom() ?
+                        mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), mParam.getNumThreads(), mParam.computeCentrality(), mParam.persistUnnormalized()) :
+                        mhf.getAlgorithm(g, AlgorithmEnum.valueOf(mParam.getAlgorithmName()), mParam.getNumSeeds(), mParam.getThreshold(), seedsNodes.get(i).getSeeds(), seedsNodes.get(i).getNodes(), mParam.getNumThreads(), mParam.computeCentrality(), mParam.persistUnnormalized());
+            }
             measure = minHash.runAlgorithm();
             measure.setAlgorithmName(mParam.getAlgorithmName());
             measure.setRun(i + 1);
             measure.setDirection(mParam.getDirection());
-
-            logger.info("\n\n********************* Stats ****************************\n\n" +
-                            "Lower Bound Diameter\t{}\n" +
-                            "Total Couples Reachable\t{}\n" +
-                            "Total couples Percentage\t{}\n" +
-                            "Avg Distance\t{}\n" +
-                            "Effective Diameter\t{}\n" +
-                            "\n********************************************************\n\n",
-                    measure.getLowerBoundDiameter(),
-                    BigDecimal.valueOf(measure.getTotalCouples()).toPlainString(),
-                    BigDecimal.valueOf(measure.getTotalCouplePercentage()).toPlainString(),
-                    measure.getAvgDistance(),
-                    measure.getEffectiveDiameter());
+            if(Objects.equals(mParam.getAlgorithmName(), "RndExpansion")) {
+                logger.info("\n\n********************* Stats ****************************\n\n" +
+                                "Centrality successfully computed\n"+
+                                "\n********************************************************\n\n");
+            } else {
+                logger.info("\n\n********************* Stats ****************************\n\n" +
+                                "Lower Bound Diameter\t{}\n" +
+                                "Total Couples Reachable\t{}\n" +
+                                "Total couples Percentage\t{}\n" +
+                                "Avg Distance\t{}\n" +
+                                "Effective Diameter\t{}\n" +
+                                "\n********************************************************\n\n",
+                        measure.getLowerBoundDiameter(),
+                        BigDecimal.valueOf(measure.getTotalCouples()).toPlainString(),
+                        BigDecimal.valueOf(measure.getTotalCouplePercentage()).toPlainString(),
+                        measure.getAvgDistance(),
+                        measure.getEffectiveDiameter());
+            }
 
             if (!mParam.persistCollisionTable()) {
                 if (measure instanceof GraphMeasureOpt) {

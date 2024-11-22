@@ -19,11 +19,10 @@ import java.util.concurrent.TimeUnit;
 
 public class MultithreadRandomExpansion extends BMinHashOpt {
 
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadExpansion");
+Bu    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadRandomExpansion");
 
     private final int mNumberOfThreads;
     private final double[] mSeedTime;
-    private final boolean mDoCentrality;
     private final boolean mUnnormalized;
     private final float rndT;
     private double[][] mHarmonic;
@@ -79,18 +78,16 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
 
         int task_size = (int) Math.ceil((double) mNumSeeds / ntasks);
 
-        if (mDoCentrality) {
 
-            mHarmonic = new double[ntasks][mGraph.numNodes()];
+        mHarmonic = new double[ntasks][mGraph.numNodes()];
 
-        }
+
         ExecutorService executor = Executors.newFixedThreadPool(ntasks); //creating a pool of threads
         List<MultithreadRandomExpansion.IterationThread> todo = new ArrayList<>(ntasks);
         for (int t = 0; t < ntasks; t++) {
             int start = t * task_size;
             int end = Math.min((t + 1) * task_size, mNumSeeds);
-            //logger.debug("Thread {}/{} start {} end {} ",t,ntasks,start,end);
-            todo.add(new MultithreadRandomExpansion.IterationThread(mGraph.copy(),start,end,t));
+            todo.add(new MultithreadRandomExpansion.IterationThread(mGraph.copy(), start, end, t));
         }
 
         try {
@@ -138,7 +135,9 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
             graphMeasure.setHarmonicCentralityUnnorm(unnorm_harmonic);
         }
 
-        }
+
+        graphMeasure.setTBall(rndT);
+
         graphMeasure.setThreshold(mThreshold);
         graphMeasure.setSeedsTime(mSeedTime);
         graphMeasure.setTime(totalTime);
@@ -247,7 +246,7 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
 
                                                 }
 
-                                                }
+
                                                 signatureIsChanged = true;
                                             }
                                         }
