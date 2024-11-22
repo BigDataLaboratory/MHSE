@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MultithreadRandomExpansion extends BMinHashOpt {
 
-Bu    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadRandomExpansion");
+    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MultithreadRandomExpansion");
 
     private final int mNumberOfThreads;
     private final double[] mSeedTime;
