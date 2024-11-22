@@ -49,6 +49,20 @@ public abstract class MinHash {
         this.mMinHashNodeIDs = new int[mNumSeeds];
     }
 
+    public MinHash(final ImmutableGraph g, int numSeeds, int[] nodes) {
+        if (numSeeds != (nodes != null ? nodes.length : 0))
+            throw new SeedsException("Specified different number of seeds in properties. \"minhash.numSeeds\" is " + mNumSeeds + " and length of seeds list is " + nodes.length);
+        this.mNumSeeds = numSeeds;
+        this.mGraph = g;
+        this.mMinHashNodeIDs = nodes;
+    }
+
+    public MinHash(final ImmutableGraph g, int numSeeds) {
+        this.mNumSeeds = numSeeds;
+        this.mGraph = g;
+        this.mMinHashNodeIDs = new int[mNumSeeds];
+    }
+
     public abstract Measure runAlgorithm() throws IOException;
 
     public int[] getNodes() {

@@ -16,6 +16,14 @@ public abstract class BMinHashOpt extends MinHash {
         super(g, numSeeds, threshold);
     }
 
+    public BMinHashOpt(final ImmutableGraph g, int numSeeds, int[] nodes) {
+        super(g, numSeeds, nodes);
+    }
+
+    public BMinHashOpt(final ImmutableGraph g, int numSeeds) {
+        super(g, numSeeds);
+    }
+
     public int lengthBitsArray(int numberOfNodes) {
         return (int) Math.ceil(numberOfNodes / (double) Integer.SIZE);
     }

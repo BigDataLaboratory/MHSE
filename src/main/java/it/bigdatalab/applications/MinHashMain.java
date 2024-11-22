@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 public class MinHashMain extends Main{
@@ -87,6 +88,7 @@ public class MinHashMain extends Main{
         boolean reorder = Boolean.parseBoolean(PropertiesManager.getPropertyIfNotEmpty("minhash.reorder"));
 
         double threshold = Double.parseDouble(PropertiesManager.getPropertyIfNotEmpty("minhash.threshold"));
+        float t = Float.parseFloat(PropertiesManager.getPropertyIfNotEmpty("minhash.t"));
         boolean inMemory = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.inMemory", Constants.FALSE));
         boolean computeCentrality = Boolean.parseBoolean(PropertiesManager.getProperty("minhash.computeCentrality", Constants.FALSE));
         int suggestedNumberOfThreads = Integer.parseInt(PropertiesManager.getProperty("minhash.suggestedNumberOfThreads", Constants.NUM_THREAD_DEFAULT));
@@ -106,6 +108,7 @@ public class MinHashMain extends Main{
                 .setIsolatedVertices(isolatedVertices)
                 .setRange(range)
                 .setThreshold(threshold)
+                .setTBall(t)
                 .setDirection(direction)
                 .setComputeCentrality(computeCentrality)
                 .setReordering(reorder)
@@ -125,6 +128,7 @@ public class MinHashMain extends Main{
                         "number of seeds {}, automatic range? {}\n" +
                         "direction is: {}\n" +
                         "threshold for eff. diameter is: {}\n" +
+                        "t value is: {}\n" +
                         "graph will be reordered by outdegree: {}\n" +
                         "algorithm must compute centrality: {}\n" +
                         "persist farness for centrality: {}\n" +
@@ -141,6 +145,7 @@ public class MinHashMain extends Main{
                 param.getNumSeeds(), param.isAutomaticRange(),
                 param.getDirection(),
                 param.getThreshold(),
+                param.getTBall(),
                 param.getReordering(),
                 param.computeCentrality(),
                 param.persistFarness(),
@@ -220,6 +225,7 @@ public class MinHashMain extends Main{
 
         MinHashFactory mhf = new MinHashFactory();
 
+        MinHash minHash;
         for (int i = 0; i < numTest; i++) {
 
             MinHash minHash = mParam.isSeedsRandom() ?

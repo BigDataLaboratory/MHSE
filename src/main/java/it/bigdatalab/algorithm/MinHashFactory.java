@@ -5,11 +5,30 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 import static it.bigdatalab.algorithm.AlgorithmEnum.PropagateP;
 
 public class MinHashFactory {
 
     public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.algorithm.MinHashFactory");
+
+    public MinHash getAlgorithm(ImmutableGraph g,
+                                AlgorithmEnum type,
+                                int numSeeds,
+                                float t,
+                                int[] nodes,
+                                int threads,
+                                boolean normalized) throws IllegalArgumentException {
+        MinHash minHashAlgorithm = null;
+        if (Objects.requireNonNull(type) == AlgorithmEnum.RndExpansion) {
+            minHashAlgorithm = new MultithreadRandomExpansion(g, numSeeds, t, nodes, threads, normalized);
+        } else {
+            throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
+        }
+        logger.info("Selected " + type + " algorithm");
+        return minHashAlgorithm;
+    }
 
     /**
      * Choose one of the algorithm to be executed by the type passed as parameter
@@ -21,11 +40,11 @@ public class MinHashFactory {
                                 AlgorithmEnum type,
                                 int numSeeds,
                                 double threshold,
-
                                 IntArrayList seeds,
                                 int[] nodes,
                                 int threads,
-                                boolean centrality,boolean normalized) throws IllegalArgumentException, MinHash.SeedsException {
+                                boolean centrality,
+                                boolean normalized) throws IllegalArgumentException {
 
         MinHash minHashAlgorithm = null;
 
@@ -54,11 +73,22 @@ public class MinHashFactory {
             case PropagateP:
                 minHashAlgorithm = new PropagateP(g, numSeeds, threshold, nodes, threads, centrality);
                 break;
-           // case RndExpansion:
-            //    minHashAlgorithm = new MultithreadRandomExpansion(g, numSeeds, threshold, t,nodes, threads, centrality);
-             //   break;
-            default:
-                throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
+        }
+        logger.info("Selected " + type + " algorithm");
+        return minHashAlgorithm;
+    }
+
+    public MinHash getAlgorithm(ImmutableGraph g,
+                                AlgorithmEnum type,
+                                int numSeeds,
+                                float t,
+                                int threads,
+                                boolean normalized) throws IllegalArgumentException {
+        MinHash minHashAlgorithm = null;
+        if (Objects.requireNonNull(type) == AlgorithmEnum.RndExpansion) {
+            minHashAlgorithm = new MultithreadRandomExpansion(g, numSeeds, t, threads, normalized);
+        } else {
+            throw new IllegalArgumentException("Algorithm name " + type + " not recognized");
         }
         logger.info("Selected " + type + " algorithm");
         return minHashAlgorithm;
@@ -75,7 +105,8 @@ public class MinHashFactory {
                                 int numSeeds,
                                 double threshold,
                                 int threads,
-                                boolean centrality,boolean normalized) throws IllegalArgumentException, MinHash.SeedsException {
+                                boolean centrality,
+                                boolean normalized) throws IllegalArgumentException {
 
         MinHash minHashAlgorithm = null;
 

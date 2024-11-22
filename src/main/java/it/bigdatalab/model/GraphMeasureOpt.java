@@ -19,8 +19,6 @@ public class GraphMeasureOpt extends Measure {
     private double[] mHarmonicCentrality;
     @SerializedName("harmonic_centrality_unnorm")
     private double[] mHarmonicCentralityUnnorm;
-    //@SerializedName("harmonic_centrality_apx_topk")
-    //private Hasm[] mHarmonicCentralityTopK;
     @SerializedName("linn_centrality_apx")
     private double[] mLinnCentrality;
     @SerializedName("t_ball_size")

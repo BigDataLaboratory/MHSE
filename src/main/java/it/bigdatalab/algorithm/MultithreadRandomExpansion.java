@@ -4,7 +4,6 @@ import it.bigdatalab.applications.CreateSeeds;
 import it.bigdatalab.model.GraphMeasureOpt;
 import it.bigdatalab.model.Measure;
 import it.bigdatalab.utils.Constants;
-import it.bigdatalab.utils.Stats;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class MultithreadRandomExpansion extends BMinHashOpt {
 
@@ -23,34 +25,30 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
     private final double[] mSeedTime;
     private final boolean mDoCentrality;
     private final boolean mUnnormalized;
-    private long startTime;
-
-    private double [][] mHarmonic;
-
-    private final float rnd_t;
+    private final float rndT;
+    private double[][] mHarmonic;
 
     /**
      * Creates a new MultithreadExpansion instance with default values
      */
-    public MultithreadRandomExpansion(final ImmutableGraph g, int numSeeds, double threshold,float t, int[] nodes, int threads, boolean centrality,boolean normalized) {
-        super(g, numSeeds, threshold, nodes);
+    public MultithreadRandomExpansion(final ImmutableGraph g, int numSeeds, float t, int[] nodes, int threads, boolean normalized) {
+        super(g, numSeeds, nodes);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         this.mSeedTime = new double[mNumSeeds];
-        mDoCentrality = centrality;
-        mUnnormalized = normalized;
-        this.rnd_t = t;
+        this.mUnnormalized = normalized;
+        this.rndT = t;
     }
+
     /**
      * Creates a new MultithreadExpansion instance with default values
      */
-    public MultithreadRandomExpansion(final ImmutableGraph g, int numSeeds, double threshold, float t, int threads, boolean centrality, boolean normalized) {
-        super(g, numSeeds, threshold);
+    public MultithreadRandomExpansion(final ImmutableGraph g, int numSeeds, float t, int threads, boolean normalized) {
+        super(g, numSeeds);
         this.mNumberOfThreads = getNumberOfMaxThreads(threads);
         this.mSeedTime = new double[mNumSeeds];
         this.mMinHashNodeIDs = CreateSeeds.genNodes(mNumSeeds, mGraph.numNodes());
-        mDoCentrality = centrality;
-        mUnnormalized = normalized;
-        this.rnd_t = t;
+        this.mUnnormalized = normalized;
+        this.rndT = t;
     }
 
     /**
@@ -66,7 +64,7 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
     }
 
     public Measure runAlgorithm() throws IOException {
-        startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         long totalTime;
 
         int[] vs_active = new int[mNumSeeds];
@@ -75,7 +73,7 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
         }
         int d = mNumSeeds / mNumberOfThreads;
         int r = mNumSeeds % mNumberOfThreads;
-        int ntasks = (d== 0) ? r:mNumberOfThreads;
+        int ntasks = (d == 0) ? r : mNumberOfThreads;
         logger.debug("Number of threads to be used {}", ntasks);
 
 
@@ -95,7 +93,7 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
             todo.add(new MultithreadRandomExpansion.IterationThread(mGraph.copy(),start,end,t));
         }
 
-        try{
+        try {
             executor.invokeAll(todo);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -113,40 +111,32 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
         // Reduction phase
 
         double[] harmonic = new double[0];
-        //double [] farness = new double[0];
-        double [] unnorm_harmonic = new double[0];
-        if (mDoCentrality) {
-            harmonic = new double[mGraph.numNodes()];
-            //farness = new double[mGraph.numNodes()];
-            unnorm_harmonic = new double[mGraph.numNodes()];
-        }
+        double[] unnorm_harmonic = new double[0];
+
+        harmonic = new double[mGraph.numNodes()];
+        unnorm_harmonic = new double[mGraph.numNodes()];
+
 
         for (int i = 0; i < mGraph.numNodes(); i++) {
             for (int j = 0; j < ntasks; j++) {
-                if (mDoCentrality) {
-                    harmonic[i] += mHarmonic[j][i];
-                    //farness[i] += mFareness[j][i];
-                }
+                harmonic[i] += mHarmonic[j][i];
+            }
 
+            if (mUnnormalized) {
+                unnorm_harmonic[i] = harmonic[i] * mGraph.numNodes() / mNumSeeds / rndT;
             }
-            if (mDoCentrality) {
-                if (mUnnormalized){
-                    unnorm_harmonic[i]  = (double) harmonic[i] *  mGraph.numNodes() /mNumSeeds /rnd_t;
-                }
-                //farness[i] =  (double) farness[i] *  mGraph.numNodes() / mNumSeeds;
-                harmonic[i] =  (double) harmonic[i] *  mGraph.numNodes() /(mGraph.numNodes()-1)/ mNumSeeds/rnd_t;
-            }
+            harmonic[i] = harmonic[i] * mGraph.numNodes() / (mGraph.numNodes() - 1) / mNumSeeds / rndT;
+
         }
 
         GraphMeasureOpt graphMeasure = new GraphMeasureOpt();
         graphMeasure.setNumNodes(mGraph.numNodes());
         graphMeasure.setNumSeeds(mNumSeeds);
-        if (mDoCentrality) {
-            //graphMeasure.setFarness(farness);
-            graphMeasure.setHarmonicCentrality(harmonic);
-            if (mUnnormalized){
-                graphMeasure.setHarmonicCentralityUnnorm(unnorm_harmonic);
-            }
+
+        graphMeasure.setHarmonicCentrality(harmonic);
+        if (mUnnormalized) {
+            graphMeasure.setHarmonicCentralityUnnorm(unnorm_harmonic);
+        }
 
         }
         graphMeasure.setThreshold(mThreshold);
@@ -164,23 +154,22 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
         private final int start;
         private final int end;
         private final int index;
-        public IterationThread(ImmutableGraph g, int start, int end ,int index) {
+
+        public IterationThread(ImmutableGraph g, int start, int end, int index) {
             this.g = g;
             this.start = start;
             this.end = end;
             this.index = index;
         }
+
         @Override
-        public Integer call() throws InterruptedException {
-            long startHopTime = System.currentTimeMillis();
-            long lastLogTime = startHopTime;
-            long logTime;
-            int collisions;
+        public Integer call() {
+
 
             int[] p_prev = new int[1];
             int[] p_next = new int[1];
             int[] expanded = new int[1];
-            int[] visited =new int[g.numNodes()];
+            int[] visited = new int[g.numNodes()];
             int randomNode = -1;
             int task_id = 0;
             int remainderPositionNeigh;
@@ -190,36 +179,25 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
             int quotientNode;
             int node;
             int bit;
-            int h = 0;
+            int h;
             int h_max;
             double r;
-            boolean signatureIsChanged = true;
-            //int[] hopTable = new int[g.numNodes()];
-            //int[] hopTable = new int[1];
-            for (int s = start; s < end ; s++) {
+            boolean signatureIsChanged;
+
+            for (int s = start; s < end; s++) {
                 // Initializing variables
                 p_prev = new int[lengthBitsArray(g.numNodes())];
                 p_next = new int[lengthBitsArray(g.numNodes())];
                 expanded = new int[lengthBitsArray(g.numNodes())];
-                //visited = new int[g.numNodes()];
                 r = Math.random();
-                h_max = (int) Math.floor(rnd_t / r);
+                h_max = (int) Math.floor(rndT / r);
 
-                Arrays.fill(visited,0);
+                Arrays.fill(visited, 0);
                 randomNode = mMinHashNodeIDs[s];
                 visited[randomNode] = 1;
 
-                remainderPositionNeigh = 0;
-                quotientNeigh = 0;
-
-                remainderPositionNode = 0;
-                quotientNode = 0;
-                node = 0;
-                bit  = 0;
-
                 h = 0;
                 signatureIsChanged = true;
-                //hopTable = new int[1];
 
 
                 while (signatureIsChanged) {
@@ -262,20 +240,12 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
                                             remainderPositionNeigh = (neighbour << Constants.REMAINDER) >>> Constants.REMAINDER;
                                             p_next[quotientNeigh] |= (Constants.BIT) << remainderPositionNeigh;
                                             if ((p_next[quotientNeigh] ^ p_prev[quotientNeigh]) != 0) {
-                                                if (mDoCentrality) {
-                                                    /*
-                                                    int bit_neigh_next = (p_next[quotientNeigh] & ((Constants.BIT) << remainderPositionNeigh)) >>> remainderPositionNeigh;
-                                                    int bit_neigh_prev = (p_prev[quotientNeigh] & ((Constants.BIT) << remainderPositionNeigh)) >>> remainderPositionNeigh;
-                                                    if ((bit_neigh_next & bit_neigh_prev) != 1) {
-                                                        mHopForNodes[neighbour][s] = (short) h;
-                                                    }
-                                                    */
-                                                    if (visited[neighbour] != 1) {
-                                                        visited[neighbour] = 1;
 
-                                                        mHarmonic[this.index][neighbour] += 1.0;
+                                                if (visited[neighbour] != 1) {
+                                                    visited[neighbour] = 1;
+                                                    mHarmonic[this.index][neighbour] += 1.0;
 
-                                                    }
+                                                }
 
                                                 }
                                                 signatureIsChanged = true;
@@ -286,19 +256,18 @@ public class MultithreadRandomExpansion extends BMinHashOpt {
                             }
                         }
                     }
-                   // We don't need to count the collision, this algorithm is specific for the centrality.
-                    if (h > h_max){
+                    // We don't need to count the collision, this algorithm is specific for the centrality.
+                    if (h > h_max) {
                         signatureIsChanged = false;
                     }
                 }
-                task_id +=1;
+                task_id += 1;
 
             }
 
             return 0;
 
         }
-
 
 
     }
