@@ -1,7 +1,10 @@
-package it.bigdatalab.compression;
+package it.bigdatalab.compression.EliasFano;
 
-public final class Bits {
+/**
+ * Note by niaBaldoni: this is the Bits class from the compressionintegration branch
+ */
 
+public class Bits {
     private Bits() {
 
     }
@@ -117,4 +120,5 @@ public final class Bits {
 
         return val + (Byte.SIZE - (Integer.SIZE - Integer.numberOfLeadingZeros(x)));
     }
+
 }

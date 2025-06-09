@@ -1,9 +1,6 @@
-package it.bigdatalab.compression;
-
+package it.bigdatalab.compression.EliasFano;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,28 +8,23 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static com.zavtech.morpheus.util.Asserts.assertEquals;
+/**
+ * Note by niaBaldoni: this is the EliasGamma class from the compressionintegration branch
+ */
 
-// MUST BE COMPLETED!!!
-public class EliasGamma {
-    public static final Logger logger = LoggerFactory.getLogger("it.bigdatalab.compression.EliasFano");
-
-
+public class EliasFano {
     private int[][] offset;
     private byte[] compressedOffset;
     private byte[][] compressedAdjList;
     private byte[] compressedAdjListFlat;
 
-    public EliasGamma(){
+    public EliasFano() {
 
     }
 
-
     static long roundUp(long val, final long den) {
-
         val = val == 0 ? den : val;
         return (val % den == 0) ? val : val + (den - (val % den));
-
     }
 
     /**
@@ -46,7 +38,6 @@ public class EliasGamma {
      * @return the number of lower bits
      */
     public static int getL(final int u, final int length) {
-
         long x = roundUp(u, length) / length;
         return Integer.SIZE - Integer.numberOfLeadingZeros((int) (x - 1));
     }
@@ -125,8 +116,6 @@ public class EliasGamma {
 
         return (int) (roundUp(highBitsOffset, Byte.SIZE) / Byte.SIZE);
     }
-
-
 
     /**
      * Decompresses the idx-th element from the compressed array {@code in},
@@ -246,7 +235,6 @@ public class EliasGamma {
 
     }
 
-
     /**
      * Returns the number of time {@code val} occurs in the compressed array
      * {@code in}, starting from {@code inOffset}. The uncompressed array has
@@ -326,7 +314,6 @@ public class EliasGamma {
         return (float) (Math.log(x) / Math.log(2));
     }
 
-
     /**
      * Computes the length (in number of bytes) of the binary representation of an integer
      * @param number integer
@@ -334,9 +321,9 @@ public class EliasGamma {
      */
     public int get_bits_number(int number){
         int count = 0;
-        while(number >0){
-            if ((number&1)>0) {
-                count ++;
+        while (number > 0) {
+            if ((number & 1) > 0) {
+                count++;
             }
             number = number >> 1;
         }
@@ -357,54 +344,46 @@ public class EliasGamma {
         return buffer.getLong();
     }
 
-    public byte [] encodeAdjListFlat(int [][] matrix,boolean d_compression){
-        int node,edge,bytes,k,i,j;
-        byte [] encodedFlat;
-        byte [][] encoded;
-        byte [] edgeListEnc;
-        int [] edgeListToEnc;
-        int [][] off;
-
+    public byte[] encodeAdjListFlat(int[][] matrix) {
+        int node, edge, bytes, k, i, j;
+        byte[] encodedFlat;
+        byte[][] encoded;
+        byte[] edgeListEnc;
+        int[] edgeListToEnc;
+        int[][] off;
 
         // UTILIZZA QUESTA
         //https://github.com/vigna/Sux4J/blob/master/test/it/unimi/dsi/sux4j/mph/codec/CodecTest.java
-
 
         encoded = new byte[matrix.length][];
         // node, offset, length list, lowerbits
         off = new int[matrix.length][4];
         bytes = 0;
 
-        System.out.println("-------------------------------------");
+        for (node = 0; node < matrix.length; node++) {
+            int h = matrix[node].length - 1;
 
-        for(node = 0;node<matrix.length;node++){
-            int h = matrix[node].length-1;
-            System.out.println("LEN matrix[node].length-1 = "+h+ " matrix[node].length = "+matrix[node].length);
-
-            if (matrix[node].length-1 >=1){
+            if (matrix[node].length - 1 >= 1) {
                 edgeListToEnc = new int[matrix[node].length];
-                for(edge = 1;edge< matrix[node].length;edge++){
+                for(edge = 1; edge < matrix[node].length; edge++) {
                     edgeListToEnc[edge] = matrix[node][edge];
                     //System.out.println(edgeListToEnc[edge]);
                 }
                 //System.out.println(edgeListToEnc.length);
 
                 //System.out.println("-------------------------------------");
-               // EliasFanoLongBigList prova = new EliasFanoLongBigList(edgeListToEnc);
-
-
-
+                // EliasFanoLongBigList prova = new EliasFanoLongBigList(edgeListToEnc);
 
                 edgeListEnc = compress(edgeListToEnc, 0, edgeListToEnc.length);
 
                 bytes += edgeListEnc.length;
                 encoded[node] = edgeListEnc;
+
                 off[node][0] = matrix[node][0];
                 off[node][1] = bytes;
                 off[node][2] = edgeListToEnc.length;
                 off[node][3] = getL(edgeListToEnc[edgeListToEnc.length - 1], edgeListToEnc.length);
-
-            }else{
+            } else {
                 edgeListToEnc = new int[]{-1};
                 edgeListEnc = compress(edgeListToEnc, 0, edgeListToEnc.length);
                 bytes += edgeListEnc.length;
@@ -416,10 +395,11 @@ public class EliasGamma {
             }
 
         }
+
         encodedFlat = new byte[bytes];
         k = 0;
-        for(node =0;node<encoded.length;node++){
-            if (encoded[node]!= null) {
+        for (node = 0; node < encoded.length; node++) {
+            if (encoded[node] != null) {
                 for (edge = 0; edge < encoded[node].length; edge++) {
                     encodedFlat[k] = encoded[node][edge];
                     k += 1;
@@ -430,104 +410,57 @@ public class EliasGamma {
         offset = off;
         compressedAdjList = encoded;
         compressedAdjListFlat = encodedFlat;
-        return (encodedFlat);
-
-
+        return encodedFlat;
     }
-
-
 
     /**
      * Save on the disk the encoded adjacency list and its ofsset
      * @param outPath String of the output path
-     * @param instance String of the name of the file
      */
-
-    public void saveEncoding(String outPath,String instance) {
+    public void saveEncoding(String outPath) throws IOException {
 
         int n, m, i, k, q, j;
         m = 0;
         n = offset.length;
-        logger.info("Writing the encoded Graph and the offset file " );
 
 
         // Writing flattered encoding
-        try {
-            File f = new File(outPath + instance + ".txt");
-            if (f.createNewFile()) {
-                logger.info("File {} created ", f.getName());
+        File f = new File(outPath + ".txt");
 
-            } else {
-                logger.error("File already exists.");
-            }
+        FileUtils.writeByteArrayToFile(new File(outPath + ".txt"), compressedAdjListFlat);
 
-        } catch (IOException e) {
-            logger.error("An error occurred.");
-            e.printStackTrace();
-        }
-        try {
-            FileUtils.writeByteArrayToFile(new File(outPath+ instance + "_elias_.txt"), compressedAdjListFlat);
-
-            logger.info("Successfully written data to the file ");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         // Writing offset file
+        File off = new File(outPath + "_offset.txt");
 
-        try {
-            File off = new File(outPath + instance + "_offset_elias.txt");
-            if (off.createNewFile()) {
-                logger.info("File {} created ", off.getName());
+        BufferedWriter bw = new BufferedWriter(new FileWriter(outPath + "_offset.txt"));
 
-            } else {
-                logger.error("File already exists.");
+        for (i = 0; i < n; i++) {
+            m = offset[i].length;
+            for (j = 0; j < m; j++) {
+                bw.write(offset[i][j] + ((j == offset[i].length - 1) ? "" : "\t"));
             }
-        } catch (IOException e) {
-            logger.error("An error occurred.");
-            e.printStackTrace();
+            bw.newLine();
         }
-
-        try {
-
-            BufferedWriter bw = new BufferedWriter(new FileWriter(outPath + instance + "_offset_elias.txt"));
-
-            for (i = 0; i < n; i++) {
-                m = offset[i].length;
-                for (j = 0; j < m; j++) {
-                    bw.write(offset[i][j] + ((j == offset[i].length - 1) ? "" : "\t"));
-                }
-                bw.newLine();
-            }
-            bw.flush();
-
-
-        } catch (IOException e) {
-        }
-        logger.info("Encoded Graph and offset files properly written " );
-
+        bw.flush();
     }
 
     /**
      * Return the offset 2D-Array
      * @return offset
      */
-    public int [][] getOffset(){
-        return (offset);
+    public int[][] getOffset() {
+        return offset;
     }
 
     /**
      * Compute the decoded int array
      * @return Int array of the decoded sequence
      */
+    public int[] dec(byte[] encoded, int len, int lowerBit) {
+        int[] final_decoding = new int[len];
 
-    public int[] dec(byte encoded [],int len,int lowerBit){
-
-        int [] final_decoding = new int[len];
-
-        decompress(encoded,0,len,lowerBit,final_decoding,0);
-        return (final_decoding);
-
+        decompress(encoded, 0, len, lowerBit, final_decoding, 0);
+        return final_decoding;
     }
 
     public byte[] getCompressedAdjListFlat() {
@@ -541,22 +474,22 @@ public class EliasGamma {
      * @return byte array representation of the integer
      */
     private static byte[] intToBytes(final int data, int size) {
-        byte [] toBitArray = new byte[] {
-                (byte)((data >> 24) ),
-                (byte)((data >> 16) ),
-                (byte)((data >> 8) ),
-                (byte)((data ) ),
+        byte[] toBitArray = new byte[] {
+                (byte)((data >> 24)),
+                (byte)((data >> 16)),
+                (byte)((data >> 8)),
+                (byte)((data)),
         };
-        byte [] converted = new byte[size];
+        byte[] converted = new byte[size];
         int i = 0;
         int j = toBitArray.length-1;
-        while(i <size){
+        while (i < size) {
             converted[i] = toBitArray[j];
             i++;
             j--;
         }
-        return(converted);
 
+        return converted;
     }
 
     /**
@@ -565,19 +498,19 @@ public class EliasGamma {
      * @param destination Byte array
      * @return extended byte array
      */
-    private byte[] byteArrayExtend(byte[] source,byte[] destination){
+    private byte[] byteArrayExtend(byte[] source, byte[] destination) {
         byte[] copied = new byte[destination.length+source.length];
-        int i,j;
+        int i, j;
 
-        for(i =0; i<destination.length;i++){
+        for(i = 0; i < destination.length; i++) {
             copied[i] = destination[i];
         }
         j = 0;
-        for (i = destination.length; i<destination.length+source.length; i++){
+        for (i = destination.length; i < destination.length + source.length; i++){
             copied[i] = source[j];
             j++;
         }
-        return(copied);
+        return copied;
     }
 
     /**
@@ -590,19 +523,16 @@ public class EliasGamma {
         return (int) log2(value);
     }
 
-
-
-
-    public byte[] encodeSequence( int [] sequence){
-        byte [] encoding,tmp,converted;
-        int numberOfBits,numberOfBytes;
-        int i,j;
+    public byte[] encodeSequence(int[] sequence) {
+        byte[] encoding, tmp, converted;
+        int numberOfBits, numberOfBytes;
+        int i, j;
         encoding = new byte[0];
-        for (i = 0; i< sequence.length;i++) {
+        for (i = 0; i < sequence.length; i++) {
             System.out.println("SIZE "+i+ " SZE "+Size(sequence[i]));
             numberOfBytes = (int) Math.floor((2 * get_bits_number(sequence[i])) / 8) + 1;
             System.out.println("BYTE "+numberOfBytes);
-            int shifted = (0<<Size(sequence[i])) | sequence[i];
+            int shifted = (0 << Size(sequence[i])) | sequence[i];
             System.out.println("SHIFTED "+shifted);
             if (sequence[i] == 0) {
                 tmp = new byte[1];
@@ -629,7 +559,5 @@ public class EliasGamma {
         }
         return encoding;
     }
-
-
 
 }
