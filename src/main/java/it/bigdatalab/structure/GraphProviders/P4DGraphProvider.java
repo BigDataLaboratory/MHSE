@@ -6,6 +6,13 @@ import it.bigdatalab.structure.AbstractGraphProvider;
 import java.io.*;
 import java.util.Arrays;
 
+/**
+ * Alpha version of the P4D encoding technique.
+ * Graph Provider for the P4DGraphCompressor class.
+ * This version is not optimized, and it should NOT be used.
+ * The newer version can be found in the P4D256 package.
+ */
+
 public class P4DGraphProvider extends AbstractGraphProvider {
     private byte[] compressedAdjLists;
     private int[][] offsetTable;

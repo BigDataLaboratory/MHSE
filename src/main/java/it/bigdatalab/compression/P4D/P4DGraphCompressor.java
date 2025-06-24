@@ -3,6 +3,13 @@ package it.bigdatalab.compression.P4D;
 import java.io.*;
 import java.util.Arrays;
 
+/**
+ * Alpha version of the P4D encoding technique.
+ * Graph Compressor for the P4DGraphProvider class.
+ * This version is not optimized, and it should NOT be used.
+ * The newer version can be found in the P4D256 package.
+ */
+
 public class P4DGraphCompressor {
     private int numNodes;
     private long numArcs;

@@ -32,8 +32,8 @@ public class WebGraph2AdjcencyList {
      */
     private void initialize() {
         //To convert a graph from Webgraph to edgelist format
-        this.inputFilePath = PropertiesManager.getProperty("WebGraph2AdjcencyList.inputFilePath");
-        this.outputFolderPath = PropertiesManager.getProperty("WebGraph2AdjcencyList.outputFolderPath");
+        this.inputFilePath = "D:\\20_Projects\\MHSE\\graphs\\enron";
+        this.outputFolderPath = "D:\\20_Projects\\MHSE\\graphs\\enron";
     }
 
     /**

@@ -3,6 +3,13 @@ package it.bigdatalab.compression.P4D;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+/**
+ * Alpha version of the P4D encoding technique.
+ * Decoder for the P4DEncoder class.
+ * This version is not optimized, and it should NOT be used.
+ * The newer version can be found in the P4D256 package.
+ */
+
 public class P4DDecoder {
     public static int[] decodeAdjList(byte[] compressed, int offset, int length) throws IOException {
         ByteArrayInputStream in = new ByteArrayInputStream(compressed, offset, length);

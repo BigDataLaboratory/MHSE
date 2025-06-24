@@ -3,13 +3,19 @@ package it.bigdatalab.compression.P4D;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-/*  Structure of the output list:
-    [1 byte bitWitdh (max value: 31) (?)] +
-    [1 VarInt compressed numValues (number of neighbors)] +
-    [bitWidth x numValues bit-packed values] +
-    [1 VarInt compressed numExceptions (number of exceptions, max 10% of numValues] +
-    [numExceptions * 2 VarInt compressed values (pos + value)]
-*/
+//Structure of the output list:
+//        [1 byte bitWidth (max value: 31)] +
+//        [1 VarInt compressed numValues (number of neighbors)] +
+//        [bitWidth x numValues bit-packed values] +
+//        [1 VarInt compressed numExceptions (number of exceptions, max 10% of numValues] +
+//        [numExceptions * 2 VarInt compressed values (pos + value)]
+
+/**
+ * Alpha version of the P4D encoding technique.
+ * Encoder for the P4DDecoder class.
+ * This version is not optimized, and it should NOT be used.
+ * The newer version can be found in the P4D256 package.
+ */
 
 public class P4DEncoder {
     private int degree;
