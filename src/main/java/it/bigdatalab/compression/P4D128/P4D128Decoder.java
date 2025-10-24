@@ -1,14 +1,13 @@
-package it.bigdatalab.compression.P4D256;
+package GraphManagerDemo.compression.P4D128;
 
-import it.bigdatalab.compression.P4D256.utils.BitInputStream;
+import GraphManagerDemo.compression.P4D256.utils.BitInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public class P4D256Decoder {
-
-    private static final int DEFAULT_BLOCK_SIZE = 256;
+public class P4D128Decoder {
+    private static final int DEFAULT_BLOCK_SIZE = 128;
 
     public static int[] decodeBigList(ByteArrayInputStream encodedList) throws IOException {
         DataInputStream dataIn = new DataInputStream(encodedList);
@@ -184,5 +183,4 @@ public class P4D256Decoder {
             list[i] = list[i] + list[i-1];
         }
     }
-
 }

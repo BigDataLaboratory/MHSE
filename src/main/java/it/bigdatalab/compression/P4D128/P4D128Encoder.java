@@ -1,13 +1,12 @@
-package it.bigdatalab.compression.P4D256;
+package GraphManagerDemo.compression.P4D128;
 
-import it.bigdatalab.compression.P4D256.utils.BitOutputStream;
+import GraphManagerDemo.compression.P4D128.utils.BitOutputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 
-public class P4D256Encoder {
+public class P4D128Encoder {
     private static final int DEFAULT_BLOCK_SIZE = 256;
     private int degree;
     private int optimalBitWidth;
@@ -17,7 +16,7 @@ public class P4D256Encoder {
     private ByteArrayOutputStream exceptMetadata;
     private int adjListSize;
 
-    public P4D256Encoder() {
+    public P4D128Encoder() {
 
     }
 
@@ -30,10 +29,10 @@ public class P4D256Encoder {
         int numBlocks = (remainder > 0) ? numFullBlocks + 1 : numFullBlocks;
 
         ByteArrayOutputStream listStream = new ByteArrayOutputStream();
-        BitOutputStream listPacker = new BitOutputStream(listStream);
+        GraphManagerDemo.compression.P4D256.utils.BitOutputStream listPacker = new GraphManagerDemo.compression.P4D256.utils.BitOutputStream(listStream);
 
         ByteArrayOutputStream exceptStream = new ByteArrayOutputStream();
-        BitOutputStream exceptPacker = new BitOutputStream(exceptStream);
+        GraphManagerDemo.compression.P4D256.utils.BitOutputStream exceptPacker = new GraphManagerDemo.compression.P4D256.utils.BitOutputStream(exceptStream);
 
         int[] bigListBitWidths = new int[numBlocks];
         int[] bigListNExcept = new int[numBlocks];
@@ -133,7 +132,7 @@ public class P4D256Encoder {
             }
         }
 
-        BitOutputStream packer = new BitOutputStream(out);
+        GraphManagerDemo.compression.P4D256.utils.BitOutputStream packer = new GraphManagerDemo.compression.P4D256.utils.BitOutputStream(out);
 
         out.write(optimalBitWidth);
 
@@ -300,5 +299,4 @@ public class P4D256Encoder {
             list[i] = list[i] - list[i - 1];
         }
     }
-
 }

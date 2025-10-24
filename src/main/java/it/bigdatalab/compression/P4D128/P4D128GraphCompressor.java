@@ -1,4 +1,4 @@
-package it.bigdatalab.compression.P4D256;
+package GraphManagerDemo.compression.P4D128;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -8,21 +8,21 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class P4D256GraphCompressor {
+public class P4D128GraphCompressor {
     private int numNodes;
     private long numArcs;
-    private P4D256Encoder[] encoderPool;
-    private P4D256Encoder offsetEncoder;
+    private P4D128Encoder[] encoderPool;
+    private P4D128Encoder offsetEncoder;
 
-    public P4D256GraphCompressor() {
-        encoderPool = new P4D256Encoder[8];
+    public P4D128GraphCompressor() {
+        encoderPool = new P4D128Encoder[8];
         for (int i = 0; i < 8; i++) {
-            encoderPool[i] = new P4D256Encoder();
+            encoderPool[i] = new P4D128Encoder();
         }
-        offsetEncoder = new P4D256Encoder();
+        offsetEncoder = new P4D128Encoder();
     }
 
-    public void convertAdjlistToP4D256(String inputPath, String outputPath) throws Exception {
+    public void convertAdjlistToP4D128(String inputPath, String outputPath) throws Exception {
         BufferedReader reader = new BufferedReader(new FileReader(inputPath));
         FileOutputStream writer = new FileOutputStream(outputPath + "_adjlists.bin");
 
@@ -38,14 +38,14 @@ public class P4D256GraphCompressor {
         while ((line = reader.readLine()) != null) {
             batch.add(line);
 
-            if (batch.size() == 256) {
+            if (batch.size() == 128) {
                 BatchOutput batchOutput = processBatch(batch, executor);
                 writer.write(batchOutput.batchLists);
                 batchStartOffsets.add(currentOffset);
                 batchRelativeOffsets.add(batchOutput.batchOffsets);
 
                 numArcs += batchOutput.batchArcs;
-                numNodes += 256;
+                numNodes += 128;
                 currentOffset += batchOutput.batchLists.length;
                 batch.clear();
             }
@@ -132,9 +132,9 @@ public class P4D256GraphCompressor {
 
 class CompressionTask implements Callable<ThreadOutput> {
     private List<String> adjLists;
-    private P4D256Encoder encoder;
+    private P4D128Encoder encoder;
 
-    public CompressionTask(List<String> adjLists, P4D256Encoder encoder) {
+    public CompressionTask(List<String> adjLists, P4D128Encoder encoder) {
         this.adjLists = adjLists;
         this.encoder = encoder;
     }
@@ -153,7 +153,7 @@ class CompressionTask implements Callable<ThreadOutput> {
 
             if (degree == 0) {
                 encoder.encodeEmptyList(out);
-            } else if (degree <= 256) {
+            } else if (degree <= 128) {
                 encoder.encodeSmallList(processedAdjList, out);
             } else {
                 encoder.encodeBigList(processedAdjList, out);
