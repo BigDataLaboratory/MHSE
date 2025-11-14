@@ -1,4 +1,4 @@
-package GraphManagerDemo.compression.P4D128.utils;
+package it.bigdatalab.compression.P4D128.utils;
 
 import java.io.EOFException;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package GraphManagerDemo.compression.P4D128;
+package it.bigdatalab.compression.P4D128;
 
 import java.io.*;
 import java.util.ArrayList;

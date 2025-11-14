@@ -1,6 +1,6 @@
-package GraphManagerDemo.compression.P4D128;
+package it.bigdatalab.compression.P4D128;
 
-import GraphManagerDemo.compression.P4D128.utils.BitOutputStream;
+import it.bigdatalab.compression.P4D128.utils.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -29,10 +29,10 @@ public class P4D128Encoder {
         int numBlocks = (remainder > 0) ? numFullBlocks + 1 : numFullBlocks;
 
         ByteArrayOutputStream listStream = new ByteArrayOutputStream();
-        GraphManagerDemo.compression.P4D256.utils.BitOutputStream listPacker = new GraphManagerDemo.compression.P4D256.utils.BitOutputStream(listStream);
+        BitOutputStream listPacker = new BitOutputStream(listStream);
 
         ByteArrayOutputStream exceptStream = new ByteArrayOutputStream();
-        GraphManagerDemo.compression.P4D256.utils.BitOutputStream exceptPacker = new GraphManagerDemo.compression.P4D256.utils.BitOutputStream(exceptStream);
+        BitOutputStream exceptPacker = new BitOutputStream(exceptStream);
 
         int[] bigListBitWidths = new int[numBlocks];
         int[] bigListNExcept = new int[numBlocks];
@@ -132,7 +132,7 @@ public class P4D128Encoder {
             }
         }
 
-        GraphManagerDemo.compression.P4D256.utils.BitOutputStream packer = new GraphManagerDemo.compression.P4D256.utils.BitOutputStream(out);
+        BitOutputStream packer = new BitOutputStream(out);
 
         out.write(optimalBitWidth);
 

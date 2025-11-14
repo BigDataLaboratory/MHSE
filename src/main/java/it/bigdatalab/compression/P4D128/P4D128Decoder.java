@@ -1,6 +1,6 @@
-package GraphManagerDemo.compression.P4D128;
+package it.bigdatalab.compression.P4D128;
 
-import GraphManagerDemo.compression.P4D256.utils.BitInputStream;
+import it.bigdatalab.compression.P4D256.utils.BitInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
