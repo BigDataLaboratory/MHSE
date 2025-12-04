@@ -89,10 +89,10 @@ public class PropagateP extends BMinHashOpt {
         for (int t = 0; t < ntasks; t++) {
             int start = t * mTasksSize;
             int end = groupSeedsByThread(t);
-
-            todo.add(new IterationThread(mGraph.copy(), start, end, t));
+            if((end-start) > 0) {
+                todo.add(new IterationThread(mGraph.copy(), start, end, t));
+            }
         }
-
 
         try {
             List<Future<long[]>> futures = executor.invokeAll(todo);
